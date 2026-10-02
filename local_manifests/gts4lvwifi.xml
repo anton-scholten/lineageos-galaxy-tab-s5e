@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Local manifest for building LineageOS 23.2 for the Samsung Galaxy Tab S5e
+  Wi-Fi (SM-T720, gts4lvwifi).
+
+  Copy to .repo/local_manifests/ inside a lineage-23.2 source tree, then
+  `repo sync`. None of the device-specific repos have an official
+  lineage-23.2 branch, so they are pinned to lineage-22.2 here.
+
+  Replace the remote/revision of gts4lv-common and the kernel with your own
+  forks once you have applied patches/ from this repo on top of them.
+-->
+<manifest>
+  <remote name="muppets" fetch="https://github.com/TheMuppets" />
+
+  <!-- Device trees -->
+  <project path="device/samsung/gts4lvwifi"
+           name="LineageOS/android_device_samsung_gts4lvwifi"
+           remote="github" revision="lineage-22.2" />
+  <project path="device/samsung/gts4lv-common"
+           name="LineageOS/android_device_samsung_gts4lv-common"
+           remote="github" revision="lineage-22.2" />
+
+  <!-- Kernel (needs the eBPF / syscall backports listed in PORTING-LINEAGE-23.2.md) -->
+  <project path="kernel/samsung/sdm670"
+           name="LineageOS/android_kernel_samsung_sdm670"
+           remote="github" revision="lineage-22.2" />
+
+  <!-- hardware/samsung has a real lineage-23.2 branch -->
+  <project path="hardware/samsung"
+           name="LineageOS/android_hardware_samsung"
+           remote="github" revision="lineage-23.2" />
+
+  <!-- Proprietary blobs -->
+  <project path="vendor/samsung/gts4lv-common"
+           name="proprietary_vendor_samsung_gts4lv-common"
+           remote="muppets" revision="lineage-22.2" />
+  <project path="vendor/samsung/gts4lvwifi"
+           name="proprietary_vendor_samsung_gts4lvwifi"
+           remote="muppets" revision="lineage-22.2" />
+</manifest>

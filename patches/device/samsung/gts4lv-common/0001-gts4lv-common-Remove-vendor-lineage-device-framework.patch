@@ -1,0 +1,37 @@
+From 4bd37d99a936dec8e259742243d9620cda49df27 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 23:53:31 +0000
+Subject: [PATCH 1/4] gts4lv-common: Remove vendor/lineage device framework
+ matrix inclusion
+
+vendor/lineage/config/device_framework_matrix.xml no longer exists on
+lineage-23.x and referencing it breaks the build.
+
+See: I78da6340f38b93fdc4c3694cb8f431f387d16c0d
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ BoardConfigCommon.mk | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
+index 741da72..fb82b5b 100644
+--- a/BoardConfigCommon.mk
++++ b/BoardConfigCommon.mk
+@@ -76,11 +76,10 @@ MAX_EGL_CACHE_KEY_SIZE := 12*1024
+ MAX_EGL_CACHE_SIZE := 2048*1024
+ 
+ # HIDL
+-DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := \
++DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
+     $(COMMON_PATH)/framework_compatibility_matrix.xml \
+     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
+-    hardware/samsung/vintf/samsung_framework_compatibility_matrix.xml \
+-    vendor/lineage/config/device_framework_matrix.xml
++    hardware/samsung/vintf/samsung_framework_compatibility_matrix.xml
+ DEVICE_MANIFEST_FILE := $(COMMON_PATH)/manifest.xml
+ DEVICE_MATRIX_FILE := hardware/qcom-caf/common/compatibility_matrix.xml
+ TARGET_FS_CONFIG_GEN := $(COMMON_PATH)/config.fs
+-- 
+2.43.0
+

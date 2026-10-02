@@ -1,0 +1,66 @@
+From 8525fd2c2af53007b208bd32c53ccddfe4845e8d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 23:53:41 +0000
+Subject: [PATCH 3/4] gts4lv-common: Migrate to LiveDisplay AIDL HAL
+
+The HIDL vendor.lineage.livedisplay@2.0-service.samsung-qcom service was
+removed from hardware/samsung on lineage-23.x.
+
+Only IAdaptiveBacklight and IDisplayModes are declared, matching what the
+service registers on this device (mdnie outdoor/sensorRGB nodes are not
+made writable for the system user, so those interfaces report as
+unsupported).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ gts4lv.mk                     | 2 +-
+ manifest.xml                  | 5 ++---
+ sepolicy/vendor/file_contexts | 2 +-
+ 3 files changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/gts4lv.mk b/gts4lv.mk
+index 8835ee6..1a841f1 100644
+--- a/gts4lv.mk
++++ b/gts4lv.mk
+@@ -177,7 +177,7 @@ $(call soong_config_set,lineage_health,fast_charge_value_fast_charge,0)
+ 
+ # LiveDisplay
+ PRODUCT_PACKAGES += \
+-    vendor.lineage.livedisplay@2.0-service.samsung-qcom
++    vendor.lineage.livedisplay-service.samsung-qcom
+ 
+ # Keylayout
+ PRODUCT_COPY_FILES += \
+diff --git a/manifest.xml b/manifest.xml
+index 29353eb..3a44894 100644
+--- a/manifest.xml
++++ b/manifest.xml
+@@ -144,10 +144,9 @@
+             <instance>default</instance>
+         </interface>
+     </hal>
+-    <hal format="hidl">
++    <hal format="aidl">
+         <name>vendor.lineage.livedisplay</name>
+-        <transport>hwbinder</transport>
+-        <version>2.0</version>
++        <version>1</version>
+         <interface>
+             <name>IAdaptiveBacklight</name>
+             <instance>default</instance>
+diff --git a/sepolicy/vendor/file_contexts b/sepolicy/vendor/file_contexts
+index 003e4eb..56cfdc5 100644
+--- a/sepolicy/vendor/file_contexts
++++ b/sepolicy/vendor/file_contexts
+@@ -171,7 +171,7 @@
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.health-service\.samsung                     u:object_r:hal_health_default_exec:s0
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.keymaster@4\.0-service\.samsung             u:object_r:hal_keymaster_default_exec:s0
+ /(vendor|system/vendor)/bin/hw/android\.hardware\.sensors-service\.samsung-multihal           u:object_r:hal_sensors_default_exec:s0
+-/(vendor|system/vendor)/bin/hw/vendor\.lineage\.livedisplay@2\.0-service\.samsung-qcom        u:object_r:hal_lineage_livedisplay_sysfs_exec:s0
++/(vendor|system/vendor)/bin/hw/vendor\.lineage\.livedisplay-service\.samsung-qcom             u:object_r:hal_lineage_livedisplay_sysfs_exec:s0
+ /(vendor|system/vendor)/bin/hw/vendor\.samsung\.hardware\.thermal@1\.0-service                u:object_r:hal_thermal_default_exec:s0
+ 
+ # Sys
+-- 
+2.43.0
+

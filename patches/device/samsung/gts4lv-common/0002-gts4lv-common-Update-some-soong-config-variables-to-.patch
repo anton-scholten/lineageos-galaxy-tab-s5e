@@ -1,0 +1,41 @@
+From 82160df36fab3c3b9ca424d5188df05756edceb6 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 2 Oct 2026 23:53:31 +0000
+Subject: [PATCH 2/4] gts4lv-common: Update some soong config variables to bool
+ type
+
+hardware/samsung and hardware/lineage/interfaces select() on these
+variables as booleans. Setting them as strings makes select() fall
+through to the default branch, which e.g. silently enables charging
+bypass support in the Lineage Health HAL.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ gts4lv.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gts4lv.mk b/gts4lv.mk
+index 6de93fa..8835ee6 100644
+--- a/gts4lv.mk
++++ b/gts4lv.mk
+@@ -87,7 +87,7 @@ PRODUCT_COPY_FILES += \
+     frameworks/av/services/audiopolicy/config/r_submix_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/r_submix_audio_policy_configuration.xml
+ 
+ # Camera
+-$(call soong_config_set,samsungCameraVars,needs_sec_reserved_field,true)
++$(call soong_config_set_bool,samsungCameraVars,needs_sec_reserved_field,true)
+ 
+ PRODUCT_PACKAGES += \
+     android.hardware.camera.provider-service_32.samsung
+@@ -170,7 +170,7 @@ PRODUCT_PACKAGES += \
+ $(call soong_config_set,lineage_health,charging_control_charging_path,/sys/class/power_supply/battery/batt_slate_mode)
+ $(call soong_config_set,lineage_health,charging_control_charging_enabled,0)
+ $(call soong_config_set,lineage_health,charging_control_charging_disabled,1)
+-$(call soong_config_set,lineage_health,charging_control_supports_bypass,false)
++$(call soong_config_set_bool,lineage_health,charging_control_supports_bypass,false)
+ $(call soong_config_set,lineage_health,fast_charge_node,/sys/class/sec/switch/afc_disable)
+ $(call soong_config_set,lineage_health,fast_charge_value_none,1)
+ $(call soong_config_set,lineage_health,fast_charge_value_fast_charge,0)
+-- 
+2.43.0
+
