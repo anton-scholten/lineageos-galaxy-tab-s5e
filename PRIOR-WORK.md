@@ -19,6 +19,26 @@ known only from search results.
 | [jojobear691/samsung_sdm845-kernel](https://github.com/jojobear691/samsung_sdm845-kernel) | Galaxy S9+ Snapdragon kernel, said to have "Android 16 BPF backports" | 404 (also confirmed by the owner) | Gone |
 | [Andrey0800770/samsung_sdm845-kernel](https://github.com/Andrey0800770/samsung_sdm845-kernel) (*inspected*) | Samsung SDM845 kernel at 4.9.337 | No BPF backports | Low |
 
+## Forks of the ExyHyperBrick kernel (checked 2026-10-03)
+
+All 22 forks listed on GitHub were checked. Branches whose tips differ from upstream were
+fetched and compared with upstream `lineage-23.2`, both by commit and by commit subject (to catch rebased copies).
+
+**Result: none of the forks improves on upstream's eBPF/kernel-core work.**
+Upstream `lineage-23.2` is the most complete version. Its own older dev branches
+(`-bpf-5.15-clean`, `-full-core-recovery`, `-perf`) were already folded into it, apart from 3–13 minor commits.
+
+| Fork | Relation to upstream `lineage-23.2` | Anything for the Tab S5e? |
+|---|---|---|
+| royd-jpg/Project_Chimera | Built on upstream's *older* `lineage-23.2-bpf-test` (July), plus ~670 commits, mostly KernelSU/SUSFS (root and root-hiding) and CI workflow edits | No. Older BPF base, plus root-hiding work |
+| gavdoc38 | `lineage-23.2`/`24.0` plus ~59 commits: KernelSU/SUSFS and the procfs/IDA backports they need | No (root-related) |
+| xxPlayground `lineage-23.2-test` | Older base (307 behind) plus ~150 S9-specific tweaks (vibrator, wake gestures, O3/MLGO build flags) | No |
+| M0d-4, xthorfinnx `16` | Upstream plus a few commits | Maybe one: *"usb: gadget: f_fs: name FunctionFS instances after their configfs name"*. It's generic, and worth checking if adb/MTP misbehaves on 23.2 |
+| alpha9810, greenlapis | Upstream plus extra I/O schedulers (from lawrun) | No |
+| Welpyes, adam-616, dotcomdomain, raffifu | Upstream plus 0–3 cosmetic or S9-display commits | No |
+| saifanidk, matei9, pranay-miyan, khoi-ttc, LeahsAndroidPlayground, rouquocbao, RealFX-Code | Snapshots of upstream's old `bpf-test` branches | No (superseded) |
+| swapnanil1, Exynos9810-developers, Localhorst04 | Only branches up to `lineage-22.2`/`21` | No |
+
 ## Kernel: 4.14 to 5.4 parity (Phase 3 reference)
 
 | Project | What it is | Fit |
