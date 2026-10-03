@@ -102,3 +102,10 @@ or skipped, and why. Newest last.
 - Updated `README.md`, `PORTING-LINEAGE-23.2.md`, `CLAUDE.md` and `HANDOVER.md`, and rewrote `REPO-SETUP.md` as a current-state doc.
 - `AGENT-TASKS.md`: removed the done owner tasks and M1. Agents now clone from our forks and backups,
   with a table of which task needs which repo. The pin checker (M3) covers the forks.
+
+## 2026-10-03: model tiers and output checker
+- `AGENT-TASKS.md` §10: which OpenCode Go model handles which task. DeepSeek V4.1 Flash for the mechanical ones;
+  Qwen3.7 Plus, MiniMax M3 or Kimi K2.7 Code for the ones needing judgment; a strong model or a human for section 7 and the review.
+  The figures come from third-party write-ups, because opencode.ai was blocked from the container.
+- §11: review order for the lead: format script first, then every DROP/low/HUMAN, then spot-check 20% of the high-confidence items.
+- Added `scripts/check-agent-output.sh`, a format check of agent output that needs no AI. Tested against a sample brief.

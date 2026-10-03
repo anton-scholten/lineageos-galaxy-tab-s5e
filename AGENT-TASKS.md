@@ -409,3 +409,25 @@ After K1–K4:            lead starts the cherry-pick on the kernel fork's linea
 - **Saying "probably fine" without evidence.** Give a source or say `confidence: low`.
 - **Killing a slow clone.** Wait. Big clones look stuck while they unpack.
 - **Editing shared files** (`WORKLOG.md`, `HANDOVER.md`). Don't; the lead does.
+
+## 10. Which model for which task
+Based on the OpenCode Go plan, checked 2026-10-03 from third-party write-ups. opencode.ai itself was blocked from the cloud container, so check the current list and limits at <https://opencode.ai/go>.
+
+| Tier | Model (OpenCode Go) | Tasks | Why |
+|---|---|---|---|
+| 1, cheapest | **DeepSeek V4.1 Flash** ($0.15 / $0.60 per 1M tokens, ≈130k requests/month) | M2, M3, K1, K2a-1…4, K2c-1…2, K4a–d, K6, R3, R4, T1, T2 | Mechanical: run the given commands, grep, fill in a template, write a small script |
+| 2, mid | **Qwen3.7 Plus**, **MiniMax M3** or **Kimi K2.7 Code** | K2b-1…4, K2d-1…3, K3-1…4, K5a–f, R1, R2, R6, R7 | Needs judgment: reading conflict hunks, comparing APIs, sepolicy, sorting commits |
+| 3, strong | Kimi K3 (≈490 requests/month), a frontier model, or a human | Section 7 only, plus the review (§11) | Resolving conflicts, build fixes, boot debugging |
+
+- Fallback for tier 1: GLM-5.3-Flash (similar price, ≈31k requests/month).
+- Don't use free or unknown models (for example "Space Bunny Free") for K or R tasks. They haven't been tested on this kind of work.
+- If a tier-1 agent marks more than half its items `HUMAN` or `low`, rerun that batch with a tier-2 model rather than reviewing it by hand.
+
+## 11. Reviewing the output (lead)
+Checking costs much less than producing, because every claim cites a SHA or `file:line`. Order:
+1. **Format, no AI needed:** `scripts/check-agent-output.sh` checks the header, the `Summary` and `Problems` sections,
+   one brief per batch row, all brief sections present, and a valid resolution and confidence. Send failures back to the agent.
+2. **Check fully:** every `DROP` (claims sdm670 already has the change; a wrong one silently loses code), every `low` and every `HUMAN`.
+3. **Spot-check** about 20% of the `high`-confidence items per batch. If all hold up, accept the batch. If any fails, check that whole batch.
+4. **K1:** rerun `make_map.py` and compare `sha256sum`. Then check 10 random rows by hand.
+5. Record what was accepted in `WORKLOG.md`, and merge the `agent/*` branches into `main`.
