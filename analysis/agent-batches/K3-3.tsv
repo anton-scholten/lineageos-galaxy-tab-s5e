@@ -1,0 +1,4 @@
+commit	subject	size_class	conflicting_files
+3315da4f99706a86bb6046364702874e62f2d15c	BACKPORT: security: Refactor declaration of LSM hooks	large	include/linux/lsm_hooks.h security/security.c
+f787c74339cbdbe24216a5002a8cab96c09b82ef	BACKPORT: xdp: Add AF_XDP sockets and XSK maps	large	arch/arm64/configs/gts4lv_defconfig arch/arm64/configs/gts4lvwifi_defconfig include/linux/netdevice.h net/core/dev.c security/selinux/include/classmap.h
+1f85fb24ef920d8e8ed0086ec0d6160e4657eb56	BACKPORT: bpf: Add TC socket assignment	large	net/ipv6/udp.c

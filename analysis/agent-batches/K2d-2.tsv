@@ -1,0 +1,9 @@
+commit	subject	size_class	conflicting_files
+252eaf20e86423ad200e520b07e02626a569332a	PARTIAL: x86/mm/cpa: Add set_direct_map_*() functions	moderate	arch/Kconfig
+0c6f8a9a50ad602aa67e04a3aa3ddca622e59e89	BACKPORT: PM / wakeup: Show wakeup sources stats in sysfs	modify/delete	drivers/net/wireless/bcmdhd_101_16/dhd_linux_priv.h drivers/rtc/rtc-s2mps17.c drivers/rtc/rtc-s2mps18.c
+8f50d9eb049e17e118aeea317fa4e4824727f44a	BACKPORT: binder: report oneway spam to userspace	moderate	drivers/android/binder.c drivers/android/binder_alloc.h include/uapi/linux/android/binder.h
+c286cded153a5ab77d5059725eda0b9542bb0778	BACKPORT: binder: add BinderFS support for 4.9	modify/delete	include/uapi/linux/android/Kbuild
+880ea49bde408b826ee8a8d04052958de14571f4	UPSTREAM: hugetlb: add __mcopy_atomic_hugetlb for huge page UFFDIO_COPY	moderate	mm/userfaultfd.c
+e9357b031a71914d705a478dd8c06e1913f095e5	UPSTREAM: userfaultfd: return ENOENT for incompatible copy VMAs	moderate	mm/userfaultfd.c
+d5f2acfd8dc2cf471563c79bc50daf376d2b5d00	UPSTREAM: userfaultfd: require writable shmem and hugetlb VMAs	moderate	fs/userfaultfd.c mm/userfaultfd.c
+62d6ffb0111fc5ca4121a7bc4188046b45077aa1	BACKPORT: userfaultfd/sysctl: add vm.unprivileged_userfaultfd	moderate	kernel/sysctl.c

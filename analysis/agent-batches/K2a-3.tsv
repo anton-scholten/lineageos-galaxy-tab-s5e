@@ -1,0 +1,11 @@
+commit	subject	size_class	conflicting_files
+7bea7dea3ed70ad393a5702ba71a2e555d9983bb	BACKPORT: epoll: wire up syscall epoll_pwait2	trivial	arch/arm/tools/syscall.tbl
+8a953036e3b56412076ff6f67fa6c3b5720d3e6e	BACKPORT: kbuild: Add vmlinux BTF generation option	trivial	Makefile
+e42fe4677e9c6ef4c97089800a40a7df36ee1b37	BACKPORT: bpf: Build resolve_btfids before kernel link	trivial	Makefile
+27ac083f317b88e8bcc310c726e09ecc705dc47a	BACKPORT: bpf: Clean up sockmap related Kconfigs	trivial	net/core/Makefile
+1cf802e31c988fddb442ab4a10df64959b9c739b	BACKPORT: skmsg: Move sk_redir from TCP_SKB_CB to skb	trivial	include/linux/skbuff.h
+080e34a277b4041812e512953fdcef411a8f44dc	BACKPORT: sock: Introduce sk->sk_prot->psock_update_sk_prot()	trivial	include/net/sock.h
+abea5381a52af0c643aafbf2b24a8e6694ace3b8	BACKPORT: net, sk_msg: Annotate lockless access to sk_prot on clone	trivial	net/core/sock.c
+3aed6948906619230f613c9d74f04e62fcac17cb	BACKPORT: bpf: Fix wrong copied_seq calculation	trivial	net/ipv4/tcp.c
+8058ab5ed5e5a9b24422d4523341e7129455388f	BACKPORT: tcp: Migrate sockets in accept queues.	trivial	net/ipv4/inet_connection_sock.c
+7e93ac0afe0fb0f1935ddb273020c85689930db3	BACKPORT: bpf: Add dmabuf iterator	trivial	include/linux/dma-buf.h

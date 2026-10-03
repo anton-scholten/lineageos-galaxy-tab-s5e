@@ -1,0 +1,4 @@
+commit	subject	size_class	conflicting_files
+40a60987a65ae780a491c0a74b8312e5c951fa70	BACKPORT: net: Expose socket option helpers to BPF	large	net/core/sock.c
+c8b2d2af17be2e526bb05609335244aadab5bf4b	ANDROID: refcount: Fix linkage of out-of-line helpers	large	include/linux/refcount.h
+74b2f258866bab11ea8940093e88fd4beaef622a	BACKPORT: sched/uclamp: Add CPU's clamp buckets refcounting	large	init/Kconfig kernel/sched/core.c

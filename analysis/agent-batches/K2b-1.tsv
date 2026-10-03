@@ -1,0 +1,10 @@
+commit	subject	size_class	conflicting_files
+ddf82ae7e880afe906b881d0ee8d2d64c84d9a45	UPSTREAM: bpf: reuse dev_is_mac_header_xmit for redirect	moderate	net/core/filter.c
+580a9db663e15f0b112cdf1cfb802561360e1c14	BACKPORT: ipv6: implement Segment Routing Header dataplane	moderate	include/linux/ipv6.h net/ipv6/addrconf.c
+18d6a9c0ea436cb29768c882f3cc2d46ed91b011	BACKPORT: ipv6: sr: add core files for SR HMAC support	moderate	net/ipv6/addrconf.c
+ac02ef0433e359568195582cb01fccf48155d5e4	BACKPORT: tcp: instrument tcp sender limits chronographs	moderate	include/net/tcp.h
+d5bcc28ab29cf67e6ac793aa5d55bf5f32c404e4	BACKPORT: net/ipv6: support more tunnel interfaces for EUI64 link-local generation	moderate	net/ipv6/addrconf.c
+b7991ab91fb2044a2ccaa45538f3ef2fd2aca69c	BACKPORT: net: Add IFLA_XDP_PROG_ID	moderate	include/linux/netdevice.h
+bb623117a0d0dfb8f3e7ed556c4cdf3fbd0544ce	BACKPORT: xdp: add reporting of offload mode	moderate	include/linux/netdevice.h
+6ee017762dda30416f07ad80a8596877eee1577d	refcount_t: Introduce a special purpose refcount type	moderate	include/linux/refcount.h
+05e4636c5fed5134406bd251623d656c031f760e	UPSTREAM: net: add new control message for incoming HW-timestamped packets	moderate	include/uapi/asm-generic/socket.h

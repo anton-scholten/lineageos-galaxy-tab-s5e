@@ -1,0 +1,10 @@
+commit	subject	size_class	conflicting_files
+c2183189587161954a4767477e2fcf1f26a22a0a	BACKPORT: net: ipv6: Add early demux handler for UDP unicast	moderate	net/ipv6/udp.c
+9e672484dfc97046032144e6609960174afd57e7	UPSTREAM: tcp: add skb-less helpers to retrieve SYN cookie	moderate	net/ipv6/tcp_ipv6.c
+e00c40bbd2f4357c7ce405bff4189d52121e27d4	BACKPORT: net: bpf: rename ndo_xdp to ndo_bpf	moderate	include/linux/netdevice.h
+2c9a33a16d6dd3c03045b86db67a359b2229d395	BACKPORT: bpf: Hooks for sys_connect	moderate	net/ipv6/tcp_ipv6.c
+7ace0da94189e9874155a4dae125ff73bccfddc0	BACKPORT: bpf: Make use of probe_user_write in probe write helper	moderate	kernel/trace/bpf_trace.c
+dddb8c0eafe88ed0ab357dac8e0de987eb6f8dce	BACKPORT: bpf: Add probe_read_{user,kernel}{,_str} helpers	moderate	kernel/trace/bpf_trace.c
+f9e766e1bf7e6452b4b4df1d62fd998c16c2caf0	BACKPORT: bpf: Fix a potential deadlock with bpf_map_do_batch	moderate	kernel/bpf/hashtab.c
+9dd9b06133f67b8f2953c9faa82c5f355d630e15	BACKPORT: btf: Embed and expose vmlinux BTF data	moderate	scripts/link-vmlinux.sh
+c3e95a25fa4a6c7a48ff507e093c273e2682b62c	BACKPORT: bpf: Add ambient BPF runtime context stored in current	moderate	include/linux/sched.h

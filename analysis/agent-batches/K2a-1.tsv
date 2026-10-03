@@ -1,0 +1,11 @@
+commit	subject	size_class	conflicting_files
+74d484967de72e0ea947cd3203375ebc4f71a1cf	BACKPORT: tcp: tsq: add tsq_flags / tsq_enum	trivial	include/linux/tcp.h
+1c3b123b0ad6b97999dbd92ec13f332f8149ed13	UPSTREAM: security: selinux: allow per-file labeling for bpffs	trivial	security/selinux/hooks.c
+3ed2e2f029dba69f61f7635f4c52c3baced415d0	BACKPORT: bpf: Add BPF_MAP_TYPE_LRU_HASH	trivial	kernel/bpf/hashtab.c
+5128fe02b8198c21aa71efabeb4eadebd75293da	UPSTREAM: net/ipv6: allow sysctl to change addr_gen_mode	trivial	include/linux/ipv6.h net/ipv6/addrconf.c
+299f338c4b311e659853a1220a14b213e17485de	BACKPORT: bpf: BPF for lightweight tunnel infrastructure	trivial	net/core/Makefile
+fd90efeb991d7cd75539917f45292c9183b7ba2e	BACKPORT: net: Generic XDP	trivial	include/linux/netdevice.h
+228584365faceef92b7a246e883a0d0aeea0493a	UPSTREAM: net: move xdp_prog field in RX cache lines	trivial	include/linux/netdevice.h
+fe669743040c1ac99c12e7e94247d30423d5bc52	BACKPORT: xdp: refine xdp api with regards to generic xdp	trivial	include/linux/netdevice.h
+004f6001c296946717b2edf6bdb7461f7a4e382d	UPSTREAM: tcp: ULP infrastructure	trivial	net/ipv4/tcp_ipv4.c
+a6b06e3852ea0f91ef202a5e7e8ce27bf363d559	BACKPORT: bpf: Support for setting initial receive window	trivial	net/ipv4/tcp_output.c

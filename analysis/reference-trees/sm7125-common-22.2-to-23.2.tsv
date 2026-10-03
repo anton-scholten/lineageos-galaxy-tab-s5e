@@ -1,0 +1,27 @@
+commit	date	author	subject
+b5f74a0	2025-09-05	Bruno Martins	sm7125-common: Move UDFPS config to new soong namespace
+a4c0bfb	2025-08-09	LuK1337	sm7125-common: Remove vendor/lineage device framework matrix inclusion
+88c7b73	2024-06-19	Yumi Yukimura	sm7125-common: manifest: Bump target-level to 6
+6dc4ee4	2024-05-18	Han Sol Jin	sm7125-common: explicitly include common Lineage libperfmgr sepolicy
+8fdc0d1	2024-12-30	Haky86	sm7125-common: Correct libinit path
+45a382c	2024-12-28	Bruno Martins	sm7125-common: Rename rootdir to init and migrate to blueprints
+da8d9f3	2024-12-28	Bruno Martins	sm7125-common: Merge fstab and make it a prebuilt_etc module
+0e16238	2022-10-13	LuK1337	sm7125-common: init: Add `formattable` flag for /data fstab entry
+aed63ad	2025-01-12	Bruno Martins	sm7125-common: Use LOCAL_PATH in the common product makefile
+995b08b	2022-10-24	Tim Zimmermann	sm7125-common: releasetools: Make it work for incremental OTA
+22e3445	2020-07-13	Nolen Johnson	sm7125-common: Don't declare BOARD_VENDOR
+ee1d616	2025-11-26	Michael Bestas	sm7125-common: sepolicy: Commonize SEC NFC device label
+7bc5cf4	2025-11-24	Yumi Yukimura	sm7125-common: Update some soong config variables to bool type
+2642472	2025-11-26	Bruno Martins	sm7125-common: sepolicy: Adapt gatekeeper HAL rules
+9c66b3e	2025-12-03	anhdat1024	sm7125-common: Remove MODULE_SUFFIX in proprietary-files
+6234a16	2025-12-06	Simon1511	sm7125-common: kill face interface and permissions
+aef65d7	2025-12-09	Simon1511	sm7125-common: move soong_config_set calls to common.mk
+75d876d	2025-11-22	Thomas Turner	sm7125-common: Update NFC firmware path variables
+37cf59f	2025-11-22	Thomas Turner	sm7125-common: Switch to NFC AIDL HAL
+39eb067	2025-09-01	Bruno Martins	sm7125-common: Migrate to LiveDisplay AIDL HAL
+9849669	2025-07-08	basamaryan	sm7125-common: Override kernel BPF version
+fa32b8f	2025-10-08	basamaryan	sm7125-common: Bump kernel BPF version override to 5.4.299
+1c94382	2025-01-13	Vincent Wang	sm7125-common: overlay: Enable fp screen off unlock feature and turn off by default
+c6ef8e7	2026-01-31	David Senoner	sm7125-common: Migrate to Python Extract Utils
+02babb7	2026-02-18	Simon1511	sm7125-common: add missing hashes and fix warnings
+865ff7e	2026-09-19	Simon1511	sm7125-common: sensors: Delay enabling the sensor by 200ms

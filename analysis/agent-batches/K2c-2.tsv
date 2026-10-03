@@ -1,0 +1,10 @@
+commit	subject	size_class	conflicting_files
+f0f30b4639c283ae74b4546848914c6fd2877bad	UPSTREAM: hugetlb: allow registration of ranges containing huge pages	trivial	fs/userfaultfd.c
+9114ddb3b20f571967035f0c515a0c615e0e4b56	UPSTREAM: userfaultfd: introduce vma_can_userfault	trivial	fs/userfaultfd.c
+b07d07e8f01108dd6f755461192c937aef5edf99	UPSTREAM: userfaultfd: check registration before VM_MAYWRITE	trivial	fs/userfaultfd.c
+138179e5ccbab01088740de7cc48b02723ea2e31	BACKPORT: mm: introduce MADV_COLD	trivial	mm/internal.h mm/madvise.c
+e7751e04e9d17d65076aade17ba392486bb430f1	BACKPORT: mm: factor out common parts between MADV_COLD and MADV_PAGEOUT	trivial	mm/madvise.c
+2ece0aa41deef2b432bff965b3d145b0351e86b4	BACKPORT: sched/uclamp: Add system default clamps	trivial	include/linux/sched/sysctl.h
+01abe0bedc2d3b60e0746b8aecbe774e739fdfcf	BACKPORT: sched/uclamp: Remove uclamp_util()	trivial	kernel/sched/cpufreq_schedutil.c
+70b95802146b22a1ecade3524920c86873349a5a	BACKPORT: sched/uclamp: Rename uclamp_util_with() into uclamp_rq_util_with()	trivial	kernel/sched/cpufreq_schedutil.c
+45170da68469c92fc574bbe848f765fb430a4c68	BACKPORT: sched/uclamp: Protect uclamp fast path code with static key	trivial	kernel/sched/cpufreq_schedutil.c

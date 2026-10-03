@@ -1,0 +1,9 @@
+commit	subject	size_class	conflicting_files
+5610ada6efc5025b6be8c147b88ed9b4ea4deb0a	drm: Add aspect ratio parsing in DRM layer	moderate	drivers/gpu/drm/drm_modes.c
+05e2318874431cf08fb4467b424426f1e4b9ad2f	drm: Add a new connector atomic property for link status	moderate	include/uapi/drm/drm_mode.h
+b48811f9463ee5976f18a88dbad6c69d057dd64b	alarmtimer: Shorten wakeup hold for imminent alarms	moderate	kernel/time/alarmtimer.c
+b611939c2042bb625448d7014e86b2852706da4a	mm: refactor __purge_vmap_area_lazy()	moderate	mm/vmalloc.c
+225cc0357185ca9d989e3868329c178061857bd4	mm: turn vmap_purge_lock into a mutex	moderate	mm/vmalloc.c
+69934e633aa55074f22debb04ae88fe060ce807d	mm: add preempt points into __purge_vmap_area_lazy()	moderate	mm/vmalloc.c
+7c9b3c4119eb7f79aa518ff59a4e7f18f2da50a2	mm/vmalloc.c: add priority threshold to __purge_vmap_area_lazy()	moderate	mm/vmalloc.c
+a0163349e17373974cba4a3e73ac23db2b57adbc	mm/vmalloc.c: keep track of free blocks for vmap allocation	moderate	mm/vmalloc.c

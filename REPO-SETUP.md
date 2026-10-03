@@ -3,9 +3,13 @@
 ## Status (2026-10-03)
 
 The owner created **`anton-scholten/lineageos-galaxy-tab-s5e`**, and the full history was pushed there as `main`.
-That is now the home of this project. The old repo `anton-scholten/Lineage-OS-SM-T720` (branch
-`claude/nifty-lamport-yf0vex`) holds the same history up to the move; archive or delete it whenever you like.
-The forks (step 3 below) exist now (checked 2026-10-03), still at LineageOS `lineage-22.2`. Step 4 is left.
+That is now the home of this project. The forks (step 3 below) exist now, still at LineageOS `lineage-22.2`. Step 4 is left.
+
+### Old repo `anton-scholten/Lineage-OS-SM-T720`: safe to delete
+Checked 2026-10-03. Its only branch, `claude/nifty-lamport-yf0vex`, ends at `71029d0`, which is already in this
+repo's `main`. So every commit and file is here. It has no other branches, tags, issues, pull requests or releases.
+(Its wiki couldn't be checked from the session. Look at the Wiki tab first if you ever turned it on.)
+⚠️ Deleting a repo can't be undone. **Archiving** (Settings → General → Archive this repository) is the safe option.
 
 ## Original state of the old repo
 
@@ -30,7 +34,8 @@ it should be renamed or moved, and the code should go into forks that follow Lin
 | `anton-scholten/lineageos-galaxy-tab-s5e` | This repo: README, plans, estimate, analysis, local manifests, scripts | Apache-2.0 |
 | `anton-scholten/android_kernel_samsung_sdm670` | Fork of `LineageOS/android_kernel_samsung_sdm670`, branch `lineage-23.2` = the ported ExyHyperBrick series | GPL-2.0 |
 | `anton-scholten/android_device_samsung_gts4lv-common` | Fork of the LineageOS repo, branch `lineage-23.2` = patches 0001–0004 as commits | Apache-2.0 |
-| `gts4lv`, `gts4lvwifi` device repos and vendor blobs | No changes needed. Keep using LineageOS / TheMuppets `lineage-22.2` | |
+| `gts4lv`, `gts4lvwifi` device repos | Not forked yet. Fork them when a 23.2 change needs them (task R6 may find one) | Apache-2.0 |
+| Vendor blobs (TheMuppets) | No changes expected. Keep using `lineage-22.2` | |
 
 Once the forks exist, `local_manifests/gts4lv-common.xml` points `device/samsung/gts4lv-common`
 and `kernel/samsung/sdm670` at them, and `patches/` + `apply-patches.sh` can be retired.
@@ -50,4 +55,39 @@ It needs to be done on github.com:
 3. **Forks** (when the kernel port starts): on github.com, fork
    `LineageOS/android_kernel_samsung_sdm670` and `LineageOS/android_device_samsung_gts4lv-common`.
    Forks of public repos are always public.
-4. Start a session with those repos attached, so the `lineage-23.2` branches can be pushed.
+4. Attach those repos to a Claude session with push access (below), so the `lineage-23.2` branches can be pushed.
+
+## What to fork to get lineage-23.2
+
+No repo anywhere has `lineage-23.2` for this tablet, because LineageOS stopped at 22.2 over the 4.9 kernel.
+So nothing upstream can be forked "with 23.2". You create the branch yourself in your fork, starting from
+`lineage-22.2`, and copy in the changes from other trees that already have 23.2.
+See [`analysis/reference-trees/`](analysis/reference-trees/README.md).
+
+| Repo | Fork? | Why |
+|---|---|---|
+| `LineageOS/android_kernel_samsung_sdm670` | ✅ done | Gets branch `lineage-23.2` = `lineage-22.2` + the ported ExyHyperBrick eBPF series |
+| `LineageOS/android_device_samsung_gts4lv-common` | ✅ done | Gets branch `lineage-23.2` = `lineage-22.2` + patches 0001–0004 + more from the reference trees |
+| `ExyHyperBrick/android_kernel_samsung_exynos9810` | **Recommended** | The source of the kernel series (`lineage-23.2`, 4.9 + eBPF at 5.15 level). It's one person's active work with many WIP branches. A fork keeps a copy if branches are rewritten or deleted. Don't change it, it's only a backup |
+| `ExyHyperBrick/android_device_samsung_exynos9810-common` | Recommended | Same reason. It holds the 4.9-specific userspace changes for 23.2 |
+| `LineageOS/android_device_samsung_gts4lv`, `..._gts4lvwifi` | Later, if needed | Only if a 23.2 change has to go in the per-model trees |
+| `LineageOS/android_device_samsung_sm7125-common` | No | Read-only reference (official 23.2 Samsung Qualcomm tree) |
+| `LineageOS/android_hardware_samsung` | No | Already has `lineage-23.2` |
+| TheMuppets vendor repos | No | Blobs stay the same |
+
+## Attaching repos to a Claude cloud session
+
+A session only gets push access to the GitHub repos attached to it. Public repos (all the forks) can always be
+*read* without attaching.
+
+1. Once: make sure the Claude GitHub App can reach the repos. Go to <https://claude.ai/connect-github>
+   (or GitHub → Settings → Applications → Claude → Configure) and either pick "All repositories" or add each fork.
+2. Then either:
+   - **New session:** on claude.ai/code, pick the repos in the repository selector when you start the session. You can pick more than one. Or
+   - **Running session:** ask Claude, for example "attach `anton-scholten/android_kernel_samsung_sdm670` with push access".
+     Claude calls `add_repo`. The session's permission check may ask you to approve, or block it unless you asked in those words.
+     To allow it without asking, add a permission rule for `mcp__claude-code-remote__add_repo` in the session settings.
+3. Attached repos are cloned to `/home/user/<repo-name>`. The kernel is ≈2.3 GB, so the first clone takes 10–30 min.
+
+Status 2026-10-03: `android_device_samsung_gts4lv-common` was attached to session `session_016fF5iQ8x8B4G2hfnShauMQ`
+with push access. The kernel fork attach was blocked by the permission check, so it still needs doing.

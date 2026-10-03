@@ -16,11 +16,12 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Conflicts | Classified: 84 required, 46 optional, 20 skip (`conflict_detail.tsv`, `group` column) |
 | Build | Baseline sdm670 kernel builds (12 min on 4 cores). A blind merge of the series fails at the first compile step (`analysis/build-test/`) |
 | Estimate | About 7 weeks full-time, range 4–11 (`ESTIMATE.md`) |
-| Repos | Docs live here. Forks `anton-scholten/android_kernel_samsung_sdm670` and `anton-scholten/android_device_samsung_gts4lv-common` **exist** (checked 2026-10-03), both still only `lineage-22.2`, identical to LineageOS. No `lineage-23.2` branch yet. Not attached to sessions with push access |
+| Repos | Docs live here. Forks `anton-scholten/android_kernel_samsung_sdm670` and `anton-scholten/android_device_samsung_gts4lv-common` **exist** (checked 2026-10-03), both still only `lineage-22.2`, identical to LineageOS. No `lineage-23.2` branch yet; no upstream has one for this device, so we make it ourselves (`REPO-SETUP.md`). Device fork attached with push to session `session_016fF5iQ8x8B4G2hfnShauMQ`; kernel fork not attached. Old repo `Lineage-OS-SM-T720` is fully contained here, safe to archive/delete |
 | Nothing booted | No ROM has been built or flashed |
 
 ## Next steps, in order
-1. ~~Create the forks~~ (done). **Attach them to a session with push access** (`add_repo`, access `push`).
+1. ~~Create the forks~~ (done). **Attach the kernel fork with push access** (see `REPO-SETUP.md`). Optionally fork the two ExyHyperBrick repos as backups.
+   Reference trees for 23.2 changes: `analysis/reference-trees/`.
    Parallel helper-agent work is listed in [AGENT-TASKS.md](AGENT-TASKS.md).
 2. Device tree: in the fork, branch `lineage-23.2` from `lineage-22.2` and `git am` patches 0001–0004.
    Then point `local_manifests/gts4lv-common.xml` at the fork.

@@ -1,0 +1,11 @@
+commit	subject	size_class	conflicting_files
+5e25006aff4344d742ac060b179a31428df0cabb	UPSTREAM: ipv6: constify inet6_protocol structures	trivial	net/ipv6/udp.c
+e9c1bdddb9a09ec14e8ab37f0d32b1a80cb7c0c8	BACKPORT: locking/refcount: Create unchecked atomic_t implementation	trivial	kernel/panic.c
+856f611efb48e843006bccad89fd3c28dc757743	UPSTREAM: tcp: Export tcp_{sendpage,sendmsg}_locked() for ipv6.	trivial	net/ipv4/tcp.c
+59db77a70b7fba5319489db0a0bbb47008643706	BACKPORT: net: ipv4: add second dif to inet socket lookups	trivial	net/ipv4/tcp_ipv4.c
+e3a9e868eac287f12dc984d0447c0f62947873ea	UPSTREAM: ipv6: do not set sk_destruct in IPV6_ADDRFORM sockopt	trivial	net/ipv6/ipv6_sockglue.c
+d9dfe4a76fb9871d58e683ca2bb4aea98d206bb3	BACKPORT: ipv4: Namespaceify tcp_tw_recycle and tcp_max_tw_buckets knob	trivial	net/ipv4/af_inet.c
+7bae1fbba13b1fb8c4ed978cc417dedebd8e6fe3	net/tcp_fastopen: remove obsolete extern	trivial	include/net/tcp.h
+993f49608c23a0d57b81e2e7762c4c361df753d0	bpf, sockmap: convert to generic sk_msg interface	trivial	net/core/Makefile
+2d6869d3a4cea710b71ebb7fba0175e49af942d2	arm64: Add uprobe support	trivial	arch/arm64/include/asm/thread_info.h
+495ac52546da61d6af637b656fd03902a85e4d8a	BACKPORT: arch: wire-up close_range()	trivial	arch/arm/tools/syscall.tbl

@@ -1,0 +1,10 @@
+commit	subject	size_class	conflicting_files
+285607f6d86fc6dda99b8cbd1f07ac90ce699bed	nl80211: add WPA3 definition for SAE authentication	trivial	include/uapi/linux/nl80211.h net/wireless/nl80211.c
+437cc7c3ab63523660f83f2840bd9435a05cf0a3	ion: Map userspace buffers page-aligned	trivial	drivers/staging/android/ion/ion_heap.c
+9a27f565137b389f0f3c3167bce29d969438ddcb	mm, vmalloc: use __GFP_HIGHMEM implicitly	trivial	kernel/fork.c
+4cf42717d891062b4a583aefc96209bf7baf0268	mm/vmalloc: Add flag for freeing of special permsissions	trivial	include/linux/vmalloc.h
+f4e1fe0bc47bb49177ca0b7bf7959b8ee4f963ad	BACKPORT: kernfs: don't set dentry->d_fsdata	trivial	fs/kernfs/inode.c
+667e0cd401501c156a2a4283ab4477cc3f983abc	BACKPORT: gpu/trace: add a gpu total memory usage tracepoint	trivial	drivers/gpu/Makefile
+d2ec292ffd0821a3502a8f78abd777d5266e2005	BACKPORT: binder: detect oneway transaction spam	trivial	drivers/android/binder_alloc.c
+7f6ca00150fc589db67ff3f7dc211b954a474501	BACKPORT: kbuild: clang: Allow CLANG_TRIPLE without CROSS_COMPILE	trivial	Makefile
+fad9a6a81aa66855d7c1d63588c9078f58a1bd3e	UPSTREAM: userfaultfd: use vma_is_anonymous	trivial	fs/userfaultfd.c

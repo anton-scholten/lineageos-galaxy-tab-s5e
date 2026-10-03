@@ -1,0 +1,144 @@
+commit	date	author	subject
+0edbbe4	2023-10-19	Tim Zimmermann	exynos9810-common: Import libaudioproxy from exynos9820
+acd84e0	2023-11-03	Tim Zimmermann	exynos9810-common: Convert libshim_sensorndkbridge to Soong
+409d3b8	2024-11-09	Tim Zimmermann	exynos9810-common: Switch to Python extract utilities
+b3e586b	2025-07-05	Mathias Gluszczynski	exynos9810-common: Move Wi-Fi init configuration to the device tree
+715877d	2025-07-05	Mathias Gluszczynski	exynos9810-common: Update board configuration for source HALs
+4b85993	2025-07-05	Mathias Gluszczynski	exynos9810-common: Update product configuration for source HALs
+190ec7d	2025-07-05	Mathias Gluszczynski	exynos9810-common: Update VINTF declarations for source HALs
+123cbec	2025-07-05	Mathias Gluszczynski	exynos9810-common: Drop obsolete Make build definitions
+3233812	2025-07-05	Mathias Gluszczynski	exynos9810-common: Drop unsupported secure codec declarations
+7b01b21	2025-07-05	Mathias Gluszczynski	exynos9810-common: Drop obsolete mobile TCP buffer override
+88013fa	2025-07-05	Mathias Gluszczynski	exynos9810-common: Update policy for the source camera provider
+02f6d09	2025-07-05	Mathias Gluszczynski	exynos9810-common: Update properties for the Linaro graphics stack
+83f5d2b	2025-07-06	Mathias Gluszczynski	exynos9810-common: audio: Trim libaudioproxy for Exynos9810
+924cf7e	2021-11-21	Tim Zimmermann	exynos9810-common: audio: Use space-separated policy lists
+0a225ff	2025-07-12	Mathias Gluszczynski	exynos9810-common: audio: Drop unused proxy build definitions
+1098727	2025-07-10	Mathias Gluszczynski	exynos9810-common: Add missing AIDL fingerprint props
+dbff734	2024-12-30	Pranav Vashi	exynos9810-common: Fix OTA updates with encrypted f2fs
+3ae6859	2022-08-24	Tim Zimmermann	exynos9810-common: Inherit non_ab_device.mk
+4ad9d44	2025-07-17	Mathias Gluszczynski	exynos9810-common: ril: Restore the stock RIL blob set
+d0e8cd0	2025-07-17	Mathias Gluszczynski	exynos9810-common: ril: Match VINTF to the stock interfaces
+3fb5904	2025-07-17	Mathias Gluszczynski	exynos9810-common: ril: Configure stock library paths
+c8e557f	2025-07-17	Mathias Gluszczynski	exynos9810-common: audio: Drop obsolete proprietary blobs
+9b56b43	2025-06-07	Bruno Martins	exynos9810-common: Switch to Touch AIDL
+5b20594	2025-09-02	Mathias Gluszczynski	exynos9810-common: Add panel green-screen workaround
+03e8624	2025-09-28	Mathias Gluszczynski	exynos9810-common: Use 32-bit Samsung camera libraries
+c837cad	2024-03-28	Michael Bestas	exynos9810-common: overlay: Enable battery cycle count
+0b0d5ab	2025-10-05	Mathias Gluszczynski	exynos9810-common: Build "missing" keystore2
+344ff13	2025-09-05	Tim Zimmermann	exynos9810-common: Add missing touch HAL interfaces to manifest
+49aaf11	2025-10-05	Mathias Gluszczynski	exynos9810-common: Address missing gpsd and tee denials
+c8a9471	2025-10-05	Mathias Gluszczynski	exynos9810-common: Drop the broken sound trigger HAL
+bde7e82	2025-10-06	Mathias Gluszczynski	exynos9810-common: Add libutils-v32 shim for sensors.{bio,grip}
+d8469f6	2025-10-06	Mathias Gluszczynski	exynos9810-common: init: Remove deprecated configuration
+f33df24	2025-10-06	Mathias Gluszczynski	exynos9810-common: Remove obsolete services and sepolicy
+e1ee9d2	2025-10-06	Mathias Gluszczynski	exynos9810-common: Migrate Lineage services to current interfaces
+badadb1	2025-10-12	Mathias Gluszczynski	exynos9810-common: audio: Disable ABOX mute control
+6281ada	2025-10-12	Mathias Gluszczynski	exynos9810-common: Cleanup graphic vendor props
+6b1e479	2025-10-15	Mathias Gluszczynski	exynos9810-common: Move memory optimizations prop to system
+517c225	2025-10-15	Mathias Gluszczynski	exynos9810-common: init: Tune VM/LMK for zram-backed swap
+85fb227	2025-10-15	Mathias Gluszczynski	exynos9810-common: init: Drop custom forcetouch handler
+b8bb0cd	2025-10-17	Mathias Gluszczynski	exynos9810-common: Add automatic display-density switching
+095007f	2025-10-18	Mathias Gluszczynski	exynos9810-common: Remove obsolete shim definitions
+eeaefab	2025-10-19	Mathias Gluszczynski	exynos9810-common: Add vendor security patch from crownlte
+1ad6d71	2025-10-19	Mathias Gluszczynski	exynos9810-common: Update vendor security patch to 2023-02-01
+f3dd43d	2024-01-04	Tim Zimmermann	exynos9810-common: Don't force LTE icon
+b243992	2025-10-21	Mathias Gluszczynski	exynos9810-common: Run keymaster 3.0 as system
+9f28bc7	2025-10-21	Mathias Gluszczynski	exynos9810-common: init: Drop kernel LMK minfree write
+64d401e	2025-10-21	Mathias Gluszczynski	exynos9810-common: init: Tune VM for PSI+lmkd
+d309702	2025-10-21	Mathias Gluszczynski	exynos9810-common: Enable PSI lmkd and balanced OOM props
+b3056c8	2025-10-22	Mathias Gluszczynski	exynos9810-common: sensors: Precreate FactoryApp metadata files
+6b2eb39	2025-10-22	Mathias Gluszczynski	exynos9810-common: Address missing denials
+b3f17a6	2025-10-23	Mathias Gluszczynski	exynos9810-common: Remove shims Android.mk
+f241e71	2025-10-23	Mathias Gluszczynski	exynos9810-common: overlay: Use a linear brightness slider
+fab82d5	2025-10-24	Mathias Gluszczynski	exynos9810-common: Add missing efs denials
+2fd3952	2025-10-27	Mathias Gluszczynski	exynos9810-common: init: Update vendor log paths
+82b2692	2021-02-10	josip-k	exynos9810-common: Remove Built-In Back Mic from audio sources
+532787d	2025-10-31	Mathias Gluszczynski	exynos9810-common: Use default volume table from AOSP
+0e5dee9	2025-11-12	Mathias Gluszczynski	exynos9810-common: Add symlink for "/dev/block/persistent"
+72e5bfc	2025-08-09	LuK1337	exynos9810-common: Remove obsolete device framework matrix include
+c977ffa	2025-11-28	Thomas Turner	exynos9810-common: Drop /dev/sec-nfc from sepolicy
+34f4681	2021-06-03	Lucas Dupin	exynos9810-common: Enable blurs
+7016ab8	2026-01-05	Mathias Gluszczynski	exynos9810-common: Address missing audio denial
+503ffa8	2025-11-24	Yumi Yukimura	exynos9810-common: Use bool Soong config for charging bypass
+d08fed6	2026-05-14	Mathias Gluszczynski	exynos9810-common: Ship scheduler service from VNDK prebuilts
+87f9e43	2026-05-14	Mathias Gluszczynski	exynos9810-common: Tune userspace LMKD for zram swap
+f4c25c9	2026-05-14	Mathias Gluszczynski	exynos9810-common: Enable expressive UI
+9683936	2026-05-14	Mathias Gluszczynski	exynos9810-common: Refresh WifiOverlay for 23.2
+87afcab	2025-12-01	Tim Zimmermann	exynos9810-common: Drop system_server sys_module allow
+aa780f6	2026-05-23	Mathias Gluszczynski	exynos9810-common: audio: Use strtok_r for microphone XML parsing
+15a1d42	2026-05-25	Mathias Gluszczynski	exynos9810-common: Define schedulerservice dependency as Soong prebuilt
+a9a72cf	2026-05-25	Mathias Gluszczynski	exynos9810-common: Remove memory optimizations
+4ab6bee	2026-05-25	Mathias Gluszczynski	exynos9810-common: Route HDMI audio through dedicated output
+620692c	2026-05-25	Mathias Gluszczynski	exynos9810-common: Switch to 32-bit Samsung AIDL camera provider
+ff0c0ff	2025-11-24	Yumi Yukimura	exynos9810-common: Declare Samsung camera quirks as bool vars
+e5d44f3	2025-11-26	ExtremeXT	exynos9810-common: Switch to AIDL NFC HAL
+9cf3e1f	2025-11-22	Thomas Turner	exynos9810-common: Update NFC firmware path variables
+89f9be0	2026-05-29	Mathias Gluszczynski	exynos9810-common: ril: Shim NULL SMSC for CS SMS
+e8ca050	2026-05-31	Mathias Gluszczynski	exynos9810-common: Gate green screen workaround behind persist property
+e876a8b	2022-11-07	Michael Bestas	exynos9810-common: overlay: Enable multiple vibration strength levels
+c207a5c	2026-06-02	Mathias Gluszczynski	exynos9810-common: nfc: Enable legacy CORE_INIT_RSP handling
+ae037ac	2026-06-02	Mathias Gluszczynski	exynos9810-common: nfc: Restore S3NRN82 RFREG configuration
+1c1e171	2026-06-02	Mathias Gluszczynski	exynos9810-common: nfc: Create framework NFC data directory
+e0dab7e	2026-06-02	Mathias Gluszczynski	exynos9810-common: Add little-cluster interaction boost
+6a7577d	2026-06-05	Mathias Gluszczynski	exynos9810-common: Add double tap to wake support
+de12372	2026-06-07	Mathias Gluszczynski	exynos9810-common: Set Android freezer timeout to 1s
+ff5ddab	2026-06-14	Mathias Gluszczynski	exynos9810-common: Allow Bluetooth HAL to read persisted bdaddr
+e9db4cc	2026-07-03	Mathias Gluszczynski	exynos9810-common: audio: Harden AP call route transitions
+9eecf55	2026-07-15	Mathias Gluszczynski	exynos9810-common: Build init configs as Soong prebuilts
+751da43	2026-07-15	Mathias Gluszczynski	exynos9810-common: Override incompatible power supply BPF filter
+c3fd383	2026-07-16	Mathias Gluszczynski	exynos9810-common: audio: Let routes control the left amp
+6fcc7f7	2026-07-16	Mathias Gluszczynski	exynos9810-common: audio: Initialize mixer lock before use
+b4d07e8	2026-07-16	Mathias Gluszczynski	exynos9810-common: audio: Refresh routes before first playback
+9b461a0	2025-07-08	basamaryan	exynos9810-common: Override kernel BPF version
+b9c117b	2026-07-17	Mathias Gluszczynski	exynos9810-common: Add Samsung n770 RIL configuration
+cff99a1	2026-07-19	Mathias Gluszczynski	exynos9810-common: audio: Restore refcounted reroutes
+1ee9e41	2026-08-05	Mathias Gluszczynski	exynos9810-common: Tighten LMKD under swap pressure
+12f65ca	2026-08-05	Mathias Gluszczynski	exynos9810-common: Normalize packed RIL data-call MTUs
+00d5dcc	2026-08-05	Mathias Gluszczynski	exynos9810-common: sepolicy: Label platform wakeup source nodes
+2cd264c	2026-08-07	Mathias Gluszczynski	exynos9810-common: Drop invalid BarTender RT bandwidth setup
+1092faf	2026-08-07	Mathias Gluszczynski	exynos9810-common: Drop obsolete legacy init setup
+6c3c503	2026-08-07	Mathias Gluszczynski	exynos9810-common: Drop more obsolete Samsung init setup
+4318919	2026-08-07	Mathias Gluszczynski	exynos9810-common: Handle CPEFS as read-only storage
+66d895b	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Fix vendor init and Power HAL access
+7420fed	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Restore Widevine vendor access
+f90b2ba	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Allow kernel sensor calibration access
+fc85bcf	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Drop duplicate radio hwservice mappings
+582f6da	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Label starlte power supply nodes
+abf0815	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Allow Power HAL service callback
+f9cb4be	2026-08-08	Mathias Gluszczynski	exynos9810-common: Fix LHD killer control access
+f22083c	2026-08-08	Mathias Gluszczynski	exynos9810-common: sepolicy: Label raw UFS block sysfs
+92fef2c	2026-08-09	Mathias Gluszczynski	exynos9810-common: Bump kernel BPF override to 5.15.178
+c98a4c4	2024-01-04	Tim Zimmermann	Revert "exynos9810-common: remap bixby key to MENU"
+d3ed64d	2026-08-10	Mathias Gluszczynski	exynos9810-common: Reduce corner radius to 16dp
+944cfb7	2026-08-10	Mathias Gluszczynski	Revert "exynos9810-common: Drop unsupported secure codec declarations"
+79d71c5	2026-08-13	Mathias Gluszczynski	Revert "exynos9810-common: Normalize packed RIL data-call MTUs"
+cfadc9b	2026-09-03	Mathias Gluszczynski	exynos9810-common: Update green-screen recovery control
+2e0ad89	2026-09-04	Mathias Gluszczynski	exynos9810-common: Raise GPU floor for expensive rendering
+189937a	2026-09-04	Mathias Gluszczynski	exynos9810-common: Boost little CPUs during expensive rendering
+912dff7	2026-09-07	Mathias Gluszczynski	exynos9810-common: Inherit emulated_storage.mk
+5619353	2026-09-07	Mathias Gluszczynski	exynos9810-common: Enable adoptable storage
+1b81177	2026-09-08	Mathias Gluszczynski	exynos9810-common: Use the kernel's Samsung boot image packer
+39f0ed2	2026-09-09	Mathias Gluszczynski	exynos9810-common: sepolicy: Label star2lte power supply types
+22f372f	2026-09-09	Mathias Gluszczynski	exynos9810-common: init: Restore DAK labels before early HALs
+cbf2bf8	2026-09-12	Mathias Gluszczynski	exynos9810-common: audio: Switch to Motorola Dolby
+5434d6c	2025-02-27	Michael Bestas	exynos9810-common: Enable UFFD GC
+a5aa7f1	2026-08-10	Nolen Johnson	exynos9810-common: Override PRODUCT_ENABLE_UFFD_GC to true
+e10756f	2026-09-13	Mathias Gluszczynski	exynos9810-common: Repurpose ODM for persistent metadata
+d6e6787	2026-09-13	Mathias Gluszczynski	exynos9810-common: audio: Restore more Dolby profiles
+7e017a5	2026-09-14	Mathias Gluszczynski	exynos9810-common: Configure 4 GiB of LZ4 zram
+7b13f3a	2026-09-15	Mathias Gluszczynski	exynos9810-common: overlay: Drop static system file pinning
+cebfddf	2026-09-15	Mathias Gluszczynski	exynos9810-common: Reduce premature cached app kills
+8a940fe	2026-09-15	Mathias Gluszczynski	exynos9810-common: Tune reclaim for compressed swap
+7dead47	2026-09-15	Mathias Gluszczynski	exynos9810-common: camera: Match telephoto recording profiles to ID 50
+385c2db	2026-09-16	Mathias Gluszczynski	exynos9810-common: Switch test profiles to utilization clamping
+68bae92	2026-09-17	Mathias Gluszczynski	exynos9810-common: ril: Normalize Samsung SMSC responses
+237628e	2026-09-18	Mathias Gluszczynski	exynos9810-common: display: Allow panel minimum brightness
+6984b36	2026-09-18	Mathias Gluszczynski	exynos9810-common: display: Use calibrated brightness handling
+b11662c	2026-09-18	Mathias Gluszczynski	exynos9810-common: camera: Alias auxiliary recording profiles
+d2dc97e	2026-09-20	Mathias Gluszczynski	exynos9810-common: Add missing Lineage copyright notices
+8fd4f84	2026-09-20	Mathias Gluszczynski	exynos9810-common: Make media profile extraction repeatable
+c946eaf	2026-09-20	Mathias Gluszczynski	exynos9810-common: Extract pinned Dolby and VNDK dependencies
+8db0816	2026-09-20	Mathias Gluszczynski	exynos9810-common: Extract the ARM scheduler interface
+939dd24	2026-09-20	Mathias Gluszczynski	exynos9810-common: overlay: Disable launcher file pinning
+ced9775	2026-09-20	Mathias Gluszczynski	exynos9810-common: Allow reclaiming low-priority cached apps

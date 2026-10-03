@@ -1,0 +1,10 @@
+commit	subject	size_class	conflicting_files
+19ce6ace41bbd1d438fec7a8b0088fd934ef7ac0	BACKPORT: xdp: support simultaneous driver and hw XDP attachment	moderate	include/linux/netdevice.h
+27c560179112756f47ce476f9e167730e97b15b3	BACKPORT: bpf, xdp: Maintain attached XDP programs in net_device	moderate	include/linux/netdevice.h
+2c0b7fe73b69bc02f07f254893f467c9b6913fb6	BACKPORT: bpf, xdp: Add bpf_link-based XDP attachment API	moderate	include/linux/netdevice.h
+2d9316801144dcdb8f32bc5beecdb97325b38fa9	BACKPORT: net: Rename ->stream_memory_read to ->sock_is_readable	moderate	include/net/sock.h
+de606935ba0ffc3146b3ede3675cab9b820a0d67	BACKPORT: bpf: allow zero-initializing hash map seed	moderate	kernel/bpf/hashtab.c
+1d79f995b6d3a6210d8fef32386ee4c69217671a	BACKPORT: bpf: Adds field bpf_sock_ops_cb_flags to tcp_sock	moderate	include/linux/tcp.h
+021499e96a40b641e5aa371254428a8b202ba45b	BACKPORT: ANDROID: fuse: Carry BPF request metadata	moderate	fs/fuse/dev.c fs/fuse/fuse_i.h
+04db905cb97fac9445a5b629fbcf6e88a0bbc1e8	BACKPORT: ANDROID: fuse-bpf: Resolve lookup reply fds	moderate	fs/fuse/dev.c
+35890c08a95c98eea3af3ae21278cd873b3421e3	BACKPORT: ANDROID: fuse-bpf: Contain lower file cache paths	moderate	fs/fuse/file.c

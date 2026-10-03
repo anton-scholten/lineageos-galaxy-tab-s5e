@@ -1,0 +1,8 @@
+commit	subject	size_class	conflicting_files
+10a07035a7e70b88081967b42b148865beffafcf	BACKPORT: userfaultfd: add minor fault registration mode	moderate	arch/arm64/Kconfig fs/userfaultfd.c
+f75397804369588adc2cf5734fa142d9332cf237	BACKPORT: mm: introduce FAULT_FLAG_INTERRUPTIBLE	moderate	arch/arm64/mm/fault.c include/linux/mm.h
+ee8a477b712d534e0b6911a4d242e171076bb2cb	BACKPORT: binder: BINDER_FREEZE ioctl	moderate	drivers/android/binder.c include/uapi/linux/android/binder.h
+e5dba8a19d084ed5d26e120bc5d472d32950b7e8	BACKPORT: binder: BINDER_GET_FROZEN_INFO ioctl	moderate	drivers/android/binder.c include/uapi/linux/android/binder.h
+a2d0003b101b5888b9c4b9141467925fa73dc64d	BACKPORT: sched/cpufreq, sched/uclamp: Add clamps for FAIR and RT tasks	moderate	kernel/sched/cpufreq_schedutil.c kernel/sched/rt.c kernel/sched/sched.h
+3d3946a898f4c0c5f00a76fa9edf1774f05a7f3a	BACKPORT: sched/uclamp: Add uclamp support to energy_compute()	modify/delete	kernel/sched/ems/energy.c
+813a92f62045c8d2b1c03937baf93b81b19ff36c	ANDROID: Re-use SUGOV_RT_MAX_FREQ to control uclamp rt behavior	moderate	kernel/sched/features.h
