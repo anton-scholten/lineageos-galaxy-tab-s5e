@@ -4,21 +4,24 @@
   Copy this file to .repo/local_manifests/ along with gts4lvwifi.xml (Wi-Fi)
   and/or gts4lv.xml (LTE), then run `repo sync`.
 
-  None of these repos have an official lineage-23.2 branch, so they are pinned
-  to lineage-22.2. Once you have applied patches/ from this repo, point
-  gts4lv-common and the kernel at your own forks.
+  device/samsung/gts4lv-common and kernel/samsung/sdm670 come from the
+  anton-scholten forks, branch lineage-23.2. The device tree already has
+  patches 0001-0004. The kernel is still plain lineage-22.2 (the eBPF port is
+  not done yet), so a build boots only once the kernel work lands.
+  The other repos have no lineage-23.2 branch and stay on lineage-22.2.
 -->
 <manifest>
   <remote name="muppets" fetch="https://github.com/TheMuppets" />
+  <remote name="anton" fetch="https://github.com/anton-scholten" />
 
   <project path="device/samsung/gts4lv-common"
-           name="LineageOS/android_device_samsung_gts4lv-common"
-           remote="github" revision="lineage-22.2" />
+           name="android_device_samsung_gts4lv-common"
+           remote="anton" revision="lineage-23.2" />
 
   <!-- Kernel shared by all variants (needs the backports in KERNEL-BACKPORT-PLAN.md) -->
   <project path="kernel/samsung/sdm670"
-           name="LineageOS/android_kernel_samsung_sdm670"
-           remote="github" revision="lineage-22.2" />
+           name="android_kernel_samsung_sdm670"
+           remote="anton" revision="lineage-23.2" />
 
   <!-- hardware/samsung has a real lineage-23.2 branch -->
   <project path="hardware/samsung"

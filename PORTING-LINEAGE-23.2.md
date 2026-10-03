@@ -131,10 +131,9 @@ cp <this repo>/local_manifests/gts4lv-common.xml <this repo>/local_manifests/gts
 # LTE: also/instead copy local_manifests/gts4lv.xml and run `breakfast gts4lv`
 repo sync -c -j$(nproc)
 
-# Device tree patches (BPF override skipped until the kernel is ready)
-<this repo>/apply-patches.sh "$PWD"
-# ...after the kernel backports are in:
-# <this repo>/apply-patches.sh "$PWD" --with-bpf-override
+# The manifests pull device/samsung/gts4lv-common and kernel/samsung/sdm670 from the
+# anton-scholten forks (branch lineage-23.2). Patches 0001-0004 are already in the device fork.
+# The kernel branch has no eBPF port yet, so the result won't boot until that lands.
 
 source build/envsetup.sh
 breakfast gts4lvwifi        # lineage_gts4lvwifi-bp4a-userdebug

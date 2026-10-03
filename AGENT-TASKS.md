@@ -38,11 +38,24 @@ Most tasks here help someone resolve those 150 conflicts faster and more safely.
 | Repo | You do | Access |
 |---|---|---|
 | `anton-scholten/lineageos-galaxy-tab-s5e` (**this repo**, private) | Write your report here, on branch `agent/<task-id>` | Read + push. The owner gives you a token or collaborator access (§0.6) |
-| `anton-scholten/android_kernel_samsung_sdm670` (public) | Clone and read only | Anonymous `git clone` |
-| `anton-scholten/android_device_samsung_gts4lv-common` (public) | Clone and read only | Anonymous `git clone` |
-| `ExyHyperBrick/*`, `LineageOS/*`, `TheMuppets/*` (public) | Clone and read only | Anonymous `git clone` |
+| `anton-scholten/android_kernel_samsung_sdm670` (public) | Read only. **Our kernel.** Branch `lineage-23.2` = `a30605a54f3b` (same as LineageOS `lineage-22.2`) | Anonymous `git clone` |
+| `anton-scholten/android_device_samsung_gts4lv-common` (public) | Read only. **Our device tree.** Branch `lineage-23.2` = LineageOS `d1b339b` + patches 0001–0004 | Anonymous `git clone` |
+| `anton-scholten/android_kernel_samsung_exynos9810` (public) | Read only. Frozen backup of the ExyHyperBrick S9 kernel = **the eBPF series**. Use this, not the ExyHyperBrick original | Anonymous `git clone` |
+| `anton-scholten/android_device_samsung_exynos9810-common` (public) | Read only. Frozen backup of the ExyHyperBrick S9 device tree (task R7) | Anonymous `git clone` |
+| `LineageOS/*`, `TheMuppets/*` (public) | Read only. Reference trees (R tasks) | Anonymous `git clone` |
 
 All your output goes into **this repo**. Nothing you do changes the kernel or the device tree.
+
+Which task needs which repo:
+
+| Tasks | Repos to clone |
+|---|---|
+| M2, M3, T1, T2 | This repo only |
+| K1–K6 | Our kernel + the exynos9810 kernel backup, set up as in §1.2 |
+| R1, R2, R3 | Our device tree (`lineage-23.2`) + the LineageOS repos named in the task |
+| R4 | `TheMuppets/proprietary_vendor_samsung_gts4lv-common` |
+| R6 | Our device tree + `LineageOS/android_device_samsung_sm7125-common` |
+| R7 | Our device tree + the exynos9810-common backup |
 
 ### 0.4 Rules
 1. **One task ID per agent.** Your task ID is something like `K2a-3` or `R6`. Write only to the output path that task names.
@@ -103,19 +116,19 @@ The sdm670 clone is ≈2.3 GB and takes 10–30 minutes. **Start it in the backg
 it looks stuck at "Resolving deltas". Only one clone at a time.
 ```bash
 W=$HOME/work; mkdir -p $W && cd $W
-git clone --single-branch -b lineage-22.2 https://github.com/LineageOS/android_kernel_samsung_sdm670 k670
+git clone --single-branch -b lineage-23.2 https://github.com/anton-scholten/android_kernel_samsung_sdm670 k670
 cd k670
-git remote add exy https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810
+git remote add exy https://github.com/anton-scholten/android_kernel_samsung_exynos9810
 git fetch --no-tags exy lineage-22.2:refs/remotes/exy/l222 lineage-23.2:refs/remotes/exy/l232
 ```
 Check it worked. **All three lines must print a SHA:**
 ```bash
 git rev-parse --verify a30605a54f3b      # sdm670 tip
 git rev-parse --verify d54533f1546b      # series base
-git rev-parse --verify baa585f67e0e      # series head (we use THIS one, even if exy/l232 has moved)
+git rev-parse --verify baa585f67e0e      # series head
 git rev-list --count --no-merges d54533f1546b..baa585f67e0e   # should print 2599
 ```
-If `exy/l232` no longer contains `baa585f67e0e`, fetch it directly: `git fetch exy baa585f67e0e`. If that fails, stop and report it.
+The backup fork is frozen, so `exy/l232` should be exactly `baa585f67e0e`. If it isn't, stop and report it. Don't use the moving ExyHyperBrick original.
 
 **Disk:** you need ≈6 GB free. If you get "No space left on device", delete build output and other clones you don't need.
 
@@ -135,28 +148,12 @@ To see the conflict markers in one file: `git cat-file -p <tree-id>:<path> | gre
 
 ---
 
-## 2. Owner tasks (S, F): on github.com, not for helper agents
-
-| ID | Task | Done when |
-|---|---|---|
-| S1 | Device fork: `git checkout -b lineage-23.2 origin/lineage-22.2 && git am <this repo>/patches/device/samsung/gts4lv-common/*.patch`, push | Branch `lineage-23.2` = `d1b339b` + 4 commits. They were checked to apply cleanly on 2026-10-03 |
-| S2 | Kernel fork: push a `lineage-23.2` branch at `a30605a54f3b` (no changes yet) | Branch exists |
-| S3 | ~~Attach both forks with push access~~ Done 2026-10-03 | |
-| F1 | Fork `ExyHyperBrick/android_kernel_samsung_exynos9810` and `ExyHyperBrick/android_device_samsung_exynos9810-common` as backups. **Untick "copy default branch only"** ([steps](REPO-SETUP.md#backup-forks-of-exyhyperbrick-owner-on-githubcom)) | Both forks list `lineage-23.2` |
+## 2. Owner setup: done
+Forks, branches, backups and manifests were all set up on 2026-10-03 ([REPO-SETUP.md](REPO-SETUP.md)). Nothing to do here.
 
 ---
 
 ## 3. Housekeeping tasks (M): no kernel clone needed
-
-### M1: point the manifests at the forks
-*Wait for S1 + S2.*
-1. Edit `local_manifests/gts4lv-common.xml`. Add `<remote name="anton" fetch="https://github.com/anton-scholten" />`.
-2. For `device/samsung/gts4lv-common`, set `name="android_device_samsung_gts4lv-common" remote="anton" revision="lineage-23.2"`.
-   Do the same for `kernel/samsung/sdm670` with `android_kernel_samsung_sdm670`.
-3. Update the comment at the top of the file to match.
-
-**Self-check:** `xmllint --noout local_manifests/*.xml` prints nothing, and for each changed project
-`git ls-remote https://github.com/anton-scholten/<name> refs/heads/lineage-23.2` prints a SHA.
 
 ### M2: link check
 For every `*.md` file in this repo, check every link.
@@ -173,10 +170,16 @@ Write `scripts/check-pins.sh` (bash + git only). For each of these, run `git ls-
 |---|---|---|
 | https://github.com/LineageOS/android_kernel_samsung_sdm670 | lineage-22.2 | a30605a54f3b |
 | https://github.com/LineageOS/android_device_samsung_gts4lv-common | lineage-22.2 | d1b339be7abe |
-| https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810 | lineage-22.2 | d54533f1546b |
+| https://github.com/anton-scholten/android_kernel_samsung_sdm670 | lineage-23.2 | a30605a54f3b |
+| https://github.com/anton-scholten/android_device_samsung_gts4lv-common | lineage-23.2 | 2e50286 |
+| https://github.com/anton-scholten/android_kernel_samsung_exynos9810 | lineage-22.2 | d54533f1546b |
+| https://github.com/anton-scholten/android_kernel_samsung_exynos9810 | lineage-23.2 | baa585f67e0e |
+| https://github.com/anton-scholten/android_device_samsung_exynos9810-common | lineage-23.2 | ced977559b13 |
 | https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810 | lineage-23.2 | baa585f67e0e |
 
-Exit code 1 if anything moved. **Self-check:** `bash -n scripts/check-pins.sh` passes, and running it prints 4 lines.
+Our fork branches are *meant* to move as work lands, so for those two rows print `MOVED` as information, not as an error.
+Exit code 1 only if a LineageOS row or a backup row moved. The ExyHyperBrick row tells us upstream has new work.
+**Self-check:** `bash -n scripts/check-pins.sh` passes, and running it prints 8 lines.
 
 ---
 
@@ -346,12 +349,12 @@ If a branch doesn't exist, list the branches with `git ls-remote --heads <url> |
 
 | ID | Task | Output |
 |---|---|---|
-| R1 | **VINTF.** Our HALs are listed in `manifest.xml` in the device fork (`lineage-22.2` + patches, or branch `lineage-23.2` once S1 is done). Compare each `<hal>` name and version with the compatibility matrix for the target FCM level in `LineageOS/android_hardware_interfaces` `lineage-23.2` `compatibility_matrices/` (find the file whose `level=` is the newest. Write down which one you used). List each HAL that is missing, below the minimum version, or listed as deprecated | `analysis/rom/vintf.md` |
-| R2 | **sepolicy.** List every type, attribute and macro used in the device fork's `sepolicy/` folder. Check each exists in `LineageOS/android_system_sepolicy` `lineage-23.2` (`git grep -w`). Report the missing ones, and the 22.2 commit that removed them if you can find it | `analysis/rom/sepolicy.md` |
+| R1 | **VINTF.** Our HALs are listed in `manifest.xml` in our device tree (`anton-scholten/android_device_samsung_gts4lv-common`, branch `lineage-23.2`). Compare each `<hal>` name and version with the compatibility matrix for the target FCM level in `LineageOS/android_hardware_interfaces` `lineage-23.2` `compatibility_matrices/` (find the file whose `level=` is the newest. Write down which one you used). List each HAL that is missing, below the minimum version, or listed as deprecated | `analysis/rom/vintf.md` |
+| R2 | **sepolicy.** List every type, attribute and macro used in the `sepolicy/` folder of our device tree (branch `lineage-23.2`). Check each exists in `LineageOS/android_system_sepolicy` `lineage-23.2` (`git grep -w`). Report the missing ones, and the 22.2 commit that removed them if you can find it | `analysis/rom/sepolicy.md` |
 | R3 | **Soong config.** List each `soong_config_set` / `SOONG_CONFIG_` variable in the device fork and the `gts4lv` and `gts4lvwifi` repos. Check each is still read by `LineageOS/android_hardware_samsung` or `android_hardware_qcom-caf_*` `lineage-23.2` (`git grep`) | `analysis/rom/soong.md` |
 | R4 | **Blob deps.** From `TheMuppets/proprietary_vendor_samsung_gts4lv-common` `lineage-22.2` (big, so use `--depth 1`; if files are Git LFS pointers, say so and stop), run `readelf -d` on each `.so` and list `NEEDED` libraries that aren't shipped in the vendor repo itself. The lead checks those against 23.2 | `analysis/rom/blob-deps.tsv` |
 | R6 | **Port list from sm7125-common.** [`analysis/reference-trees/sm7125-common-22.2-to-23.2.tsv`](analysis/reference-trees/sm7125-common-22.2-to-23.2.tsv) lists the 26 commits LineageOS made to an official Samsung Qualcomm tree between 22.2 and 23.2. Four are done (see [the README](analysis/reference-trees/README.md)). For each of the other 22: read it (`git show <sha>` in a clone of `LineageOS/android_device_samsung_sm7125-common`), find the matching file or setting in our device fork, and say: `NEEDED` / `NOT NEEDED` / `ALREADY DONE` / `UNSURE`, with the reason and the file it would change in our tree | `analysis/rom/port-from-sm7125.md` |
-| R7 | **4.9-specific changes in exynos9810-common.** [`exynos9810-common-22.2-to-23.2.tsv`](analysis/reference-trees/exynos9810-common-22.2-to-23.2.tsv) has 143 commits from ExyHyperBrick's Galaxy S9 tree. Sort each into: `KERNEL-4.9` (works around the old kernel: BPF, uffd, LMK, freezer, power supply filters), `GENERIC-23.2` (a change every device needs for 23.2), `EXYNOS-ONLY` (audio, camera, RIL, Exynos hardware), `TUNING` (performance and memory tweaks). For `KERNEL-4.9` and `GENERIC-23.2`, say whether our device fork needs the same change | `analysis/rom/port-from-exynos9810.md` |
+| R7 | **4.9-specific changes in exynos9810-common.** [`exynos9810-common-22.2-to-23.2.tsv`](analysis/reference-trees/exynos9810-common-22.2-to-23.2.tsv) has 143 commits from ExyHyperBrick's Galaxy S9 tree. Clone it from the backup `anton-scholten/android_device_samsung_exynos9810-common`. Sort each into: `KERNEL-4.9` (works around the old kernel: BPF, uffd, LMK, freezer, power supply filters), `GENERIC-23.2` (a change every device needs for 23.2), `EXYNOS-ONLY` (audio, camera, RIL, Exynos hardware), `TUNING` (performance and memory tweaks). For `KERNEL-4.9` and `GENERIC-23.2`, say whether our device fork needs the same change | `analysis/rom/port-from-exynos9810.md` |
 
 **Self-check for R tasks:** every listed item has a source (SHA or URL + path) and a verdict. The summary gives counts per verdict.
 
@@ -394,14 +397,13 @@ These need the lead or a human. They use the outputs above as input:
 ## 8. Order and dependencies
 ```
 Now, all in parallel:   M2  M3  K1  K2*  K3*  K4*  K5a→K5b..f  K6  R1–R4  R6  R7  T1  T2
-After S1+S2:            M1
 After K1:               lead re-checks K2 "Already in sdm670?" answers against upstream-map.tsv
-After K1–K4 + S2 + S3:  lead starts the cherry-pick (section 7)
+After K1–K4:            lead starts the cherry-pick on the kernel fork's lineage-23.2 (section 7)
 ```
 
 ## 9. Common mistakes
 - **Taking one side of a conflict whole.** A test build doing that failed in seconds ([build-test](analysis/build-test/README.md)). Always look at both sides.
-- **Using `exy/l232` instead of `baa585f67e0e`.** The branch keeps moving. All numbers here are for `baa585f67e0e`.
+- **Cloning ExyHyperBrick's original instead of our backup.** The original keeps moving. All numbers here are for `baa585f67e0e`.
 - **Short SHAs that are ambiguous.** Use at least 12 characters.
 - **Copying big code blocks.** Cite them instead (rule 7).
 - **Saying "probably fine" without evidence.** Give a source or say `confidence: low`.

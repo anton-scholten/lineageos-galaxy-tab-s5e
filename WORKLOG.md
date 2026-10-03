@@ -90,3 +90,15 @@ or skipped, and why. Newest last.
 - Attached `anton-scholten/android_kernel_samsung_sdm670` to this session with push access. Both forks are attached now.
 - The ExyHyperBrick repos' default branch is `lineage-24.0`. Added fork steps that untick "copy default branch only", so `lineage-23.2` comes along (`REPO-SETUP.md`).
 - `AGENT-TASKS.md`: added which repo agents work in (this one, branches `agent/<task-id>`; everything else read-only) and how the owner gives non-Claude agents access (fine-grained token, collaborator, or patch files).
+
+## 2026-10-03: lineage-23.2 branches, backups, manifests
+- Checked the owner's backup forks `anton-scholten/android_kernel_samsung_exynos9810` (48 branches) and
+  `..._exynos9810-common` (24 branches). They match ExyHyperBrick exactly: kernel `lineage-22.2` `d54533f1546b`, `lineage-23.2` `baa585f67e0e`;
+  device `lineage-22.2` `c7d22a36ba1e`, `lineage-23.2` `ced977559b13`. Both are public.
+- Pushed the device fork's `lineage-23.2` = `d1b339b` + `git am` patches 0001–0004 (tip `2e50286`).
+- Pushed the kernel fork's `lineage-23.2` = `a30605a54f3b` (no changes yet).
+- `local_manifests/gts4lv-common.xml` now points at both forks (`remote="anton"`, `lineage-23.2`).
+- Removed `apply-patches.sh`, because the fork replaces it. `patches/` stays as a record.
+- Updated `README.md`, `PORTING-LINEAGE-23.2.md`, `CLAUDE.md` and `HANDOVER.md`, and rewrote `REPO-SETUP.md` as a current-state doc.
+- `AGENT-TASKS.md`: removed the done owner tasks and M1. Agents now clone from our forks and backups,
+  with a table of which task needs which repo. The pin checker (M3) covers the forks.

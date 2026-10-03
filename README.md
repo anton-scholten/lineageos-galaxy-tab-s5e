@@ -45,7 +45,7 @@ option for this tablet is **official LineageOS 22.2**.
 | `analysis/exyhyperbrick-trial/` | Trial port of the Galaxy S9 4.9 eBPF kernel series onto the Tab S5e kernel, and conflict classification |
 | `analysis/build-test/` | Kernel build test: baseline vs. port tree |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree |
-| `apply-patches.sh` | Applies the patches (skips the BPF override unless `--with-bpf-override`) |
+| `patches/` | Record of the device-tree changes. They're already committed to the fork's `lineage-23.2` branch, so you don't need to apply them |
 
 ## Building (developers)
 
@@ -55,7 +55,6 @@ mkdir -p .repo/local_manifests
 cp <this repo>/local_manifests/gts4lv-common.xml .repo/local_manifests/
 cp <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/   # LTE: gts4lv.xml
 repo sync -c -j$(nproc)
-<this repo>/apply-patches.sh "$PWD"          # add --with-bpf-override once the kernel is backported
 source build/envsetup.sh && breakfast gts4lvwifi && mka bacon   # LTE: breakfast gts4lv
 ```
 
