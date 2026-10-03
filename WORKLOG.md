@@ -47,6 +47,13 @@ or skipped, and why. Newest last.
   - Wrote `ESTIMATE.md`: about 7 weeks full-time expected, range 4–11.
 - Changed patch 0004 to `ro.bpf.kver_override=5.15.178`, to match the ExyHyperBrick-based kernel.
 
+## 2026-10-03: moved to the new repo
+- The owner created `anton-scholten/lineageos-galaxy-tab-s5e`. It was attached to the session, and the full
+  history pushed there as `main`.
+- Added `HANDOVER.md` (state, next steps, how to rebuild the environment) and `CLAUDE.md`.
+  Made the trial scripts' work directory configurable (`W=`), and moved the `group` classification
+  into `classify.py`. Rerunning it reproduces `conflict_detail.tsv` exactly.
+
 ## Not done yet
 - No kernel port branch is published. The trial trees have unresolved or blindly resolved conflicts, so
   they're not fit to publish.

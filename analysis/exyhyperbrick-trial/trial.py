@@ -1,5 +1,7 @@
 import subprocess, sys, os
-os.chdir('/tmp/claude-0/w/k670')
+# Work dir: set W (default /tmp/claude-0/w); expects $W/k670 (sdm670 clone with exy remotes) and $W/series.tsv
+W = os.environ.get('W', '/tmp/claude-0/w')
+os.chdir(W + '/k670')
 def g(*a, inp=None, check=True):
     r = subprocess.run(['git', *a], capture_output=True, text=True, input=inp)
     if check and r.returncode not in (0, 1): raise RuntimeError(r.stderr)
@@ -7,8 +9,8 @@ def g(*a, inp=None, check=True):
 # directory set of target tree for "device-only" detection
 dirs = set(g('ls-tree', '-r', '-d', '--name-only', 'lineage-22.2').stdout.split('\n')) | {''}
 head = g('rev-parse', 'lineage-22.2').stdout.strip()
-out = open('/tmp/claude-0/w/trial2.log', 'w')
-for line in open('/tmp/claude-0/w/series.tsv'):
+out = open(W + '/trial2.log', 'w')
+for line in open(W + '/series.tsv'):
     h, s = line.rstrip('\n').split('\t', 1)
     files = [f for f in g('diff-tree', '--no-commit-id', '--name-only', '-r', h).stdout.split('\n') if f]
     if s.startswith('[exynos9810]') or s.startswith('[9810]'):

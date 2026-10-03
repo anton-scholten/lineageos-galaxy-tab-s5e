@@ -1,6 +1,13 @@
 # Repository setup review
 
-## Current state
+## Status (2026-10-03)
+
+The owner created **`anton-scholten/lineageos-galaxy-tab-s5e`**, and the full history was pushed there as `main`.
+That is now the home of this project. The old repo `anton-scholten/Lineage-OS-SM-T720` (branch
+`claude/nifty-lamport-yf0vex`) holds the same history up to the move; archive or delete it whenever you like.
+The forks (step 3 below) are still to do.
+
+## Original state of the old repo
 
 `anton-scholten/Lineage-OS-SM-T720`: private, only the branch
 `claude/nifty-lamport-yf0vex`, no `main`, no description.
@@ -28,7 +35,7 @@ it should be renamed or moved, and the code should go into forks that follow Lin
 Once the forks exist, `local_manifests/gts4lv-common.xml` points `device/samsung/gts4lv-common`
 and `kernel/samsung/sdm670` at them, and `patches/` + `apply-patches.sh` can be retired.
 
-## Why it isn't done yet
+## Steps (1–2 done)
 
 This session can't create repositories. `create_repository` returned
 `403 Resource not accessible by integration`, and GitHub access is limited to this one repo.
