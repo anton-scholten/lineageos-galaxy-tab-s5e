@@ -165,3 +165,13 @@ or skipped, and why. Newest last.
 - AGENT-TASKS: §2.3 round 4 table; §6c specs P1 (cherry-pick), P2 (automerge triage), P3 (known fixes + defconfig), P4 (build loop with forbidden fixes
   and escalation), P5 (device tree), and the strong reviews. §0.4 now lets round-4 agents push `port/*` branches only. §0.6 covers fork tokens and protecting `lineage-23.2`. §10 says free model everywhere.
 - HANDOVER plan and ESTIMATE redone: ≈24.5 days wall-clock expected (14.5–46), about 5 weeks. The first ~12 days are mostly unattended agents.
+
+## 2026-10-03: ready for the free model to take over
+- Added `RUNBOOK.md` for the owner: one-time setup (machine, `~/work` layout with a worktree per agent, two fine-grained tokens, branch protection),
+  then each step in order with a copy-paste prompt and the check to run before moving on, a reviewer prompt ("Prompt R"),
+  and what to do without a strong model.
+- Added `analysis/port/STATUS.md`, a progress table the owner or lead updates.
+- Rewrote `AGENTS.md` for research and port tasks: the port-branch exception, never force-push, never delete code to silence an error.
+- AGENT-TASKS: round-4 paths now match the runbook (`$DOCS`, `~/work/k670`, `~/work/out`); P2 IDs and read-only use of the shared clone.
+  Common mistakes now include the sandbox and history-rewrite traps the lead synthesis reported.
+- Linked the runbook from README, CLAUDE.md and HANDOVER.

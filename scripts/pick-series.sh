@@ -25,7 +25,7 @@ branch=$(git rev-parse --abbrev-ref HEAD)
 [[ $branch == port/* ]] || { echo "Check out a branch named port/* first (git checkout -b port/pick $BASE)."; exit 2; }
 git merge-base --is-ancestor "$BASE" HEAD || { echo "HEAD doesn't contain $BASE."; exit 2; }
 if [[ -e .git/CHERRY_PICK_HEAD ]]; then
-    echo "A cherry-pick is in progress. Finish it first (AGENT-TASKS.md §P1 step 4), then run this again."
+    echo "A cherry-pick is in progress. Finish it first (AGENT-TASKS.md §6c, P1 step 4), then run this again."
     exit 3
 fi
 [[ -z $(git status --porcelain --untracked-files=no) ]] || { echo "Working tree has uncommitted changes. Commit or stash them."; exit 2; }

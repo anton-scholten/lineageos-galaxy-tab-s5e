@@ -5,6 +5,8 @@ Project: port LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e
 local manifests and device-tree patches. It is not an Android source tree.
 
 - Start with [HANDOVER.md](HANDOVER.md) (current state and plan), then [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) (research findings), then [WORKLOG.md](WORKLOG.md).
+- The work is run from [RUNBOOK.md](RUNBOOK.md): free-model agents do the steps, and you are usually called as the **reviewer** ("Prompt R").
+  Track progress in `analysis/port/STATUS.md`.
 - Main docs: `README.md` (users), `PORTING-LINEAGE-23.2.md`, `KERNEL-BACKPORT-PLAN.md`,
   `ESTIMATE.md`, `PRIOR-WORK.md`, `REPO-SETUP.md`, `AGENT-TASKS.md` (work for helper agents; their entry point is `AGENTS.md`).
 - Code lives in the forks, branch `lineage-23.2`: `anton-scholten/android_device_samsung_gts4lv-common`

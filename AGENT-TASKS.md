@@ -569,14 +569,15 @@ Bumping the number only works if the vendor RIL implements 1.5.
 ## 6c. Round 4 task specs (the port)
 
 ### Shared setup for P1, P3, P4
-Full kernel clone as in §1.2 (not `--depth 1`: the cherry-pick needs the series history). Then:
+Layout (as in [RUNBOOK.md](RUNBOOK.md) §0): your docs worktree is `$DOCS` (e.g. `~/work/wt/P1`), the kernel clone is `~/work/k670`
+(a full clone as in §1.2, not `--depth 1`: the cherry-pick needs the series history). **Only one of P1/P3/P4 runs at a time**; they share the clone.
 ```bash
-cd $W/k670
+DOCS=~/work/wt/<task-id>; cd ~/work/k670
 git remote set-url --push origin https://<token>@github.com/anton-scholten/android_kernel_samsung_sdm670   # token from §0.6
 git fetch origin port/pick 2>/dev/null && git checkout -b port/pick origin/port/pick || git checkout -b port/pick a30605a54f3b
 git config user.name "<your model name> (helper)"; git config user.email "noreply@example.invalid"
 ```
-The docs repo is cloned next to it, on branch `agent/<task-id>`. The scripts live there: `scripts/pick-series.sh`, `scripts/check-pick.py`.
+The scripts live in the docs repo: `$DOCS/scripts/pick-series.sh`, `$DOCS/scripts/check-pick.py`. Commit your log files there, on `agent/<task-id>`.
 **Never** run `git push --force`, `git rebase`, `git reset --hard` or `git commit --amend` on a commit that's already pushed. Fix mistakes with a new commit.
 
 ### P1: cherry-pick the series (free model, 1 agent)
@@ -594,7 +595,7 @@ chain whose earlier zstd commits are in the `skip` group. If so, DROP it the sam
 (what conflicted, what you kept, why).
 
 **Loop:**
-1. `bash ../lineageos-galaxy-tab-s5e/scripts/pick-series.sh .` → exit 0 means done (go to step 8); exit 1 means a conflict; read `.git/PORT_STATUS`.
+1. `bash $DOCS/scripts/pick-series.sh .` → exit 0 means done (go to step 8); exit 1 means a conflict; read `.git/PORT_STATUS`.
 2. Open the brief it names (`analysis/conflicts/<sha>.md`). Check the conflicting files match the brief's `## Conflicting files`. If they don't, or there's
    no brief, write down what you see before deciding.
 3. Do what `## Proposed resolution` says:
@@ -617,7 +618,7 @@ chain whose earlier zstd commits are in the `skip` group. If so, DROP it the sam
    `Needs-review: <why>` as well, and keep going. The strong reviewer checks every such commit. If you truly can't produce a compiling-looking
    result, `git cherry-pick --abort`, write the commit and reason in `analysis/port/P1-log.md` under `## Blocked`, and **stop**.
 7. Every 10 resolved conflicts: `git push origin port/pick`, and commit + push the docs repo (`dropped.tsv`, `P1-log.md`) on `agent/P1`.
-8. When the script exits 0: `python3 ../lineageos-galaxy-tab-s5e/scripts/check-pick.py . ../pick-review` must print `problems: 0`. Push both repos.
+8. When the script exits 0: `python3 $DOCS/scripts/check-pick.py . ~/work/pick-review` must print `problems: 0`. Push both repos.
 
 `analysis/port/P1-log.md`: the §0.5 header, then one line per stop: `sha | brief verdict | what you did | escalated?`, then `## Blocked` and `## Problems`.
 
@@ -628,6 +629,7 @@ For each one, read the range-diff and classify:
 - **BENIGN**: same change, only placement or context differs; or a removal that found nothing to remove because sdm670 never had the lines.
   Prove it: `git grep` the lines in the result.
 - **SUSPECT**: part of the change is missing or duplicated (e.g. a `#define` now defined twice, a removal that didn't happen while the lines still exist elsewhere).
+Task IDs `P2-1` … `P2-4`; the owner tells each agent its share. Read-only on `~/work/k670` (don't check anything out there; use `git show`/`git grep <rev>`).
 Output `analysis/port/automerge-triage-<n>.tsv`: `sha12	BENIGN|SUSPECT	reason	evidence`.
 
 ### P3: known fixes and defconfig (free model, 1 agent)
@@ -644,7 +646,7 @@ One commit per item on `port/pick`, each with trailer `Fix-by: <model>; <source>
    Check with: `make ARCH=arm64 gts4lvwifi_defconfig` (from `kbuild.sh`), then `grep -E 'CONFIG_(CGROUP_SCHED|SCHED_WALT|UPROBES|BPF_JIT)=' out/.config` shows all four `=y`.
 
 ### P4: build loop (free model, 1 agent, escalates)
-Build: `bash ../lineageos-galaxy-tab-s5e/analysis/build-test/kbuild.sh . ../out ../build.log` (needs the §1.0 tools plus
+Build: `bash $DOCS/analysis/build-test/kbuild.sh . ~/work/out ~/work/build.log` (needs the §1.0 tools plus
 `clang lld flex bison libssl-dev binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves` (for `pahole`); about 10 GB disk;
 12 min per full build on 4 cores, later builds are incremental).
 **Loop:** build → take the **first** error in `build.log` → fix it → commit → repeat until `Image.gz-dtb` exists.
@@ -702,7 +704,10 @@ Then:                   owner: ROM build, flash, boot (HANDOVER.md steps 6–8)
 - **Copying big code blocks.** Cite them instead (rule 7).
 - **Saying "probably fine" without evidence.** Give a source or say `confidence: low`.
 - **Killing a slow clone.** Wait. Big clones look stuck while they unpack.
-- **Editing shared files** (`WORKLOG.md`, `HANDOVER.md`). Don't; the lead does.
+- **Editing shared files** (`WORKLOG.md`, `HANDOVER.md`, `analysis/port/STATUS.md`). Don't; the owner or lead does. (P1 is the only agent that edits `analysis/port/dropped.tsv`.)
+- **Writing outside your worktree.** Round 1 agents left a 2.3 GB clone, logs and junk files in shared folders. Put scratch files in `/tmp` or your own worktree.
+- **Running `git checkout` in the shared kernel clone** when you're not P1/P3/P4. Use `git show <rev>:<file>` and `git grep <rev>` instead.
+- **Rewriting pushed history** (`--force`, `rebase`, `reset --hard`, `--amend` after push) on `port/*`. Fix with a new commit.
 
 ## 10. Which model for which task
 **Use the free model ("Space Bunny Free" on OpenCode) for every helper task**, including all of round 3 and the work steps of round 4

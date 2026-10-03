@@ -22,6 +22,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
 ## Plan of remaining work
 The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.
+**To run it: [RUNBOOK.md](RUNBOOK.md)** (setup, order, prompts, checks). Progress: [analysis/port/STATUS.md](analysis/port/STATUS.md).
 Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §2.2–2.3 and §6b–6c.
 
 | # | Step | Who | Expected (wall-clock) |

@@ -1,44 +1,44 @@
 # AGENTS.md: start here (any AI agent)
 
 You are a helper agent on a project to port LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e.
-This repo holds **docs, analysis and reports**, not Android source code. Your job is one small **research task**.
-You write a report into this repo. You don't change any kernel or device code.
+This repo holds **docs, analysis, reports and scripts**, not Android source code. There are two kinds of tasks:
+- **Research** (round 3: `K7`, `K8`, `R7`, `R8`, `R9`): you write a report into this repo. You don't change any kernel or device code.
+- **Port** (round 4: `P1`–`P5`): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
+  A stronger model reviews everything you do.
+
+The owner runs the project from [RUNBOOK.md](RUNBOOK.md). That's where your prompt came from.
 
 ## Your first 5 minutes
-1. **Get your task ID.** Whoever started you should have given one, like `K7`, `K8` or `R8` (round 3; §2.2 of AGENT-TASKS.md lists the open ones).
-   If you didn't get one, **stop and ask**. Don't pick one yourself, because other agents may be doing it.
+1. **Get your task ID.** Your prompt should name it, like `K7`, `R8` or `P1`. If it doesn't, **stop and ask**.
+   Don't pick one yourself, because another agent may be doing it.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
    - §0, all of it: project, words, repos, rules, how to hand in.
-   - §1, setup.
-   - §2, the table of all tasks: your row says which tier, clones and output.
-   - Your task's own section. Find it by searching for your task ID's letter and number, e.g. `### K2`, `| R5 |`.
+   - §1, setup and prerequisites.
+   - §2.2 (round 3) or §2.3 (round 4): your row.
+   - Your task's spec: §6b for K7, K8, R7, R8, R9. §6c for P1–P5 (read its "Shared setup" too).
    - §9, common mistakes.
-3. Check your machine has what your task needs ([§1.0 of AGENT-TASKS.md](AGENT-TASKS.md#10-prerequisites)).
-4. Make your branch: `git checkout -b agent/<task-id> origin/main`.
+3. Check your machine has what your task needs ([§1.0](AGENT-TASKS.md#10-prerequisites)).
+4. Work in the folder your prompt gives you (normally `~/work/wt/<task-id>`, already on branch `agent/<task-id>`).
+   If you have no worktree: `git checkout -b agent/<task-id> origin/main`.
 5. Do the task. Run its self-check. Hand in (§0.5).
 
-You don't need to read the other docs. If you want background:
+Background, if you need it:
 
 | File | What it is |
 |---|---|
-| [`HANDOVER.md`](HANDOVER.md) | Current state of the whole project |
-| [`analysis/exyhyperbrick-trial/README.md`](analysis/exyhyperbrick-trial/README.md) | How the 150 conflicts were found |
-| [`analysis/agent-batches/`](analysis/agent-batches/) | Input lists for the K2/K3 tasks (one file per batch) |
-| [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Input for tasks R5/R6 |
-| `CLAUDE.md` | Notes for the lead agent. Not for you |
+| [`HANDOVER.md`](HANDOVER.md) | Current state and plan of the whole project |
+| [`LEAD-SYNTHESIS.md`](LEAD-SYNTHESIS.md) | Findings from earlier research: known breakages and traps |
+| [`analysis/conflicts/`](analysis/conflicts/) | One brief per conflicting kernel commit. **P1 follows these** |
+| [`analysis/port/`](analysis/port/README.md) | Round-4 working files: `full-review.txt`, `dropped.tsv`, `dry-run-stops.tsv`, `STATUS.md` |
+| [`analysis/agent-batches/`](analysis/agent-batches/) | Input lists for conflict-brief tasks |
+| [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Other device trees that already did 23.2 |
+| `CLAUDE.md` | Notes for the reviewing lead. Not for you |
 
 ## Hard rules (full list in AGENT-TASKS.md §0.4)
-- Write **only** to the output path your task names. Commit to `agent/<task-id>` only. Never push to `main`.
-- Never push to any other repo. Kernel and device repos are clone-and-read only.
-- Don't edit `WORKLOG.md`, `HANDOVER.md`, `README.md`, `AGENTS.md` or `AGENT-TASKS.md`.
+- Write **only** what your task names. In this repo, commit to `agent/<task-id>` only. Never push to `main`.
+- Kernel and device repos are read-only, **except** round-4 tasks, which push only to `port/pick` (kernel fork) or `port/dt` (device fork).
+  Never push to `lineage-23.2`, never force-push, never rebase or amend pushed commits.
+- Don't edit `WORKLOG.md`, `HANDOVER.md`, `README.md`, `AGENTS.md`, `AGENT-TASKS.md`, `RUNBOOK.md` or `analysis/port/STATUS.md`.
 - Every fact needs a source (12+ character SHA, `file:line @ commit`, or URL), plus a confidence level.
-- Stuck, or a command failed twice: write what happened under `## Problems`, then hand in what you have. Don't guess.
-- Don't run anything that flashes, wipes or formats a device. Don't install software system-wide unless your task's prerequisites say so.
-
-## Prompt the owner can paste to start an agent
-```text
-You are working in the git repo https://github.com/anton-scholten/lineageos-galaxy-tab-s5e (branch main).
-Your task ID is <TASK-ID>. Read AGENTS.md, then AGENT-TASKS.md sections 0, 1, 9 and the section for <TASK-ID>.
-Follow the steps exactly, run the self-check, and push your output on branch agent/<TASK-ID>.
-If anything is unclear or fails twice, write it under "## Problems" and stop. Don't guess.
-```
+- In code: never delete or disable code to make an error go away, and never take one side of a conflict blindly. Escalate instead (§6c).
+- Stuck, or a command failed twice: write what happened under `## Problems` (or `## Blocked` / `## Escalated` in round 4), hand in what you have, and stop. Don't guess.

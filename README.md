@@ -34,6 +34,7 @@ option for this tablet is **official LineageOS 22.2**.
 | Path | What |
 |---|---|
 | `HANDOVER.md` | **Start here when picking the project up:** state, plan of remaining work, environment setup |
+| `RUNBOOK.md` | Owner's step-by-step for finishing the port with the free model: setup, order, copy-paste prompts, checks |
 | `LEAD-SYNTHESIS.md` | Findings from the helper-agent research (must-fix items, risks), reviewed |
 | `TESTING.md` | How to collect crash logs from the tablet |
 | `PORTING-LINEAGE-23.2.md` | Analysis: kernel blocker, required changes, work order |

@@ -1,2 +1,2 @@
-# Commits deliberately not picked. Format: <12-char sha>\t<reason>\t<who>.
-# Read by scripts/pick-series.sh (never retried) and scripts/check-pick.sh. Append one line per DROP.
+# Commits deliberately not picked. Format: <12-char sha> TAB <reason> TAB <who>.
+# Read by scripts/pick-series.sh (never retried) and scripts/check-pick.py. Append one line per DROP.
