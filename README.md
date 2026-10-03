@@ -6,8 +6,8 @@ Tab S5e, both Wi-Fi and LTE models. Officially, LineageOS supports these tablets
 
 ## Will the tablet run LineageOS 23.2?
 
-**Not yet.** The SoC and userspace are fine, and the device-tree changes are
-in [`patches/`](patches/). The blocker is the kernel. Android 16 needs eBPF
+**Not yet.** The SoC and userspace are fine, and the first device-tree changes are
+done in [our fork](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2). The blocker is the kernel. Android 16 needs eBPF
 features from Linux 5.4, and the tablet runs Linux 4.9. LineageOS only ships 23.x
 on old kernels after they get a full eBPF backport (~1000+ commits) plus the
 `close_range` and `epoll_pwait2` syscalls. No official LineageOS 4.9 kernel has this,
@@ -33,20 +33,22 @@ option for this tablet is **official LineageOS 22.2**.
 
 | Path | What |
 |---|---|
+| `HANDOVER.md` | **Start here when picking the project up:** state, leftover work, environment setup |
 | `PORTING-LINEAGE-23.2.md` | Analysis: kernel blocker, required changes, work order |
-| `patches/device/samsung/gts4lv-common/` | Device tree patches against `lineage-22.2` |
 | `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2, and why it takes time |
 | `PRIOR-WORK.md` | Work other people have done online that can be reused |
 | `ESTIMATE.md` | Time estimate built from measured conflict sizes and a real kernel build test |
 | `WORKLOG.md` | Record of all work done so far, including blocked or failed steps |
-| `HANDOVER.md` | **Start here when picking the project up:** state, next steps, environment setup |
 | `CLAUDE.md` | Short guide for Claude sessions working in this repo |
 | `AGENTS.md` | Entry point for helper AI agents (OpenCode, Codex, …); points to `AGENT-TASKS.md` |
 | `AGENT-TASKS.md` | Parallel research tasks for helper agents: steps, templates, prerequisites, model per task |
-| `REPO-SETUP.md` | Review of this repo's name and layout, and the recommended setup |
+| `REPO-SETUP.md` | All repos (this one, the forks, the backups), which branch to use, and how to attach them to a Claude session |
 | `analysis/exyhyperbrick-trial/` | Trial port of the Galaxy S9 4.9 eBPF kernel series onto the Tab S5e kernel, and conflict classification |
 | `analysis/build-test/` | Kernel build test: baseline vs. port tree |
-| `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree |
+| `analysis/reference-trees/` | Device trees that already did 23.2 (sm7125-common, exynos9810-common), and their commit lists |
+| `analysis/agent-batches/` | The conflict commits split into batches for helper agents |
+| `scripts/check-agent-output.sh` | Format check for helper-agent reports |
+| `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree (they point at our forks) |
 | `patches/` | Record of the device-tree changes. They're already committed to the fork's `lineage-23.2` branch, so you don't need to apply them |
 
 ## Building (developers)

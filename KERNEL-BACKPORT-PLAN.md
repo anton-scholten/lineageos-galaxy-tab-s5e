@@ -35,7 +35,7 @@ The amount of code is only part of it:
 2. **Conflicts.** Each patch was written for a newer kernel. Code around it has
    changed: helper names, struct layouts, `timespec` vs `timespec64`,
    `refcount_t`, socket and cgroup internals. On top of that, Samsung and Qualcomm
-   both modified the same networking files (KNOX `ncm`, `sec_net`, data-path
+   both modified the same networking files (on other Samsung trees: KNOX `ncm`, `sec_net`; data-path
    hooks). If even 20% of the commits conflict, that's hundreds of hand-made fixes,
    at 15–60 minutes each.
 3. **Hidden prerequisites.** BPF commits depend on work outside BPF:
@@ -67,10 +67,10 @@ That changes the plan:
 
 | Step | Work | Estimate |
 |---|---|---|
-| 1 | Fork the sdm670 kernel. Cherry-pick the series with `-x`, skipping `[exynos9810]` commits | 1–2 days |
+| 1 | ~~Fork the sdm670 kernel~~ (done: `anton-scholten/android_kernel_samsung_sdm670` `lineage-23.2`). Cherry-pick the series with `-x`, skipping `[exynos9810]` commits | 1–2 days |
 | 2 | Resolve the ~150 conflicts. Many are changes sdm670 already has from `android-4.9-q`, so just drop the duplicate | 1–2 weeks |
-| 3 | Copy the defconfig changes (list in the analysis). Fix build errors in Qualcomm/Samsung drivers (`qcacld`, `rmnet`, IPA, `sec_net`, techpack) | 1–2 weeks |
-| 4 | Apply patch 0004 (`ro.bpf.kver_override=5.15.178`, matching the series). Boot, run the bundled BPF verifier selftests and `bpf_existence_test`, check networking, soak 24 h | 1–2 weeks |
+| 3 | Copy the defconfig changes (list in the analysis). Fix build errors in Qualcomm drivers (`qcacld`, `net/rmnet_data`, IPA, cnss) | 1–2 weeks |
+| 4 | Patch 0004 (`ro.bpf.kver_override=5.15.178`, matching the series) is already in the device fork. Boot, run the bundled BPF verifier selftests and `bpf_existence_test`, check networking, soak 24 h | 1–2 weeks |
 
 **Kernel work alone: about 4–6 weeks full-time.** The full project, including the ROM side, boot debugging and testing, is about 7 weeks expected (range 4–11). See [ESTIMATE.md](ESTIMATE.md) for the measured, bottom-up estimate. This is instead of 3–4 months from scratch. Phases 2–3 below are now only
 a fallback. Keep the original authorship, and contact krazey before publishing.
@@ -86,7 +86,7 @@ series in `LineageOS/android_kernel_samsung_sm8150` (`lineage-20`), merged into
 commits: 1,364 `UPSTREAM`, 347 `BACKPORT`, plus fix-ups, and about 970 of them touch BPF.
 
 #### Phase 0: setup (about 1 week)
-1. Fork `android_kernel_samsung_sdm670` from `lineage-22.2`, creating branch `lineage-23.2`.
+1. ~~Fork `android_kernel_samsung_sdm670` from `lineage-22.2`, creating branch `lineage-23.2`.~~ Done.
 2. Build a 23.2 tree with this repo's patches 0001–0003, and check that the 22.2
    kernel boots far enough to reach `netbpfload`. Expect it to stop there.
 3. Get a test setup working:
@@ -141,18 +141,14 @@ There are two ways to do it. Pick one:
   arch/arm64/net tools/include/uapi/linux/bpf.h`, then drop the XDP and driver
   commits, which Android doesn't need. Cherry-pick in order, and build plus
   boot-test every ~50 commits. This is slow, but bugs are easy to bisect.
-- **(b) Subsystem transplant.** First check the community 4.9 eBPF backports.
-  The best candidate is the sdm845 4.9 series
-  (`gitea.com/console-ramoops/kernel_qcom_sdm845-bpf-4.9`), since sdm845 is
-  the same `msm-4.9` CAF base. If it's usable, port its commits directly.
-  This is the fastest path if that series is complete.
+- **(b) Subsystem transplant** of a community 4.9 eBPF backport. This is now the chosen route,
+  using the ExyHyperBrick series (see "Update" above). The sdm845 gitea series once listed here only has `lineage-23.0`.
 
 Watch for:
 - The arm64 BPF JIT (`arch/arm64/net/bpf_jit_comp.c`) must keep up with the
   new instructions. Otherwise turn off `CONFIG_BPF_JIT_ALWAYS_ON` until it does.
-- Things in Samsung's tree that hook into networking: the `ANDROID_PARANOID_NETWORK`,
-  KNOX `ncm` and `sec_net` code. The sm8150 series had to fully revert
-  `ANDROID_PARANOID_NETWORK`.
+- Things in Samsung's tree that hook into networking: `ANDROID_PARANOID_NETWORK`
+  (the sm8150 series had to fully revert it). Checked 2026-10-03: sdm670 has no KNOX `ncm` or `sec_net` code.
 - `cgroup` v1 vs v2 `bpf` attachment. Android 16 requires the cgroup2 mount
   at `/sys/fs/cgroup`.
 
@@ -170,7 +166,7 @@ Check after this phase: `bpf_existence_test` passes and `kernel_test`
 `TestKernel54` passes with `ro.bpf.kver_override=5.4.299` (change patch 0004 to that value if you take this from-scratch route).
 
 #### Phase 4: enable and check (about 1–2 weeks)
-1. Apply `patches/device/samsung/gts4lv-common/0004-…Override-kernel-BPF-version.patch`.
+1. Patch 0004 is already in the device fork. If you took this from-scratch route, change its value to `5.4.299`.
 2. Check traffic accounting (Settings → Data usage), per-app network
    restrictions, VPN lockdown, tethering offload, clat/464xlat (LTE) and Wi-Fi Display.
 3. Leave it running for 24 hours or more. BPF verifier or JIT bugs tend to show up as slow memory corruption.
@@ -226,13 +222,12 @@ loading, camera) to 4.19. That's at least as much work as Track A, and it
 needs new userspace HAL variants. Only worth considering if someone first does an
 SDM670 4.19 base (for example for the Pixel 3a, which has the same SoC).
 
-Recommended: use Track B to get a working 23.2 quickly for testing, and Track A as
-the real fix. Check the community 4.9 eBPF work listed in
-[PRIOR-WORK.md](PRIOR-WORK.md) before starting Phase 2.
+**Recommended:** Track A by porting the ExyHyperBrick series (the "Update" section above). Track B is only for a quick
+test boot while that's in progress.
 
 ## Device-side work still needed (all tracks)
 
-- `patches/device/samsung/gts4lv-common/0001–0003`: done.
+- Patches 0001–0004: done, committed in the device fork's `lineage-23.2`. Helper tasks R1–R6 ([AGENT-TASKS.md](AGENT-TASKS.md)) look for the rest.
 - **FCM level.** In lineage-23.2, `compatibility_matrix.5.xml` is an
   empty placeholder ("Android R FCM has been deprecated"). Bump
   `manifest.xml` `target-level` from 5 to 6.

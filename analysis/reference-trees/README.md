@@ -20,12 +20,12 @@ Lists were made with `git log --reverse --format='%h%x09%ad%x09%an%x09%s' --date
 | `39eb067` Migrate to LiveDisplay AIDL HAL | 0003 |
 | `9849669` Override kernel BPF version (+ `fa32b8f` bump) | 0004 (we use `5.15.178`, not `5.4.299`) |
 
-The other 22 are task R6 in [AGENT-TASKS.md](../../AGENT-TASKS.md). The likely important ones: `88c7b73` (manifest target-level 6),
+The other 22 are task R5 in [AGENT-TASKS.md](../../AGENT-TASKS.md). The likely important ones: `88c7b73` (manifest target-level 6),
 `2642472` (gatekeeper sepolicy), `aef65d7` (soong_config_set moved to common.mk), `c6ef8e7` (Python extract-utils).
 The NFC ones (`37cf59f`, `75d876d`, `ee1d616`) only matter if a Tab S5e model has NFC. The SM-T720/T725 don't, as far as we know: check.
 
 ## exynos9810-common: commits that look kernel-4.9-related
-Found by searching the subjects for `bpf|uffd|kernel|power supply|freezer`. Task R7 checks all 143.
+Found by searching the subjects for `bpf|uffd|kernel|power supply|freezer`. Task R6 checks all 143.
 
 | Commit | Subject |
 |---|---|

@@ -10,7 +10,8 @@ You write a report into this repo. You don't change any kernel or device code.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
    - §0, all of it: project, words, repos, rules, how to hand in.
    - §1, setup.
-   - Your task's own section. Find it by searching for your task ID's letter and number, e.g. `### K2`, `| R6 |`.
+   - §2, the table of all tasks: your row says which tier, clones and output.
+   - Your task's own section. Find it by searching for your task ID's letter and number, e.g. `### K2`, `| R5 |`.
    - §9, common mistakes.
 3. Check your machine has what your task needs ([§1.0 of AGENT-TASKS.md](AGENT-TASKS.md#10-prerequisites)).
 4. Make your branch: `git checkout -b agent/<task-id> origin/main`.
@@ -23,7 +24,7 @@ You don't need to read the other docs. If you want background:
 | [`HANDOVER.md`](HANDOVER.md) | Current state of the whole project |
 | [`analysis/exyhyperbrick-trial/README.md`](analysis/exyhyperbrick-trial/README.md) | How the 150 conflicts were found |
 | [`analysis/agent-batches/`](analysis/agent-batches/) | Input lists for the K2/K3 tasks (one file per batch) |
-| [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Input for tasks R6/R7 |
+| [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Input for tasks R5/R6 |
 | `CLAUDE.md` | Notes for the lead agent. Not for you |
 
 ## Hard rules (full list in AGENT-TASKS.md §0.4)

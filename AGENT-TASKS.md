@@ -44,7 +44,7 @@ Most tasks here help someone resolve those 150 conflicts faster and more safely.
 | `anton-scholten/android_kernel_samsung_sdm670` (public) | Read only. **Our kernel.** Branch `lineage-23.2` = `a30605a54f3b` (same as LineageOS `lineage-22.2`) | Anonymous `git clone` |
 | `anton-scholten/android_device_samsung_gts4lv-common` (public) | Read only. **Our device tree.** Branch `lineage-23.2` = LineageOS `d1b339b` + patches 0001–0004 | Anonymous `git clone` |
 | `anton-scholten/android_kernel_samsung_exynos9810` (public) | Read only. Frozen backup of the ExyHyperBrick S9 kernel = **the eBPF series**. Use this, not the ExyHyperBrick original | Anonymous `git clone` |
-| `anton-scholten/android_device_samsung_exynos9810-common` (public) | Read only. Frozen backup of the ExyHyperBrick S9 device tree (task R7) | Anonymous `git clone` |
+| `anton-scholten/android_device_samsung_exynos9810-common` (public) | Read only. Frozen backup of the ExyHyperBrick S9 device tree (task R6) | Anonymous `git clone` |
 | `LineageOS/*`, `TheMuppets/*` (public) | Read only. Reference trees (R tasks) | Anonymous `git clone` |
 
 All your output goes into **this repo**. Nothing you do changes the kernel or the device tree.
@@ -57,8 +57,8 @@ Which task needs which repo:
 | K1–K6 | Our kernel + the exynos9810 kernel backup, set up as in §1.2 |
 | R1, R2, R3 | Our device tree (`lineage-23.2`) + the LineageOS repos named in the task |
 | R4 | `TheMuppets/proprietary_vendor_samsung_gts4lv-common` |
-| R6 | Our device tree + `LineageOS/android_device_samsung_sm7125-common` |
-| R7 | Our device tree + the exynos9810-common backup |
+| R5 | Our device tree + `LineageOS/android_device_samsung_sm7125-common` |
+| R6 | Our device tree + the exynos9810-common backup |
 
 ### 0.4 Rules
 1. **One task ID per agent.** Your task ID is something like `K2a-3` or `R6`. The owner gives it to you; if you have none, ask. Write only to the output path that task names.
@@ -78,7 +78,7 @@ Which task needs which repo:
 ### 0.5 How to hand in
 ```bash
 cd /path/to/lineageos-galaxy-tab-s5e
-git checkout -b agent/<task-id>
+git branch --show-current   # must print agent/<task-id> (you created it in §1.1)
 git add <your output files only>
 git status            # check: only your files are listed
 git commit -m "<task-id>: <one-line summary>"
@@ -129,7 +129,7 @@ Nothing needs building or flashing. You need a shell, git, network access to git
 | M2 | `curl` | `apt install curl` · built in |
 | M3, T1 | `shellcheck` (optional, for the self-check) | `apt install shellcheck` · `brew install shellcheck` |
 | R1 | `xmllint` (optional, makes XML easier to read) | `apt install libxml2-utils` · built in |
-| R4 | `readelf`, and `git-lfs` in case the vendor repo uses LFS | `apt install binutils git-lfs` · `brew install binutils git-lfs` |
+| R4 | `readelf` | `apt install binutils` · `brew install binutils` (then use `greadelf` if `readelf` isn't found) |
 | T1 | Nothing. You write the script; you don't need a tablet or `adb` to write it | |
 | All others | Nothing extra | |
 
@@ -140,7 +140,7 @@ No compilers, Android SDK, `repo` tool, Docker or Python packages are needed for
 | Task | Disk | First-time setup |
 |---|---|---|
 | K1–K6 | ≈6 GB (kernel + series) | 10–30 min to clone (§1.2) |
-| R1–R3, R6, R7 | < 1 GB (shallow clones) | a few minutes |
+| R1–R3, R5, R6 | < 1 GB (shallow clones) | a few minutes |
 | R4 | up to a few GB (vendor blobs) | 5–20 min |
 | M2, M3, T1, T2 | < 50 MB | seconds |
 
@@ -193,8 +193,30 @@ To see the conflict markers in one file: `git cat-file -p <tree-id>:<path> | gre
 
 ---
 
-## 2. Owner setup: done
-Forks, branches, backups and manifests were all set up on 2026-10-03 ([REPO-SETUP.md](REPO-SETUP.md)). Nothing to do here.
+## 2. All tasks at a glance
+The repo setup is done (forks, branches, backups, manifests; see [REPO-SETUP.md](REPO-SETUP.md)). Only these research tasks are left for helpers.
+
+| ID | Agents | Tier (§10) | Clone needed | Output | Rough time |
+|---|---|---|---|---|---|
+| M2 link check | 1 | 1 | this repo | `analysis/link-check.md` | < 1 h |
+| M3 pin checker | 1 | 1 | this repo | `scripts/check-pins.sh` | < 1 h |
+| K1 upstream map | 1 | 1 | kernel (§1.2) | `analysis/upstream-map/` | 2–4 h |
+| K2a-1…4, K2c-1…2 trivial conflict briefs | 6 | 1 | kernel | `analysis/conflicts/` | 2–4 h each |
+| K2b-1…4, K2d-1…3 moderate conflict briefs | 7 | 2 | kernel | `analysis/conflicts/` | 3–6 h each |
+| K3-1…4 large conflicts, facts only | 4 | 2 | kernel | `analysis/conflicts/` | 2–4 h each |
+| K4a–c first build errors | 3 | 1 | kernel | `analysis/build-test/errors/` | 1–2 h each |
+| K5a–e driver API audit | 5 | 2 | kernel | `analysis/api-audit/` | 2–4 h each |
+| K6 defconfig fragment | 1 | 1 | kernel | `analysis/defconfig/` | 1–2 h |
+| R1 VINTF | 1 | 2 | device tree + LineageOS | `analysis/rom/vintf.md` | 2–3 h |
+| R2 sepolicy | 1 | 2 | device tree + LineageOS | `analysis/rom/sepolicy.md` | 2–4 h |
+| R3 soong config | 1 | 1 | device trees + LineageOS | `analysis/rom/soong.md` | 1–2 h |
+| R4 blob deps | 1 | 1 | vendor blobs | `analysis/rom/blob-deps.tsv` | 1–2 h |
+| R5 port list from sm7125 | 1 | 2 | device tree + sm7125-common | `analysis/rom/port-from-sm7125.md` | 2–3 h |
+| R6 sort exynos9810 commits | 1 | 2 | device tree + exynos9810 backup | `analysis/rom/port-from-exynos9810.md` | 3–5 h |
+| T1 device check script | 1 | 1 | this repo | `scripts/device-checks.sh` | 1 h |
+| T2 crash-log guide | 1 | 1 | this repo | `TESTING.md` | 1 h |
+
+**Total:** 37 agent runs. (IDs M1 and K5f were retired, so they don't appear.)
 
 ---
 
@@ -222,8 +244,8 @@ Write `scripts/check-pins.sh` (bash + git only). For each of these, run `git ls-
 | https://github.com/anton-scholten/android_device_samsung_exynos9810-common | lineage-23.2 | ced977559b13 |
 | https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810 | lineage-23.2 | baa585f67e0e |
 
-Our fork branches are *meant* to move as work lands, so for those two rows print `MOVED` as information, not as an error.
-Exit code 1 only if a LineageOS row or a backup row moved. The ExyHyperBrick row tells us upstream has new work.
+Rows 3–4 (our work forks) and row 8 (ExyHyperBrick upstream) are *expected* to move. For those, print `MOVED` as information.
+Exit code 1 only if one of the other rows (LineageOS upstream or our frozen backups) moved.
 **Self-check:** `bash -n scripts/check-pins.sh` passes, and running it prints 8 lines.
 
 ---
@@ -287,7 +309,8 @@ The full classification is in [`conflict_detail.tsv`](analysis/exyhyperbrick-tri
 6. Set the confidence. Use `high` only if you checked step 4 and the case is simple.
 
 **Output:** one file per commit, `analysis/conflicts/<first 12 chars of C>.md`, plus `analysis/conflicts/<batch>-summary.md`
-(header, then a table `commit | subject | resolution | confidence`).
+(the §0.5 header with `## Summary`, then a table `commit | subject | resolution | confidence`, then `## Problems`).
+Check your format with `scripts/check-agent-output.sh <batch>`. It must print `OK`.
 
 **Brief template** (copy it exactly):
 ```markdown
@@ -312,7 +335,7 @@ None
 ```
 
 **Self-check:** the number of `.md` files you made = the number of rows in your batch file (minus the header), plus 1 summary.
-Every brief has all eight sections. `grep -L 'Confidence' analysis/conflicts/*.md` lists none of your files.
+Every brief has the header line, the title, and all six `##` sections from the template. `grep -L 'Confidence' analysis/conflicts/*.md` lists none of your files.
 
 **Stop and ask** if: `git show C` fails (wrong SHA), or more than half of your commits come out `HUMAN`. Then hand in early with a note.
 
@@ -324,39 +347,43 @@ Same as K2 steps 1–4, **but don't propose a resolution.** Large conflicts need
 ```
 Use the K2 template, with `## Proposed resolution` replaced by `## Notes for the lead` (what you noticed, ≤10 lines).
 
-### K4: first build errors (4 agents, one per error)
-A test build of the merged tree stopped at these errors ([`port-first-errors.txt`](analysis/build-test/port-first-errors.txt)):
+### K4: first build errors (3 agents)
+A test build of the merged tree, with every conflict blindly resolved to the series side, stopped at 4 errors
+([`port-first-errors.txt`](analysis/build-test/port-first-errors.txt)). [`analysis/build-test/README.md`](analysis/build-test/README.md)
+already gives the likely *cause* of each. Your job is to find the exact **commits**, so the lead knows what to pick or keep.
 
-| ID | Symbol | Where it failed |
-|---|---|---|
-| K4a | `randomized_struct_fields_end` | `include/linux/sched.h:2284` |
-| K4b | `ANDROID_VERSION` | `include/uapi/asm-generic/socket.h:112` |
-| K4c | `TIF_FSCHECK` | `arch/arm64/include/asm/uaccess.h:89` |
-| K4d | offsetof error | `arch/arm64/kernel/asm-offsets.c:49` |
+| ID | Error | Likely cause (from the build-test README) | Find |
+|---|---|---|---|
+| K4a | `unknown type name 'randomized_struct_fields_end'` (`include/linux/sched.h:2284`) | Missing prerequisite. The Exynos base has newer `compiler*.h` randstruct macros; sdm670 doesn't | The commit(s) that add `randomized_struct_fields_start/end` to `include/linux/compiler*.h` in the Exynos tree, and whether each sits before the series base or in the series |
+| K4b | `'ANDROID_VERSION' is not defined` (`include/uapi/asm-generic/socket.h:112`) | Samsung KNOX code from the Exynos tree came in with the conflict context | The series commit whose conflict in `socket.h` brought the `ANDROID_VERSION` block. Candidate: `05e4636c5fed` "UPSTREAM: net: add new control message for incoming HW-timestamped packets", the only conflict on that file |
+| K4c | `use of undeclared identifier 'TIF_FSCHECK'` (`arch/arm64/include/asm/uaccess.h:89`) **and** the follow-on `asm-offsets.c:49` error | Taking the series side dropped an sdm670 security fix ("arm64/syscalls: Check address limit on user-mode return") | The sdm670 commit that added `TIF_FSCHECK`, and the series commit(s) whose conflicts remove it. Candidate: `2d6869d3a4ce` "arm64: Add uprobe support" (conflicts in `arch/arm64/include/asm/thread_info.h`) |
 
 **Steps**
-1. Where is it defined in the series head? `git grep -n '<symbol>' baa585f67e0e`. Find the line that *defines* it
-   (`#define`, `struct`, Kconfig, Makefile `-D`), not just uses.
-2. Which commit added that definition? `git log --format='%h %ad %s' --date=short -S'<symbol>' baa585f67e0e -- <file>`. Take the oldest.
-3. Is that commit:
-   - in the series (`git merge-base --is-ancestor d54533f1546b <sha>` succeeds, so it's after the base), and was it skipped? Check `analysis/exyhyperbrick-trial/results.tsv` for its status (`SKIPDEV`, `SKIPDEV2`, `CONFLICT`, `CLEAN`);
-   - or **before** the series base (`git merge-base --is-ancestor <sha> d54533f1546b` succeeds)? Then it's a missing prerequisite: the Exynos tree had it, sdm670 doesn't.
-4. Does sdm670 have it? `git grep -n '<symbol>' a30605a54f3b`.
-5. K4b only: `ANDROID_VERSION` is usually passed by the build system. Look in the Exynos `Makefile` and `arch/arm64/Makefile` for `ANDROID_VERSION`, and say how the Exynos build sets it.
-6. K4d only: open `arch/arm64/kernel/asm-offsets.c` line 49 at `baa585f67e0e`. Say which struct or field it needs, and whether that follows from K4a or K4c.
+1. Find where the symbol is defined:
+   - in the series head: `git grep -n '<symbol>' baa585f67e0e -- include/ arch/arm64/`
+   - in sdm670: `git grep -n '<symbol>' a30605a54f3b -- include/ arch/arm64/`
+   Note the defining line (`#define`, `struct`, enum), not just uses.
+2. Find the commit that added the definition: `git log --format='%h %ad %s' --date=short -S'<symbol>' <tree> -- <file>`, with `<tree>` = `baa585f67e0e` or `a30605a54f3b`. Take the oldest.
+3. Where does that commit sit?
+   - `git merge-base --is-ancestor <sha> d54533f1546b && echo "before series base"` (a prerequisite the Exynos tree already had).
+   - Otherwise it's in the series. Look up its status in `analysis/exyhyperbrick-trial/results.tsv` (`CLEAN`, `CONFLICT`, `SKIPDEV`, `SKIPDEV2`).
+4. For a candidate conflict commit, run `git merge-tree --write-tree --merge-base=<cand>^ a30605a54f3b <cand>`, and show which conflict block contains the symbol (§1.3).
+5. **K4c only:** check whether `asm-offsets.c:49` at `baa585f67e0e` uses something from `thread_info.h`, i.e. whether it's the same root cause.
 
-**Output:** `analysis/build-test/errors/<ID>.md` with sections: Summary, Defined at, Added by, Status (in series/skipped/prerequisite), Present in sdm670, Suggested fix, Confidence, Problems.
+**Output:** `analysis/build-test/errors/<ID>.md`: the §0.5 header, then sections `## Defined at`, `## Added by`, `## Where it sits`
+(before base / in series + status), `## Conflict that loses or brings it`, `## Suggested fix` (for example "keep sdm670 lines X–Y in commit Z" or
+"cherry-pick prerequisite <sha> first"), `## Confidence`, `## Problems`.
 
 ### K5: driver API audit (6 agents, one per area)
-Areas:
-- K5a `drivers/net/ethernet/qualcomm/rmnet`
-- K5b `drivers/platform/msm/ipa`
-- K5c `drivers/staging/qcacld-3.0`, `drivers/staging/qca-wifi-host-cmn`
-- K5d `net/qrtr`, and `drivers/soc/qcom` files matching `*dfc*` or `*qmi*`
-- K5e `techpack/`
-- K5f `drivers/net/wireless` (Samsung parts), `security/samsung`, any `sec_net` path
+Areas (paths checked to exist in sdm670 on 2026-10-03):
+- K5a `net/rmnet_data/`, `drivers/net/rmnet_iplo*` if present
+- K5b `drivers/platform/msm/ipa/`
+- K5c `drivers/staging/qcacld-3.0/`, `drivers/staging/qca-wifi-host-cmn/`
+- K5d `net/qrtr/`, `net/ipc_router/`, `drivers/soc/qcom/qmi_interface*.c`
+- K5e `drivers/net/wireless/cnss*/`, `drivers/soc/qcom/icnss*.c`, `net/embms_kernel/`
 
-If an area doesn't exist in sdm670 (`git ls-tree -d a30605a54f3b <path>` prints nothing), say so and stop.
+(sdm670 has no Samsung KNOX `ncm` or `sec_net` network code, and `techpack/` only holds audio, so those aren't audited.)
+If a path in your list doesn't exist (`git ls-tree -d a30605a54f3b <path>` prints nothing), note that and carry on with the rest.
 
 **Steps**
 1. **Only K5a does this step**, and pushes it first so the others can use it. Make `analysis/api-audit/changed-api.txt`:
@@ -370,15 +397,18 @@ If an area doesn't exist in sdm670 (`git ls-tree -d a30605a54f3b <path>` prints 
 **Output:** `analysis/api-audit/<ID>.tsv` (`file:line	symbol	change`) and `analysis/api-audit/<ID>.md` (header, summary: hit count, the 5 most-hit symbols).
 
 ### K6: defconfig fragment (1 agent)
-Options to add (from [the trial README](analysis/exyhyperbrick-trial/README.md)):
-`ANDROID_BINDERFS BPF_LSM CFQ_GROUP_IOSCHED DEBUG_INFO_BTF FUSE_BPF KPROBES NET_ACT_BPF PSI UCLAMP_TASK UCLAMP_TASK_GROUP UNICODE USERFAULTFD`.
+Options, from the end of [the trial README](analysis/exyhyperbrick-trial/README.md):
+- **Turn on (14):** `ANDROID_BINDERFS BPF_LSM CFQ_GROUP_IOSCHED DEBUG_INFO_BTF FUSE_BPF KPROBES NET_ACT_BPF PSI UCLAMP_TASK UCLAMP_TASK_GROUP UNICODE USERFAULTFD XDP_SOCKETS XDP_SOCKETS_DIAG`
+- **Turn off (3):** `USER_NS RT_GROUP_SCHED SCHED_TUNE` (SchedTune is replaced by uclamp). Write them as `# CONFIG_X is not set`.
+
+The defconfigs are `arch/arm64/configs/gts4lvwifi_defconfig` and `gts4lv_defconfig` (there are also `*_eur_open_defconfig`s). Check all four.
+Note in the README that `DEBUG_INFO_BTF` needs `pahole` in the kernel build environment.
 
 **Steps, for each option `X`**
 1. Find its Kconfig entry in the series head: `git grep -n "^config X$" baa585f67e0e -- '*Kconfig*'`.
 2. Show it: `git show baa585f67e0e:<path> | sed -n '<line>,+25p'`. Copy the `depends on` and `select` lines.
 3. For each dependency `Y`, check whether sdm670's defconfigs already enable it:
-   `git show a30605a54f3b:arch/arm64/configs/gts4lvwifi_defconfig | grep -w "CONFIG_Y"`
-   (the defconfig might be in `arch/arm64/configs/vendor/`. Find it with `git ls-tree -r --name-only a30605a54f3b arch/arm64/configs | grep gts4lv`).
+   `git show a30605a54f3b:arch/arm64/configs/gts4lvwifi_defconfig | grep -w "CONFIG_Y"`.
 4. Does the Kconfig entry exist in sdm670 at all? (`git grep -n "^config X$" a30605a54f3b`). If not, it comes with the series.
 
 **Output:** `analysis/defconfig/gts4lv-23.2.fragment` (lines `CONFIG_X=y`, dependencies included) and
@@ -390,16 +420,21 @@ Options to add (from [the trial README](analysis/exyhyperbrick-trial/README.md))
 
 Get these trees with shallow clones, e.g.
 `git clone --depth 1 -b lineage-23.2 https://github.com/LineageOS/android_hardware_interfaces`.
+Our device tree: `git clone --depth 1 -b lineage-23.2 https://github.com/anton-scholten/android_device_samsung_gts4lv-common`.
+Per-model trees (unchanged, so use 22.2): `LineageOS/android_device_samsung_gts4lvwifi` and `..._gts4lv`, branch `lineage-22.2`.
+Repo names checked on 2026-10-03: `android_hardware_interfaces`, `android_system_sepolicy`, `android_device_lineage_sepolicy`,
+`android_hardware_samsung` and `android_hardware_qcom-caf_common` have `lineage-23.2`. `android_hardware_qcom_{audio,display,media}` use
+branch `lineage-23.2-caf-sdm845` (our SoC's family). `android_device_qcom_sepolicy_vndr` uses `lineage-23.2-legacy-um`.
 If a branch doesn't exist, list the branches with `git ls-remote --heads <url> | grep lineage-2` and report it. Don't guess.
 
 | ID | Task | Output |
 |---|---|---|
-| R1 | **VINTF.** Our HALs are listed in `manifest.xml` in our device tree (`anton-scholten/android_device_samsung_gts4lv-common`, branch `lineage-23.2`). Compare each `<hal>` name and version with the compatibility matrix for the target FCM level in `LineageOS/android_hardware_interfaces` `lineage-23.2` `compatibility_matrices/` (find the file whose `level=` is the newest. Write down which one you used). List each HAL that is missing, below the minimum version, or listed as deprecated | `analysis/rom/vintf.md` |
-| R2 | **sepolicy.** List every type, attribute and macro used in the `sepolicy/` folder of our device tree (branch `lineage-23.2`). Check each exists in `LineageOS/android_system_sepolicy` `lineage-23.2` (`git grep -w`). Report the missing ones, and the 22.2 commit that removed them if you can find it | `analysis/rom/sepolicy.md` |
-| R3 | **Soong config.** List each `soong_config_set` / `SOONG_CONFIG_` variable in the device fork and the `gts4lv` and `gts4lvwifi` repos. Check each is still read by `LineageOS/android_hardware_samsung` or `android_hardware_qcom-caf_*` `lineage-23.2` (`git grep`) | `analysis/rom/soong.md` |
-| R4 | **Blob deps.** From `TheMuppets/proprietary_vendor_samsung_gts4lv-common` `lineage-22.2` (big, so use `--depth 1`; if files are Git LFS pointers, say so and stop), run `readelf -d` on each `.so` and list `NEEDED` libraries that aren't shipped in the vendor repo itself. The lead checks those against 23.2 | `analysis/rom/blob-deps.tsv` |
-| R6 | **Port list from sm7125-common.** [`analysis/reference-trees/sm7125-common-22.2-to-23.2.tsv`](analysis/reference-trees/sm7125-common-22.2-to-23.2.tsv) lists the 26 commits LineageOS made to an official Samsung Qualcomm tree between 22.2 and 23.2. Four are done (see [the README](analysis/reference-trees/README.md)). For each of the other 22: read it (`git show <sha>` in a clone of `LineageOS/android_device_samsung_sm7125-common`), find the matching file or setting in our device fork, and say: `NEEDED` / `NOT NEEDED` / `ALREADY DONE` / `UNSURE`, with the reason and the file it would change in our tree | `analysis/rom/port-from-sm7125.md` |
-| R7 | **4.9-specific changes in exynos9810-common.** [`exynos9810-common-22.2-to-23.2.tsv`](analysis/reference-trees/exynos9810-common-22.2-to-23.2.tsv) has 143 commits from ExyHyperBrick's Galaxy S9 tree. Clone it from the backup `anton-scholten/android_device_samsung_exynos9810-common`. Sort each into: `KERNEL-4.9` (works around the old kernel: BPF, uffd, LMK, freezer, power supply filters), `GENERIC-23.2` (a change every device needs for 23.2), `EXYNOS-ONLY` (audio, camera, RIL, Exynos hardware), `TUNING` (performance and memory tweaks). For `KERNEL-4.9` and `GENERIC-23.2`, say whether our device fork needs the same change | `analysis/rom/port-from-exynos9810.md` |
+| R1 | **VINTF.** Our HALs are listed in `manifest.xml` in our device tree (`anton-scholten/android_device_samsung_gts4lv-common`, branch `lineage-23.2`). Today it says `target-level="5"`, which 23.2 no longer supports, so the plan is to move to **6**. Compare each `<hal>` name and version with `compatibility_matrices/compatibility_matrix.6.xml` in `LineageOS/android_hardware_interfaces` `lineage-23.2`. List each HAL whose version is outside the range the matrix allows. Do it for the LTE model too: its RIL is declared in `LineageOS/android_device_samsung_gts4lv` (`lineage-22.2`). Known suspects: soundtrigger 2.2 (matrix wants 2.3) and radio 1.4 (matrix wants 1.5–1.6) | `analysis/rom/vintf.md` |
+| R2 | **sepolicy.** List every type, attribute and macro used in the `sepolicy/` folder of our device tree (branch `lineage-23.2`). Leave out names our own tree defines (`git grep -nE '^(type|attribute) <name>'` in our `sepolicy/`). Check each remaining one exists in `LineageOS/android_system_sepolicy`, `android_device_lineage_sepolicy` or `android_device_qcom_sepolicy_vndr` (`lineage-23.2-legacy-um`) with `git grep -w`. Report the missing ones, and the commit that removed them if you can find it | `analysis/rom/sepolicy.md` |
+| R3 | **Soong config.** List each `soong_config_set` / `SOONG_CONFIG_` variable in the device fork and the `gts4lv` and `gts4lvwifi` repos. Check each is still read (`git grep` the namespace and variable name) by `LineageOS/android_hardware_samsung` `lineage-23.2`, `android_hardware_qcom-caf_common` `lineage-23.2`, `android_hardware_qcom_{audio,display,media}` `lineage-23.2-caf-sdm845`, or `android_vendor_lineage` `lineage-23.2` | `analysis/rom/soong.md` |
+| R4 | **Blob deps.** From `TheMuppets/proprietary_vendor_samsung_gts4lv-common` `lineage-22.2` (use `--depth 1`; it doesn't use Git LFS), run `readelf -d` on each `.so` and list `NEEDED` libraries that aren't shipped in the vendor repo itself. The lead checks those against 23.2 | `analysis/rom/blob-deps.tsv` |
+| R5 | **Port list from sm7125-common.** [`analysis/reference-trees/sm7125-common-22.2-to-23.2.tsv`](analysis/reference-trees/sm7125-common-22.2-to-23.2.tsv) lists the 26 commits LineageOS made to an official Samsung Qualcomm tree between 22.2 and 23.2. Four are done (see [the README](analysis/reference-trees/README.md)). For each of the other 22: read it (`git show <sha>` in a clone of `LineageOS/android_device_samsung_sm7125-common`), find the matching file or setting in our device fork, and say: `NEEDED` / `NOT NEEDED` / `ALREADY DONE` / `UNSURE`, with the reason and the file it would change in our tree | `analysis/rom/port-from-sm7125.md` |
+| R6 | **4.9-specific changes in exynos9810-common.** [`exynos9810-common-22.2-to-23.2.tsv`](analysis/reference-trees/exynos9810-common-22.2-to-23.2.tsv) has 143 commits from ExyHyperBrick's Galaxy S9 tree. Clone it from the backup `anton-scholten/android_device_samsung_exynos9810-common`. Sort each into: `KERNEL-4.9` (works around the old kernel: BPF, uffd, LMK, freezer, power supply filters), `GENERIC-23.2` (a change every device needs for 23.2), `EXYNOS-ONLY` (audio, camera, RIL, Exynos hardware), `TUNING` (performance and memory tweaks). For `KERNEL-4.9` and `GENERIC-23.2`, say whether our device fork needs the same change | `analysis/rom/port-from-exynos9810.md` |
 
 **Self-check for R tasks:** every listed item has a source (SHA or URL + path) and a verdict. The summary gives counts per verdict.
 
@@ -441,9 +476,10 @@ These need the lead or a human. They use the outputs above as input:
 
 ## 8. Order and dependencies
 ```
-Now, all in parallel:   M2  M3  K1  K2*  K3*  K4*  K5a→K5b..f  K6  R1–R4  R6  R7  T1  T2
+Now, all in parallel:   M2  M3  K1  K2*  K3*  K4a–c  K5a→K5b..e  K6  R1–R6  T1  T2
 After K1:               lead re-checks K2 "Already in sdm670?" answers against upstream-map.tsv
 After K1–K4:            lead starts the cherry-pick on the kernel fork's lineage-23.2 (section 7)
+After R1–R6:            lead adds the needed device-tree commits to the device fork's lineage-23.2
 ```
 
 ## 9. Common mistakes
@@ -460,8 +496,8 @@ Based on the OpenCode Go plan, checked 2026-10-03 from third-party write-ups. op
 
 | Tier | Model (OpenCode Go) | Tasks | Why |
 |---|---|---|---|
-| 1, cheapest | **DeepSeek V4.1 Flash** ($0.15 / $0.60 per 1M tokens, ≈130k requests/month) | M2, M3, K1, K2a-1…4, K2c-1…2, K4a–d, K6, R3, R4, T1, T2 | Mechanical: run the given commands, grep, fill in a template, write a small script |
-| 2, mid | **Qwen3.7 Plus**, **MiniMax M3** or **Kimi K2.7 Code** | K2b-1…4, K2d-1…3, K3-1…4, K5a–f, R1, R2, R6, R7 | Needs judgment: reading conflict hunks, comparing APIs, sepolicy, sorting commits |
+| 1, cheapest | **DeepSeek V4.1 Flash** ($0.15 / $0.60 per 1M tokens, ≈130k requests/month) | M2, M3, K1, K2a-1…4, K2c-1…2, K4a–c, K6, R3, R4, T1, T2 | Mechanical: run the given commands, grep, fill in a template, write a small script |
+| 2, mid | **Qwen3.7 Plus**, **MiniMax M3** or **Kimi K2.7 Code** | K2b-1…4, K2d-1…3, K3-1…4, K5a–e, R1, R2, R5, R6 | Needs judgment: reading conflict hunks, comparing APIs, sepolicy, sorting commits |
 | 3, strong | Kimi K3 (≈490 requests/month), a frontier model, or a human | Section 7 only, plus the review (§11) | Resolving conflicts, build fixes, boot debugging |
 
 - Fallback for tier 1: GLM-5.3-Flash (similar price, ≈31k requests/month).

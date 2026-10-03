@@ -54,11 +54,6 @@ or skipped, and why. Newest last.
   Made the trial scripts' work directory configurable (`W=`), and moved the `group` classification
   into `classify.py`. Rerunning it reproduces `conflict_detail.tsv` exactly.
 
-## Not done yet
-- No kernel port branch is published. The trial trees have unresolved or blindly resolved conflicts, so
-  they're not fit to publish.
-- Nothing has been built as a full ROM or booted on a tablet.
-
 ## 2026-10-03: repo check and helper-agent task list
 - Checked the repos. Both forks exist (`anton-scholten/android_kernel_samsung_sdm670` at `a30605a`,
   `anton-scholten/android_device_samsung_gts4lv-common` at `d1b339b`), identical to LineageOS `lineage-22.2`,
@@ -118,3 +113,19 @@ or skipped, and why. Newest last.
   §1.1 now branches from `origin/main` and checks the files exist. Added FCM/VINTF, sepolicy and device tree to the word list.
 - Linked `AGENTS.md` from README, CLAUDE.md and HANDOVER.
 - Note: `main` doesn't yet have this work (it's on `claude/vigilant-turing-jho5ul`). Agents branch from `main`, so it must be merged first.
+
+## 2026-10-03: full repo review and cleanup
+- The owner deleted `Lineage-OS-SM-T720`. All work is on `main` (pushed `41a46ac` as a plain fast-forward).
+- Re-checked every doc, and fixed what had gone stale since the forks were set up:
+  - README, PORTING, KERNEL-BACKPORT-PLAN, ESTIMATE, PRIOR-WORK: the device changes now live in the fork, not in `patches/`;
+    the fork steps are marked done; 0004 is already in the fork; the ExyHyperBrick route is the chosen one (the old gitea sdm845 route is a fallback).
+  - Checked against the kernel clone: sdm670 has no `drivers/net/ethernet/qualcomm/rmnet`, no `security/samsung`, and no KNOX `ncm`/`sec_net`;
+    rmnet is `net/rmnet_data`, and `techpack/` is audio only. Fixed the docs that said otherwise.
+- `AGENT-TASKS.md`:
+  - §2 is now a table of all 37 task runs (tier, clone, output, time).
+  - K4 now starts from the causes the build test already found, with candidate commits; 3 agents instead of 4.
+  - K5 areas corrected to real paths; 5 agents.
+  - K6 now has all 14 options to turn on plus 3 to turn off, and all four defconfigs.
+  - R1 now targets `compatibility_matrix.6.xml`. R2 leaves out types we define ourselves. R3 has the real repo/branch names (checked with `git ls-remote`). R4 has no LFS (checked).
+  - Renumbered R6/R7 to R5/R6, so there's no gap. §0.5 no longer repeats `checkout -b`.
+- HANDOVER rewritten around an ordered "leftover work" list. Removed the stale "Not done yet" block from the middle of this log.

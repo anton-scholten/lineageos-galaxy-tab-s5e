@@ -15,7 +15,7 @@ estimate is built bottom-up from measurements, listed in the next section.
 | Required conflicts by size | 37 trivial, 35 moderate, 12 large | same |
 | Baseline kernel build | Builds cleanly; 12 min on 4 cores (≈5 min on a typical desktop) | [build test](analysis/build-test/README.md) |
 | Port tree with blind conflict resolution | Fails at the first compile step. Shows missing prerequisites and lost sdm670 fixes | same |
-| Device-tree changes | Done (patches 0001–0004) | `patches/` |
+| Device-tree changes | First four done (0001–0004, in the device fork). More expected from tasks R1–R6 | [AGENT-TASKS.md](AGENT-TASKS.md) |
 
 ## Effort model
 
@@ -32,11 +32,11 @@ The per-item times are typical for someone experienced in kernel work who has ne
 
 | # | Phase | Low | Expected | High | Notes |
 |---|---|---|---|---|---|
-| 0 | Set up: sync LineageOS 23.2 (~150 GB), first ROM build, fork the kernel | 1 d | 2 d | 3 d | Depends on download speed and machine |
+| 0 | Set up: sync LineageOS 23.2 (~150 GB), first ROM build (forks are done) | 1 d | 2 d | 3 d | Depends on download speed and machine |
 | 1 | Cherry-pick the series, skipping the 114 Exynos-only and 20 skip-group commits | 0.5 d | 1 d | 1 d | Mostly mechanical (`git cherry-pick -x`) |
 | 2 | Resolve the 84 required conflicts | 8 d | 11 d | 15 d | ≈68 h of conflict work, plus re-reading upstream commits |
-| 3 | Missing prerequisites and build fixes, until `Image.gz-dtb` links | 3 d | 6 d | 10 d | The build test hit prerequisites in the first 10 s. Qualcomm code (rmnet, IPA, qcacld, DFC, techpack) uses changed networking APIs: 150 sdm670 files outside the shared upstream tree use `sk_buff` |
-| 4 | ROM side: sepolicy neverallows, blob linkage, VINTF/FCM | 2 d | 3 d | 5 d | Device-tree patches are already done |
+| 3 | Missing prerequisites and build fixes, until `Image.gz-dtb` links | 3 d | 6 d | 10 d | The build test hit prerequisites in the first 10 s. Qualcomm code (`net/rmnet_data`, IPA, qcacld, cnss) uses changed networking APIs (task K5 maps it): 150 sdm670 files outside the shared upstream tree use `sk_buff` |
+| 4 | ROM side: sepolicy neverallows, blob linkage, VINTF/FCM | 2 d | 3 d | 5 d | 0001–0004 done; tasks R1–R6 list the rest |
 | 5 | First boot and debugging (kernel panics, netd/bpfloader, HAL crashes) | 3 d | 7 d | 15 d | **The most uncertain phase.** Needs `pstore/last_kmsg` or UART logs |
 | 6 | Testing: BPF selftests, `bpf_existence_test`, networking checks, 24 h soak, LTE model | 3 d | 4 d | 6 d | |
 | | **Total (required path)** | **≈ 21 d** | **≈ 34 d** | **≈ 55 d** | |

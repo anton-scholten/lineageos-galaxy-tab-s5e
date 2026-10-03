@@ -62,9 +62,15 @@ Upstream `lineage-23.2` is the most complete version. Its own older dev branches
 - [XDA: convert SM-T727V to SM-T725, unlock and install LineageOS 22.2](https://xdaforums.com/t/guide-convert-sm-t727v-to-sm-t725-unlock-bootloader-install-lineageos-22-2.4760328/post-90293075):
   a guide for **US Verizon models**, which normally can't be unlocked. See the README.
 
+## Device trees that already did 23.2
+
+See [analysis/reference-trees/](analysis/reference-trees/README.md): `LineageOS/android_device_samsung_sm7125-common`
+(official, Samsung Qualcomm, 26 commits 22.2→23.2) and `ExyHyperBrick/android_device_samsung_exynos9810-common`
+(unofficial, 4.9 kernel, 143 commits). Both ExyHyperBrick repos are backed up as `anton-scholten` forks ([REPO-SETUP.md](REPO-SETUP.md)).
+
 ## Suggested next steps
 
-1. Fork `android_kernel_samsung_sdm670`, then replay the ExyHyperBrick `lineage-23.2` series
+1. In the kernel fork (`anton-scholten/android_kernel_samsung_sdm670`, `lineage-23.2`), replay the ExyHyperBrick `lineage-23.2` series
    (skipping `[exynos9810]` commits). Resolve the ~150 conflicts listed in
    `analysis/exyhyperbrick-trial/results.tsv`, then fix the build.
 2. Copy the defconfig changes. Patch 0004 already sets `ro.bpf.kver_override=5.15.178`.

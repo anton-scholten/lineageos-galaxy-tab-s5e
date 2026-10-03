@@ -1,12 +1,12 @@
-# Porting LineageOS 23.2 to the Galaxy Tab S5e Wi-Fi (SM-T720 / gts4lvwifi)
+# Porting LineageOS 23.2 to the Galaxy Tab S5e (gts4lvwifi / gts4lv)
 
 Status of the official port as of this analysis:
 
 | Component | Official branches | Notes |
 |---|---|---|
 | `android_device_samsung_gts4lvwifi` | up to `lineage-22.2` | No changes needed beyond 22.2 |
-| `android_device_samsung_gts4lv-common` | up to `lineage-22.2` | Patches in `patches/` |
-| `android_kernel_samsung_sdm670` | up to `lineage-22.2` | Linux **4.9.337**. This is the blocker |
+| `android_device_samsung_gts4lv-common` | up to `lineage-22.2` | Our fork has `lineage-23.2` with patches 0001–0004 |
+| `android_kernel_samsung_sdm670` | up to `lineage-22.2` | Linux **4.9.337**. This is the blocker. Our fork has `lineage-23.2`, unchanged so far |
 | `android_hardware_samsung` | `lineage-23.2` exists | Removed the HIDL HALs gts4lv still uses |
 | `TheMuppets/proprietary_vendor_samsung_gts4lv*` | up to `lineage-22.2` | Blobs can be reused |
 | `hudson/lineage-build-targets` | `gts4lvwifi userdebug lineage-22.2 W` | Same for every other 4.9 Qualcomm device (sdm845/sdm710) |
@@ -53,34 +53,31 @@ The sdm670 4.9 kernel today has `CONFIG_BPF_SYSCALL`, `CONFIG_CGROUP_BPF`,
 
 ### Kernel work items
 
-1. Fork `android_kernel_samsung_sdm670` at `lineage-22.2`.
-2. Backport the eBPF series to reach `android12-5.4` parity. Practical routes:
-   - Use an existing community 4.9 eBPF backport as the base, e.g. the sdm845
-     4.9 BPF series being developed for LineageOS 23
-     (`gitea.com/console-ramoops/kernel_qcom_sdm845-bpf-4.9`). sdm670 and
-     sdm845 share the same msm-4.9 CAF base, so this is the shortest path.
-   - Or cherry-pick the 4.14 series from `android_kernel_samsung_sm8150`
-     (`lineage-20`) after first backporting the 4.10 to 4.14 BPF commits
-     (verifier rework, `BPF_JLT` family, `BPF_PROG_TYPE_SOCK_OPS`,
-     `bpf_prog_info`, map-in-map, `BPF_F_NUMA_NODE`, …).
-3. Backport `close_range()` and `epoll_pwait2()` (the same 17 commits as sm7125;
-   the 4.9 arm64/compat syscall tables need hand-wiring).
+1. ~~Fork `android_kernel_samsung_sdm670`~~ Done: `anton-scholten/android_kernel_samsung_sdm670`, branch `lineage-23.2`.
+2. Backport the eBPF series. **Chosen route:** port the ExyHyperBrick Galaxy S9 4.9 series
+   (eBPF at 5.15 level, includes `close_range` and `epoll_pwait2`). See
+   [KERNEL-BACKPORT-PLAN.md](KERNEL-BACKPORT-PLAN.md#update-a-ready-made-49-series-exists-recommended-route) and [ESTIMATE.md](ESTIMATE.md).
+   Fallbacks, only if that fails: the sm8150 4.14 series after a 4.10→4.14 BPF backport.
+   (The sdm845 gitea series turned out to have only a `lineage-23.0` branch; see [PRIOR-WORK.md](PRIOR-WORK.md).)
+3. `close_range()` and `epoll_pwait2()` come with the ExyHyperBrick series. The sm7125 list in
+   KERNEL-BACKPORT-PLAN Phase 1 is the fallback.
 4. Samsung UH/RKP: nothing to do. `CONFIG_UH`/`CONFIG_RKP_*` are already
    absent from `gts4lvwifi_defconfig`.
 5. Validate on device with `atest netd_integration_test` / `bpf_existence_test`,
    or at least check that `bpfloader` finishes and `netd` stays up in `logcat`.
-6. Only then apply `0004-gts4lv-common-Override-kernel-BPF-version.patch`.
+6. `0004` (the BPF version override) is already in the device fork's `lineage-23.2`. Without the kernel work
+   the build doesn't boot either way. For a userspace-only test build, `git revert` it locally.
 
 A newer default clang in 23.2 may also produce new `-Werror` failures in
-vendor drivers (qcacld, techpack). If so, either fix them or pin
+vendor drivers (qcacld, techpack audio). If so, either fix them or pin
 `TARGET_KERNEL_CLANG_VERSION`.
 
 ---
 
 ## 2. Device tree changes (`device/samsung/gts4lv-common`)
 
-All of these are in `patches/device/samsung/gts4lv-common/`, made with
-`git format-patch` against `lineage-22.2` (`d1b339b`). They mirror changes
+All of these are committed to the fork `anton-scholten/android_device_samsung_gts4lv-common`, branch `lineage-23.2`
+(on top of LineageOS `d1b339b`). `patches/device/samsung/gts4lv-common/` keeps a copy as a record. They mirror changes
 the maintainers made to other Samsung Qualcomm trees (sm7125-common,
 sm8250-common) for 23.x.
 
@@ -89,7 +86,7 @@ sm8250-common) for 23.x.
 | `0001` Remove `vendor/lineage/config/device_framework_matrix.xml` from `DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE` (use `+=`) | File no longer exists on lineage-23.x (change `I78da6340f`) | **Build break** |
 | `0002` Use `soong_config_set_bool` for `samsungCameraVars.needs_sec_reserved_field` and `lineage_health.charging_control_supports_bypass` | 23.2 `select()`s on these as booleans. As strings they fall through to `default`, so the camera HAL loses `CAMERA_NEEDS_SEC_RESERVED_FIELD` (camera breaks) and Lineage Health turns on bypass charging | **Runtime break** |
 | `0003` LiveDisplay HIDL to AIDL (`vendor.lineage.livedisplay-service.samsung-qcom`, `format="aidl"` v1 in `manifest.xml`, file_contexts relabel) | `hardware/samsung` dropped the HIDL LiveDisplay service (`hidl: Disable LiveDisplay HIDL`, `livedisplay: Migrate to AIDL`) | **Build break** |
-| `0004` `ro.bpf.kver_override=5.15.178` in `product.prop` (matches the ExyHyperBrick-based kernel; use `5.4.x` only for a kernel brought just to 5.4 parity) | Needed by Android 16 mainline. **Apply only after the kernel work in §1** or the device bootloops | Kernel-dependent |
+| `0004` `ro.bpf.kver_override=5.15.178` in `product.prop` (matches the ExyHyperBrick-based kernel; use `5.4.x` only for a kernel brought just to 5.4 parity) | Needed by Android 16 mainline. Already in the fork; it only works once the kernel work in §1 is done | Kernel-dependent |
 
 `0003` declares only `IAdaptiveBacklight` and `IDisplayModes`, the same as 22.2.
 The AIDL service exits if it registers an interface that isn't declared in
@@ -106,7 +103,7 @@ are never registered. If you later chown them in `init.qcom.rc`, also add
 - `android.hardware.keymaster@4.0-service.samsung`, `health-service.samsung(-recovery)`, `sensors-service.samsung-multihal` and `biometrics.fingerprint-service.samsung` all still exist.
 - The gatekeeper sepolicy doesn't use `/data/vendor/gatekeeper` (the cleanup other trees needed for AOSP `e8d66734`); it uses `/efs/gatekeeper`.
 - `system_server self:capability sys_module` (a new neverallow in BP3A) isn't granted here; `macloader` has it, which is allowed.
-- **Correction:** FCM `target-level="5"` should be bumped. On lineage-23.2, `compatibility_matrix.5.xml` is only an empty placeholder ("Android R FCM has been deprecated"). Bump the target level to 6. The Wi-Fi model's HALs fit matrix 6, but the LTE RIL (radio 1.4) may not. See [KERNEL-BACKPORT-PLAN.md](KERNEL-BACKPORT-PLAN.md#device-side-work-still-needed-both-tracks).
+- **Correction:** FCM `target-level="5"` should be bumped. On lineage-23.2, `compatibility_matrix.5.xml` is only an empty placeholder ("Android R FCM has been deprecated"). Bump the target level to 6. The Wi-Fi model's HALs fit matrix 6, but the LTE RIL (radio 1.4) may not. See [KERNEL-BACKPORT-PLAN.md](KERNEL-BACKPORT-PLAN.md#device-side-work-still-needed-all-tracks).
 - The forked audio HAL wrapper (`audio/impl`, `android.hardware.audio@6.0-impl.gts4lv`): upstream only added a `get_audio_port` null check and an opt-out for `speaker_layout_channel_mask` between 22.2 and 23.2. `audio.primary.sdm710` is built from source, so it needs no opt-out.
 - `vendor/lineage/config/common_full_tablet_wifionly.mk` still exists.
 
@@ -148,12 +145,13 @@ or the usual upgrade instructions.
 
 ## 4. Order of work
 
-1. Sync 23.2, apply patches 0001 to 0003, and build. Fix any sepolicy neverallow
+1. Research tasks for helper agents ([AGENT-TASKS.md](AGENT-TASKS.md)): conflict briefs, defconfig, VINTF, sepolicy, reference trees.
+2. Sync 23.2 with `local_manifests/` and build. Fix any sepolicy neverallow
    or blob linkage errors. Getting this far proves the userspace port.
-2. Do the kernel backports (§1). This is the bulk of the work: about 1000+ commits.
-3. Apply 0004, boot, and verify networking: Wi-Fi, tethering, data usage
+3. Port the kernel series (§1). This is the bulk of the work: 2,599 commits, 150 conflicts.
+4. Boot, and verify networking: Wi-Fi, tethering, data usage
    accounting and VPN all depend on BPF.
-4. Run a regression pass on camera, LiveDisplay, charging control, audio,
+5. Run a regression pass on camera, LiveDisplay, charging control, audio,
    fingerprint, sensors and Wi-Fi Display.
 
 ## References
