@@ -54,6 +54,27 @@ The amount of code is only part of it:
 The estimates assume one experienced person working part-time. Reusing an
 existing 4.9 series (see [PRIOR-WORK.md](PRIOR-WORK.md)) would shorten Phase 2 a lot.
 
+## Update: a ready-made 4.9 series exists (recommended route)
+
+[ExyHyperBrick/android_kernel_samsung_exynos9810](https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810)
+`lineage-23.2` already did Track A for a Samsung **4.9.337** kernel, the same
+version as the Tab S5e, and went further, to 5.15-level eBPF. It's used in the
+unofficial LineageOS 23.2 for the Galaxy S9.
+
+A trial replay onto `android_kernel_samsung_sdm670` gave **2,335 clean / 150
+conflicting** commits ([analysis](analysis/exyhyperbrick-trial/README.md)).
+That changes the plan:
+
+| Step | Work | Estimate |
+|---|---|---|
+| 1 | Fork the sdm670 kernel. Cherry-pick the series with `-x`, skipping `[exynos9810]` commits | 1–2 days |
+| 2 | Resolve the ~150 conflicts. Many are changes sdm670 already has from `android-4.9-q`, so just drop the duplicate | 1–2 weeks |
+| 3 | Copy the defconfig changes (list in the analysis). Fix build errors in Qualcomm/Samsung drivers (`qcacld`, `rmnet`, IPA, `sec_net`, techpack) | 1–2 weeks |
+| 4 | Set `ro.bpf.kver_override=5.15.178`, matching the series, instead of patch 0004's `5.4.299`. Boot, run the bundled BPF verifier selftests and `bpf_existence_test`, check networking, soak 24 h | 1–2 weeks |
+
+**Total: about 3–6 weeks** instead of 3–4 months. Phases 2–3 below are now only
+a fallback. Keep the original authorship, and contact krazey before publishing.
+
 ## Three tracks
 
 ### Track A: kernel backports to `android12-5.4` parity (the official LineageOS route)
@@ -157,7 +178,7 @@ Check after this phase: `bpf_existence_test` passes and `kernel_test`
    (`android_kernel_samsung_sdm670`, a new `lineage-23.2` branch), and work with the maintainers
    (LuK1337 and bgcngm) on official support.
 
-**Total for Track A:** about 3–4 months for one experienced kernel developer. It's
+**Total for Track A from scratch:** about 3–4 months for one experienced kernel developer. It's
 much shorter if the sdm845 4.9 series can be reused.
 
 ### Track B: relax the userspace version checks (unofficial, quick)

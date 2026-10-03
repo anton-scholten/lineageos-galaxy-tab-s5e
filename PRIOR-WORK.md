@@ -1,4 +1,4 @@
-# Existing work by others (checked 2026-10-03)
+# Existing work by others (checked 2026-10-03, updated with the owner's own checks of the blocked sites)
 
 This is what already exists online that a Tab S5e LineageOS 23.2 port can reuse or learn
 from. Repos marked *inspected* were cloned and their history checked. The others are
@@ -14,10 +14,10 @@ known only from search results.
 
 | Project | What it is | Status | Fit |
 |---|---|---|---|
-| `gitea.com/console-ramoops/kernel_qcom_sdm845-bpf-4.9` | msm-4.9 sdm845 kernel with BPF backports, `lineage-23.0` branch | Couldn't inspect (gitea is blocked from this environment) | **High.** Same msm-4.9 CAF base as sdm670. Check this first for Phase 2/3 |
-| [jojobear691/samsung_sdm845-kernel](https://github.com/jojobear691/samsung_sdm845-kernel) | Galaxy S9+ Snapdragon (SM-G965W) 4.9 kernel described as having "Android 16 BPF backports" | Repo now **returns 404** (deleted or private). Ask the author on XDA, or look for forks | **Very high, if recoverable.** Samsung's own SDM845 4.9 tree is the closest relative of the Tab S5e kernel |
-| [Andrey0800770/samsung_sdm845-kernel](https://github.com/Andrey0800770/samsung_sdm845-kernel) (*inspected*) | Same Samsung SDM845 kernel, at 4.9.337 like ours | **No** BPF backports in `main`/`tmpdev` (41 BPF commits, all old) | Low for BPF. Useful as a build-fix reference for Samsung 4.9 trees with newer clang |
-| Exynos 9810 (Galaxy S9) unofficial LineageOS 23.2 ([XDA](https://xdaforums.com/t/rom-s9-s9-note9-unofficial-lineageos-23-2-volte-vowifi-ota-14-08-2026.4763471/)) | Search results say its 4.9 kernel has "an eBPF backport initially done by ivanmeler, fixed, tested and updated for Android 16" | Couldn't inspect (XDA is blocked from here). Source link is in the thread | **Medium-high.** A 4.9 eBPF series tested on Android 16. Exynos, but the BPF/net core is the same |
+| **[ExyHyperBrick/android_kernel_samsung_exynos9810](https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810)** (*inspected*), branch `lineage-23.2` | Galaxy S9/S9+/Note9 kernel, **Linux 4.9.337, the same version as the Tab S5e**. 2,599 commits on top of 22.2: eBPF to **5.15 level**, `close_range`, `epoll_pwait2`, `process_mrelease`, FUSE-BPF, userfaultfd, uclamp, and a BPF verifier test corpus. Device tree uses `ro.bpf.kver_override=5.15.178`. Also has a `lineage-24.0` branch | Active (2026-09-20). Ships in the unofficial LineageOS 23.2 for the S9 ([XDA](https://xdaforums.com/t/rom-s9-s9-note9-unofficial-lineageos-23-2-volte-vowifi-ota-14-08-2026.4763471/)). Author: Mathias Gluszczynski (krazey) | **Best match.** A trial replay onto the sdm670 kernel: **2,335 of 2,485 generic commits apply cleanly (94%), 150 conflict.** See [analysis/exyhyperbrick-trial](analysis/exyhyperbrick-trial/README.md) |
+| `gitea.com/console-ramoops/kernel_qcom_sdm845-bpf-4.9` | msm-4.9 sdm845 kernel with BPF backports | Owner checked: only a `lineage-23.0` branch, nothing for 23.2 | Low. Older than the ExyHyperBrick series |
+| [jojobear691/samsung_sdm845-kernel](https://github.com/jojobear691/samsung_sdm845-kernel) | Galaxy S9+ Snapdragon kernel, said to have "Android 16 BPF backports" | 404 (also confirmed by the owner) | Gone |
+| [Andrey0800770/samsung_sdm845-kernel](https://github.com/Andrey0800770/samsung_sdm845-kernel) (*inspected*) | Samsung SDM845 kernel at 4.9.337 | No BPF backports | Low |
 
 ## Kernel: 4.14 to 5.4 parity (Phase 3 reference)
 
@@ -34,18 +34,20 @@ known only from search results.
 
 ## Same SoC, other devices
 
-- **Pixel 3a / 3a XL (sargo/bonito, SDM670, msm-4.9):** there's an [alpha LineageOS 23.0 GSI boot](https://xdaforums.com/t/alpha-gsi-16-0-lineageos-23-0-unofficial-pixel-3a-sargo-initial-bootable-base.4787590/) thread. Any Pixel 3a kernel BPF work would be the closest SoC match. It's worth watching.
+- **Pixel 3a / 3a XL (sargo/bonito, SDM670, msm-4.9):** the owner checked: nothing usable. There's an [alpha LineageOS 23.0 GSI boot](https://xdaforums.com/t/alpha-gsi-16-0-lineageos-23-0-unofficial-pixel-3a-sargo-initial-bootable-base.4787590/) thread. Any Pixel 3a kernel BPF work would be the closest SoC match. It's worth watching.
 
 ## Tab S5e specific
 
-- No Android 16 ROM for the Tab S5e turned up in searches. Evolution X and LineageOS stop at Android 15, and crDroid support has ended.
+- No Android 16 ROM for the Tab S5e turned up in searches. The owner confirmed this on the XDA forum and the official thread, and found no 23.x changes on LineageOS Gerrit. Evolution X and LineageOS stop at Android 15, and crDroid support has ended.
 - [XDA: convert SM-T727V to SM-T725, unlock and install LineageOS 22.2](https://xdaforums.com/t/guide-convert-sm-t727v-to-sm-t725-unlock-bootloader-install-lineageos-22-2.4760328/post-90293075):
   a guide for **US Verizon models**, which normally can't be unlocked. See the README.
 
 ## Suggested next steps
 
-1. Get the eBPF source from the Exynos 9810 LineageOS 23.2 thread, and the
-   console-ramoops sdm845 repo. Diff both against `android_kernel_samsung_sdm670`.
-2. Ask on XDA whether jojobear691's Samsung SDM845 BPF tree has a mirror.
-3. Meanwhile, build 23.2 with this repo's patches plus fuck-bpf (Track B) to find the
-   device-side bugs.
+1. Fork `android_kernel_samsung_sdm670`, then replay the ExyHyperBrick `lineage-23.2` series
+   (skipping `[exynos9810]` commits). Resolve the ~150 conflicts listed in
+   `analysis/exyhyperbrick-trial/results.tsv`, then fix the build.
+2. Copy the defconfig changes and `ro.bpf.kver_override=5.15.178` (instead of 5.4.299).
+3. Contact krazey (ExyHyperBrick) before publishing, and keep the authorship and
+   `Signed-off-by` lines (cherry-pick `-x`). The kernel is GPL-2.0.
+4. Meanwhile, Track B (fuck-bpf) is still a quick way to find the tablet-specific bugs.

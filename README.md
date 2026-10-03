@@ -10,8 +10,12 @@ Tab S5e, both Wi-Fi and LTE models. Officially, LineageOS supports these tablets
 in [`patches/`](patches/). The blocker is the kernel. Android 16 needs eBPF
 features from Linux 5.4, and the tablet runs Linux 4.9. LineageOS only ships 23.x
 on old kernels after they get a full eBPF backport (~1000+ commits) plus the
-`close_range` and `epoll_pwait2` syscalls. No 4.9 kernel has had this done
-yet, which is why every 4.9 Qualcomm device is still on 22.2.
+`close_range` and `epoll_pwait2` syscalls. No official LineageOS 4.9 kernel has this,
+which is why every 4.9 Qualcomm device is still on 22.2. However, the community
+Galaxy S9 kernel by ExyHyperBrick (also 4.9.337) has done it, and 94% of its
+commits apply cleanly to the Tab S5e kernel
+([trial](analysis/exyhyperbrick-trial/README.md)). Porting it is estimated at
+**3–6 weeks** of kernel work.
 
 - Without the backports, a 23.2 build compiles but **will not boot**
   (bpfloader/netd fail).
@@ -32,6 +36,7 @@ option for this tablet is **official LineageOS 22.2**.
 | `patches/device/samsung/gts4lv-common/` | Device tree patches against `lineage-22.2` |
 | `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2, and why it takes time |
 | `PRIOR-WORK.md` | Work other people have done online that can be reused |
+| `analysis/exyhyperbrick-trial/` | Trial port of the Galaxy S9 4.9 eBPF kernel series onto the Tab S5e kernel |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree |
 | `apply-patches.sh` | Applies the patches (skips the BPF override unless `--with-bpf-override`) |
 
