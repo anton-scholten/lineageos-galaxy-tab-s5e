@@ -84,3 +84,9 @@ or skipped, and why. Newest last.
 - Rewrote `AGENT-TASKS.md` for weaker agents: setup commands with checks, exact steps per task, an output template,
   self-checks, when to stop and ask, and common mistakes. Added the pre-split conflict batches `analysis/agent-batches/`
   (the K2/K3 tasks, with file names) and the new tasks R6 (port list from sm7125) and R7 (sort the exynos9810-common commits).
+
+## 2026-10-03: kernel fork attached, agent access
+- The owner deleted `Lineage-OS-SM-T720`.
+- Attached `anton-scholten/android_kernel_samsung_sdm670` to this session with push access. Both forks are attached now.
+- The ExyHyperBrick repos' default branch is `lineage-24.0`. Added fork steps that untick "copy default branch only", so `lineage-23.2` comes along (`REPO-SETUP.md`).
+- `AGENT-TASKS.md`: added which repo agents work in (this one, branches `agent/<task-id>`; everything else read-only) and how the owner gives non-Claude agents access (fine-grained token, collaborator, or patch files).

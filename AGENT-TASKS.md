@@ -34,7 +34,17 @@ Most tasks here help someone resolve those 150 conflicts faster and more safely.
 | **brief** | The report you write for one conflict commit |
 | **lead** | The stronger agent or the owner who reads your output |
 
-### 0.3 Rules
+### 0.3 Which repos you work in
+| Repo | You do | Access |
+|---|---|---|
+| `anton-scholten/lineageos-galaxy-tab-s5e` (**this repo**, private) | Write your report here, on branch `agent/<task-id>` | Read + push. The owner gives you a token or collaborator access (§0.6) |
+| `anton-scholten/android_kernel_samsung_sdm670` (public) | Clone and read only | Anonymous `git clone` |
+| `anton-scholten/android_device_samsung_gts4lv-common` (public) | Clone and read only | Anonymous `git clone` |
+| `ExyHyperBrick/*`, `LineageOS/*`, `TheMuppets/*` (public) | Clone and read only | Anonymous `git clone` |
+
+All your output goes into **this repo**. Nothing you do changes the kernel or the device tree.
+
+### 0.4 Rules
 1. **One task ID per agent.** Your task ID is something like `K2a-3` or `R6`. Write only to the output path that task names.
 2. **Branch:** commit on a new branch `agent/<task-id>` in *this* repo (`anton-scholten/lineageos-galaxy-tab-s5e`) and push it.
    Don't push to `main`. Don't open a pull request unless you're told to.
@@ -49,7 +59,7 @@ Most tasks here help someone resolve those 150 conflicts faster and more safely.
 8. **Don't** write code that disables or weakens Android's kernel version checks (that's "Track B"). Not in scope.
 9. If a command fails twice, **stop**. Put the exact command and error in your output under `## Problems`, then hand in what you have.
 
-### 0.4 How to hand in
+### 0.5 How to hand in
 ```bash
 cd /path/to/lineageos-galaxy-tab-s5e
 git checkout -b agent/<task-id>
@@ -66,6 +76,17 @@ Every output file starts with this header:
 <3–6 lines: what you did, what you found, how many items, anything the lead must look at first>
 ```
 and ends with `## Problems` (write "None" if there were none).
+
+### 0.6 Access for agents that aren't Claude (owner sets this up once)
+This repo is private, so an outside agent needs credentials to clone it and push its branch. Pick one:
+- **Fine-grained token (recommended):** GitHub → Settings → Developer settings → Fine-grained tokens → Generate.
+  Repository access: *Only select repositories* → `lineageos-galaxy-tab-s5e`. Permissions: **Contents: Read and write**. Nothing else. Expiry: 30 days.
+  The agent clones with `git clone https://<token>@github.com/anton-scholten/lineageos-galaxy-tab-s5e`.
+  Revoke it when the work is done.
+- **Collaborator:** if the agent runs under its own GitHub account, add it under repo Settings → Collaborators, with Write access.
+- **No push at all:** the agent runs `git format-patch -1` after committing, and sends the `.patch` file. The lead applies it with `git am`.
+
+Optional safety: add a branch protection rule on `main` (Settings → Branches), so only the owner can push to it.
 
 ---
 
@@ -120,8 +141,8 @@ To see the conflict markers in one file: `git cat-file -p <tree-id>:<path> | gre
 |---|---|---|
 | S1 | Device fork: `git checkout -b lineage-23.2 origin/lineage-22.2 && git am <this repo>/patches/device/samsung/gts4lv-common/*.patch`, push | Branch `lineage-23.2` = `d1b339b` + 4 commits. They were checked to apply cleanly on 2026-10-03 |
 | S2 | Kernel fork: push a `lineage-23.2` branch at `a30605a54f3b` (no changes yet) | Branch exists |
-| S3 | Attach the kernel fork with push access. The device fork is already attached to the 2026-10-03 session. See [REPO-SETUP.md](REPO-SETUP.md#attaching-repos-to-a-claude-cloud-session) | `git push` works from the session |
-| F1 | Fork `ExyHyperBrick/android_kernel_samsung_exynos9810` and `ExyHyperBrick/android_device_samsung_exynos9810-common` as backups | Forks exist |
+| S3 | ~~Attach both forks with push access~~ Done 2026-10-03 | |
+| F1 | Fork `ExyHyperBrick/android_kernel_samsung_exynos9810` and `ExyHyperBrick/android_device_samsung_exynos9810-common` as backups. **Untick "copy default branch only"** ([steps](REPO-SETUP.md#backup-forks-of-exyhyperbrick-owner-on-githubcom)) | Both forks list `lineage-23.2` |
 
 ---
 

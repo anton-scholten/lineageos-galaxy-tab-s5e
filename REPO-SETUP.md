@@ -89,5 +89,18 @@ A session only gets push access to the GitHub repos attached to it. Public repos
      To allow it without asking, add a permission rule for `mcp__claude-code-remote__add_repo` in the session settings.
 3. Attached repos are cloned to `/home/user/<repo-name>`. The kernel is ≈2.3 GB, so the first clone takes 10–30 min.
 
-Status 2026-10-03: `android_device_samsung_gts4lv-common` was attached to session `session_016fF5iQ8x8B4G2hfnShauMQ`
-with push access. The kernel fork attach was blocked by the permission check, so it still needs doing.
+Status 2026-10-03: both forks are attached to session `session_016fF5iQ8x8B4G2hfnShauMQ` with push access.
+
+## Backup forks of ExyHyperBrick (owner, on github.com)
+Their default branch is `lineage-24.0`. GitHub's fork page copies **only the default branch** unless you untick the box,
+and then `lineage-23.2` would be missing.
+
+For each of `https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810` and
+`https://github.com/ExyHyperBrick/android_device_samsung_exynos9810-common`:
+1. Open the URL, then click **Fork** (top right).
+2. Owner: `anton-scholten`. Keep the name.
+3. **Untick "Copy the `lineage-24.0` branch only".**
+4. Click **Create fork**.
+5. Check: the branch list of the fork (`/branches/all`) shows `lineage-23.2`.
+
+Never click "Sync fork" on these. They're snapshots, and a sync would bring in rewrites from upstream.
