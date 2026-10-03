@@ -58,3 +58,15 @@ or skipped, and why. Newest last.
 - No kernel port branch is published. The trial trees have unresolved or blindly resolved conflicts, so
   they're not fit to publish.
 - Nothing has been built as a full ROM or booted on a tablet.
+
+## 2026-10-03: repo check and helper-agent task list
+- Checked the repos. Both forks exist (`anton-scholten/android_kernel_samsung_sdm670` at `a30605a`,
+  `anton-scholten/android_device_samsung_gts4lv-common` at `d1b339b`), identical to LineageOS `lineage-22.2`,
+  no `lineage-23.2` branch. They're public, so sessions can read them; pushing needs them attached with push access.
+- Patches 0001–0004 still apply cleanly to the device fork with `git am`.
+- All pins are unchanged: ExyHyperBrick `lineage-22.2` `d54533f`, `lineage-23.2` `baa585f`. gts4lv, gts4lvwifi
+  and the TheMuppets vendor repos still stop at `lineage-22.2`; `hardware/samsung` has `lineage-23.2`.
+- The old repo `anton-scholten/Lineage-OS-SM-T720` still exists (private). Archive it when you like.
+- Removed committed `__pycache__` files and added `.gitignore`.
+- Wrote `AGENT-TASKS.md`: small, checkable tasks for weaker agents working in parallel (conflict briefs,
+  upstream-commit map, build-error prerequisites, driver API audit, defconfig, ROM-side research, test scripts).
