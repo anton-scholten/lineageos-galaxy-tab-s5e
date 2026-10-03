@@ -30,7 +30,8 @@ option for this tablet is **official LineageOS 22.2**.
 |---|---|
 | `PORTING-LINEAGE-23.2.md` | Analysis: kernel blocker, required changes, work order |
 | `patches/device/samsung/gts4lv-common/` | Device tree patches against `lineage-22.2` |
-| `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2 |
+| `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2, and why it takes time |
+| `PRIOR-WORK.md` | Work other people have done online that can be reused |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree |
 | `apply-patches.sh` | Applies the patches (skips the BPF override unless `--with-bpf-override`) |
 
@@ -72,6 +73,8 @@ changes, apart from checking the RIL/FCM level (see the plan).
 > firmware for these models, which suggests some of them can be unlocked. Check
 > *Developer options* first: **if there is no "OEM unlock" switch, LineageOS can't
 > be installed on that tablet at all**, whatever the version.
+> For the **SM-T727V** (Verizon), XDA has a [guide to convert it to SM-T725 and unlock it](https://xdaforums.com/t/guide-convert-sm-t727v-to-sm-t725-unlock-bootloader-install-lineageos-22-2.4760328/post-90293075).
+> I haven't checked it. Converting firmware is risky, so read the whole thread first.
 
 The model number is on the back of the tablet, or under *Settings → About tablet*.
 

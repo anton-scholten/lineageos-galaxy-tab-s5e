@@ -26,7 +26,35 @@ Connectivity mainline module still has to run on Android 12 devices with 4.9
 kernels. On 22.2 these version checks were only warnings, which is why 22.2
 boots on this tablet.
 
-## Two tracks
+## Why each phase takes weeks, not days
+
+The amount of code is only part of it:
+
+1. **Volume.** The 4.14 to 5.4 series alone is about 1,770 commits. The 4.9 to 4.14 BPF gap
+   is several hundred more. That's well over 2,000 patches.
+2. **Conflicts.** Each patch was written for a newer kernel. Code around it has
+   changed: helper names, struct layouts, `timespec` vs `timespec64`,
+   `refcount_t`, socket and cgroup internals. On top of that, Samsung and Qualcomm
+   both modified the same networking files (KNOX `ncm`, `sec_net`, data-path
+   hooks). If even 20% of the commits conflict, that's hundreds of hand-made fixes,
+   at 15–60 minutes each.
+3. **Hidden prerequisites.** BPF commits depend on work outside BPF:
+   perf events, the TCP stats used by helpers, sk_msg/TLS, the flow dissector, cgroup v2.
+   Each missing prerequisite is its own small backport.
+4. **The verifier is security-critical.** The BPF verifier and arm64 JIT decide
+   what code runs inside the kernel. A subtle mistake doesn't just crash; it can
+   become a kernel exploit, or cause slow memory corruption. Each step has to be
+   reviewed, not just compiled.
+5. **Slow test loop.** Each build-flash-boot cycle on a real tablet takes 30–60
+   minutes, and many bugs only show up after hours of use. There's no CI or
+   emulator for this Samsung kernel, so every bisect runs on the device.
+6. **Few references for 4.9.** The 4.14 work can be copied almost directly. For
+   4.9, the community series are new, partly unpublished, and untested on SDM670.
+
+The estimates assume one experienced person working part-time. Reusing an
+existing 4.9 series (see [PRIOR-WORK.md](PRIOR-WORK.md)) would shorten Phase 2 a lot.
+
+## Three tracks
 
 ### Track A: kernel backports to `android12-5.4` parity (the official LineageOS route)
 
@@ -134,25 +162,54 @@ much shorter if the sdm845 4.9 series can be reused.
 
 ### Track B: relax the userspace version checks (unofficial, quick)
 
-Patch the hard `return` statements in `NetBpfLoad.cpp` and `BpfHandler.cpp`
-(table above) back into warnings, the way AOSP 15 had them. Leave
-`ro.bpf.kver_override` unset, so the 4.9 BPF fallbacks get used, as on 22.2.
+Patch the hard version checks back into warnings, so the 4.9 BPF
+fallbacks get used, as on 22.2.
 
-- **Good:** a few lines of change in one repo. You can boot 23.2 in days, and
-  start fixing the remaining device bugs alongside Track A.
-- **Bad:** it turns off a kernel-compatibility safeguard on purpose, and
-  Google doesn't test this combination. Features built on newer hooks
-  (getsockopt/setsockopt and connect/sendmsg cgroup hooks, socket-release
-  cleanup) silently stop working. That weakens per-app network
-  restrictions and accounting compared with a real 5.4-parity kernel. LineageOS
-  won't accept it for official builds, so it's only fit for personal
-  or testing use.
-- This patch **is not included** in this repo. See the README for status.
+**Someone has already done this:** [Doze-off/fuck-bpf](https://github.com/Doze-off/fuck-bpf),
+branch `lineage-23.2`, Apache-2.0, maintained by techyminati.
+- 28 patches, about 2,900 lines, across `packages/modules/Connectivity`,
+  `system/bpf`, `system/netd`, `system/core`, `system/apex`, `frameworks/native`,
+  `packages/modules/DnsResolver`, `hardware/interfaces` and `kernel/configs`.
+- It goes much further than relaxing the version checks. It also handles BPF
+  maps that don't work, cgroup setup failures, CLAT, and a userspace
+  **`epoll_pwait2` fallback** in `BLASTBufferQueue`. With that fallback, even
+  Phase 1's syscall backport is optional for booting.
+- It also brings back the 4.9 kernel-config and compatibility matrices that
+  Android 16 deleted.
+- Its own notes say 4.9 is "not tested yet". Separately, unofficial LineageOS 23.2
+  builds exist for very old devices like the Nexus 5 (3.4 kernel), which shows that
+  userspace workarounds of this kind can boot 23.2. I haven't checked which patches
+  those builds use.
 
-Recommended: use Track B as a temporary way to test the rest of the port, and
-Track A as the real solution.
+Trade-offs:
+- **Good:** works with the current kernel. A first boot is possible in days, so the
+  device-side bugs can be fixed while Track A goes on.
+- **Bad:** it removes a safety check on purpose, and Google doesn't test this combination.
+  Features built on newer kernel hooks (getsockopt/setsockopt and connect/sendmsg
+  cgroup hooks, socket-release cleanup) stop working without any error. That weakens per-app
+  network restrictions and data accounting. LineageOS won't accept it officially.
+- These patches are **not copied into this repo**. Apply them yourself if you
+  accept the trade-off.
 
-## Device-side work still needed (both tracks)
+### Track C: move the kernel up to 4.19 (precedent: Xiaomi SDM845)
+
+duckyduckG ported Xiaomi's SDM845 devices from msm-4.9 to a **4.19** kernel
+(`duckyduckG/android_kernel_xiaomi_sdm845_419`, also crDroid's `16.0` branch).
+They ship unofficial LineageOS 23.2 with it, using the `caf-sm8150` HAL branches.
+The 4.19 kernels LineageOS ships already have eBPF backported (sm8250-common uses
+`ro.bpf.kver_override=5.10.239`).
+
+For the Tab S5e this would mean porting SDM670 and **every Samsung driver**
+(panel/mDNIe, touch, fingerprint, sensors hub, MUIC/charger, Wi-Fi firmware
+loading, camera) to 4.19. That's at least as much work as Track A, and it
+needs new userspace HAL variants. Only worth considering if someone first does an
+SDM670 4.19 base (for example for the Pixel 3a, which has the same SoC).
+
+Recommended: use Track B to get a working 23.2 quickly for testing, and Track A as
+the real fix. Check the community 4.9 eBPF work listed in
+[PRIOR-WORK.md](PRIOR-WORK.md) before starting Phase 2.
+
+## Device-side work still needed (all tracks)
 
 - `patches/device/samsung/gts4lv-common/0001–0003`: done.
 - **FCM level.** In lineage-23.2, `compatibility_matrix.5.xml` is an
