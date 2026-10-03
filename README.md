@@ -1,7 +1,7 @@
-# LineageOS 23.2 for Galaxy Tab S5e Wi-Fi (SM-T720 / `gts4lvwifi`)
+# LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
 
 Work-in-progress port of LineageOS 23.2 (Android 16) to the Samsung Galaxy
-Tab S5e Wi-Fi. Officially, LineageOS supports this tablet only up to **22.2**
+Tab S5e, both Wi-Fi and LTE models. Officially, LineageOS supports these tablets only up to **22.2**
 (Android 15).
 
 ## Will the tablet run LineageOS 23.2?
@@ -18,7 +18,8 @@ yet, which is why every 4.9 Qualcomm device is still on 22.2.
 - With the backports, it should run normally. The port is then unofficial,
   and you install builds you made yourself.
 
-Details and the full work list are in [PORTING-LINEAGE-23.2.md](PORTING-LINEAGE-23.2.md).
+Details are in [PORTING-LINEAGE-23.2.md](PORTING-LINEAGE-23.2.md). The step-by-step plan to fix the kernel
+is in [KERNEL-BACKPORT-PLAN.md](KERNEL-BACKPORT-PLAN.md).
 
 There is no downloadable 23.2 build. Until the kernel work is done, the best
 option for this tablet is **official LineageOS 22.2**.
@@ -29,21 +30,65 @@ option for this tablet is **official LineageOS 22.2**.
 |---|---|
 | `PORTING-LINEAGE-23.2.md` | Analysis: kernel blocker, required changes, work order |
 | `patches/device/samsung/gts4lv-common/` | Device tree patches against `lineage-22.2` |
-| `local_manifests/gts4lvwifi.xml` | Repos to add to a `lineage-23.2` source tree |
+| `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2 |
+| `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree |
 | `apply-patches.sh` | Applies the patches (skips the BPF override unless `--with-bpf-override`) |
 
 ## Building (developers)
 
 ```bash
 repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs --no-clone-bundle
-mkdir -p .repo/local_manifests && cp <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/
+mkdir -p .repo/local_manifests
+cp <this repo>/local_manifests/gts4lv-common.xml .repo/local_manifests/
+cp <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/   # LTE: gts4lv.xml
 repo sync -c -j$(nproc)
 <this repo>/apply-patches.sh "$PWD"          # add --with-bpf-override once the kernel is backported
-source build/envsetup.sh && breakfast gts4lvwifi && mka bacon
+source build/envsetup.sh && breakfast gts4lvwifi && mka bacon   # LTE: breakfast gts4lv
 ```
 
-The build outputs `lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip`, `recovery.img`
-and `vbmeta.img` to `out/target/product/gts4lvwifi/`.
+The build outputs `lineage-23.2-*-UNOFFICIAL-<codename>.zip`, `recovery.img`
+and `vbmeta.img` to `out/target/product/<codename>/`.
+
+---
+
+## Which Tab S5e models can be upgraded?
+
+All of them use the same chip (SDM670) and the same kernel. Once the kernel
+work is done, **every model LineageOS supports today can run 23.2**. The LTE
+model gets the same common patches. Its own device tree needs no further
+changes, apart from checking the RIL/FCM level (see the plan).
+
+| Model | Variant | Codename | Latest stock (Android 11) firmware |
+|---|---|---|---|
+| SM-T720 | Wi-Fi (global/US) | `gts4lvwifi` | T720XXS3DWA1 |
+| SM-T720N | Wi-Fi (Korea) | `gts4lvwifi` | latest Android 11 for T720N |
+| SM-T725 | LTE (global) | `gts4lv` | T725XXS3DWA1 |
+| SM-T725C | LTE (China) | `gts4lv` | T725CZCS3DWA1 |
+| SM-T725N | LTE (Korea) | `gts4lv` | T725NKOS3DWA1 |
+| SM-T727 | LTE (T727 / T727U / T727V / T727R4) | `gts4lv` | T727JXS3DWA1 / T727UUES4DVI1 / T727VVRS4DVI3 / T727R4TYS4DVI2 |
+
+> ⚠️ **US carrier models (SM-T727U/V/R4/A).** Samsung often ships US carrier
+> devices **without an "OEM unlock" switch**. The LineageOS tree includes Wi-Fi
+> firmware for these models, which suggests some of them can be unlocked. Check
+> *Developer options* first: **if there is no "OEM unlock" switch, LineageOS can't
+> be installed on that tablet at all**, whatever the version.
+
+The model number is on the back of the tablet, or under *Settings → About tablet*.
+
+### How the steps differ between models
+
+The steps below are the same for every model, except for these points:
+
+| Step | Wi-Fi (`gts4lvwifi`) | LTE (`gts4lv`) |
+|---|---|---|
+| Files to download / build | `…-gts4lvwifi.zip`, its `recovery.img` and `vbmeta.img` | `…-gts4lv.zip`, its `recovery.img` and `vbmeta.img`. **Never mix the two codenames**: the installer refuses the wrong one, and a recovery built for the other codename may not boot |
+| Updating Samsung firmware from recovery | `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5` | Also flash the modem: `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5 --CP CP_*.tar.md5` |
+| Required firmware | Latest Android 11 for **your exact model** (table above). | Same. Use your model's own build, because the CP (modem) firmware is region-specific |
+| Mobile data / calls | n/a | Data and SMS work. **VoLTE/VoWiFi (IMS) isn't supported** ("ims" quirk on the wiki), so calls fall back to 2G/3G, which may not work where those networks have been shut down |
+
+Firmware images: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725,
+T725C, T725N, T727). For other models, get the latest Android 11 through the stock
+OTA *before* unlocking.
 
 ---
 
@@ -106,7 +151,8 @@ LineageOS requires the **latest Android 11 firmware** as its base.
 6. Choose *Reboot system now*, then restore your backup.
 
 Until 23.2 is bootable, use the official **22.2** files from
-<https://download.lineageos.org/devices/gts4lvwifi> in these steps. Later you
+<https://download.lineageos.org/devices/gts4lvwifi> (Wi-Fi) or
+<https://download.lineageos.org/devices/gts4lv> (LTE) in these steps. Later you
 can move to 23.2 with path B.
 
 ### B. From LineageOS 22.2 to 23.2 (major-version upgrade)
@@ -166,7 +212,7 @@ kernel. GPL-3.0 is not compatible with the kernel's GPL-2.0-only license.
 
 ## References
 
-- Device wiki: <https://wiki.lineageos.org/devices/gts4lvwifi/>
-- Install guide: <https://wiki.lineageos.org/devices/gts4lvwifi/install/>
+- Device wiki: <https://wiki.lineageos.org/devices/gts4lvwifi/> (Wi-Fi), <https://wiki.lineageos.org/devices/gts4lv/> (LTE)
+- Install guides: <https://wiki.lineageos.org/devices/gts4lvwifi/install/>, <https://wiki.lineageos.org/devices/gts4lv/install/>
 - Firmware images: <https://github.com/luk1337/gts4lv-fw/releases>
 - XDA forum: <https://xdaforums.com/c/samsung-galaxy-tab-s5e.9164/>

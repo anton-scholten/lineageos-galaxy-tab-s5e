@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Galaxy Tab S5e LTE (SM-T725, SM-T725C, SM-T725N, SM-T727*): device-specific repos (gts4lv).
+  Use together with gts4lv-common.xml.
+-->
+<manifest>
+  <project path="device/samsung/gts4lv"
+           name="LineageOS/android_device_samsung_gts4lv"
+           remote="github" revision="lineage-22.2" />
+  <project path="vendor/samsung/gts4lv"
+           name="proprietary_vendor_samsung_gts4lv"
+           remote="muppets" revision="lineage-22.2" />
+</manifest>

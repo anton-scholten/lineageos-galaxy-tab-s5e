@@ -106,7 +106,7 @@ are never registered. If you later chown them in `init.qcom.rc`, also add
 - `android.hardware.keymaster@4.0-service.samsung`, `health-service.samsung(-recovery)`, `sensors-service.samsung-multihal` and `biometrics.fingerprint-service.samsung` all still exist.
 - The gatekeeper sepolicy doesn't use `/data/vendor/gatekeeper` (the cleanup other trees needed for AOSP `e8d66734`); it uses `/efs/gatekeeper`.
 - `system_server self:capability sys_module` (a new neverallow in BP3A) isn't granted here; `macloader` has it, which is allowed.
-- FCM `target-level="5"`: `compatibility_matrix.5.xml` is still in lineage-23.2 `hardware/interfaces`, so no bump is required. Bumping to 6 is possible: audio 6.0, mapper 2.1, composer 2.3 and soundtrigger 2.2/2.3 are all allowed by matrix 6.
+- **Correction:** FCM `target-level="5"` should be bumped. On lineage-23.2, `compatibility_matrix.5.xml` is only an empty placeholder ("Android R FCM has been deprecated"). Bump the target level to 6. The Wi-Fi model's HALs fit matrix 6, but the LTE RIL (radio 1.4) may not. See [KERNEL-BACKPORT-PLAN.md](KERNEL-BACKPORT-PLAN.md#device-side-work-still-needed-both-tracks).
 - The forked audio HAL wrapper (`audio/impl`, `android.hardware.audio@6.0-impl.gts4lv`): upstream only added a `get_audio_port` null check and an opt-out for `speaker_layout_channel_mask` between 22.2 and 23.2. `audio.primary.sdm710` is built from source, so it needs no opt-out.
 - `vendor/lineage/config/common_full_tablet_wifionly.mk` still exists.
 
@@ -127,7 +127,8 @@ are never registered. If you later chown them in `init.qcom.rc`, also add
 ```bash
 repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs --no-clone-bundle
 mkdir -p .repo/local_manifests
-cp <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/
+cp <this repo>/local_manifests/gts4lv-common.xml <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/
+# LTE: also/instead copy local_manifests/gts4lv.xml and run `breakfast gts4lv`
 repo sync -c -j$(nproc)
 
 # Device tree patches (BPF override skipped until the kernel is ready)
