@@ -149,3 +149,19 @@ or skipped, and why. Newest last.
     and its batch file `analysis/agent-batches/K8.tsv`.
 - Rewrote the HANDOVER state and plan (9 steps, who and where). Added a "Remaining work" estimate to ESTIMATE.md:
   ≈28 days expected (16.5–49.5), down from 34 (21–55).
+
+## 2026-10-03: branches removed, round 4 (port by the free model) specified and dry-run tested
+- The owner deleted the 47 `agent/*` and `lead/*` branches (this session's proxy refuses branch deletes). Remote now: `main` and `claude/vigilant-turing-jho5ul`.
+- Decision: the free model ("Space Bunny Free") does all work steps; a strong model only reviews and handles escalations (AGENT-TASKS §10).
+- New tooling, tested on a full clone with the whole series:
+  - `scripts/pick-series.sh`: cherry-picks in order, stops at each conflict and prints its brief and review level, resumes, and records empty picks and drops.
+  - `scripts/check-pick.py`: checks for leftover markers, trailers and the drop list, and writes review packets (`full/`, `spot/`, `automerge/`, `fixes/`).
+  - `analysis/port/`: `full-review.txt` (27 commits), `dropped.tsv`, `dry-run-stops.tsv`, README.
+- Dry run (mechanical resolutions, only to count): **83 stops** in 2,460 picks, not 150. 71 have a brief, 12 don't (6 are a zstd chain that follows skipped commits).
+  2,373 clean, 4 apply-but-differ (e.g. `dff86fa1e78e` silently loses 5 removed lines), 5 empty.
+  The dry run found 3 script bugs, all fixed: the first "cherry picked from" line was used instead of the last; an RST underline was flagged as a marker;
+  a no-brief stop was labelled spot-check instead of full.
+  A first dummy attempt was discarded: it deleted files on delete-type conflicts, which inflated the stops to 266 by half-way.
+- AGENT-TASKS: §2.3 round 4 table; §6c specs P1 (cherry-pick), P2 (automerge triage), P3 (known fixes + defconfig), P4 (build loop with forbidden fixes
+  and escalation), P5 (device tree), and the strong reviews. §0.4 now lets round-4 agents push `port/*` branches only. §0.6 covers fork tokens and protecting `lineage-23.2`. §10 says free model everywhere.
+- HANDOVER plan and ESTIMATE redone: ≈24.5 days wall-clock expected (14.5–46), about 5 weeks. The first ~12 days are mostly unattended agents.

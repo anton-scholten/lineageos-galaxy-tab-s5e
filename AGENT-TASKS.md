@@ -11,7 +11,8 @@ A lead agent or the owner reviews and merges your output. You never change the k
 directly: you **research and write reports**. State checked on 2026-10-03; see [HANDOVER.md](HANDOVER.md).
 
 > **Status (2026-10-03): rounds 1 and 2 are done, reviewed and merged into `main`.** All tasks in §3–§6 have their
-> output in the repo already. Their sections stay as the format reference. **Only round 3 (§2.2) is open.**
+> output in the repo already. Their sections stay as the format reference. **Open: round 3 (§2.2, research) and
+> round 4 (§2.3, the actual kernel and device-tree port, done by the free model and checked by a strong one).**
 > The cross-agent findings are in [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md).
 
 ---
@@ -69,7 +70,8 @@ Which task needs which repo:
 2. **Branch:** commit on a new branch `agent/<task-id>` in *this* repo (`anton-scholten/lineageos-galaxy-tab-s5e`) and push it.
    Don't push to `main`. Don't open a pull request unless you're told to.
 3. **Never push to these repos:** `android_kernel_samsung_sdm670`, `android_device_samsung_gts4lv-common`, or anything from LineageOS, ExyHyperBrick or TheMuppets.
-   You clone them read-only.
+   You clone them read-only. **Only exception, round 4:** P1/P3/P4 push to branch `port/pick` in the kernel fork, and P5 to `port/dt` in the
+   device fork. Never to `lineage-23.2` or any other branch there.
 4. **Don't edit** `WORKLOG.md`, `HANDOVER.md`, `README.md` or any file outside your output path. Many agents run at once,
    and edits to shared files cause merge conflicts. The lead updates the shared files.
 5. **Every fact needs a source:** a commit SHA (at least 12 characters), or `path/to/file:line @ <commit>`, or a URL.
@@ -107,6 +109,10 @@ This repo is private, so an outside agent needs credentials to clone it and push
 - **No push at all:** the agent runs `git format-patch -1` after committing, and sends the `.patch` file. The lead applies it with `git am`.
 
 Optional safety: add a branch protection rule on `main` (Settings → Branches), so only the owner can push to it.
+
+**Round 4 also needs push to the two forks**, on `port/*` branches only. Use a fine-grained token with *Contents: Read and write* on
+`android_kernel_samsung_sdm670` and `android_device_samsung_gts4lv-common`. In each fork, protect `lineage-23.2`
+(Settings → Branches → rule for `lineage-23.2`, "Restrict who can push" or "Lock branch"). The lead moves it forward after review.
 
 ---
 
@@ -223,15 +229,30 @@ Round 1 ran under the old IDs R6/R7 (now R5/R6), K4d (folded into K4c) and K5f (
 their `agent/*` branches only. All agents ran on one free model; the review (§11) re-checked the load-bearing claims and they held.
 
 ### 2.2 Round 3: open
-Small follow-ups the review found. Same rules, same hand-in. Total about 6 agent runs, a few hours each.
+Small follow-ups the review found. Same rules, same hand-in. 5 agent runs, a few hours each.
 
-| ID | Agents | Tier (§10) | Clone needed | Output | Rough time |
+| ID | Agents | Model (§10) | Clone needed | Output | Rough time |
 |---|---|---|---|---|---|
-| K7 flag/bitfield collisions | 1 | 2 | kernel (§1.2) | `analysis/collisions/K7.md` + `.tsv` | 3–5 h |
-| K8 two missing conflict briefs | 1 | 2 | kernel | `analysis/conflicts/` (batch `K8`) | 2–3 h |
-| R7 vendor property namespace | 1 | 1 | LineageOS repos (shallow) | `analysis/rom/property-namespace.md` | 1–2 h |
-| R8 LTE radio HAL version | 1 | 1 | vendor blobs (gts4lv) | `analysis/rom/radio-hal.md` | 1–2 h |
-| R9 soundtrigger and per_proxy_helper | 1 | 1 | device tree + vendor blobs | `analysis/rom/soundtrigger-perproxy.md` | 1–2 h |
+| K7 flag/bitfield collisions | 1 | free | kernel (§1.2) | `analysis/collisions/K7.md` + `.tsv` | 3–5 h |
+| K8 two missing conflict briefs | 1 | free | kernel | `analysis/conflicts/` (batch `K8`) | 2–3 h |
+| R7 vendor property namespace | 1 | free | LineageOS repos (shallow) | `analysis/rom/property-namespace.md` | 1–2 h |
+| R8 LTE radio HAL version | 1 | free | vendor blobs (gts4lv) | `analysis/rom/radio-hal.md` | 1–2 h |
+| R9 soundtrigger and per_proxy_helper | 1 | free | device tree + vendor blobs | `analysis/rom/soundtrigger-perproxy.md` | 1–2 h |
+
+### 2.3 Round 4: open (the port itself, free model first)
+The free model does the work; a strong model only reviews and handles escalations. Specs in §6c.
+
+| ID | What | Agents | Model | Needs | Output |
+|---|---|---|---|---|---|
+| P1 | Cherry-pick the series, resolving each conflict from its brief | 1 (must be sequential) | free | K8 nice to have | kernel fork `port/pick`; this repo: `analysis/port/dropped.tsv`, `analysis/port/P1-log.md` |
+| P1-R | Review P1 | 1 | **strong** | P1 | `analysis/port/review-P1.md`, fix requests |
+| P2 | Triage the "auto-merged but different" commits | 2–4 in parallel | free | P1 | `analysis/port/automerge-triage.tsv` |
+| P2-R | Review P2's SUSPECT items + 10% of BENIGN | 1 | **strong** | P2 | added to `review-P1.md` |
+| P3 | Apply the known kernel fixes and the defconfig fragment | 1 | free | P1-R, K7 | commits on `port/pick` |
+| P4 | Build loop: fix compile errors one at a time | 1 (sequential) | free, escalates | P3 | commits on `port/pick`; `analysis/port/P4-log.md` |
+| P4-R | Review P3+P4 fix commits; handle escalations | 1 | **strong** | P4 (can run in chunks) | `analysis/port/review-P4.md` |
+| P5 | Device-tree commits | 1 | free | R7–R9 | device fork `port/dt`; `analysis/port/P5-log.md` |
+| P5-R | Review P5 | 1 | **strong** | P5 | `analysis/port/review-P5.md` |
 
 ---
 
@@ -487,7 +508,7 @@ Write `TESTING.md`, section "Collecting crash logs":
 
 ## 6b. Round 3 task specs
 
-### K7: flag and bitfield collisions (1 agent, tier 2)
+### K7: flag and bitfield collisions (1 agent, free model)
 **Why:** sdm670 already used some bit values that the series reuses for something else. Merging both sides gives *no* conflict and
 *no* compiler error; two flags just silently share a bit. Known cases: `TIF_FSCHECK`/`TIF_UPROBE` both 4 in
 `arch/arm64/include/asm/thread_info.h`, and `FAULT_FLAG_SPECULATIVE`/`FAULT_FLAG_INTERRUPTIBLE` both `0x200` in `include/linux/mm.h`
@@ -507,13 +528,13 @@ Write `TESTING.md`, section "Collecting crash logs":
 **Output:** `analysis/collisions/K7.tsv` (`file	value	sdm670_name	series_name	category`), `analysis/collisions/K7.md` (§0.5 header, summary, table of real
 collisions with suggested values, `## Problems`), and the script.
 
-### K8: briefs for the two un-briefed conflicts (1 agent, tier 2)
+### K8: briefs for the two un-briefed conflicts (1 agent, free model)
 Batch file: [`analysis/agent-batches/K8.tsv`](analysis/agent-batches/K8.tsv). Both commits are trial-`CLEAN`, but conflict in a real in-order
 replay: `47d10743ccd7` "BACKPORT: mm: introduce MADV_PAGEOUT" (a prerequisite for `e7751e04e9d1`), and `0a115d7aaf34` "mm/vmalloc.c: convert
 vmap_lazy_nr to atomic_long_t" (between two K2d-1 commits; read brief `7c9b3c4119eb.md` first). Follow §K2 exactly, using the stacked replay.
 Output: two briefs + `analysis/conflicts/K8-summary.md`. Self-check: `scripts/check-agent-output.sh K8` prints `OK`.
 
-### R7: vendor property namespace (1 agent, tier 1)
+### R7: vendor property namespace (1 agent, free model)
 **Why:** 15 of 21 lines in our `sepolicy/vendor/property_contexts` lack the `vendor.` prefix that the 23.2 build check wants
 (`check_prop_prefix.py`). sm7125-common has the same pattern and still builds, so something must exempt it ([LEAD-SYNTHESIS.md §7.2](LEAD-SYNTHESIS.md)).
 **Steps:** shallow-clone `LineageOS/android_build_soong`, `android_build` (`lineage-23.2`), `android_vendor_lineage` (`lineage-23.2`), our device tree,
@@ -524,7 +545,7 @@ Output: two briefs + `analysis/conflicts/K8-summary.md`. Self-check: `scripts/ch
 4. Verdict: will our build fail the check? If yes, what is the smallest fix (rename the properties, or set the BUILD_BROKEN flag)?
 **Output:** `analysis/rom/property-namespace.md`.
 
-### R8: can the LTE RIL do radio 1.5? (1 agent, tier 1)
+### R8: can the LTE RIL do radio 1.5? (1 agent, free model)
 **Why:** FCM level 6 wants `android.hardware.radio` 1.5–1.6; the LTE model declares 1.4 (`gts4lv/manifest.xml`).
 Bumping the number only works if the vendor RIL implements 1.5.
 **Steps:** shallow-clone `TheMuppets/proprietary_vendor_samsung_gts4lv` (`lineage-22.2`) and `LineageOS/android_device_samsung_gts4lv` (`lineage-22.2`).
@@ -534,7 +555,7 @@ Bumping the number only works if the vendor RIL implements 1.5.
 4. Verdict: can the LTE manifest say 1.5? If not, the options are: keep level 5 for LTE only, or ship an FCM exemption. Cite sources.
 **Output:** `analysis/rom/radio-hal.md`.
 
-### R9: soundtrigger and per_proxy_helper (1 agent, tier 1)
+### R9: soundtrigger and per_proxy_helper (1 agent, free model)
 **Why:** level 6 needs soundtrigger 2.3, and sdm710 builds only `soundtrigger@2.1-impl`. The plan is to delete the manifest block. Separately,
 `per_proxy_helper` has a sepolicy domain but no `file_contexts` label ([LEAD-SYNTHESIS.md §7.4–7.5](LEAD-SYNTHESIS.md)).
 **Steps:** in our device tree, the per-model trees and `TheMuppets/proprietary_vendor_samsung_gts4lv-common`:
@@ -545,21 +566,133 @@ Bumping the number only works if the vendor RIL implements 1.5.
 
 ---
 
+## 6c. Round 4 task specs (the port)
+
+### Shared setup for P1, P3, P4
+Full kernel clone as in §1.2 (not `--depth 1`: the cherry-pick needs the series history). Then:
+```bash
+cd $W/k670
+git remote set-url --push origin https://<token>@github.com/anton-scholten/android_kernel_samsung_sdm670   # token from §0.6
+git fetch origin port/pick 2>/dev/null && git checkout -b port/pick origin/port/pick || git checkout -b port/pick a30605a54f3b
+git config user.name "<your model name> (helper)"; git config user.email "noreply@example.invalid"
+```
+The docs repo is cloned next to it, on branch `agent/<task-id>`. The scripts live there: `scripts/pick-series.sh`, `scripts/check-pick.py`.
+**Never** run `git push --force`, `git rebase`, `git reset --hard` or `git commit --amend` on a commit that's already pushed. Fix mistakes with a new commit.
+
+### P1: cherry-pick the series (free model, 1 agent)
+The script picks every commit in order and **stops at the first one that needs you**. It skips Exynos-only commits, the `skip` group, and
+anything already picked or listed in `analysis/port/dropped.tsv`. Empty picks (already in the tree) are recorded as dropped automatically.
+
+**What to expect** (dry run on 2026-10-03, every conflict resolved mechanically; see [`analysis/port/dry-run-stops.tsv`](analysis/port/dry-run-stops.tsv)):
+about **83 stops** in 2,460 picks, not the trial's 150. 71 have a brief, 25 are marked FULL review. There are also ~5 empty picks
+(dropped automatically), and ~4 commits that apply but differ (task P2). Your real count will differ somewhat, because your resolutions keep sdm670's lines.
+
+**Stops without a brief** (12 in the dry run): first check whether the commit only conflicts because an earlier commit was skipped.
+Run `git log --oneline d54533f1546b..<sha>^ -- <file>` and look for commits in the `skip` group or in `dropped.tsv`. Example: 6 of them are a `lib/zstd`
+chain whose earlier zstd commits are in the `skip` group. If so, DROP it the same way, reason `follows skipped <sha>`, and add the trailer
+`Needs-review:` on the next commit you make, so the reviewer sees the chain. Otherwise resolve it and write a 3-line note in the commit message
+(what conflicted, what you kept, why).
+
+**Loop:**
+1. `bash ../lineageos-galaxy-tab-s5e/scripts/pick-series.sh .` → exit 0 means done (go to step 8); exit 1 means a conflict; read `.git/PORT_STATUS`.
+2. Open the brief it names (`analysis/conflicts/<sha>.md`). Check the conflicting files match the brief's `## Conflicting files`. If they don't, or there's
+   no brief, write down what you see before deciding.
+3. Do what `## Proposed resolution` says:
+   - **DROP** (whole commit): `git cherry-pick --skip`, then add a line to `analysis/port/dropped.tsv`: `<12-char sha><TAB>DROP per brief: <one line why><TAB><your model>`.
+   - **DROP of one hunk/file** or **MERGE**: edit only the files in conflict. Remove every `<<<<<<<`, `=======`, `>>>>>>>`. Keep sdm670's lines and the series' lines
+     exactly as the brief says. Never delete code the brief doesn't tell you to.
+   - **PREREQ**: if the named prerequisite is already picked (`git log --grep=<sha>`), resolve as MERGE. If it isn't, and it's in the series later, write
+     `PREREQ-ORDER` in the log and escalate (step 6). If it's from the Exynos base, cherry-pick it first: `git cherry-pick --abort`,
+     `git cherry-pick -x <prereq>`, then rerun the script.
+4. Finish the commit:
+   ```bash
+   git add <files>; GIT_EDITOR=true git cherry-pick --continue
+   git commit --amend --no-edit --trailer "Resolved-by: <model>; brief <sha12>; <DROP-hunk|MERGE|PREREQ>"
+   ```
+   (`--amend` is allowed here: that commit isn't pushed yet.)
+5. Self-check before moving on: `git diff HEAD~1 --stat` shows only the conflicted files, and
+   `git show HEAD | grep -nE '^\+(<<<<<<<|>>>>>>>)'` prints nothing (and no `=======` line left in the files you edited).
+6. **Escalate** instead of guessing when: `.git/PORT_STATUS` says `review: FULL` and the brief doesn't give a line-by-line plan; the brief says `HUMAN`;
+   the brief doesn't match what you see; or you tried twice. To escalate: resolve as well as you can, add the trailer
+   `Needs-review: <why>` as well, and keep going. The strong reviewer checks every such commit. If you truly can't produce a compiling-looking
+   result, `git cherry-pick --abort`, write the commit and reason in `analysis/port/P1-log.md` under `## Blocked`, and **stop**.
+7. Every 10 resolved conflicts: `git push origin port/pick`, and commit + push the docs repo (`dropped.tsv`, `P1-log.md`) on `agent/P1`.
+8. When the script exits 0: `python3 ../lineageos-galaxy-tab-s5e/scripts/check-pick.py . ../pick-review` must print `problems: 0`. Push both repos.
+
+`analysis/port/P1-log.md`: the §0.5 header, then one line per stop: `sha | brief verdict | what you did | escalated?`, then `## Blocked` and `## Problems`.
+
+### P2: triage "auto-merged but different" commits (free model, 2–4 agents)
+`check-pick.py` writes `pick-review/automerge/*.range-diff`: commits git applied without a conflict whose changed lines still differ from the original.
+Example: `dff86fa1e78e` lost 5 removed lines, because sdm670 didn't have them where the patch expected. Split the files alphabetically between the agents.
+For each one, read the range-diff and classify:
+- **BENIGN**: same change, only placement or context differs; or a removal that found nothing to remove because sdm670 never had the lines.
+  Prove it: `git grep` the lines in the result.
+- **SUSPECT**: part of the change is missing or duplicated (e.g. a `#define` now defined twice, a removal that didn't happen while the lines still exist elsewhere).
+Output `analysis/port/automerge-triage-<n>.tsv`: `sha12	BENIGN|SUSPECT	reason	evidence`.
+
+### P3: known fixes and defconfig (free model, 1 agent)
+One commit per item on `port/pick`, each with trailer `Fix-by: <model>; <source>`. Sources: [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) §1–§2, K7.
+1. `arch/arm64/include/asm/set_memory.h`: new file modelled on `arch/arm/include/asm/set_memory.h` (§1.3). Keep the GPL header.
+2. `net/ipc_router/ipc_router_core.c:1384`: `wakeup_source_register(NULL, port_ptr->rx_ws_name)` (§6.2).
+3. `arch/arm64/include/asm/thread_info.h`: `TIF_UPROBE` to a free bit (5 if free; check), add `_TIF_UPROBE` to `_TIF_WORK_MASK` (§2).
+4. `include/linux/mm.h`: `FAULT_FLAG_INTERRUPTIBLE` to a free value (`0x800` if free; check every `FAULT_FLAG_` define) (§2).
+5. Every other collision K7 lists as real, the same way.
+6. `fs/unicode/`: copy the directory unchanged from `baa585f67e0e` (`git checkout baa585f67e0e -- fs/unicode`) and make sure
+   `fs/Makefile` has `obj-$(CONFIG_UNICODE) += unicode/` and `fs/Kconfig` sources `fs/unicode/Kconfig` (§1.6).
+7. Merge `analysis/defconfig/gts4lv-23.2.fragment` into all four `arch/arm64/configs/gts4lv*_defconfig` files: for each `CONFIG_X=y` or
+   `# CONFIG_X is not set` line, replace the existing line for X or append it. **Must include** `CONFIG_CGROUP_SCHED=y`, `CONFIG_UPROBES=y`, `CONFIG_BPF_JIT=y`.
+   Check with: `make ARCH=arm64 gts4lvwifi_defconfig` (from `kbuild.sh`), then `grep -E 'CONFIG_(CGROUP_SCHED|SCHED_WALT|UPROBES|BPF_JIT)=' out/.config` shows all four `=y`.
+
+### P4: build loop (free model, 1 agent, escalates)
+Build: `bash ../lineageos-galaxy-tab-s5e/analysis/build-test/kbuild.sh . ../out ../build.log` (needs the §1.0 tools plus
+`clang lld flex bison libssl-dev binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves` (for `pahole`); about 10 GB disk;
+12 min per full build on 4 cores, later builds are incremental).
+**Loop:** build → take the **first** error in `build.log` → fix it → commit → repeat until `Image.gz-dtb` exists.
+Allowed fixes, in order of preference:
+1. A missing prerequisite from the Exynos base: find it (`git log -S'<symbol>' exy/l222`), `git cherry-pick -x` it. Trailer `Fix-by: <model>; prerequisite for <error>`.
+2. A call site still using an old API: change the call to the new signature, the way the series fixed the same API elsewhere (cite that file:line).
+3. A missing `#include` or declaration.
+**Forbidden** (escalate instead): deleting or `#if 0`-ing code; turning off a config from the fragment; casts that hide a type error; any change in
+`kernel/bpf/`, `arch/arm64/net/`, `net/core/filter.c` or `mm/` beyond a one-line include; the same error after 3 tries.
+To escalate: write it in `analysis/port/P4-log.md` under `## Escalated` (error text, file:line, what you tried) and **stop**. The strong model fixes it,
+then you continue. Push `port/pick` after every fix commit. Log one line per fix: `error | file | fix | commit`.
+
+### P5: device-tree commits (free model, 1 agent)
+Clone our device tree, branch `port/dt` from `lineage-23.2`, with push via the §0.6 token. One commit per item, each with trailer `Fix-by: <model>; <source report>`:
+1. `manifest.xml`: `target-level="5"` → `"6"` (R5).
+2. Remove the `soundtrigger` HAL block from `manifest.xml`, and whatever R9 says must go with it (R1, R9).
+3. The `per_proxy_helper` `file_contexts` line from R9.
+4. `audio_policy_configuration.xml`: comma-separated `samplingRates`/`channelMasks`/`formats` → space-separated (R6, commit `924cf7e4adcc` in the exynos9810-common backup shows the format).
+5. Whatever R7 decides for the vendor property names.
+6. Only if R8 says the RIL supports it: LTE radio 1.4 → 1.5 in the `gts4lv` tree. (That's a different repo, so log it in `P5-log.md` for the lead instead.)
+Check each XML with `xmllint --noout`. Push `port/dt`. Log in `analysis/port/P5-log.md`.
+
+### Strong-model review (P1-R, P2-R, P4-R, P5-R)
+1. Run `python3 scripts/check-pick.py <kernel> pick-review`. It must say `problems: 0`.
+2. Read **every** packet in `pick-review/full/` and every commit with a `Needs-review:` trailer.
+3. Read 20% of `pick-review/spot/`, picked at random. If one is wrong, read the whole batch of 10 it came from.
+4. Read every P2 `SUSPECT` and 10% of `BENIGN`.
+5. Read every `fixes/` packet (P3, P4) and every P5 commit. They're small.
+6. For anything wrong: don't rewrite history. Write the problem in `review-P*.md`. Either fix it yourself in a new commit (trailer `Fix-by: <model>; review`)
+   or hand it back to the free agent with exact instructions.
+7. When P1–P4 pass and `Image.gz-dtb` builds: fast-forward the fork's `lineage-23.2` to `port/pick`. Same for `port/dt` after P5-R.
+
+---
+
 ## 7. Not for helper agents
-These need the lead or a human. They use the outputs above as input:
-- Cherry-picking the series into the kernel fork, and resolving the conflicts (phases 1–2 in [ESTIMATE.md](ESTIMATE.md)).
-- The 12 large required conflicts (K3 gives facts only).
-- Build fixes after the first errors (phase 3).
-- A full ROM build (~150 GB sync), first boot and debugging (phases 4–5).
+- The reviews in round 4 (P1-R, P2-R, P4-R, P5-R) and every escalation: a strong model.
+- Changes inside the BPF verifier/JIT (`kernel/bpf/`, `arch/arm64/net/`), if P4 escalates them.
+- A full ROM build (~150 GB sync), flashing and first boot: the owner, with the tablet. Reading the boot logs: a strong model.
 - Contacting krazey (ExyHyperBrick) before publishing the kernel branch.
 - Track B (relaxing Android's kernel version checks).
 
 ## 8. Order and dependencies
 ```
 Rounds 1–2:             done
-Round 3, in parallel:   K7  K8  R7  R8  R9
-The lead doesn't need to wait for round 3 to start the cherry-pick; K7 and K8 feed into it as it goes.
-R7–R9 decide the device-tree commits before the first ROM build.
+Round 3, in parallel:   K7  K8  R7  R8  R9          (P1 may start at the same time)
+Round 4 kernel:         P1 → P1-R and P2 (parallel) → P2-R → P3 (after K7) → P4 ⇄ P4-R → fast-forward lineage-23.2
+Round 4 device tree:    (after R7–R9) P5 → P5-R → fast-forward lineage-23.2
+Then:                   owner: ROM build, flash, boot (HANDOVER.md steps 6–8)
 ```
 
 ## 9. Common mistakes
@@ -572,18 +705,22 @@ R7–R9 decide the device-tree commits before the first ROM build.
 - **Editing shared files** (`WORKLOG.md`, `HANDOVER.md`). Don't; the lead does.
 
 ## 10. Which model for which task
-Based on the OpenCode Go plan, checked 2026-10-03 from third-party write-ups. opencode.ai itself was blocked from the cloud container, so check the current list and limits at <https://opencode.ai/go>.
+**Use the free model ("Space Bunny Free" on OpenCode) for every helper task**, including all of round 3 and the work steps of round 4
+(P1–P5). Rounds 1–2 ran on it, and the review found the output sound: format 17/17, all 15 DROPs consistent, and 13 of 14 sampled
+"already in sdm670?" answers matched directly (the 14th was right on reading).
 
-| Tier | Model (OpenCode Go) | Tasks | Why |
-|---|---|---|---|
-| 1, cheapest | **DeepSeek V4.1 Flash** ($0.15 / $0.60 per 1M tokens, ≈130k requests/month) | M2, M3, K1, K2a-1…4, K2c-1…2, K4a–c, K6, R3, R4, T1, T2 | Mechanical: run the given commands, grep, fill in a template, write a small script |
-| 2, mid | **Qwen3.7 Plus**, **MiniMax M3** or **Kimi K2.7 Code** | K2b-1…4, K2d-1…3, K3-1…4, K5a–e, R1, R2, R5, R6 | Needs judgment: reading conflict hunks, comparing APIs, sepolicy, sorting commits |
-| 3, strong | Kimi K3 (≈490 requests/month), a frontier model, or a human | Section 7 only, plus the review (§11) | Resolving conflicts, build fixes, boot debugging |
+Use a **strong model** (a frontier model, or Kimi K3 within its ≈490 requests/month) only for:
+- the reviews (§11 and the round-4 `-R` steps), and
+- escalations: anything a free agent marks `Needs-review:`, `## Blocked` or `## Escalated`.
 
-- Fallback for tier 1: GLM-5.3-Flash (similar price, ≈31k requests/month).
-- Rounds 1–2 ran entirely on "Space Bunny Free", against this advice. The review found the reports sound (format 17/17, all 15 DROPs consistent,
-  13 of 14 sampled "already in sdm670?" answers matched, and the 14th was fine on reading). It's usable, but keep the §11 review.
-- If a tier-1 agent marks more than half its items `HUMAN` or `low`, rerun that batch with a tier-2 model rather than reviewing it by hand.
+If a free agent escalates more than about a third of its items, or the review rejects more than about a third, stop it. Hand the rest to the strong model:
+past that point, review plus rework costs more than doing it directly.
+
+Rough cost picture for round 4, from the dry run: the free model's work costs nothing. The strong model reads ~25 `full/` packets,
+~12 of ~58 `spot/` packets, ~4 automerge packets, the P3/P4 fix commits and the escalations. The dry run's packets came to ≈280 KB
+(≈70k tokens) for all 83 stops, so the review reads well under that. Doing the 83 resolutions itself would mean reading the same
+material plus the briefs and the code around it, then writing the fixes.
+Model names and limits come from third-party write-ups (opencode.ai is blocked from the cloud container). Check <https://opencode.ai/go>.
 
 ## 11. Reviewing the output (lead)
 Checking costs much less than producing, because every claim cites a SHA or `file:line`. Order:

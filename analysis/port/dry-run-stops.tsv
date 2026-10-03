@@ -1,0 +1,84 @@
+sha12	position	review	conflict_kinds	brief	subject
+5610ada6efc5	22	spot-check	1 UU	yes	drm: Add aspect ratio parsing in DRM layer
+05e231887443	25	spot-check	1 UU	yes	drm: Add a new connector atomic property for link status
+285607f6d86f	49	spot-check	2 UU	yes	nl80211: add WPA3 definition for SAE authentication
+437cc7c3ab63	71	spot-check	1 UU	yes	ion: Map userspace buffers page-aligned
+b48811f9463e	76	spot-check	1 UU	yes	alarmtimer: Shorten wakeup hold for imminent alarms
+b611939c2042	81	spot-check	1 UU	yes	mm: refactor __purge_vmap_area_lazy()
+9a27f565137b	89	spot-check	1 UU	yes	mm, vmalloc: use __GFP_HIGHMEM implicitly
+4cf42717d891	107	spot-check	1 UU	yes	mm/vmalloc: Add flag for freeing of special permsissions
+252eaf20e864	119	spot-check	1 UU	yes	PARTIAL: x86/mm/cpa: Add set_direct_map_*() functions
+74d484967de7	137	spot-check	1 UU	yes	BACKPORT: tcp: tsq: add tsq_flags / tsq_enum
+1c3b123b0ad6	157	spot-check	1 UU	yes	UPSTREAM: security: selinux: allow per-file labeling for bpffs
+3ed2e2f029db	162	spot-check	1 UU	yes	BACKPORT: bpf: Add BPF_MAP_TYPE_LRU_HASH
+ddf82ae7e880	168	spot-check	1 UU	yes	UPSTREAM: bpf: reuse dev_is_mac_header_xmit for redirect
+5128fe02b819	173	spot-check	2 UU	yes	UPSTREAM: net/ipv6: allow sysctl to change addr_gen_mode
+299f338c4b31	183	spot-check	1 UU	yes	BACKPORT: bpf: BPF for lightweight tunnel infrastructure
+ac02ef0433e3	218	spot-check	1 UU	yes	BACKPORT: tcp: instrument tcp sender limits chronographs
+fd90efeb991d	313	spot-check	1 UU	yes	BACKPORT: net: Generic XDP
+208613d60d72	386	FULL (large conflict (K3))	2 UU	yes	BACKPORT: net: Add sysctl to toggle early demux for tcp and udp
+eac8f26eff94	387	FULL (large conflict (K3))	1 UU	yes	BACKPORT: net/tcp_fastopen: Disable active side TFO in certain scenarios
+004f6001c296	388	spot-check	1 UU	yes	UPSTREAM: tcp: ULP infrastructure
+a6b06e3852ea	409	spot-check	1 UU	yes	BACKPORT: bpf: Support for setting initial receive window
+f4e1fe0bc47b	444	spot-check	1 UU	yes	BACKPORT: kernfs: don't set dentry->d_fsdata
+6ee017762dda	449	spot-check	1 AA	yes	refcount_t: Introduce a special purpose refcount type
+e9c1bdddb9a0	450	spot-check	1 UU	yes	BACKPORT: locking/refcount: Create unchecked atomic_t implementation
+05e4636c5fed	467	spot-check	1 UU	yes	UPSTREAM: net: add new control message for incoming HW-timestamped packets
+856f611efb48	512	spot-check	1 UU	yes	UPSTREAM: tcp: Export tcp_{sendpage,sendmsg}_locked() for ipv6.
+e3a9e868eac2	596	spot-check	1 UU	yes	UPSTREAM: ipv6: do not set sk_destruct in IPV6_ADDRFORM sockopt
+d9dfe4a76fb9	717	spot-check	1 UU	yes	BACKPORT: ipv4: Namespaceify tcp_tw_recycle and tcp_max_tw_buckets knob
+9e672484dfc9	725	spot-check	1 UU	yes	UPSTREAM: tcp: add skb-less helpers to retrieve SYN cookie
+57160164039c	986	FULL (no brief)	1 DU 2 UU	no	treewide: convert totalram_pages users to helper
+2d6869d3a4ce	990	FULL (TIF_UPROBE vs TIF_FSCHECK bit 4 (LEAD-SYNTHESIS §2))	1 UU	yes	arm64: Add uprobe support
+495ac52546da	1006	spot-check	1 UU	yes	BACKPORT: arch: wire-up close_range()
+7ace0da94189	1139	spot-check	1 UU	yes	BACKPORT: bpf: Make use of probe_user_write in probe write helper
+8a953036e3b5	1265	spot-check	1 UU	yes	BACKPORT: kbuild: Add vmlinux BTF generation option
+9dd9b06133f6	1266	spot-check	1 UU	yes	BACKPORT: btf: Embed and expose vmlinux BTF data
+c3e95a25fa4a	1617	spot-check	1 UU	yes	BACKPORT: bpf: Add ambient BPF runtime context stored in current
+1cf802e31c98	1708	spot-check	1 UU	yes	BACKPORT: skmsg: Move sk_redir from TCP_SKB_CB to skb
+080e34a277b4	1712	spot-check	1 UU	yes	BACKPORT: sock: Introduce sk->sk_prot->psock_update_sk_prot()
+abea5381a52a	1732	spot-check	1 UU	yes	BACKPORT: net, sk_msg: Annotate lockless access to sk_prot on clone
+8058ab5ed5e5	1757	spot-check	1 UU	yes	BACKPORT: tcp: Migrate sockets in accept queues.
+7e93ac0afe0f	1945	spot-check	1 UU	yes	BACKPORT: bpf: Add dmabuf iterator
+667e0cd40150	1948	spot-check	1 UU	yes	BACKPORT: gpu/trace: add a gpu total memory usage tracepoint
+0c6f8a9a50ad	1959	FULL (API break in net/ipc_router (LEAD-SYNTHESIS §6.2))	3 DU	yes	BACKPORT: PM / wakeup: Show wakeup sources stats in sysfs
+f6abd57fae2e	1972	FULL (no brief)	1 DU	no	UPSTREAM: lib: zstd: Add cast to silence clang's -Wbitwise-instead-of-logical
+263c52e85c36	1973	FULL (no brief)	1 DU	no	UPSTREAM: lib: zstd: Fix unused variable warning
+52ed80f28382	1974	FULL (no brief)	2 DU	no	UPSTREAM: lib: zstd: Don't inline functions in zstd_opt.c
+431c7d9d8a3b	1975	FULL (no brief)	1 UU	no	UPSTREAM: lib: zstd: Don't add -O3 to cflags
+ab1144a5aea5	1976	FULL (no brief)	2 DU	no	UPSTREAM: zstd: Fixing mixed module-builtin objects
+c95f363d9686	1978	FULL (no brief)	28 DU	no	BACKPORT: zstd: Import upstream v1.5.2
+f4cb49f3084c	1981	spot-check	1 UU	yes	BACKPORT: ANDROID: fuse: Move functions in preparation for fuse-bpf
+435bb390114e	1982	FULL (large conflict (K3)	1 UU	yes	BACKPORT: ANDROID: fuse-bpf: Add request UAPI
+021499e96a40	1986	spot-check	1 UU	yes	BACKPORT: ANDROID: fuse: Carry BPF request metadata
+462a37becb45	1987	FULL (large conflict (K3)	1 UU	yes	BACKPORT: ANDROID: fuse-bpf: Add request dispatcher
+001e41c3276e	1996	FULL (no brief)	3 UU	no	BACKPORT: ANDROID: fuse-bpf: Guard classic release state
+d2ec292ffd08	2083	spot-check	1 UU	yes	BACKPORT: binder: detect oneway transaction spam
+8f50d9eb049e	2084	spot-check	3 UU	yes	BACKPORT: binder: report oneway spam to userspace
+c286cded153a	2088	spot-check	1 DU	yes	BACKPORT: binder: add BinderFS support for 4.9
+0d4a90f470f7	2109	spot-check	1 UU	yes	BACKPORT: hrtimer: Store running timer in hrtimer_clock_base
+8381dabde508	2126	FULL (large conflict (K3))	1 UU	yes	BACKPORT: hrtimer: Implement support for softirq based hrtimers
+0ee2af35b905	2147	spot-check	1 UU	yes	BACKPORT: bpf: tcp: Add bpf_skops_established()
+0475d5694a93	2179	spot-check	1 UU	yes	BACKPORT: bpf: Implement local storage for inodes
+3315da4f9970	2181	FULL (large conflict (K3))	2 UU	yes	BACKPORT: security: Refactor declaration of LSM hooks
+eb8726624efa	2182	spot-check	1 DU 3 UU	yes	BACKPORT: bpf: Add BPF LSM program support
+f787c74339cb	2190	FULL (large conflict (K3))	2 UU	yes	BACKPORT: xdp: Add AF_XDP sockets and XSK maps
+f0cedc3ccda4	2202	spot-check	1 UU	yes	BACKPORT: bpf: Complete generic XDP map redirects
+f9c1f9e6dbe8	2227	spot-check	1 UU	yes	BACKPORT: bpf: Check saved credentials for raw dumps
+73a6a4136257	2251	spot-check	1 UU	yes	BACKPORT: bpf: Gate legacy probe reads by architecture
+fad9a6a81aa6	2303	FULL (linked group	1 UU	yes	UPSTREAM: userfaultfd: use vma_is_anonymous
+880ea49bde40	2316	spot-check	1 UU	yes	UPSTREAM: hugetlb: add __mcopy_atomic_hugetlb for huge page UFFDIO_COPY
+62d6ffb0111f	2383	spot-check	1 UU	yes	BACKPORT: userfaultfd/sysctl: add vm.unprivileged_userfaultfd
+10a07035a7e7	2392	FULL (linked group	1 UU	yes	BACKPORT: userfaultfd: add minor fault registration mode
+f75397804369	2416	FULL (FAULT_FLAG_INTERRUPTIBLE vs FAULT_FLAG_SPECULATIVE 0x200 (LEAD-SYNTHESIS §2))	2 UU	yes	BACKPORT: mm: introduce FAULT_FLAG_INTERRUPTIBLE
+138179e5ccba	2462	spot-check	2 UU	yes	BACKPORT: mm: introduce MADV_COLD
+57dbd53a0638	2483	spot-check	1 UU	yes	BACKPORT: cgroup: cgroup v2 freezer
+74b2f258866b	2499	FULL (large conflict (K3))	2 UU	yes	BACKPORT: sched/uclamp: Add CPU's clamp buckets refcounting
+2ece0aa41dee	2502	spot-check	1 UU	yes	BACKPORT: sched/uclamp: Add system default clamps
+a2d0003b101b	2507	spot-check	3 UU	yes	BACKPORT: sched/cpufreq, sched/uclamp: Add clamps for FAIR and RT tasks
+3d3946a898f4	2539	spot-check	1 DU	yes	BACKPORT: sched/uclamp: Add uclamp support to energy_compute()
+72258324df6c	2544	FULL (no brief)	1 UU	no	sched/uclamp: Protect latency group access on Linux 4.9
+813a92f62045	2545	spot-check	1 UU	yes	ANDROID: Re-use SUGOV_RT_MAX_FREQ to control uclamp rt behavior
+fe1a3a244e24	2563	FULL (no brief)	1 UU	no	BACKPORT: mm, memcg: proportional memory.{low,min} reclaim
+030886f39a44	2594	FULL (no brief)	1 UU	no	BACKPORT: mm/oom_kill.c: prevent a race between process_mrelease and exit_mmap
+2c78b1ed7bde	2598	FULL (no brief)	1 UU	no	BACKPORT: mm/page_alloc: add trace event for totalreserve_pages calculation

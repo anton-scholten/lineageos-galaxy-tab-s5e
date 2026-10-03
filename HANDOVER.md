@@ -15,24 +15,30 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Kernel blocker | Android 16 needs 5.4-level eBPF; the kernel is 4.9.337. Fix = port the ExyHyperBrick series (2,599 commits, 150 conflicts) |
 | Known kernel fixes, found ahead of the build | Add `arch/arm64/include/asm/set_memory.h`; `ipc_router_core.c:1384` gets `wakeup_source_register(NULL, …)`; move `TIF_UPROBE` off bit 4 and `FAULT_FLAG_INTERRUPTIBLE` off `0x200`; use the K6 fragment (`CGROUP_SCHED=y` or WALT is silently lost, `UPROBES=y`, `BPF_JIT=y`); copy `fs/unicode/` or drop `CONFIG_UNICODE`; Exynos-base prerequisites (randstruct macros, `ANDROID_VERSION`) |
 | Known device-tree changes | `target-level` 5→6; delete the soundtrigger 2.2 block; LTE radio 1.4 is below level 6 (R8 decides); space-separated lists in the audio policy XML; `per_proxy_helper` file label; maybe vendor property names (R7). Livedisplay and CAF wiring need nothing. Build with `brunch`, not bare `m` |
-| Open research | Round 3: 5 small tasks (K7, K8, R7, R8, R9) in [AGENT-TASKS.md](AGENT-TASKS.md) §2.2 |
-| Estimate | About **5½ weeks full-time** left (range 3½–10). See `ESTIMATE.md` "Remaining work" |
+| Open work | Round 3: 5 small research tasks. Round 4: the port itself (P1–P5), done by the free model and reviewed by a strong one. [AGENT-TASKS.md](AGENT-TASKS.md) §2.2–2.3 |
+| Cherry-pick dry run | `scripts/pick-series.sh` + `scripts/check-pick.py`, tested over the whole series: **83 stops** (not 150), 2,373 clean picks, 4 apply-but-differ, 5 empty. `analysis/port/` |
+| Estimate | About **5 weeks wall-clock** left (range 3–9); the owner's own hands-on time is much less until the ROM build. See `ESTIMATE.md` |
 | Nothing booted | No ROM built, no kernel port started, nothing flashed |
 
 ## Plan of remaining work
-| # | Step | Who / where | Expected |
-|---|---|---|---|
-| 1 | **Round 3 research** (K7, K8, R7, R8, R9), then review with `scripts/check-agent-output.sh` + AGENT-TASKS §11 | helper agents; owner starts them | ½ day wall-clock, in parallel with step 2 |
-| 2 | **Kernel cherry-pick** on the kernel fork's `lineage-23.2`: `git cherry-pick -x` the series `d54533f1546b..baa585f67e0e` (from the backup fork) in order. Skip `[exynos9810]`/`[9810]` commits and the `skip` group in `conflict_detail.tsv`. Apply the known kernel fixes above as their commits come up | lead (a Claude cloud session works: 2.3 GB clone) | 1 day |
-| 3 | **Resolve conflicts by hand** with the briefs. Take the real conflict list from the cherry-pick, not `conflict_detail.tsv` (LEAD-SYNTHESIS §5). Resolve the linked groups as one unit: `fs/userfaultfd.c` ×6, `fs/fuse` ordering, the XDP rename (§4) | lead, or a human kernel dev for the 12 large ones | 7 days |
-| 4 | **Build** with `analysis/build-test/kbuild.sh` + the K6 fragment until `Image.gz-dtb` links. Expect a tail of small prerequisite fixes only the compiler finds (§3), since the API audit covered 2% of the changed headers | lead (cloud OK; 12 min per build) | 5 days |
-| 5 | **Device-tree commits** from the "known device-tree changes" row, R7–R9, and the first build's sepolicy errors | lead | 2 days |
-| 6 | **ROM build**: full `lineage-23.2` sync (~150 GB) with `local_manifests/`, `brunch lineage_gts4lvwifi` (and `gts4lv`) | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2 days |
-| 7 | **First boot and debugging**: flash per README (⚠️ erases data), collect logs per `TESTING.md` | owner + tablet; lead reads logs | 7 days (3–15) |
-| 8 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model | owner + tablet | 4 days |
-| 9 | Later: the 46 optional conflicts; contact krazey; upstream to LineageOS Gerrit | | |
+The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.
+Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §2.2–2.3 and §6b–6c.
 
-Steps 2–5 can run in a Claude cloud session. Steps 6–8 need the owner's machine and the tablet.
+| # | Step | Who | Expected (wall-clock) |
+|---|---|---|---|
+| 1 | **Round 3 research**: K7 flag collisions, K8 two briefs, R7–R9 ROM questions | free model, 5 agents in parallel | ½ day |
+| 2 | **P1 cherry-pick** of the whole series with `scripts/pick-series.sh`, resolving each stop from its brief, into kernel fork `port/pick` | free model, 1 agent (sequential) | 2–4 days (≈83 stops, measured by a dry run) |
+| 3 | **P1-R + P2**: strong review of the resolutions (`scripts/check-pick.py` packets); free triage of auto-merge differences, then strong review of the SUSPECT ones | strong + free | 2–3 days |
+| 4 | **P3 known fixes + defconfig** (set_memory.h, ipc_router, flag collisions, fs/unicode, fragment) | free | ½ day |
+| 5 | **P4 build loop** until `Image.gz-dtb` links; strong model takes escalations (BPF/JIT/mm) and reviews each fix | free + strong | 4–6 days |
+| 6 | **P5 device-tree commits** into `port/dt` (target-level 6, soundtrigger, audio XML, per_proxy_helper, R7/R8 outcomes) + review | free + strong | 1 day |
+| 7 | Fast-forward both forks' `lineage-23.2` | strong / owner | minutes |
+| 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch lineage_gts4lvwifi` (and `gts4lv`); fix sepolicy/VINTF build errors (free + review) | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
+| 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
+| 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model | owner + tablet | 4 days |
+| 11 | Later: contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
+
+Steps 1–7 can run anywhere with a 10 GB disk (a Claude cloud session works for the strong steps). Steps 8–10 need the owner's machine and the tablet.
 
 ## Rebuilding the working environment (cloud container)
 ```bash

@@ -1,29 +1,30 @@
 # Time estimate: LineageOS 23.2 on the Galaxy Tab S5e
 
-## Remaining work (updated 2026-10-03, after helper rounds 1–2)
+## Remaining work (updated 2026-10-03: free model does the work, strong model reviews)
 
-The research phase is done: every conflict has a brief, and several build breaks were found ahead of time
-([LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md)). That shortens conflict work and build fixing. Booting and testing are as uncertain as before.
+Inputs: research rounds 1–2 done ([LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md)), and a cherry-pick **dry run** over the whole series:
+**83 stops** instead of the trial's 150, 71 of them with a brief ([analysis/port/](analysis/port/README.md)).
+Plan and task split: [HANDOVER.md](HANDOVER.md), [AGENT-TASKS.md](AGENT-TASKS.md) §2.3.
 
-| # | Phase | Low | Expected | High | Change vs. the original estimate |
-|---|---|---|---|---|---|
-| 0 | ROM setup: sync (~150 GB), first userspace build | 1 d | 2 d | 3 d | same (forks already done) |
-| 1 | Cherry-pick the series, plus the known fixes | 0.5 d | 1 d | 1.5 d | same |
-| 2 | Resolve the 84 required conflicts, with briefs | 5 d | 7 d | 11 d | −4 d: each conflict has a plan; 15 are DROPs |
-| 3 | Build fixes until `Image.gz-dtb` links | 3 d | 5 d | 9 d | −1 d: 8 breaks known ahead of time, but only 2% of the API was audited |
-| 4 | ROM side: device-tree commits, sepolicy, VINTF | 1 d | 2 d | 4 d | −1 d: R1–R6 narrowed it to ~6 small changes |
-| 5 | First boot and debugging | 3 d | 7 d | 15 d | same; still the most uncertain |
-| 6 | Testing | 3 d | 4 d | 6 d | same |
-| | **Total left** | **≈ 16.5 d** | **≈ 28 d** | **≈ 49.5 d** | was 21 / 34 / 55 |
+| Step | Low | Expected | High | Notes |
+|---|---|---|---|---|
+| Round 3 research (5 free agents in parallel) | 0.5 d | 0.5 d | 1 d | |
+| P1 cherry-pick, ~83 stops (free model) | 2 d | 3 d | 5 d | Sequential. The 12 large conflicts and linked groups get escalation notes |
+| P1-R + P2 review and automerge triage (strong + free) | 1 d | 1.5 d | 3 d | Rework rounds included |
+| P3 known fixes + defconfig (free) | 0.5 d | 0.5 d | 1 d | Eight items, all specified |
+| P4 build loop to `Image.gz-dtb` (free, strong for escalations) | 3 d | 5 d | 9 d | Unknown tail: the API audit covered 2% of changed headers |
+| P5 device-tree commits + review | 0.5 d | 1 d | 2 d | |
+| ROM sync + build + build fixes (owner's machine) | 1 d | 2 d | 4 d | |
+| First boot and debugging (owner + tablet) | 3 d | 7 d | 15 d | Still the most uncertain step |
+| Testing, 24 h soak, LTE (owner + tablet) | 3 d | 4 d | 6 d | |
+| **Total, wall-clock** | **≈ 14.5 d** | **≈ 24.5 d** | **≈ 46 d** | was 16.5 / 28 / 49.5 before the dry run |
 
-| Who | Expected | Range |
-|---|---|---|
-| One experienced developer, full-time | **about 5½ weeks** | 3½–10 weeks |
-| ~10 h/week (hobby) | about 4 months | 2½–7 months |
-| Round 3 helper research | ½ day wall-clock | runs in parallel |
+About **5 weeks wall-clock** (range 3–9). The first ~12 days are mostly agents running unattended. The owner's own time there is starting
+agents and approving reviews. The last ~13 days need the owner, the build machine and the tablet.
+At a hobby pace for the owner-only steps (~10 h/week), add about 6–8 weeks to the second half.
 
-Phases 1–3 can run in a Claude cloud session. Phases 0 and 4–6 need the owner's machine and the tablet.
-The original estimate, from before the research, follows.
+Cost: the free model costs nothing. The strong model's share is the reviews (~25 full + ~12 spot + ~4 automerge packets ≈ under 70k tokens of diffs,
+plus reasoning), the escalations, and reading boot logs. That's well under half of what the strong model doing everything would cost.
 
 ---
 
