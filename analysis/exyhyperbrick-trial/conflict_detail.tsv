@@ -1,0 +1,151 @@
+commit	subject	files	blocks	ours_lines	theirs_lines	modify_delete	size_class	group
+5cd396dcaaeb	include: uapi: linux: Import Exynos Linaro BSP kernel headers	1	0	0	0	1	modify/delete	skip
+5610ada6efc5	drm: Add aspect ratio parsing in DRM layer	1	3	15	16	0	moderate	optional
+05e231887443	drm: Add a new connector atomic property for link status	1	1	46	3	0	moderate	optional
+bcf121c5c0ba	include: Add videodev2_exynos_media.h to kernel header	1	1	25	252	0	large	skip
+ad4d6fd52f16	ARM64: boot: dts: Exynos9810: Disable dex touchpad support	3	0	0	0	3	modify/delete	skip
+c861d1da7860	input: hall: Report SW_LID instead of SW_FLIP	1	1	1	4	0	trivial	skip
+58f94a74baa7	input: Sync switch event codes with upstream linux	7	2	8	6	5	moderate	skip
+285607f6d86f	nl80211: add WPA3 definition for SAE authentication	2	2	1	4	0	trivial	optional
+7647ebd7168f	ext4: restore the upstream on-disk superblock layout	3	5	1	100	0	large	skip
+437cc7c3ab63	ion: Map userspace buffers page-aligned	1	1	3	7	0	trivial	optional
+b48811f9463e	alarmtimer: Shorten wakeup hold for imminent alarms	1	1	1	14	0	moderate	optional
+17b93a144bbf	kernel: remove stale merge-conflict markers	5	14	23	220	1	large	skip
+b611939c2042	mm: refactor __purge_vmap_area_lazy()	1	5	29	25	0	moderate	optional
+225cc0357185	mm: turn vmap_purge_lock into a mutex	1	5	33	25	0	moderate	optional
+69934e633aa5	mm: add preempt points into __purge_vmap_area_lazy()	1	6	35	19	0	moderate	optional
+9a27f565137b	mm, vmalloc: use __GFP_HIGHMEM implicitly	1	1	4	4	0	trivial	optional
+4cf42717d891	mm/vmalloc: Add flag for freeing of special permsissions	1	1	2	5	0	trivial	optional
+7c9b3c4119eb	mm/vmalloc.c: add priority threshold to __purge_vmap_area_lazy()	1	6	21	16	0	moderate	optional
+a0163349e173	mm/vmalloc.c: keep track of free blocks for vmap allocation	1	7	23	20	0	moderate	optional
+252eaf20e864	PARTIAL: x86/mm/cpa: Add set_direct_map_*() functions	1	1	13	2	0	moderate	optional
+74d484967de7	BACKPORT: tcp: tsq: add tsq_flags / tsq_enum	1	1	0	9	0	trivial	required
+1c3b123b0ad6	UPSTREAM: security: selinux: allow per-file labeling for bpffs	1	1	2	2	0	trivial	required
+3ed2e2f029db	BACKPORT: bpf: Add BPF_MAP_TYPE_LRU_HASH	1	1	1	7	0	trivial	required
+ddf82ae7e880	UPSTREAM: bpf: reuse dev_is_mac_header_xmit for redirect	1	1	12	1	0	moderate	required
+5128fe02b819	UPSTREAM: net/ipv6: allow sysctl to change addr_gen_mode	2	4	10	0	0	trivial	required
+580a9db663e1	BACKPORT: ipv6: implement Segment Routing Header dataplane	2	4	13	0	0	moderate	required
+18d6a9c0ea43	BACKPORT: ipv6: sr: add core files for SR HMAC support	1	5	13	6	0	moderate	required
+299f338c4b31	BACKPORT: bpf: BPF for lightweight tunnel infrastructure	1	1	1	1	0	trivial	required
+ac02ef0433e3	BACKPORT: tcp: instrument tcp sender limits chronographs	1	1	0	16	0	moderate	required
+d5bcc28ab29c	BACKPORT: net/ipv6: support more tunnel interfaces for EUI64 link-local generation	1	6	15	10	0	moderate	required
+fd90efeb991d	BACKPORT: net: Generic XDP	1	1	0	4	0	trivial	required
+228584365fac	UPSTREAM: net: move xdp_prog field in RX cache lines	1	1	1	2	0	trivial	required
+fe669743040c	BACKPORT: xdp: refine xdp api with regards to generic xdp	1	2	5	5	0	trivial	required
+208613d60d72	BACKPORT: net: Add sysctl to toggle early demux for tcp and udp	2	2	2	142	0	large	required
+eac8f26eff94	BACKPORT: net/tcp_fastopen: Disable active side TFO in certain scenarios	3	3	26	241	0	large	required
+004f6001c296	UPSTREAM: tcp: ULP infrastructure	1	1	0	2	0	trivial	required
+b7991ab91fb2	BACKPORT: net: Add IFLA_XDP_PROG_ID	1	2	5	6	0	moderate	required
+bb623117a0d0	BACKPORT: xdp: add reporting of offload mode	1	2	5	7	0	moderate	required
+a6b06e3852ea	BACKPORT: bpf: Support for setting initial receive window	1	1	1	1	0	trivial	required
+5e25006aff43	UPSTREAM: ipv6: constify inet6_protocol structures	1	1	3	3	0	trivial	required
+f4e1fe0bc47b	BACKPORT: kernfs: don't set dentry->d_fsdata	1	1	2	2	0	trivial	optional
+6ee017762dda	refcount_t: Introduce a special purpose refcount type	1	4	56	4	1	moderate	required
+e9c1bdddb9a0	BACKPORT: locking/refcount: Create unchecked atomic_t implementation	1	1	3	2	0	trivial	required
+05e4636c5fed	UPSTREAM: net: add new control message for incoming HW-timestamped packets	1	1	0	14	0	moderate	required
+856f611efb48	UPSTREAM: tcp: Export tcp_{sendpage,sendmsg}_locked() for ipv6.	1	1	1	0	0	trivial	required
+59db77a70b7f	BACKPORT: net: ipv4: add second dif to inet socket lookups	1	2	1	3	0	trivial	required
+c21831895871	BACKPORT: net: ipv6: Add early demux handler for UDP unicast	1	4	31	24	0	moderate	required
+e3a9e868eac2	UPSTREAM: ipv6: do not set sk_destruct in IPV6_ADDRFORM sockopt	1	1	2	0	0	trivial	required
+d9dfe4a76fb9	BACKPORT: ipv4: Namespaceify tcp_tw_recycle and tcp_max_tw_buckets knob	1	1	2	0	0	trivial	required
+7bae1fbba13b	net/tcp_fastopen: remove obsolete extern	1	1	2	3	0	trivial	required
+9e672484dfc9	UPSTREAM: tcp: add skb-less helpers to retrieve SYN cookie	1	1	1	17	0	moderate	required
+e00c40bbd2f4	BACKPORT: net: bpf: rename ndo_xdp to ndo_bpf	1	2	6	7	0	moderate	required
+2c9a33a16d6d	BACKPORT: bpf: Hooks for sys_connect	1	2	3	35	0	moderate	required
+993f49608c23	bpf, sockmap: convert to generic sk_msg interface	1	1	1	2	0	trivial	required
+57160164039c	treewide: convert totalram_pages users to helper	3	2	0	176	1	large	optional
+2d6869d3a4ce	arm64: Add uprobe support	1	3	3	3	0	trivial	required
+495ac52546da	BACKPORT: arch: wire-up close_range()	1	1	2	2	0	trivial	required
+7bea7dea3ed7	BACKPORT: epoll: wire up syscall epoll_pwait2	1	1	2	3	0	trivial	required
+7ace0da94189	BACKPORT: bpf: Make use of probe_user_write in probe write helper	1	1	30	1	0	moderate	required
+dddb8c0eafe8	BACKPORT: bpf: Add probe_read_{user,kernel}{,_str} helpers	1	2	34	1	0	moderate	required
+f9e766e1bf7e	BACKPORT: bpf: Fix a potential deadlock with bpf_map_do_batch	1	2	2	9	0	moderate	required
+6de4325af472	Revert "[exynos9810] sound: codecs: Add workaround for missing left speaker handler"	2	0	0	0	2	modify/delete	skip
+8a953036e3b5	BACKPORT: kbuild: Add vmlinux BTF generation option	1	1	2	2	0	trivial	required
+9dd9b06133f6	BACKPORT: btf: Embed and expose vmlinux BTF data	1	1	7	8	0	moderate	required
+e42fe4677e9c	BACKPORT: bpf: Build resolve_btfids before kernel link	1	1	2	3	0	trivial	required
+c3e95a25fa4a	BACKPORT: bpf: Add ambient BPF runtime context stored in current	1	1	0	11	0	moderate	required
+19ce6ace41bb	BACKPORT: xdp: support simultaneous driver and hw XDP attachment	1	3	8	9	0	moderate	required
+27c560179112	BACKPORT: bpf, xdp: Maintain attached XDP programs in net_device	1	3	9	9	0	moderate	required
+2c0b7fe73b69	BACKPORT: bpf, xdp: Add bpf_link-based XDP attachment API	1	3	10	9	0	moderate	required
+27ac083f317b	BACKPORT: bpf: Clean up sockmap related Kconfigs	1	1	1	3	0	trivial	required
+1cf802e31c98	BACKPORT: skmsg: Move sk_redir from TCP_SKB_CB to skb	1	1	2	6	0	trivial	required
+080e34a277b4	BACKPORT: sock: Introduce sk->sk_prot->psock_update_sk_prot()	1	1	1	4	0	trivial	required
+2d9316801144	BACKPORT: net: Rename ->stream_memory_read to ->sock_is_readable	1	2	11	11	0	moderate	required
+abea5381a52a	BACKPORT: net, sk_msg: Annotate lockless access to sk_prot on clone	1	1	1	3	0	trivial	required
+3aed69489066	BACKPORT: bpf: Fix wrong copied_seq calculation	1	2	2	1	0	trivial	required
+8058ab5ed5e5	BACKPORT: tcp: Migrate sockets in accept queues.	1	1	1	2	0	trivial	required
+de606935ba0f	BACKPORT: bpf: allow zero-initializing hash map seed	1	2	2	10	0	moderate	required
+1d79f995b6d3	BACKPORT: bpf: Adds field bpf_sock_ops_cb_flags to tcp_sock	1	2	0	32	0	moderate	required
+7e93ac0afe0f	BACKPORT: bpf: Add dmabuf iterator	1	1	0	5	0	trivial	required
+667e0cd40150	BACKPORT: gpu/trace: add a gpu total memory usage tracepoint	1	1	1	1	0	trivial	optional
+0c6f8a9a50ad	BACKPORT: PM / wakeup: Show wakeup sources stats in sysfs	3	0	0	0	3	modify/delete	optional
+083f0c886afa	BACKPORT: lib: zstd: Add kernel-specific API	4	1	207	1	3	large	skip
+7f4178e8fe70	BACKPORT: lib: zstd: Upgrade to version 1.4.10	9	0	0	0	9	modify/delete	skip
+615f38c623e2	BACKPORT: zstd: Import upstream v1.5.7	1	1	208	32	0	large	skip
+f4cb49f3084c	BACKPORT: ANDROID: fuse: Move functions in preparation for fuse-bpf	1	1	0	4	0	trivial	required
+435bb390114e	BACKPORT: ANDROID: fuse-bpf: Add request UAPI	1	2	27	460	0	large	required
+021499e96a40	BACKPORT: ANDROID: fuse: Carry BPF request metadata	2	3	10	8	0	moderate	required
+462a37becb45	BACKPORT: ANDROID: fuse-bpf: Add request dispatcher	2	4	3	183	0	large	required
+04db905cb97f	BACKPORT: ANDROID: fuse-bpf: Resolve lookup reply fds	1	2	10	19	0	moderate	required
+f83e432ae342	BACKPORT: ANDROID: fuse-bpf: Route open and release	1	1	1	18	0	moderate	skip
+ed409e286013	BACKPORT: ANDROID: fuse-bpf: Move release to final file put	1	1	3	18	0	moderate	skip
+35890c08a95c	BACKPORT: ANDROID: fuse-bpf: Contain lower file cache paths	1	3	9	28	0	moderate	required
+d220f0d71646	BACKPORT: ANDROID: fuse-bpf: Route read-only xattrs	1	1	1	3	0	trivial	required
+d2ec292ffd08	BACKPORT: binder: detect oneway transaction spam	1	2	2	2	0	trivial	optional
+8f50d9eb049e	BACKPORT: binder: report oneway spam to userspace	3	3	0	24	0	moderate	optional
+c286cded153a	BACKPORT: binder: add BinderFS support for 4.9	1	0	0	0	1	modify/delete	optional
+0d4a90f470f7	BACKPORT: hrtimer: Store running timer in hrtimer_clock_base	1	1	2	2	0	trivial	required
+1aadd98f9f8f	BACKPORT: hrtimer: Make the remote enqueue check unconditional	1	2	3	10	0	moderate	required
+0b68a58910d8	BACKPORT: hrtimer: Unify hrtimer removal handling	1	3	13	8	0	moderate	required
+d3d19b1558f4	BACKPORT: hrtimer: Use irqsave/irqrestore around __run_hrtimer()	1	7	22	12	0	moderate	required
+2c3ab8405d6a	BACKPORT: hrtimer: Prepare handling of hard and softirq based hrtimers	1	8	24	13	0	moderate	required
+8381dabde508	BACKPORT: hrtimer: Implement support for softirq based hrtimers	2	12	34	37	0	large	required
+0ee2af35b905	BACKPORT: bpf: tcp: Add bpf_skops_established()	1	1	0	27	0	moderate	required
+4d161a754796	BACKPORT: bpf: tcp: Add bpf_skops_hdr_opt_len() and bpf_skops_write_hdr_opt()	3	8	14	54	0	large	required
+0475d5694a93	BACKPORT: bpf: Implement local storage for inodes	1	1	0	3	0	trivial	required
+3315da4f9970	BACKPORT: security: Refactor declaration of LSM hooks	2	2	923	16	0	large	required
+eb8726624efa	BACKPORT: bpf: Add BPF LSM program support	4	4	8	8	1	moderate	required
+f787c74339cb	BACKPORT: xdp: Add AF_XDP sockets and XSK maps	5	8	22	55	0	large	required
+1f85fb24ef92	BACKPORT: bpf: Add TC socket assignment	1	6	32	35	0	large	required
+f0cedc3ccda4	BACKPORT: bpf: Complete generic XDP map redirects	1	1	3	28	0	moderate	required
+f9c1f9e6dbe8	BACKPORT: bpf: Check saved credentials for raw dumps	1	1	0	4	0	trivial	required
+40a60987a65a	BACKPORT: net: Expose socket option helpers to BPF	1	2	9	91	0	large	required
+73a6a4136257	BACKPORT: bpf: Gate legacy probe reads by architecture	1	1	1	1	0	trivial	required
+7f6ca00150fc	BACKPORT: kbuild: clang: Allow CLANG_TRIPLE without CROSS_COMPILE	1	2	5	5	0	trivial	optional
+4c59569f8fd7	fixup! f2fs: split f2fs_d_compare() from f2fs_match_name()	1	1	0	112	0	large	skip
+fad9a6a81aa6	UPSTREAM: userfaultfd: use vma_is_anonymous	1	1	2	1	0	trivial	optional
+880ea49bde40	UPSTREAM: hugetlb: add __mcopy_atomic_hugetlb for huge page UFFDIO_COPY	1	1	3	14	0	moderate	optional
+f0f30b4639c2	UPSTREAM: hugetlb: allow registration of ranges containing huge pages	1	1	3	1	0	trivial	optional
+9114ddb3b20f	UPSTREAM: userfaultfd: introduce vma_can_userfault	1	1	4	1	0	trivial	optional
+e9357b031a71	UPSTREAM: userfaultfd: return ENOENT for incompatible copy VMAs	1	1	16	8	0	moderate	optional
+d5f2acfd8dc2	UPSTREAM: userfaultfd: require writable shmem and hugetlb VMAs	2	3	22	10	0	moderate	optional
+b07d07e8f011	UPSTREAM: userfaultfd: check registration before VM_MAYWRITE	1	2	6	2	0	trivial	optional
+62d6ffb0111f	BACKPORT: userfaultfd/sysctl: add vm.unprivileged_userfaultfd	1	1	14	9	0	moderate	optional
+10a07035a7e7	BACKPORT: userfaultfd: add minor fault registration mode	2	3	8	3	0	moderate	optional
+f75397804369	BACKPORT: mm: introduce FAULT_FLAG_INTERRUPTIBLE	2	2	5	8	0	moderate	optional
+bca02018e7d0	BACKPORT: bpf: Implement CAP_BPF	1	3	5	11	0	moderate	required
+c8b2d2af17be	ANDROID: refcount: Fix linkage of out-of-line helpers	1	4	64	8	0	large	required
+554b84a02e00	ANDROID: f2fs: Restore compression context reference types	2	2	0	221	0	large	skip
+138179e5ccba	BACKPORT: mm: introduce MADV_COLD	2	2	2	2	0	trivial	optional
+e7751e04e9d1	BACKPORT: mm: factor out common parts between MADV_COLD and MADV_PAGEOUT	1	2	2	5	0	trivial	optional
+57dbd53a0638	BACKPORT: cgroup: cgroup v2 freezer	1	1	2	1	0	trivial	required
+ee8a477b712d	BACKPORT: binder: BINDER_FREEZE ioctl	2	2	1	23	0	moderate	optional
+e5dba8a19d08	BACKPORT: binder: BINDER_GET_FROZEN_INFO ioctl	2	3	2	42	0	moderate	optional
+74b2f258866b	BACKPORT: sched/uclamp: Add CPU's clamp buckets refcounting	2	4	0	100	0	large	required
+2ece0aa41dee	BACKPORT: sched/uclamp: Add system default clamps	1	1	3	5	0	trivial	optional
+a2d0003b101b	BACKPORT: sched/cpufreq, sched/uclamp: Add clamps for FAIR and RT tasks	3	5	3	45	0	moderate	optional
+01abe0bedc2d	BACKPORT: sched/uclamp: Remove uclamp_util()	1	3	4	4	0	trivial	optional
+70b95802146b	BACKPORT: sched/uclamp: Rename uclamp_util_with() into uclamp_rq_util_with()	1	3	5	4	0	trivial	optional
+45170da68469	BACKPORT: sched/uclamp: Protect uclamp fast path code with static key	1	3	6	4	0	trivial	optional
+7a60357da458	ANDROID: sched/core: Move SchedTune task API into UtilClamp wrappers	3	9	9	285	0	large	skip
+3d3946a898f4	BACKPORT: sched/uclamp: Add uclamp support to energy_compute()	1	0	0	0	1	modify/delete	optional
+813a92f62045	ANDROID: Re-use SUGOV_RT_MAX_FREQ to control uclamp rt behavior	1	1	7	11	0	moderate	optional
+f42292cb28b8	BACKPORT: sched/fair: Make EAS wakeup placement consider uclamp restrictions	2	6	22	196	1	large	skip
+fe1a3a244e24	BACKPORT: mm, memcg: proportional memory.{low,min} reclaim	1	1	14	107	0	large	optional
+d38f71d56461	BACKPORT: mm: don't avoid high-priority reclaim on unreclaimable nodes	1	2	14	85	0	large	optional
+1c225cfcb958	BACKPORT: mm: don't avoid high-priority reclaim on memcg limit reclaim	1	3	76	75	0	large	optional
+2e700093ca33	mm, oom: Share address-space reaping with process_mrelease	1	2	31	50	0	large	skip
+e987691659c0	BACKPORT: mm: introduce process_mrelease system call	1	3	48	117	0	large	skip
+996b9f83a3fa	BACKPORT: mm: wire up syscall process_mrelease	1	2	3	4	0	trivial	skip
+2c78b1ed7bde	BACKPORT: mm/page_alloc: add trace event for totalreserve_pages calculation	1	1	626	17	0	large	optional

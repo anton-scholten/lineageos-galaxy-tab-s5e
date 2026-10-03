@@ -1,17 +1,18 @@
-From 77f30d1e6e2a582d807ba5a3f1040f817e4d14d8 Mon Sep 17 00:00:00 2001
+From 793a1060b5d60c4da995d92a75b8a6952a1ce8df Mon Sep 17 00:00:00 2001
 From: Claude <noreply@anthropic.com>
-Date: Fri, 2 Oct 2026 23:54:21 +0000
-Subject: [PATCH 4/4] gts4lv-common: Override kernel BPF version
+Date: Sat, 3 Oct 2026 02:11:18 +0000
+Subject: [PATCH] gts4lv-common: Override kernel BPF version
 
-Android 16 mainline modules (netd, Tethering, bpfloader) expect eBPF
-features from Linux 5.4. LineageOS 23.x only supports older kernels that
-carry 1:1 eBPF backports making them feature-equivalent to
-android12-5.4, and then advertises that via ro.bpf.kver_override.
+Android 16 mainline modules (netd, Tethering, bpfloader) refuse to run
+on kernels older than 5.4. The kernel this targets carries the
+ExyHyperBrick 4.9 eBPF backport series, which brings the BPF subsystem
+to Linux 5.15.178 feature level, so advertise that version, matching
+the Galaxy S9 (exynos9810-common) tree that uses the same series.
 
-DO NOT apply this until kernel/samsung/sdm670 carries the complete
-eBPF backport series and passes netd_integration_test; overriding the
-version on an un-backported 4.9 kernel makes bpfloader/netd fail and the
-device will not boot.
+DO NOT apply this until kernel/samsung/sdm670 carries that backport
+series and passes the BPF selftests and bpf_existence_test; overriding
+the version on an un-backported 4.9 kernel makes bpfloader/netd fail
+and the device will not boot.
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 ---
@@ -19,7 +20,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/product.prop b/product.prop
-index a9871d5..6cb01dd 100644
+index a9871d5..1daa6f8 100644
 --- a/product.prop
 +++ b/product.prop
 @@ -8,3 +8,6 @@ ro.lmk.downgrade_pressure=100
@@ -28,7 +29,7 @@ index a9871d5..6cb01dd 100644
  ro.lmk.use_minfree_levels=true
 +
 +# eBPF
-+ro.bpf.kver_override=5.4.299
++ro.bpf.kver_override=5.15.178
 -- 
 2.43.0
 

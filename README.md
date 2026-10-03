@@ -15,7 +15,8 @@ which is why every 4.9 Qualcomm device is still on 22.2. However, the community
 Galaxy S9 kernel by ExyHyperBrick (also 4.9.337) has done it, and 94% of its
 commits apply cleanly to the Tab S5e kernel
 ([trial](analysis/exyhyperbrick-trial/README.md)). Porting it is estimated at
-**3–6 weeks** of kernel work.
+about **7 weeks of full-time work** for the whole port
+(range 4–11 weeks; about 5 months at hobby pace). See [ESTIMATE.md](ESTIMATE.md).
 
 - Without the backports, a 23.2 build compiles but **will not boot**
   (bpfloader/netd fail).
@@ -36,7 +37,11 @@ option for this tablet is **official LineageOS 22.2**.
 | `patches/device/samsung/gts4lv-common/` | Device tree patches against `lineage-22.2` |
 | `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2, and why it takes time |
 | `PRIOR-WORK.md` | Work other people have done online that can be reused |
-| `analysis/exyhyperbrick-trial/` | Trial port of the Galaxy S9 4.9 eBPF kernel series onto the Tab S5e kernel |
+| `ESTIMATE.md` | Time estimate built from measured conflict sizes and a real kernel build test |
+| `WORKLOG.md` | Record of all work done so far, including blocked or failed steps |
+| `REPO-SETUP.md` | Review of this repo's name and layout, and the recommended setup |
+| `analysis/exyhyperbrick-trial/` | Trial port of the Galaxy S9 4.9 eBPF kernel series onto the Tab S5e kernel, and conflict classification |
+| `analysis/build-test/` | Kernel build test: baseline vs. port tree |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree |
 | `apply-patches.sh` | Applies the patches (skips the BPF override unless `--with-bpf-override`) |
 

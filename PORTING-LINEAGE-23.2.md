@@ -89,7 +89,7 @@ sm8250-common) for 23.x.
 | `0001` Remove `vendor/lineage/config/device_framework_matrix.xml` from `DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE` (use `+=`) | File no longer exists on lineage-23.x (change `I78da6340f`) | **Build break** |
 | `0002` Use `soong_config_set_bool` for `samsungCameraVars.needs_sec_reserved_field` and `lineage_health.charging_control_supports_bypass` | 23.2 `select()`s on these as booleans. As strings they fall through to `default`, so the camera HAL loses `CAMERA_NEEDS_SEC_RESERVED_FIELD` (camera breaks) and Lineage Health turns on bypass charging | **Runtime break** |
 | `0003` LiveDisplay HIDL to AIDL (`vendor.lineage.livedisplay-service.samsung-qcom`, `format="aidl"` v1 in `manifest.xml`, file_contexts relabel) | `hardware/samsung` dropped the HIDL LiveDisplay service (`hidl: Disable LiveDisplay HIDL`, `livedisplay: Migrate to AIDL`) | **Build break** |
-| `0004` `ro.bpf.kver_override=5.4.299` in `product.prop` | Needed by Android 16 mainline. **Apply only after the kernel work in §1** or the device bootloops | Kernel-dependent |
+| `0004` `ro.bpf.kver_override=5.15.178` in `product.prop` (matches the ExyHyperBrick-based kernel; use `5.4.x` only for a kernel brought just to 5.4 parity) | Needed by Android 16 mainline. **Apply only after the kernel work in §1** or the device bootloops | Kernel-dependent |
 
 `0003` declares only `IAdaptiveBacklight` and `IDisplayModes`, the same as 22.2.
 The AIDL service exits if it registers an interface that isn't declared in

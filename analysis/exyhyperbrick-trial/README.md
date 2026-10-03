@@ -55,7 +55,9 @@ need the duplicate dropped.
   `rmnet`, `qcacld`, IPA, `sec_net`) will still need build fixes.
 - **Conflicted commits were committed with conflict markers.** So later commits
   touching the same files may conflict more than shown here, or less.
-- Nothing was compiled or booted. That needs the Android kernel toolchain and the tablet.
+- Nothing was booted. A later build test is in [`../build-test`](../build-test/README.md).
+- `git merge-tree` detects renames, and it matched the Exynos defconfigs to `gts4lv*_defconfig`.
+  That makes the defconfig "conflicts" artifacts. Copy the config options by hand instead.
 
 ## What it means for the plan
 
@@ -65,8 +67,8 @@ Track A no longer needs Phases 2–3 to be done from scratch. They become
 - then build fixes for the Qualcomm/Samsung drivers
 - then device testing.
 
-Rough estimate: **3–6 weeks** for one experienced developer, instead of 3–4
-months. See [KERNEL-BACKPORT-PLAN.md](../../KERNEL-BACKPORT-PLAN.md).
+Rough estimate (superseded): **3–6 weeks** for one experienced developer, instead of 3–4
+months. **See [ESTIMATE.md](../../ESTIMATE.md)** for the refined estimate, which uses the per-conflict size data in [`conflict_detail.tsv`](conflict_detail.tsv) (made by [`classify.py`](classify.py)) and a real build test ([`../build-test`](../build-test/README.md)).
 
 Defconfig options the Exynos series turns on for 23.2, to copy into
 `gts4lv_defconfig`/`gts4lvwifi_defconfig`:

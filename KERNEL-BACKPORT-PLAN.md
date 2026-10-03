@@ -70,9 +70,9 @@ That changes the plan:
 | 1 | Fork the sdm670 kernel. Cherry-pick the series with `-x`, skipping `[exynos9810]` commits | 1–2 days |
 | 2 | Resolve the ~150 conflicts. Many are changes sdm670 already has from `android-4.9-q`, so just drop the duplicate | 1–2 weeks |
 | 3 | Copy the defconfig changes (list in the analysis). Fix build errors in Qualcomm/Samsung drivers (`qcacld`, `rmnet`, IPA, `sec_net`, techpack) | 1–2 weeks |
-| 4 | Set `ro.bpf.kver_override=5.15.178`, matching the series, instead of patch 0004's `5.4.299`. Boot, run the bundled BPF verifier selftests and `bpf_existence_test`, check networking, soak 24 h | 1–2 weeks |
+| 4 | Apply patch 0004 (`ro.bpf.kver_override=5.15.178`, matching the series). Boot, run the bundled BPF verifier selftests and `bpf_existence_test`, check networking, soak 24 h | 1–2 weeks |
 
-**Total: about 3–6 weeks** instead of 3–4 months. Phases 2–3 below are now only
+**Kernel work alone: about 4–6 weeks full-time.** The full project, including the ROM side, boot debugging and testing, is about 7 weeks expected (range 4–11). See [ESTIMATE.md](ESTIMATE.md) for the measured, bottom-up estimate. This is instead of 3–4 months from scratch. Phases 2–3 below are now only
 a fallback. Keep the original authorship, and contact krazey before publishing.
 
 ## Three tracks
@@ -167,7 +167,7 @@ disable preemption before calling into bpf prog`):
   check each one against what 4.9 actually contains.
 
 Check after this phase: `bpf_existence_test` passes and `kernel_test`
-`TestKernel54` passes with `ro.bpf.kver_override=5.4.299`.
+`TestKernel54` passes with `ro.bpf.kver_override=5.4.299` (change patch 0004 to that value if you take this from-scratch route).
 
 #### Phase 4: enable and check (about 1–2 weeks)
 1. Apply `patches/device/samsung/gts4lv-common/0004-…Override-kernel-BPF-version.patch`.

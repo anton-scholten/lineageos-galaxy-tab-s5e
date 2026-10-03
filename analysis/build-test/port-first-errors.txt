@@ -1,0 +1,4 @@
+/tmp/claude-0/w/k670-port/include/linux/sched.h:2284:2: error: unknown type name 'randomized_struct_fields_end'
+/tmp/claude-0/w/k670-port/include/uapi/asm-generic/socket.h:112:5: error: 'ANDROID_VERSION' is not defined, evaluates to 0 [-Werror,-Wundef]
+/tmp/claude-0/w/k670-port/arch/arm64/include/asm/uaccess.h:89:18: error: use of undeclared identifier 'TIF_FSCHECK'
+/tmp/claude-0/w/k670-port/arch/arm64/kernel/asm-offsets.c:49:66: error: offsetof requires struct, union, or class type, 'int' invalid

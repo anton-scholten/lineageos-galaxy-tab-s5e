@@ -67,7 +67,7 @@ Upstream `lineage-23.2` is the most complete version. Its own older dev branches
 1. Fork `android_kernel_samsung_sdm670`, then replay the ExyHyperBrick `lineage-23.2` series
    (skipping `[exynos9810]` commits). Resolve the ~150 conflicts listed in
    `analysis/exyhyperbrick-trial/results.tsv`, then fix the build.
-2. Copy the defconfig changes and `ro.bpf.kver_override=5.15.178` (instead of 5.4.299).
+2. Copy the defconfig changes. Patch 0004 already sets `ro.bpf.kver_override=5.15.178`.
 3. Contact krazey (ExyHyperBrick) before publishing, and keep the authorship and
    `Signed-off-by` lines (cherry-pick `-x`). The kernel is GPL-2.0.
 4. Meanwhile, Track B (fuck-bpf) is still a quick way to find the tablet-specific bugs.
