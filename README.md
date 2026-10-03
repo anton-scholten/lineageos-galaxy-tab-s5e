@@ -33,7 +33,9 @@ option for this tablet is **official LineageOS 22.2**.
 
 | Path | What |
 |---|---|
-| `HANDOVER.md` | **Start here when picking the project up:** state, leftover work, environment setup |
+| `HANDOVER.md` | **Start here when picking the project up:** state, plan of remaining work, environment setup |
+| `LEAD-SYNTHESIS.md` | Findings from the helper-agent research (must-fix items, risks), reviewed |
+| `TESTING.md` | How to collect crash logs from the tablet |
 | `PORTING-LINEAGE-23.2.md` | Analysis: kernel blocker, required changes, work order |
 | `KERNEL-BACKPORT-PLAN.md` | Plan, in phases, for the kernel work that unblocks 23.2, and why it takes time |
 | `PRIOR-WORK.md` | Work other people have done online that can be reused |
@@ -47,7 +49,10 @@ option for this tablet is **official LineageOS 22.2**.
 | `analysis/build-test/` | Kernel build test: baseline vs. port tree |
 | `analysis/reference-trees/` | Device trees that already did 23.2 (sm7125-common, exynos9810-common), and their commit lists |
 | `analysis/agent-batches/` | The conflict commits split into batches for helper agents |
-| `scripts/check-agent-output.sh` | Format check for helper-agent reports |
+| `analysis/conflicts/` | One brief per conflicting series commit, with a proposed resolution |
+| `analysis/upstream-map/`, `api-audit/`, `defconfig/`, `rom/`, `build-test/errors/` | Helper research: upstream origin of each commit, driver API audit, defconfig fragment, ROM-side audits, first build errors |
+| `analysis/tools/` | Stacked-replay scripts for inspecting a conflict the way an in-order cherry-pick sees it |
+| `scripts/` | `check-agent-output.sh` (report format), `check-pins.sh` (pinned commits), `device-checks.sh` (on-device checks) |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree (they point at our forks) |
 | `patches/` | Record of the device-tree changes. They're already committed to the fork's `lineage-23.2` branch, so you don't need to apply them |
 

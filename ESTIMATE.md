@@ -1,5 +1,34 @@
 # Time estimate: LineageOS 23.2 on the Galaxy Tab S5e
 
+## Remaining work (updated 2026-10-03, after helper rounds 1–2)
+
+The research phase is done: every conflict has a brief, and several build breaks were found ahead of time
+([LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md)). That shortens conflict work and build fixing. Booting and testing are as uncertain as before.
+
+| # | Phase | Low | Expected | High | Change vs. the original estimate |
+|---|---|---|---|---|---|
+| 0 | ROM setup: sync (~150 GB), first userspace build | 1 d | 2 d | 3 d | same (forks already done) |
+| 1 | Cherry-pick the series, plus the known fixes | 0.5 d | 1 d | 1.5 d | same |
+| 2 | Resolve the 84 required conflicts, with briefs | 5 d | 7 d | 11 d | −4 d: each conflict has a plan; 15 are DROPs |
+| 3 | Build fixes until `Image.gz-dtb` links | 3 d | 5 d | 9 d | −1 d: 8 breaks known ahead of time, but only 2% of the API was audited |
+| 4 | ROM side: device-tree commits, sepolicy, VINTF | 1 d | 2 d | 4 d | −1 d: R1–R6 narrowed it to ~6 small changes |
+| 5 | First boot and debugging | 3 d | 7 d | 15 d | same; still the most uncertain |
+| 6 | Testing | 3 d | 4 d | 6 d | same |
+| | **Total left** | **≈ 16.5 d** | **≈ 28 d** | **≈ 49.5 d** | was 21 / 34 / 55 |
+
+| Who | Expected | Range |
+|---|---|---|
+| One experienced developer, full-time | **about 5½ weeks** | 3½–10 weeks |
+| ~10 h/week (hobby) | about 4 months | 2½–7 months |
+| Round 3 helper research | ½ day wall-clock | runs in parallel |
+
+Phases 1–3 can run in a Claude cloud session. Phases 0 and 4–6 need the owner's machine and the tablet.
+The original estimate, from before the research, follows.
+
+---
+
+## Original estimate (before helper research)
+
 Updated 2026-10-03. This replaces the rough figures in earlier documents. The
 estimate is built bottom-up from measurements, listed in the next section.
 

@@ -1,0 +1,474 @@
+# ============================================================================
+# gts4lv / gts4lvwifi defconfig fragment for LineageOS 23.2 (Android 16)
+#
+# task:     K6 (round 2)
+# sources:  sdm670 = a30605a54f3b, series base = d54533f1546b,
+#           series head = baa585f67e0e
+# target:   arch/arm64/configs/gts4lv_defconfig
+#           arch/arm64/configs/gts4lvwifi_defconfig
+#           (identical for every line used here - verified with diff)
+#
+# NOTE: this is a FRAGMENT. Nothing here was applied to any kernel tree.
+#       The lead appends it. APPEND, do not prepend: kconfig's conf_read_simple
+#       lets a later line override an earlier one for the same symbol, which is
+#       how section 4 switches off lines that are already =y at gts4lv_defconfig
+#       :28 (RT_GROUP_SCHED) and :34 (SCHED_TUNE).
+#
+# counts:   33 CONFIG_*=y lines
+#             = 14 requested "turn on"
+#             +  1 correction from round 1  (UPROBES)
+#             +  8 dependencies not present as explicit lines today
+#             + 10 dependencies already satisfied, re-stated for self-containment
+#           3 "# CONFIG_* is not set" lines (the 3 requested "turn off")
+# ============================================================================
+
+
+# ---------------------------------------------------------------------------
+# BLOCKER 1 of 3 - CONFIG_UNICODE=y below is a NO-OP until someone copies code.
+#
+# fs/unicode/ exists in the series base d54533f1546b (10 files) and at the head
+# baa585f67e0e, but it is ABSENT from sdm670, and
+#     git log --oneline d54533f1546b..baa585f67e0e -- fs/unicode/   -> 0 commits
+# so the 2,599-commit series never brings it. The Kconfig entry will therefore
+# not even exist after the cherry-pick, and fs/Makefile:96 @ baa585f67e0e
+# ("obj-$(CONFIG_UNICODE) += unicode/") would be missing too.
+# To make it real, copy fs/unicode/ from d54533f1546b and add the fs/Makefile
+# line. Until then, drop the CONFIG_UNICODE=y line - f2fs/ext4 NFD (casefold,
+# compression) support will be missing.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# BLOCKER 2 of 3 - CONFIG_BPF_LSM=y is SILENTLY DROPPED without 4 extra lines.
+#
+# init/Kconfig:1950-1955 @ baa585f67e0e gives four separate "depends on":
+# BPF_EVENTS, BPF_SYSCALL, SECURITY, BPF_JIT. None of the four is present in
+# gts4lv_defconfig except BPF_SYSCALL (:42) and SECURITY (:793). BPF_JIT is
+# "default n" and BPF_EVENTS is a no-prompt bool that itself needs
+# (KPROBE_EVENTS || UPROBE_EVENTS) && PERF_EVENTS. Without them kconfig drops
+# BPF_LSM with no error and no warning - the LSM hooks just do not exist.
+# That is why sections 2.1-2.4 below exist.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# BLOCKER 3 of 3 - CONFIG_CGROUP_SCHED=y is not optional, it is MANDATORY.
+#
+# init/Kconfig:1269 @ baa585f67e0e "menuconfig CGROUP_SCHED ... default n".
+# It is needed for UCLAMP_TASK_GROUP (init/Kconfig:1308).
+# It is ALSO needed to keep SCHED_WALT=y (gts4lv_defconfig:6) alive:
+#   - sdm670  init/Kconfig:407-410 @ a30605a54f3b: SCHED_WALT depends on SMP only
+#   - Exy     init/Kconfig:402-406 @ baa585f67e0e:  SCHED_WALT depends on SMP
+#                                                       && FAIR_GROUP_SCHED
+# The series does NOT add that dependency (git log -S over the series range
+# finds nothing; it already exists at the series base d54533f1546b, and in
+# sdm670 it only ever existed as part of upstream CFS, never in the Android
+# WALT commit 26c2154816c7). But the series rewrites init/Kconfig right next to
+# SCHED_WALT (it adds SCHED_WALT_DEFAULT at init/Kconfig:412 @ baa585f67e0e),
+# so the merged tree could end up with either form depending on how that hunk
+# resolves. If the Exy form wins and CGROUP_SCHED is n, walt.o silently stops
+# being built and the tablet loses its scheduler.
+# Setting CGROUP_SCHED=y makes SCHED_WALT survive under BOTH resolutions.
+#
+# Side effect to watch: FAIR_GROUP_SCHED is "default CGROUP_SCHED"
+# (init/Kconfig:1278-1281), so CGROUP_SCHED=y also turns FAIR_GROUP_SCHED=y,
+# i.e. FAIR group scheduling is now built next to SCHED_WALT. That combination
+# is what the series head is built with on Exynos (except Exy has no WALT, it
+# uses SCHED_EMS). sdm670 has the guard "depends on !SCHED_WALT" on CFS_BANDWIDTH
+# (init/Kconfig:1191 @ a30605a54f3b) which the Exy tree does NOT have. That guard
+# is sdm670-local Android work (d342ee64906f / e032df4b1246, reverted by
+# 45be79a2ec16, present again at the tip) and is at risk in the same merge.
+# CFS_BANDWIDTH itself stays "default n" and this fragment does NOT turn it on,
+# so nothing breaks today - but do NOT "fix" a WALT scheduler build error by
+# setting # CONFIG_FAIR_GROUP_SCHED is not set: that would also switch SCHED_WALT
+# off on the Exy form of the Kconfig, and would kill UCLAMP_TASK_GROUP's ability
+# to sit on a live CGROUP_SCHED. Leave CFS_BANDWIDTH off; that is the fix.
+# ---------------------------------------------------------------------------
+
+
+# =============================================================================
+# SECTION 1 - the 14 requested "turn on" options, plus the UPROBES correction
+# =============================================================================
+
+# ANDROID_BINDERFS - drivers/android/Kconfig:22 @ baa585f67e0e
+#   added by series commit c286cded153a; code drivers/android/binderfs.c (705
+#   lines), Makefile entry drivers/android/Makefile:3 @ baa585f67e0e.
+#   CLASSIC ANDROID TRAP: it sits inside "if ANDROID" (drivers/android/Kconfig:8)
+#   and its only dep is ANDROID_BINDER_IPC. Both are re-stated in section 3.
+#   Does NOT exist in sdm670's Kconfig - it arrives with the series.
+CONFIG_ANDROID_BINDERFS=y
+
+# BPF_LSM - init/Kconfig:1950 @ baa585f67e0e
+#   added by series commit eb8726624efa (kernel/bpf/bpf_lsm.c, security/bpf/).
+#   deps: BPF_EVENTS, BPF_SYSCALL, SECURITY, BPF_JIT (init/Kconfig:1952-1955).
+#   See BLOCKER 2. Does NOT exist in sdm670's Kconfig.
+CONFIG_BPF_LSM=y
+
+# CFQ_GROUP_IOSCHED - block/Kconfig.iosched:35 @ baa585f67e0e (same line in sdm670)
+#   deps: IOSCHED_CFQ && BLK_CGROUP (block/Kconfig.iosched:37).
+#   Already =y at gts4lv_defconfig:59; re-stated so the fragment is self-contained.
+#   NOT in either *_eur_open_defconfig, and they have "# CONFIG_BLK_CGROUP is not
+#   set" (:151), so both deps must be pinned - see section 2.6/2.7.
+CONFIG_CFQ_GROUP_IOSCHED=y
+
+# DEBUG_INFO_BTF - lib/Kconfig.debug:177 @ baa585f67e0e
+#   added by series commits 8a953036e3b5 (+ ae25ca2f3a61 for modules).
+#   dep: DEBUG_INFO (lib/Kconfig.debug:179).
+#   *** HOST TOOL REQUIRED: needs pahole on PATH. scripts/link-vmlinux.sh:209,214
+#       @ baa585f67e0e fails the vmlinux link if pahole is missing or older than
+#       v1.13. PAHOLE=pahole at Makefile:366 @ baa585f67e0e, so it is NOT the
+#       distribution's pahole unless PATH says so.
+#   *** Also builds a new host tool: Makefile:1239-1249 @ baa585f67e0e builds
+#       tools/bpf/resolve_btfids/ under "ifdef CONFIG_DEBUG_INFO_BTF". That tool
+#       does not exist in sdm670; it arrives with series commit d7b603054c46.
+#   Does NOT exist in sdm670's Kconfig.
+CONFIG_DEBUG_INFO_BTF=y
+
+# FUSE_BPF - fs/fuse/Kconfig:20 @ baa585f67e0e
+#   added by series commit 462a37becb45 (fs/fuse/backing.c, xattr_bpf.c);
+#   Makefile entry fs/fuse/Makefile:9 @ baa585f67e0e.
+#   deps: FUSE_FS, BPF_SYSCALL (fs/fuse/Kconfig:22-23).
+#   Does NOT exist in sdm670's Kconfig.
+CONFIG_FUSE_BPF=y
+
+# KPROBES - arch/Kconfig:43 @ baa585f67e0e (same line in sdm670)
+#   deps: MODULES, HAVE_KPROBES (arch/arm64/Kconfig:101 @ baa585f67e0e selects
+#   HAVE_KPROBES). select KALLSYMS (arch/Kconfig:47) - see section 2.5.
+#   Unset in gts4lvwifi_defconfig and gts4lv_defconfig today; explicitly
+#   "# CONFIG_KPROBES is not set" in gts4lv_eur_open_defconfig:233.
+#   Android 16's bpfloader loads kprobe-based programs, so this is not optional.
+CONFIG_KPROBES=y
+
+# NET_ACT_BPF - net/sched/Kconfig:728 @ baa585f67e0e (same line in sdm670)
+#   dep: NET_CLS_ACT (net/sched/Kconfig:730) - re-stated in section 3.8.
+#   tristate; "is not set" in gts4lv_eur_open_defconfig:1140.
+CONFIG_NET_ACT_BPF=y
+
+# PSI - init/Kconfig:494 @ baa585f67e0e = init/Kconfig:486 @ a30605a54f3b
+#   no deps. Already =y at gts4lv_defconfig:11. NOT in the eur_open files
+#   ("# CONFIG_PSI is not set", :108). Android needs /proc/pressure.
+CONFIG_PSI=y
+
+# UCLAMP_TASK - init/Kconfig:972 @ baa585f67e0e
+#   added by series commit 74b2f258866b.
+#   dep: CPU_FREQ_GOV_SCHEDUTIL (init/Kconfig:974) - re-stated in section 3.9;
+#   that itself needs CPU_FREQ=y (gts4lv_defconfig:95) and SMP (arm64 def_bool y).
+#   Turning this on makes SCHED_TUNE impossible: init/Kconfig:1520-1522 has
+#   "depends on !UCLAMP_TASK". See section 4.3.
+#   Does NOT exist in sdm670's Kconfig.
+CONFIG_UCLAMP_TASK=y
+
+# UCLAMP_TASK_GROUP - init/Kconfig:1307 @ baa585f67e0e
+#   added by series commit ed50d477d59a.
+#   deps: CGROUP_SCHED, UCLAMP_TASK (init/Kconfig:1308-1309). Sits OUTSIDE the
+#   "if CGROUP_SCHED" block, so it is visible even when CGROUP_SCHED is n - and
+#   silently dropped. See BLOCKER 3 / section 2.8.
+#   Does NOT exist in sdm670's Kconfig.
+CONFIG_UCLAMP_TASK_GROUP=y
+
+# UNICODE - fs/unicode/Kconfig:4 @ baa585f67e0e. No deps.
+#   *** NO-OP. See BLOCKER 1 at the top of this file. ***
+#   Does NOT exist in sdm670's Kconfig, and neither does the code behind it.
+CONFIG_UNICODE=y
+
+# USERFAULTFD - init/Kconfig:2009 @ baa585f67e0e = init/Kconfig:1860 @ a30605a54f3b
+#   dep: MMU (init/Kconfig:2011) - re-stated in section 3.10. Android's
+#   in-kernel app allocator (heapti/scion) needs this.
+#   "is not set" in gts4lv_eur_open_defconfig:208.
+CONFIG_USERFAULTFD=y
+
+# XDP_SOCKETS - net/xdp/Kconfig:2 @ baa585f67e0e
+#   NEW in this task's option list (round 1 left it out).
+#   added by series commit f787c74339cb (net/xdp/, 4367 insertions).
+#   Fully plumbed: net/Makefile:16 @ baa585f67e0e is
+#   "obj-$(CONFIG_XDP_SOCKETS) += xdp/", so unlike UNICODE this one really
+#   builds. dep: BPF_SYSCALL (net/xdp/Kconfig:4) - re-stated in section 3.3.
+#   Not in sdm670's Kconfig and not in net/xdp/ at all.
+CONFIG_XDP_SOCKETS=y
+
+# XDP_SOCKETS_DIAG - net/xdp/Kconfig:12 @ baa585f67e0e
+#   NEW in this task's option list (round 1 left it out).
+#   dep: XDP_SOCKETS (net/xdp/Kconfig:14). tristate; "=y" builds net/xdp/xsk_diag.c
+#   (net/xdp/Makefile:4 @ baa585f67e0e). Gives PF_XDP monitoring for ss(8).
+#   Not in sdm670's Kconfig.
+CONFIG_XDP_SOCKETS_DIAG=y
+
+# UPROBES - arch/Kconfig:100 @ baa585f67e0e (same line in sdm670)
+#   *** CORRECTION TO ROUND 1. Round 1 said this config was optional. It is not. ***
+#   config UPROBES is "def_bool n" in BOTH trees (arch/Kconfig:100 @ baa585f67e0e
+#   and @ a30605a54f3b) and has NO "depends on KPROBES" - it is independently
+#   off, so CONFIG_KPROBES=y above does not bring it.
+#   Without it, series commit 2d6869d3a4ce ("arm64: Add uprobe support") is dead
+#   code: arch/arm64/kernel/probes/uprobes.c (216 lines), the Makefile entry
+#   "obj-$(CONFIG_UPROBES) += uprobes.o" (arch/arm64/kernel/probes/Makefile @ head)
+#   and the arch/arm64/kernel/signal.c hook all compile to nothing.
+#   Android 16's bpfloader uses uprobes.
+#   Its prerequisite ARCH_SUPPORTS_UPROBES (arch/arm64/Kconfig:248 @ baa585f67e0e,
+#   "def_bool y") also does not exist in sdm670 - it arrives with 2d6869d3a4ce.
+#   Unset in the small defconfigs; "# CONFIG_UPROBES is not set" in
+#   gts4lv_eur_open_defconfig:235.
+CONFIG_UPROBES=y
+
+
+# =============================================================================
+# SECTION 2 - dependencies that are NOT explicit lines in gts4lv_defconfig today
+#             These are the lines that make section 1 actually take effect.
+# =============================================================================
+
+# --- 2.1 for BPF_LSM (via BPF_EVENTS) ---------------------------------------
+# PERF_EVENTS - init/Kconfig:2063 @ baa585f67e0e. Required by BPF_EVENTS
+#   (kernel/trace/Kconfig:482). dep HAVE_PERF_EVENTS (arch/arm64/Kconfig:95
+#   selects it).
+#   NOTE, correcting round 1: this is NOT really missing. init/Kconfig:2065 says
+#   "default y if PROFILING" and gts4lv_defconfig:46 already has
+#   CONFIG_PROFILING=y (gts4lv_eur_open_defconfig:231 too). So PERF_EVENTS is
+#   already y by default and kconfig would satisfy it on its own. Pinned anyway so
+#   the BPF_LSM chain does not depend on PROFILING staying enabled.
+CONFIG_PERF_EVENTS=y
+
+# --- 2.2 for BPF_LSM (via BPF_EVENTS) ---------------------------------------
+# KPROBE_EVENTS - kernel/trace/Kconfig:445 @ baa585f67e0e. The other half of
+#   BPF_EVENTS' "(KPROBE_EVENTS || UPROBE_EVENTS)" (kernel/trace/Kconfig:482).
+#   deps: KPROBES, HAVE_REGS_AND_STACK_ACCESS_API (arch/arm64/Kconfig:98 selects
+#   it). select TRACING and PROBE_EVENTS (kernel/trace/Kconfig:449-450);
+#   "default y" (:451) so it follows KPROBES automatically.
+#   It lives inside "if TRACING_SUPPORT" (kernel/trace/Kconfig:123-719). That is
+#   reachable on arm64: TRACING_SUPPORT (kernel/trace/Kconfig) needs
+#   TRACE_IRQFLAGS_SUPPORT || PPC32 and STACKTRACE_SUPPORT, and arm64 defines
+#   both as "def_bool y" at arch/arm64/Kconfig:176 and :186 @ baa585f67e0e.
+#   SIDE EFFECT: TRACING selects DEBUG_FS, RING_BUFFER, TRACEPOINTS,
+#   NOP_TRACER, BINARY_PRINTF, EVENT_TRACING and TRACE_CLOCK. None is in
+#   gts4lv_defconfig today; all come in via select and the kernel grows.
+#   Unavoidable if BPF_LSM is wanted. UPROBE_EVENTS (kernel/trace/Kconfig:463)
+#   is the alternative to this line and would "select UPROBES", but it is not
+#   needed and pulls in more.
+CONFIG_KPROBE_EVENTS=y
+
+# --- 2.3 for BPF_LSM --------------------------------------------------------
+# BPF_EVENTS - kernel/trace/Kconfig:480 @ baa585f67e0e. Direct dep of BPF_LSM
+#   (init/Kconfig:1952). deps BPF_SYSCALL and
+#   (KPROBE_EVENTS || UPROBE_EVENTS) && PERF_EVENTS (:481-482).
+#   no-prompt bool, "default y" (:483-484), so it follows 2.1+2.2. Listed so the
+#   chain is readable top to bottom instead of implicit.
+CONFIG_BPF_EVENTS=y
+
+# --- 2.4 for BPF_LSM - THE ONE THAT REALLY MATTERS ---------------------------
+# BPF_JIT - net/Kconfig:297 @ baa585f67e0e. Direct dep of BPF_LSM
+#   (init/Kconfig:1955). "default n" - it is genuinely off today, and
+#   gts4lv_eur_open_defconfig:1170 even says "# CONFIG_BPF_JIT is not set".
+#   deps: HAVE_CBPF_JIT || HAVE_EBPF_JIT (arm64 selects HAVE_EBPF_JIT,
+#   arch/arm64/Kconfig:73), MODULES, !CFI (net/Kconfig:299-301). arm64 has no CFI
+#   in the series head, so !CFI holds.
+#   Without this line BPF_LSM is dropped, full stop.
+CONFIG_BPF_JIT=y
+
+# --- 2.5 for KPROBES --------------------------------------------------------
+# KALLSYMS - init/Kconfig:1787 @ baa585f67e0e. "select"ed by KPROBES
+#   (arch/Kconfig:47). "default y" (:1789) but not pinned in gts4lv_defconfig.
+#   Listed because gts4lv_defconfig:41 has CONFIG_KALLSYMS_ALL=y, which needs
+#   both KALLSYMS (init/Kconfig:1797) and DEBUG_KERNEL (lib/Kconfig.debug:424).
+#   DEBUG_KERNEL is NOT in gts4lv_defconfig and has no default, so KALLSYMS_ALL is
+#   currently a dead line; only gts4lv_eur_open_defconfig:5516 sets
+#   CONFIG_DEBUG_KERNEL=y. That is pre-existing, not caused by this fragment.
+CONFIG_KALLSYMS=y
+
+# --- 2.6 for CFQ_GROUP_IOSCHED ----------------------------------------------
+# IOSCHED_CFQ - block/Kconfig.iosched:24 @ baa585f67e0e. dep of
+#   CFQ_GROUP_IOSCHED (block/Kconfig.iosched:37). tristate, "default y" (:26),
+#   so kconfig satisfies it, but not pinned in gts4lv_defconfig.
+#   gts4lv_eur_open_defconfig:355 has it explicitly.
+CONFIG_IOSCHED_CFQ=y
+
+# --- 2.7 for CFQ_GROUP_IOSCHED ----------------------------------------------
+# BLK_CGROUP - init/Kconfig:1234 @ baa585f67e0e. dep of CFQ_GROUP_IOSCHED
+#   (block/Kconfig.iosched:37). "default n" (:1237).
+#   ALREADY =y at gts4lv_defconfig:27 / gts4lvwifi_defconfig:27, but both
+#   *_eur_open_defconfig have "# CONFIG_BLK_CGROUP is not set" (:151). So this
+#   line is what makes CFQ_GROUP_IOSCHED work on the eur_open files.
+#   dep: BLOCK - "def_bool y", and both eur_open files pin CONFIG_BLOCK=y (:317).
+#   SIDE EFFECT on eur_open only: CGROUP_WRITEBACK (init/Kconfig:1263-1267) is
+#   "depends on MEMCG && BLK_CGROUP, default y" and is in neither defconfig, so
+#   it switches itself on for the eur_open configs. Harmless (writeback throttling),
+#   but it is a code-size change to be aware of.
+CONFIG_BLK_CGROUP=y
+
+# --- 2.8 for UCLAMP_TASK_GROUP - see BLOCKER 3 ------------------------------
+# CGROUP_SCHED - init/Kconfig:1269 @ baa585f67e0e, "menuconfig CGROUP_SCHED
+#   ... default n". (It is a menuconfig, so "git grep ^config CGROUP_SCHED$"
+#   finds nothing - grep for "^menuconfig CGROUP_SCHED$".)
+#   dep of UCLAMP_TASK_GROUP (init/Kconfig:1308) and of RT_GROUP_SCHED
+#   (init/Kconfig:1295). NOT in gts4lv_defconfig today; the two *_eur_open files
+#   already have CONFIG_CGROUP_SCHED=y (:152) and CONFIG_FAIR_GROUP_SCHED=y (:153).
+#   Also required to keep SCHED_WALT=y alive under the Exy form of the Kconfig -
+#   see BLOCKER 3.
+CONFIG_CGROUP_SCHED=y
+
+
+# =============================================================================
+# SECTION 3 - dependencies already satisfied. Re-stated so this fragment is
+#             self-contained and can be appended to any of the four defconfigs.
+#             Line numbers are gts4lv_defconfig @ a30605a54f3b.
+# =============================================================================
+
+# --- 3.1 for ANDROID_BINDERFS -----------------------------------------------
+# ANDROID - drivers/android/Kconfig:3 @ baa585f67e0e. Opens the "menu Android" /
+#   "if ANDROID" (:8) that ANDROID_BINDER_IPC and ANDROID_BINDERFS live inside.
+#   Without it both are invisible. Present at gts4lv_defconfig:704,
+#   gts4lv_eur_open_defconfig:5072.
+CONFIG_ANDROID=y
+
+# --- 3.2 for ANDROID_BINDERFS -----------------------------------------------
+# ANDROID_BINDER_IPC - drivers/android/Kconfig:10 @ baa585f67e0e. The only dep of
+#   ANDROID_BINDERFS (:23); itself needs MMU && !M68K (:12). Present at
+#   gts4lv_defconfig:705, gts4lv_eur_open_defconfig:5073.
+CONFIG_ANDROID_BINDER_IPC=y
+
+# --- 3.3 for BPF_LSM, FUSE_BPF, XDP_SOCKETS, BPF_EVENTS ----------------------
+# BPF_SYSCALL - init/Kconfig:1938 @ baa585f67e0e. dep of BPF_LSM (init/Kconfig:
+#   1953), FUSE_BPF (fs/fuse/Kconfig:23), XDP_SOCKETS (net/xdp/Kconfig:4) and
+#   BPF_EVENTS (kernel/trace/Kconfig:481). Present at gts4lv_defconfig:42,
+#   gts4lv_eur_open_defconfig:204.
+CONFIG_BPF_SYSCALL=y
+
+# --- 3.4 for BPF_LSM ---------------------------------------------------------
+# SECURITY - security/Kconfig:30 @ baa585f67e0e. dep of BPF_LSM
+#   (init/Kconfig:1954). Present at gts4lv_defconfig:793,
+#   gts4lv_eur_open_defconfig:5726.
+CONFIG_SECURITY=y
+
+# --- 3.5 for KPROBES and BPF_JIT ---------------------------------------------
+# MODULES - init/Kconfig:2285 @ baa585f67e0e, "menuconfig MODULES" (so grep for
+#   "^menuconfig MODULES$"). dep of KPROBES (arch/Kconfig:44) and of BPF_JIT
+#   (net/Kconfig:300). Present at gts4lv_defconfig:49,
+#   gts4lv_eur_open_defconfig:299.
+CONFIG_MODULES=y
+
+# --- 3.6 for DEBUG_INFO_BTF --------------------------------------------------
+# DEBUG_INFO - lib/Kconfig.debug:127 @ baa585f67e0e. dep of DEBUG_INFO_BTF
+#   (lib/Kconfig.debug:179). Present at gts4lv_defconfig:775,
+#   gts4lv_eur_open_defconfig:5495.
+CONFIG_DEBUG_INFO=y
+
+# --- 3.7 for FUSE_BPF -------------------------------------------------------
+# FUSE_FS - fs/fuse/Kconfig:1 @ baa585f67e0e. tristate. dep of FUSE_BPF
+#   (fs/fuse/Kconfig:22). Present at gts4lv_defconfig:758,
+#   gts4lv_eur_open_defconfig:5316.
+CONFIG_FUSE_FS=y
+
+# --- 3.8 for NET_ACT_BPF -----------------------------------------------------
+# NET_CLS_ACT - net/sched/Kconfig:605 @ baa585f67e0e. dep of NET_ACT_BPF
+#   (net/sched/Kconfig:730). Present at gts4lv_defconfig:241,
+#   gts4lv_eur_open_defconfig:1128.
+CONFIG_NET_CLS_ACT=y
+
+# --- 3.9 for UCLAMP_TASK -----------------------------------------------------
+# CPU_FREQ_GOV_SCHEDUTIL - drivers/cpufreq/Kconfig:255 @ baa585f67e0e. dep of
+#   UCLAMP_TASK (init/Kconfig:974); itself needs CPU_FREQ && SMP (:257), and
+#   CPU_FREQ=y is at gts4lv_defconfig:95 / gts4lv_eur_open_defconfig:674.
+#   Present at gts4lv_defconfig:97, gts4lv_eur_open_defconfig:693.
+CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
+
+# --- 3.10 for USERFAULTFD (and ANDROID_BINDER_IPC) ---------------------------
+# MMU - arch/arm64/Kconfig:128 @ baa585f67e0e, "def_bool y" (it is a per-arch
+#   symbol, not in init/Kconfig). dep of USERFAULTFD (init/Kconfig:2011) and of
+#   ANDROID_BINDER_IPC (drivers/android/Kconfig:12).
+#   Pinned explicitly anyway; both eur_open files also state it
+#   (gts4lv_eur_open_defconfig:8).
+CONFIG_MMU=y
+
+
+# =============================================================================
+# SECTION 4 - the 3 requested "turn off" options
+#
+# Appended AFTER the existing lines, which is what makes them win:
+#   gts4lv_defconfig:28  CONFIG_RT_GROUP_SCHED=y
+#   gts4lv_defconfig:34  CONFIG_SCHED_TUNE=y
+#   gts4lv_defconfig:24  CONFIG_CGROUP_SCHEDTUNE=y
+# kconfig reads a defconfig in ONE top-to-bottom pass in which the last line for a
+# symbol wins. scripts/kconfig/confdata.c @ baa585f67e0e: conf_read_simple()
+# (:251) resets every symbol to tri=no (:310), then sets tri=no for each
+# "# CONFIG_X is not set" line (:343, tested at :324) and calls conf_set_sym_val()
+# (:374) for each "CONFIG_X=y" line, which sets tri=yes (confdata.c:126-148).
+# =============================================================================
+
+# --- 4.1 USER_NS ------------------------------------------------------------
+# init/Kconfig:1476 @ baa585f67e0e: "config USER_NS / bool ... / default n",
+# no dependencies, so there is nothing to switch on first and nothing to break.
+# It is already n everywhere: no line at all in gts4lv_defconfig /
+# gts4lvwifi_defconfig (the Kconfig default does it), and
+# "# CONFIG_USER_NS is not set" at gts4lv_eur_open_defconfig:163.
+# So this line documents intent and is otherwise a no-op. Android does not want
+# user namespaces.
+# CONFIG_USER_NS is not set
+
+# --- 4.2 RT_GROUP_SCHED - deliberate resolution of the contradiction ---------
+# init/Kconfig:1294-1297 @ baa585f67e0e: "config RT_GROUP_SCHED / bool /
+# depends on CGROUP_SCHED / default n". It sits inside the "if CGROUP_SCHED"
+# block (which closes at init/Kconfig:1305).
+# THE CONTRADICTION: gts4lv_defconfig:28 and gts4lv_eur_open_defconfig:154 both
+# say CONFIG_RT_GROUP_SCHED=y, while this task's option list says turn it off.
+# That line is currently DEAD, because CGROUP_SCHED was n and
+# RT_GROUP_SCHED depends on it. Section 2.8 sets CGROUP_SCHED=y (it is mandatory
+# anyway - see BLOCKER 3), which would REVIVE the stale =y.
+# WHAT I DID AND WHY: turn it off, with the line uncommented, so the later
+#   "# ... is not set" overrides gts4lv_defconfig:28.
+#   Reasons, all sourced:
+#   1. The ExyHyperBrick reference defconfig that the option list was derived
+#      from has no RT_GROUP_SCHED line at all
+#      (arch/arm64/configs/exynos9810-starlte_defconfig @ baa585f67e0e), i.e. it
+#      takes the Kconfig default of n, while the same file does explicitly pin
+#      BLK_CGROUP (:27), CGROUP_SCHED (:28) and BPF_JIT (:236).
+#   2. The trial README lists CONFIG_RT_GROUP_SCHED as one of the three things
+#      the series disables.
+#   3. Switching it on is not free: kernel/sched/rt.c has 23
+#      "#ifdef CONFIG_RT_GROUP_SCHED" blocks at baa585f67e0e (15 in sdm670) and
+#      kernel/sched/core.c has many more (e.g. core.c:698, :5020, :8571, :9286).
+#      That is newly compiled C code in the exact subsystem the series rewrites
+#      hardest - 14 of the 150 conflicts are in kernel/sched.
+#   4. RT group scheduling also blocks non-root RT scheduling until bandwidth is
+#      allocated (its own help text, init/Kconfig:1299-1300), which is a
+#      behaviour change Android does not ask for.
+#   To go the other way: delete this line and keep gts4lv_defconfig:28. Expect
+#   kernel/sched/rt.c and core.c to need build fixes.
+# CONFIG_RT_GROUP_SCHED is not set
+
+# --- 4.3 SCHED_TUNE ---------------------------------------------------------
+# init/Kconfig:1520-1523 @ baa585f67e0e: "config SCHED_TUNE / bool /
+# depends on !UCLAMP_TASK / depends on SMP", no default, so it is n by default.
+# Section 1.9 sets UCLAMP_TASK=y, which makes SCHED_TUNE unreachable *by
+# Kconfig* - this is the "SCHED_TUNE (replaced by uclamp)" note in the trial
+# README. gts4lv_defconfig:34 (CONFIG_SCHED_TUNE=y) and
+# gts4lvwifi_defconfig:34 therefore become dead lines.
+# Written out anyway, so the defconfig stops asserting something that is not
+# true. No build impact either way.
+# CONFIG_SCHED_TUNE is not set
+
+# --- 4.4 CGROUP_SCHEDTUNE - dies with SCHED_TUNE, written for clarity --------
+# init/Kconfig:1182-1184 @ baa585f67e0e: "config CGROUP_SCHEDTUNE / bool /
+# depends on SCHED_TUNE". No default, so it is n once SCHED_TUNE is gone.
+# gts4lv_defconfig:24 and gts4lv_eur_open_defconfig:145 say =y and become dead.
+# Also a kernel/sched code change: kernel/sched/Makefile @ baa585f67e0e has
+# "obj-$(CONFIG_SCHED_TUNE) += tune.o", which stops being built.
+# CONFIG_CGROUP_SCHEDTUNE is not set
+
+
+# =============================================================================
+# SECTION 5 - optional lines, left commented. Uncomment only if you hit the
+#             problem described. Do not uncomment them "just in case".
+# =============================================================================
+
+# CONFIG_DEBUG_INFO_BTF_MODULES is not set
+#   lib/Kconfig.debug:185-188 @ baa585f67e0e: "default y", "depends on
+#   DEBUG_INFO_BTF && MODULES", so it switches ITSELF on as soon as
+#   section 1.4 and 3.5 are applied. That runs pahole on every single .ko and
+#   its help text wants pahole 1.19 or later (lib/Kconfig.debug:193) - a
+#   HIGHER bar than the v1.13 that vmlinux itself needs. If module BTF
+#   generation fails on the build host, uncomment this line.
+
+# CONFIG_DEBUG_INFO_BTF is not set
+#   The escape hatch if pahole cannot be installed on the build host at all.
+#   Do NOT use it as the first answer: without vmlinux BTF, bpfloader on
+#   Android 16 has nothing to work with. Fix the host tool first
+#   (scripts/link-vmlinux.sh:209,214 @ baa585f67e0e).
+
+# Do NOT touch PERF_EVENTS or KPROBE_EVENTS (sections 2.1/2.2) to work around a
+#   TRACING pull-in problem: BPF_LSM cannot be built without them. The ftrace
+#   code they bring in is a kernel-size cost, not a correctness problem.

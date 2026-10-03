@@ -129,3 +129,23 @@ or skipped, and why. Newest last.
   - R1 now targets `compatibility_matrix.6.xml`. R2 leaves out types we define ourselves. R3 has the real repo/branch names (checked with `git ls-remote`). R4 has no LFS (checked).
   - Renumbered R6/R7 to R5/R6, so there's no gap. §0.5 no longer repeats `checkout -b`.
 - HANDOVER rewritten around an ordered "leftover work" list. Removed the stale "Not done yet" block from the middle of this log.
+
+## 2026-10-03: helper rounds 1–2 reviewed and merged
+- The owner ran all 39 helper tasks locally, every one on "Space Bunny Free", plus a lead synthesis
+  (`lead/agent-results-2026-10-03`). Seven tasks were redone as `-r2` after the spec fixes.
+- Merged into `main`: the final output of each task (r2 where present), `LEAD-SYNTHESIS.md` and `analysis/tools/`.
+  Left out: the superseded round-1 outputs, the retired K4d/K5f, and the M2 link report (its one finding was already fixed).
+  The `agent/*` branches are untouched.
+- Review:
+  - The format checker passes on all 17 batches (125 briefs + 17 summaries).
+  - Re-verified 8 key lead claims against the trees, all confirmed: arm64 `set_memory.h` missing; LRU_HASH not in sdm670;
+    WALT needs `CGROUP_SCHED`; TIF bit 4 and FAULT_FLAG 0x200 collisions; `ipc_router` wakeup API break; `fs/unicode` never arrives; `UPROBES` def_bool n.
+  - Checked the 10 unverified DROPs line by line, all consistent. Sampled 14 MERGE/PREREQ "already in sdm670?" answers: 13 matched directly, 1 right on reading.
+  - `check-pins.sh`: 8/8 OK. K1 table: 2,600 lines.
+- Fixes:
+  - Made the replay tools' kernel path configurable (`$K670`), and replaced the lead's local paths in the reports.
+  - Fixed the AGENT-TASKS spec defects the agents reported: the wrong LRU_HASH spot-check, the K2 isolated merge-tree method (now the stacked replay), and the K5 coverage limits.
+  - Added round 3 (K7 flag collisions, K8 two missing briefs, R7 property namespace, R8 LTE radio HAL, R9 soundtrigger/per_proxy_helper)
+    and its batch file `analysis/agent-batches/K8.tsv`.
+- Rewrote the HANDOVER state and plan (9 steps, who and where). Added a "Remaining work" estimate to ESTIMATE.md:
+  ≈28 days expected (16.5–49.5), down from 34 (21–55).

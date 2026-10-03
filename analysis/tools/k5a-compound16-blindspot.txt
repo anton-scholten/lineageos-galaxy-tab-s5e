@@ -1,0 +1,16 @@
+bpf_binary_header.image
+bpf_map_type_list.unpriv_array
+bpf_prog_array.progs
+bpf_prog_aux.ops
+bpf_prog_aux.refcnt
+bpf_prog.bpf_func
+bpf_prog.insns
+bpf_prog.len
+netdev_xdp.prog
+netdev_xdp.prog_attached
+skb_shared_info.gso_type
+skb_shared_info.nr_frags
+sk_buff.cb
+sk_buff._skb_refdst
+sk_filter.refcnt
+tcp_sock.mptcp_flags

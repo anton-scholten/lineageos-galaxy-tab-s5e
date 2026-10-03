@@ -145,7 +145,7 @@ or the usual upgrade instructions.
 
 ## 4. Order of work
 
-1. Research tasks for helper agents ([AGENT-TASKS.md](AGENT-TASKS.md)): conflict briefs, defconfig, VINTF, sepolicy, reference trees.
+1. ~~Research by helper agents~~ Done; see [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md). The full plan is in [HANDOVER.md](HANDOVER.md).
 2. Sync 23.2 with `local_manifests/` and build. Fix any sepolicy neverallow
    or blob linkage errors. Getting this far proves the userspace port.
 3. Port the kernel series (§1). This is the bulk of the work: 2,599 commits, 150 conflicts.

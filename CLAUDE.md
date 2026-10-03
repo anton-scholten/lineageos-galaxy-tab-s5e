@@ -4,7 +4,7 @@ Project: port LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e
 (`gts4lvwifi` SM-T720, `gts4lv` SM-T725/T727). This repo holds documentation, analysis,
 local manifests and device-tree patches. It is not an Android source tree.
 
-- Start with [HANDOVER.md](HANDOVER.md) (current state and next steps), then [WORKLOG.md](WORKLOG.md).
+- Start with [HANDOVER.md](HANDOVER.md) (current state and plan), then [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) (research findings), then [WORKLOG.md](WORKLOG.md).
 - Main docs: `README.md` (users), `PORTING-LINEAGE-23.2.md`, `KERNEL-BACKPORT-PLAN.md`,
   `ESTIMATE.md`, `PRIOR-WORK.md`, `REPO-SETUP.md`, `AGENT-TASKS.md` (work for helper agents; their entry point is `AGENTS.md`).
 - Code lives in the forks, branch `lineage-23.2`: `anton-scholten/android_device_samsung_gts4lv-common`

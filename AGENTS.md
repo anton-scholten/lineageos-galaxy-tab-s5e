@@ -5,7 +5,7 @@ This repo holds **docs, analysis and reports**, not Android source code. Your jo
 You write a report into this repo. You don't change any kernel or device code.
 
 ## Your first 5 minutes
-1. **Get your task ID.** Whoever started you should have given one, like `K2a-3`, `R6` or `T1`.
+1. **Get your task ID.** Whoever started you should have given one, like `K7`, `K8` or `R8` (round 3; §2.2 of AGENT-TASKS.md lists the open ones).
    If you didn't get one, **stop and ask**. Don't pick one yourself, because other agents may be doing it.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
    - §0, all of it: project, words, repos, rules, how to hand in.

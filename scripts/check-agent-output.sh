@@ -41,7 +41,7 @@ done
 
 # 2. Every other agent report: header, Summary, Problems.
 [[ $# -gt 0 ]] || for f in analysis/upstream-map/README.md analysis/build-test/errors/*.md analysis/api-audit/*.md \
-        analysis/defconfig/README.md analysis/rom/*.md analysis/link-check.md analysis/conflicts/*-summary.md; do
+        analysis/defconfig/README.md analysis/rom/*.md analysis/collisions/*.md analysis/link-check.md analysis/conflicts/*-summary.md; do
     [[ -f $f ]] || continue
     head -1 "$f" | grep -q '^<!-- task: ' || err "$f: missing '<!-- task: ... -->' header"
     grep -q '^## Summary' "$f" || err "$f: missing '## Summary'"

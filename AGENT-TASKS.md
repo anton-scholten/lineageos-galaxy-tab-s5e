@@ -10,6 +10,10 @@ Every task gives you:
 A lead agent or the owner reviews and merges your output. You never change the kernel or device tree
 directly: you **research and write reports**. State checked on 2026-10-03; see [HANDOVER.md](HANDOVER.md).
 
+> **Status (2026-10-03): rounds 1 and 2 are done, reviewed and merged into `main`.** All tasks in §3–§6 have their
+> output in the repo already. Their sections stay as the format reference. **Only round 3 (§2.2) is open.**
+> The cross-agent findings are in [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md).
+
 ---
 
 ## 0. Read this first
@@ -194,29 +198,40 @@ To see the conflict markers in one file: `git cat-file -p <tree-id>:<path> | gre
 ---
 
 ## 2. All tasks at a glance
-The repo setup is done (forks, branches, backups, manifests; see [REPO-SETUP.md](REPO-SETUP.md)). Only these research tasks are left for helpers.
+
+### 2.1 Rounds 1–2: done and merged
+| Task | Output in `main` | Headline result |
+|---|---|---|
+| M2 link check | (fixed in the docs; report not kept) | 1 broken anchor, fixed |
+| M3 pin checker | `scripts/check-pins.sh` | all 8 pins OK |
+| K1 upstream map | `analysis/upstream-map/` | 2,599 rows: 44 yes, 1,575 no, 980 unknown |
+| K2a–d conflict briefs (13) | `analysis/conflicts/` | 113 briefs: 76 MERGE, 22 PREREQ, 15 DROP, 0 HUMAN |
+| K3 large conflicts (4) | `analysis/conflicts/` | 12 fact briefs |
+| K4a–c build errors | `analysis/build-test/errors/` | randstruct and ANDROID_VERSION come from the Exynos base; TIF_FSCHECK is a bad conflict resolution |
+| K5a–e API audit | `analysis/api-audit/` | 1 real break (`ipc_router`), but only 7 of 367 changed headers covered |
+| K6 defconfig | `analysis/defconfig/` | 14 on + 3 off + UPROBES, BPF_JIT, **CGROUP_SCHED (mandatory)** |
+| R1 VINTF | `analysis/rom/vintf.md` | level 6: soundtrigger 2.2 and LTE radio 1.4 too old |
+| R2 sepolicy | `analysis/rom/sepolicy.md` | 0 missing; 15 vendor property names may fail the namespace check |
+| R3 Soong | `analysis/rom/soong.md` | 0 broken |
+| R4 blob deps | `analysis/rom/blob-deps.tsv` | 1 missing lib (`libclang_rt.ubsan_standalone-arm-android.so`) |
+| R5 sm7125 port list | `analysis/rom/port-from-sm7125.md` | 1 needed: target-level 6 |
+| R6 exynos9810 sort | `analysis/rom/port-from-exynos9810.md` | 1 needed: space-separated lists in the audio policy XML |
+| T1 device checks | `scripts/device-checks.sh` | |
+| T2 crash logs | `TESTING.md` | |
+
+Round 1 ran under the old IDs R6/R7 (now R5/R6), K4d (folded into K4c) and K5f (retired). Superseded round-1 outputs stay on
+their `agent/*` branches only. All agents ran on one free model; the review (§11) re-checked the load-bearing claims and they held.
+
+### 2.2 Round 3: open
+Small follow-ups the review found. Same rules, same hand-in. Total about 6 agent runs, a few hours each.
 
 | ID | Agents | Tier (§10) | Clone needed | Output | Rough time |
 |---|---|---|---|---|---|
-| M2 link check | 1 | 1 | this repo | `analysis/link-check.md` | < 1 h |
-| M3 pin checker | 1 | 1 | this repo | `scripts/check-pins.sh` | < 1 h |
-| K1 upstream map | 1 | 1 | kernel (§1.2) | `analysis/upstream-map/` | 2–4 h |
-| K2a-1…4, K2c-1…2 trivial conflict briefs | 6 | 1 | kernel | `analysis/conflicts/` | 2–4 h each |
-| K2b-1…4, K2d-1…3 moderate conflict briefs | 7 | 2 | kernel | `analysis/conflicts/` | 3–6 h each |
-| K3-1…4 large conflicts, facts only | 4 | 2 | kernel | `analysis/conflicts/` | 2–4 h each |
-| K4a–c first build errors | 3 | 1 | kernel | `analysis/build-test/errors/` | 1–2 h each |
-| K5a–e driver API audit | 5 | 2 | kernel | `analysis/api-audit/` | 2–4 h each |
-| K6 defconfig fragment | 1 | 1 | kernel | `analysis/defconfig/` | 1–2 h |
-| R1 VINTF | 1 | 2 | device tree + LineageOS | `analysis/rom/vintf.md` | 2–3 h |
-| R2 sepolicy | 1 | 2 | device tree + LineageOS | `analysis/rom/sepolicy.md` | 2–4 h |
-| R3 soong config | 1 | 1 | device trees + LineageOS | `analysis/rom/soong.md` | 1–2 h |
-| R4 blob deps | 1 | 1 | vendor blobs | `analysis/rom/blob-deps.tsv` | 1–2 h |
-| R5 port list from sm7125 | 1 | 2 | device tree + sm7125-common | `analysis/rom/port-from-sm7125.md` | 2–3 h |
-| R6 sort exynos9810 commits | 1 | 2 | device tree + exynos9810 backup | `analysis/rom/port-from-exynos9810.md` | 3–5 h |
-| T1 device check script | 1 | 1 | this repo | `scripts/device-checks.sh` | 1 h |
-| T2 crash-log guide | 1 | 1 | this repo | `TESTING.md` | 1 h |
-
-**Total:** 37 agent runs. (IDs M1 and K5f were retired, so they don't appear.)
+| K7 flag/bitfield collisions | 1 | 2 | kernel (§1.2) | `analysis/collisions/K7.md` + `.tsv` | 3–5 h |
+| K8 two missing conflict briefs | 1 | 2 | kernel | `analysis/conflicts/` (batch `K8`) | 2–3 h |
+| R7 vendor property namespace | 1 | 1 | LineageOS repos (shallow) | `analysis/rom/property-namespace.md` | 1–2 h |
+| R8 LTE radio HAL version | 1 | 1 | vendor blobs (gts4lv) | `analysis/rom/radio-hal.md` | 1–2 h |
+| R9 soundtrigger and per_proxy_helper | 1 | 1 | device tree + vendor blobs | `analysis/rom/soundtrigger-perproxy.md` | 1–2 h |
 
 ---
 
@@ -274,9 +289,9 @@ Exit code 1 only if one of the other rows (LineageOS upstream or our frozen back
 (columns `exy_commit	subject	upstream_sha	sdm670_has	sdm670_commit`, 12-character SHAs) and `analysis/upstream-map/README.md` (header, summary with counts of yes/no/unknown).
 
 **Self-check:** the TSV has 2,600 lines (header + 2,599). Running the script twice gives an identical file (`sha256sum`).
-Spot-check: commit `3ed2e2f029db` ("BACKPORT: bpf: Add BPF_MAP_TYPE_LRU_HASH") is expected to be `yes`, because sdm670 already
-carries LRU_HASH (`git grep -n BPF_MAP_TYPE_LRU_HASH a30605a54f3b -- include/uapi/linux/bpf.h`). If it comes out `no`, look at why
-(different subject? no upstream trailer?) and describe the reason in your README. Don't force it to `yes`.
+Spot-check: commit `3ed2e2f029db` ("BACKPORT: bpf: Add BPF_MAP_TYPE_LRU_HASH") must **not** come out `yes`: sdm670 does **not**
+carry LRU_HASH (`git grep -n BPF_MAP_TYPE_LRU_HASH a30605a54f3b -- include/uapi/linux/bpf.h` finds nothing). An earlier version
+of this spec said the opposite; four agents caught it.
 
 ### K2: conflict briefs (13 agents)
 **Goal:** for each conflict commit in your batch, write one brief that tells the lead what the conflict is and how to fix it.
@@ -296,7 +311,9 @@ The full classification is in [`conflict_detail.tsv`](analysis/exyhyperbrick-tri
 **Steps, for each commit `C` in your batch file**
 1. `git show --stat C`: note the author, the date and the files.
 2. Find the upstream SHA (from K1's TSV if it exists, or read the message as in K1 step 2).
-3. Run `git merge-tree --write-tree --merge-base=C^ a30605a54f3b C`.
+3. Run the **stacked** replay: `K670=$W/k670 python3 analysis/tools/replay_show.py C <conflicting files>` (see
+   [analysis/tools/README.md](analysis/tools/README.md); use a scratch clone, it creates commits). Only if that fails, fall back to the
+   isolated `git merge-tree --write-tree --merge-base=C^ a30605a54f3b C`, and say so: the isolated form both over- and under-reports.
    - If it prints **only a tree ID** (no conflict), write that down. The trial applied the commits stacked on top of each other, so this commit probably only conflicts because of an earlier one. Name the earlier commit: `git log --oneline d54533f1546b..C^ -- <conflicting file>` shows the candidates.
    - If it conflicts, look at each conflict block in each file (see §1.3). For each block, write 1–2 lines: what "ours" (sdm670) has, and what "theirs" (series) has.
 4. Check whether sdm670 already has the change: look for the key lines of `git show C` in sdm670 with `git grep -n '<distinctive line>' a30605a54f3b -- <file>`.
@@ -374,7 +391,7 @@ already gives the likely *cause* of each. Your job is to find the exact **commit
 (before base / in series + status), `## Conflict that loses or brings it`, `## Suggested fix` (for example "keep sdm670 lines X–Y in commit Z" or
 "cherry-pick prerequisite <sha> first"), `## Confidence`, `## Problems`.
 
-### K5: driver API audit (6 agents, one per area)
+### K5: driver API audit (5 agents, one per area)
 Areas (paths checked to exist in sdm670 on 2026-10-03):
 - K5a `net/rmnet_data/`, `drivers/net/rmnet_iplo*` if present
 - K5b `drivers/platform/msm/ipa/`
@@ -395,6 +412,9 @@ If a path in your list doesn't exist (`git ls-tree -d a30605a54f3b <path>` print
 3. Record each hit.
 
 **Output:** `analysis/api-audit/<ID>.tsv` (`file:line	symbol	change`) and `analysis/api-audit/<ID>.md` (header, summary: hit count, the 5 most-hit symbols).
+
+**Known limits (from round 2):** the 7 headers cover only 7 of the 367 headers the series changes. `git ls-tree -d` hides single-file
+paths, so use `ls-tree -r --name-only`. A config can be on through another option's `select`, so check `git grep -n 'select X'` before calling it off.
 
 ### K6: defconfig fragment (1 agent)
 Options, from the end of [the trial README](analysis/exyhyperbrick-trial/README.md):
@@ -465,6 +485,66 @@ Write `TESTING.md`, section "Collecting crash logs":
 
 ---
 
+## 6b. Round 3 task specs
+
+### K7: flag and bitfield collisions (1 agent, tier 2)
+**Why:** sdm670 already used some bit values that the series reuses for something else. Merging both sides gives *no* conflict and
+*no* compiler error; two flags just silently share a bit. Known cases: `TIF_FSCHECK`/`TIF_UPROBE` both 4 in
+`arch/arm64/include/asm/thread_info.h`, and `FAULT_FLAG_SPECULATIVE`/`FAULT_FLAG_INTERRUPTIBLE` both `0x200` in `include/linux/mm.h`
+([LEAD-SYNTHESIS.md §2](LEAD-SYNTHESIS.md)). Find the rest.
+
+**Steps**
+1. List headers the series changes: `git diff --name-only d54533f1546b baa585f67e0e -- '*.h'` (≈367).
+2. For each header that also exists in sdm670, extract `#define NAME <number>` lines (decimal, hex, `BIT(n)`, `1 << n`, `1UL << n`) and enum
+   members with explicit values, from `a30605a54f3b:<file>` and `baa585f67e0e:<file>`. Write it as `analysis/collisions/find_collisions.py`
+   (standard library only, takes the kernel path as argument).
+3. Report a **collision** when the same file has, in the merged view, two *different* names with the same value and the same prefix
+   (text before the first `_` after the common prefix, e.g. `TIF_`, `FAULT_FLAG_`, `MSG_`, `SOCK_`). Name A exists only in sdm670 and
+   name B exists only in the series head. Same name with a changed value is a separate category, `VALUE_CHANGED`.
+4. For each hit, say whether the bits are used as a mask (`_TIF_WORK_MASK`, `|` combinations) and suggest a free value.
+5. Must find the two known cases. If it doesn't, the script is wrong.
+
+**Output:** `analysis/collisions/K7.tsv` (`file	value	sdm670_name	series_name	category`), `analysis/collisions/K7.md` (§0.5 header, summary, table of real
+collisions with suggested values, `## Problems`), and the script.
+
+### K8: briefs for the two un-briefed conflicts (1 agent, tier 2)
+Batch file: [`analysis/agent-batches/K8.tsv`](analysis/agent-batches/K8.tsv). Both commits are trial-`CLEAN`, but conflict in a real in-order
+replay: `47d10743ccd7` "BACKPORT: mm: introduce MADV_PAGEOUT" (a prerequisite for `e7751e04e9d1`), and `0a115d7aaf34` "mm/vmalloc.c: convert
+vmap_lazy_nr to atomic_long_t" (between two K2d-1 commits; read brief `7c9b3c4119eb.md` first). Follow §K2 exactly, using the stacked replay.
+Output: two briefs + `analysis/conflicts/K8-summary.md`. Self-check: `scripts/check-agent-output.sh K8` prints `OK`.
+
+### R7: vendor property namespace (1 agent, tier 1)
+**Why:** 15 of 21 lines in our `sepolicy/vendor/property_contexts` lack the `vendor.` prefix that the 23.2 build check wants
+(`check_prop_prefix.py`). sm7125-common has the same pattern and still builds, so something must exempt it ([LEAD-SYNTHESIS.md §7.2](LEAD-SYNTHESIS.md)).
+**Steps:** shallow-clone `LineageOS/android_build_soong`, `android_build` (`lineage-23.2`), `android_vendor_lineage` (`lineage-23.2`), our device tree,
+`LineageOS/android_device_samsung_gts4lvwifi` and `..._gts4lv` (`lineage-22.2`), and `android_device_samsung_sm7125-common` (`lineage-23.2`).
+1. `git grep -n BUILD_BROKEN_VENDOR_PROPERTY_NAMESPACE` in all of them.
+2. Find `PRODUCT_SHIPPING_API_LEVEL` and `BOARD_SHIPPING_API_LEVEL` for gts4lv/gts4lvwifi and for one sm7125 device (for example `a52q`).
+3. Read where `check_prop_prefix` is called in soong (`selinux_contexts.go`) and write down the exact condition that skips it.
+4. Verdict: will our build fail the check? If yes, what is the smallest fix (rename the properties, or set the BUILD_BROKEN flag)?
+**Output:** `analysis/rom/property-namespace.md`.
+
+### R8: can the LTE RIL do radio 1.5? (1 agent, tier 1)
+**Why:** FCM level 6 wants `android.hardware.radio` 1.5–1.6; the LTE model declares 1.4 (`gts4lv/manifest.xml`).
+Bumping the number only works if the vendor RIL implements 1.5.
+**Steps:** shallow-clone `TheMuppets/proprietary_vendor_samsung_gts4lv` (`lineage-22.2`) and `LineageOS/android_device_samsung_gts4lv` (`lineage-22.2`).
+1. List RIL-related blobs (`rild`, `libsec-ril*`, `*radio*`).
+2. `strings` / `readelf -d` them for `android.hardware.radio@1.5`, `@1.6`, `IRadio`, `radio.config@1.`.
+3. Check what `hardware/samsung/ril` on `LineageOS/android_hardware_samsung` `lineage-23.2` provides.
+4. Verdict: can the LTE manifest say 1.5? If not, the options are: keep level 5 for LTE only, or ship an FCM exemption. Cite sources.
+**Output:** `analysis/rom/radio-hal.md`.
+
+### R9: soundtrigger and per_proxy_helper (1 agent, tier 1)
+**Why:** level 6 needs soundtrigger 2.3, and sdm710 builds only `soundtrigger@2.1-impl`. The plan is to delete the manifest block. Separately,
+`per_proxy_helper` has a sepolicy domain but no `file_contexts` label ([LEAD-SYNTHESIS.md §7.4–7.5](LEAD-SYNTHESIS.md)).
+**Steps:** in our device tree, the per-model trees and `TheMuppets/proprietary_vendor_samsung_gts4lv-common`:
+1. Is any soundtrigger service built (`PRODUCT_PACKAGES`), started (`*.rc`) or shipped as a blob? If the manifest block is deleted,
+   what else must go so that nothing tries to register it?
+2. Where is the `per_proxy_helper` binary (blob path)? Write the exact `file_contexts` line it needs, in the style of the file's other lines.
+**Output:** `analysis/rom/soundtrigger-perproxy.md`.
+
+---
+
 ## 7. Not for helper agents
 These need the lead or a human. They use the outputs above as input:
 - Cherry-picking the series into the kernel fork, and resolving the conflicts (phases 1–2 in [ESTIMATE.md](ESTIMATE.md)).
@@ -476,10 +556,10 @@ These need the lead or a human. They use the outputs above as input:
 
 ## 8. Order and dependencies
 ```
-Now, all in parallel:   M2  M3  K1  K2*  K3*  K4a–c  K5a→K5b..e  K6  R1–R6  T1  T2
-After K1:               lead re-checks K2 "Already in sdm670?" answers against upstream-map.tsv
-After K1–K4:            lead starts the cherry-pick on the kernel fork's lineage-23.2 (section 7)
-After R1–R6:            lead adds the needed device-tree commits to the device fork's lineage-23.2
+Rounds 1–2:             done
+Round 3, in parallel:   K7  K8  R7  R8  R9
+The lead doesn't need to wait for round 3 to start the cherry-pick; K7 and K8 feed into it as it goes.
+R7–R9 decide the device-tree commits before the first ROM build.
 ```
 
 ## 9. Common mistakes
@@ -501,7 +581,8 @@ Based on the OpenCode Go plan, checked 2026-10-03 from third-party write-ups. op
 | 3, strong | Kimi K3 (≈490 requests/month), a frontier model, or a human | Section 7 only, plus the review (§11) | Resolving conflicts, build fixes, boot debugging |
 
 - Fallback for tier 1: GLM-5.3-Flash (similar price, ≈31k requests/month).
-- Don't use free or unknown models (for example "Space Bunny Free") for K or R tasks. They haven't been tested on this kind of work.
+- Rounds 1–2 ran entirely on "Space Bunny Free", against this advice. The review found the reports sound (format 17/17, all 15 DROPs consistent,
+  13 of 14 sampled "already in sdm670?" answers matched, and the 14th was fine on reading). It's usable, but keep the §11 review.
 - If a tier-1 agent marks more than half its items `HUMAN` or `low`, rerun that batch with a tier-2 model rather than reviewing it by hand.
 
 ## 11. Reviewing the output (lead)

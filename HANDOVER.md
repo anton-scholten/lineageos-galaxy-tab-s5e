@@ -6,35 +6,33 @@ Read this first, then [WORKLOG.md](WORKLOG.md) for the full history.
 LineageOS 23.2 (Android 16) on the Samsung Galaxy Tab S5e: SM-T720/T720N (`gts4lvwifi`)
 and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
-## Where things stand (2026-10-03)
+## Where things stand (2026-10-03, after helper rounds 1–2)
 
 | Area | State |
 |---|---|
-| Repos | **Done.** Docs here (`main`). Work forks with `lineage-23.2`: device tree `anton-scholten/android_device_samsung_gts4lv-common` (tip `2e50286`), kernel `anton-scholten/android_kernel_samsung_sdm670` (= `a30605a`). Frozen backups of both ExyHyperBrick repos. Manifests point at the forks. Details: `REPO-SETUP.md` |
-| Device tree | 0001–0004 committed in the fork. Not built yet. More changes expected (FCM level 6, sepolicy, …), which helper tasks R1–R6 will list |
-| Kernel blocker | Android 16 needs 5.4-level eBPF; the kernel is 4.9.337. See `PORTING-LINEAGE-23.2.md` §1 |
-| Kernel source to port | ExyHyperBrick S9 kernel `lineage-23.2` `baa585f67e0e` (4.9.337, eBPF at 5.15 level), backed up as `anton-scholten/android_kernel_samsung_exynos9810`. Trial replay onto sdm670: 2,335 clean / 150 conflicts (`analysis/exyhyperbrick-trial/`) |
-| Conflicts | Classified: 84 required, 46 optional, 20 skip (`conflict_detail.tsv`). Split into helper batches (`analysis/agent-batches/`) |
-| Build | Baseline sdm670 kernel builds (12 min on 4 cores). A blind merge of the series fails at the first compile step (`analysis/build-test/`) |
-| Helper agents | Fully specified, **not started**: `AGENTS.md` (entry point), `AGENT-TASKS.md` (37 runs, model tiers, review steps), `scripts/check-agent-output.sh` |
-| Estimate | About 7 weeks full-time, range 4–11 (`ESTIMATE.md`) |
+| Repos | **Done.** Docs here (`main`). Work forks with `lineage-23.2`: device tree `anton-scholten/android_device_samsung_gts4lv-common` (tip `2e50286`), kernel `anton-scholten/android_kernel_samsung_sdm670` (= `a30605a`, port not started). Frozen ExyHyperBrick backups. Manifests point at the forks (`REPO-SETUP.md`) |
+| Research | **Done and merged.** 39 helper tasks, reviewed. Start with [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md). Briefs for all 150 conflicts (`analysis/conflicts/`: 76 MERGE, 22 PREREQ, 15 DROP), defconfig fragment, API audit, VINTF/sepolicy/Soong/blob audits, test script and crash-log guide (`TESTING.md`) |
+| Kernel blocker | Android 16 needs 5.4-level eBPF; the kernel is 4.9.337. Fix = port the ExyHyperBrick series (2,599 commits, 150 conflicts) |
+| Known kernel fixes, found ahead of the build | Add `arch/arm64/include/asm/set_memory.h`; `ipc_router_core.c:1384` gets `wakeup_source_register(NULL, …)`; move `TIF_UPROBE` off bit 4 and `FAULT_FLAG_INTERRUPTIBLE` off `0x200`; use the K6 fragment (`CGROUP_SCHED=y` or WALT is silently lost, `UPROBES=y`, `BPF_JIT=y`); copy `fs/unicode/` or drop `CONFIG_UNICODE`; Exynos-base prerequisites (randstruct macros, `ANDROID_VERSION`) |
+| Known device-tree changes | `target-level` 5→6; delete the soundtrigger 2.2 block; LTE radio 1.4 is below level 6 (R8 decides); space-separated lists in the audio policy XML; `per_proxy_helper` file label; maybe vendor property names (R7). Livedisplay and CAF wiring need nothing. Build with `brunch`, not bare `m` |
+| Open research | Round 3: 5 small tasks (K7, K8, R7, R8, R9) in [AGENT-TASKS.md](AGENT-TASKS.md) §2.2 |
+| Estimate | About **5½ weeks full-time** left (range 3½–10). See `ESTIMATE.md` "Remaining work" |
 | Nothing booted | No ROM built, no kernel port started, nothing flashed |
 
-## Leftover work, in order
-1. **Helper research (owner starts it).** Run the 37 tasks in [AGENT-TASKS.md](AGENT-TASKS.md) §2. Give each agent the prompt from
-   [AGENTS.md](AGENTS.md), plus repo access (AGENT-TASKS §0.6). Pick models with §10.
-2. **Review (lead).** AGENT-TASKS §11: run the format script, check every DROP/low/HUMAN, spot-check the rest, and merge the `agent/*` branches.
-3. **Kernel port (lead or human),** on the kernel fork's `lineage-23.2`:
-   - `git cherry-pick -x` the series `d54533f1546b..baa585f67e0e` (from the backup fork) in order. Skip commits whose subject starts
-     with `[exynos9810]`/`[9810]`, and those whose `group` is `skip` in `conflict_detail.tsv`.
-   - Resolve each conflict **by hand**, using the K2/K3 briefs. Don't take either side blindly; `analysis/build-test/README.md` shows why.
-   - Apply the K4 findings (prerequisites, and sdm670 fixes to keep). Add the K6 defconfig fragment.
-   - Keep the original authorship. Contact krazey (ExyHyperBrick) before publishing.
-4. **Kernel build.** Run `analysis/build-test/kbuild.sh` until `Image.gz-dtb` links. Use K5 to predict the driver breakage.
-5. **Device tree.** Commit the changes the R tasks found to the device fork's `lineage-23.2`.
-6. **ROM build.** Full `lineage-23.2` sync (~150 GB) with `local_manifests/`. Needs a big machine, not a cloud session.
-7. **Boot and test.** Use `pstore`/`last_kmsg` logs for crashes (T2), then `scripts/device-checks.sh` (T1) and `ESTIMATE.md` phase 6.
-8. **Later.** The 46 optional conflicts (K2c/K2d), upstreaming to LineageOS Gerrit.
+## Plan of remaining work
+| # | Step | Who / where | Expected |
+|---|---|---|---|
+| 1 | **Round 3 research** (K7, K8, R7, R8, R9), then review with `scripts/check-agent-output.sh` + AGENT-TASKS §11 | helper agents; owner starts them | ½ day wall-clock, in parallel with step 2 |
+| 2 | **Kernel cherry-pick** on the kernel fork's `lineage-23.2`: `git cherry-pick -x` the series `d54533f1546b..baa585f67e0e` (from the backup fork) in order. Skip `[exynos9810]`/`[9810]` commits and the `skip` group in `conflict_detail.tsv`. Apply the known kernel fixes above as their commits come up | lead (a Claude cloud session works: 2.3 GB clone) | 1 day |
+| 3 | **Resolve conflicts by hand** with the briefs. Take the real conflict list from the cherry-pick, not `conflict_detail.tsv` (LEAD-SYNTHESIS §5). Resolve the linked groups as one unit: `fs/userfaultfd.c` ×6, `fs/fuse` ordering, the XDP rename (§4) | lead, or a human kernel dev for the 12 large ones | 7 days |
+| 4 | **Build** with `analysis/build-test/kbuild.sh` + the K6 fragment until `Image.gz-dtb` links. Expect a tail of small prerequisite fixes only the compiler finds (§3), since the API audit covered 2% of the changed headers | lead (cloud OK; 12 min per build) | 5 days |
+| 5 | **Device-tree commits** from the "known device-tree changes" row, R7–R9, and the first build's sepolicy errors | lead | 2 days |
+| 6 | **ROM build**: full `lineage-23.2` sync (~150 GB) with `local_manifests/`, `brunch lineage_gts4lvwifi` (and `gts4lv`) | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2 days |
+| 7 | **First boot and debugging**: flash per README (⚠️ erases data), collect logs per `TESTING.md` | owner + tablet; lead reads logs | 7 days (3–15) |
+| 8 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model | owner + tablet | 4 days |
+| 9 | Later: the 46 optional conflicts; contact krazey; upstream to LineageOS Gerrit | | |
+
+Steps 2–5 can run in a Claude cloud session. Steps 6–8 need the owner's machine and the tablet.
 
 ## Rebuilding the working environment (cloud container)
 ```bash
@@ -51,8 +49,8 @@ git log --reverse --no-merges --format='%H%x09%s' exy/l222..exy/l232 > $W/series
 - To rerun the trial: `W=$W python3 analysis/exyhyperbrick-trial/trial.py` (takes ~10 min, writes `$W/trial2.log`), then
   `W=$W python3 analysis/exyhyperbrick-trial/classify.py` (writes `$W/conflict_detail.tsv`).
 - The full clone and fetch take 10–30 min through the session proxy. Run them in the background.
-- Some websites are blocked from the cloud container (XDA, lineageos.org, wiki, gitea, Gerrit).
-  GitHub works. Ask the owner to check blocked pages.
+- Some websites are blocked from the cloud container (XDA, lineageos.org, wiki, gitea, Gerrit, opencode.ai).
+  GitHub works. From the owner's own machine, lineageos.org and the wiki work (round-1 agents used them). Ask the owner to check blocked pages.
 
 ## Rules from earlier sessions
 - Only push to the branch you were assigned (or `main` here, if the owner asks). Don't open PRs unless asked.

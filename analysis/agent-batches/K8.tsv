@@ -1,0 +1,3 @@
+commit	subject	size_class	conflicting_files
+47d10743ccd7a55cf12741be471933e518ef57b1	BACKPORT: mm: introduce MADV_PAGEOUT	unknown	? (trial CLEAN; conflicts in a real replay per K2c-2)
+0a115d7aaf34bbdc6a20631131b264c18a9b2327	mm/vmalloc.c: convert vmap_lazy_nr to atomic_long_t	unknown	mm/vmalloc.c (trial CLEAN; see brief 7c9b3c4119eb)
