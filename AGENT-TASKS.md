@@ -27,12 +27,15 @@ Most tasks here help someone resolve those 150 conflicts faster and more safely.
 ### 0.2 Words used here
 | Word | Meaning |
 |---|---|
-| **sdm670 tree** | The Tab S5e kernel: `LineageOS/android_kernel_samsung_sdm670`, branch `lineage-22.2`, commit `a30605a54f3b` |
+| **sdm670 tree** | The Tab S5e kernel at commit `a30605a54f3b`: our fork `anton-scholten/android_kernel_samsung_sdm670` branch `lineage-23.2` (= LineageOS `lineage-22.2`) |
 | **series** | The ExyHyperBrick commits `exy/l222..exy/l232`, i.e. from `d54533f1546b` to `baa585f67e0e` |
 | **conflict** | A series commit that `git` can't apply to the sdm670 tree automatically |
 | **upstream** | Mainline Linux (torvalds/linux) or the Android common kernel. Many series commits are copies of upstream commits |
 | **brief** | The report you write for one conflict commit |
 | **lead** | The stronger agent or the owner who reads your output |
+| **device tree** | The Android build config for the tablet: our fork `anton-scholten/android_device_samsung_gts4lv-common`, branch `lineage-23.2` |
+| **FCM / VINTF** | Android's rules for which hardware interface (HAL) versions a device must provide. Used in R1 |
+| **sepolicy** | SELinux rules in the device tree. Used in R2 |
 
 ### 0.3 Which repos you work in
 | Repo | You do | Access |
@@ -58,7 +61,7 @@ Which task needs which repo:
 | R7 | Our device tree + the exynos9810-common backup |
 
 ### 0.4 Rules
-1. **One task ID per agent.** Your task ID is something like `K2a-3` or `R6`. Write only to the output path that task names.
+1. **One task ID per agent.** Your task ID is something like `K2a-3` or `R6`. The owner gives it to you; if you have none, ask. Write only to the output path that task names.
 2. **Branch:** commit on a new branch `agent/<task-id>` in *this* repo (`anton-scholten/lineageos-galaxy-tab-s5e`) and push it.
    Don't push to `main`. Don't open a pull request unless you're told to.
 3. **Never push to these repos:** `android_kernel_samsung_sdm670`, `android_device_samsung_gts4lv-common`, or anything from LineageOS, ExyHyperBrick or TheMuppets.
@@ -105,10 +108,52 @@ Optional safety: add a branch protection rule on `main` (Settings → Branches),
 
 ## 1. Environment setup
 
+### 1.0 Prerequisites
+Nothing needs building or flashing. You need a shell, git, network access to github.com, and the tools for your task.
+
+**Machine:** Linux, macOS or Windows with WSL2. Plain Windows (cmd/PowerShell) isn't supported: the commands are bash.
+
+**Tools every task needs:**
+
+| Tool | Minimum | Check | Install (Debian/Ubuntu · macOS) |
+|---|---|---|---|
+| git | **2.40** (for `git merge-tree --write-tree --merge-base`) | `git --version` | `apt install git` (Ubuntu 24.04+ has 2.43) · `brew install git` |
+| bash | 4+ | `bash --version` | built in · `brew install bash` (macOS ships 3.2) |
+| Python | 3.8+, standard library only | `python3 --version` | `apt install python3` · `brew install python` |
+| Usual Unix tools | grep, sed, awk, cut, sort, wc | | built in |
+
+**Extra tools per task:**
+
+| Task | Extra tools | Install (Debian/Ubuntu · macOS) |
+|---|---|---|
+| M2 | `curl` | `apt install curl` · built in |
+| M3, T1 | `shellcheck` (optional, for the self-check) | `apt install shellcheck` · `brew install shellcheck` |
+| R1 | `xmllint` (optional, makes XML easier to read) | `apt install libxml2-utils` · built in |
+| R4 | `readelf`, and `git-lfs` in case the vendor repo uses LFS | `apt install binutils git-lfs` · `brew install binutils git-lfs` |
+| T1 | Nothing. You write the script; you don't need a tablet or `adb` to write it | |
+| All others | Nothing extra | |
+
+No compilers, Android SDK, `repo` tool, Docker or Python packages are needed for any helper task.
+
+**Disk and time:**
+
+| Task | Disk | First-time setup |
+|---|---|---|
+| K1–K6 | ≈6 GB (kernel + series) | 10–30 min to clone (§1.2) |
+| R1–R3, R6, R7 | < 1 GB (shallow clones) | a few minutes |
+| R4 | up to a few GB (vendor blobs) | 5–20 min |
+| M2, M3, T1, T2 | < 50 MB | seconds |
+
+**Credentials:** only to clone and push *this* repo (it's private; see §0.6). Every other repo is public, so clone it anonymously.
+
+**Where to put clones:** outside this repo, e.g. `$HOME/work`. Never clone a kernel or device tree *inside* `lineageos-galaxy-tab-s5e/`.
+
 ### 1.1 This repo
 ```bash
-git clone https://github.com/anton-scholten/lineageos-galaxy-tab-s5e
+git clone https://github.com/anton-scholten/lineageos-galaxy-tab-s5e   # add the token from §0.6 if you have one
 cd lineageos-galaxy-tab-s5e
+git checkout -b agent/<task-id> origin/main
+ls AGENTS.md AGENT-TASKS.md analysis/agent-batches   # all three must exist; if not, stop and report it
 ```
 
 ### 1.2 Kernel trees (only for the K tasks)

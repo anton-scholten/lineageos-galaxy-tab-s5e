@@ -21,6 +21,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
 ## Next steps, in order
 1. Run the helper-agent tasks in [AGENT-TASKS.md](AGENT-TASKS.md) in parallel (research only, reports in this repo).
+   Agents start at [AGENTS.md](AGENTS.md); §10 picks the model and §11 is the review. The agents branch from `main`, so merge this work into `main` first.
    Reference trees for 23.2 device changes: `analysis/reference-trees/`.
 2. Kernel, on the fork's `lineage-23.2`:
    - `git cherry-pick -x` the series (`d54533f1546b..baa585f67e0e`, from the backup fork) in order. Skip commits whose subject starts

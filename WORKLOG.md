@@ -109,3 +109,12 @@ or skipped, and why. Newest last.
   The figures come from third-party write-ups, because opencode.ai was blocked from the container.
 - §11: review order for the lead: format script first, then every DROP/low/HUMAN, then spot-check 20% of the high-confidence items.
 - Added `scripts/check-agent-output.sh`, a format check of agent output that needs no AI. Tested against a sample brief.
+
+## 2026-10-03: entry point and prerequisites for helper agents
+- Added `AGENTS.md`, the file OpenCode, Codex and similar tools read on start. It covers: get your task ID, what to read,
+  hard rules, and a ready-to-paste start prompt.
+- `AGENT-TASKS.md` §1.0: prerequisites. git ≥ 2.40 (needed for `merge-tree --write-tree --merge-base`), bash 4+, Python 3.8+,
+  extra tools per task with apt/brew install commands, disk and time per task, credentials, and where to put clones.
+  §1.1 now branches from `origin/main` and checks the files exist. Added FCM/VINTF, sepolicy and device tree to the word list.
+- Linked `AGENTS.md` from README, CLAUDE.md and HANDOVER.
+- Note: `main` doesn't yet have this work (it's on `claude/vigilant-turing-jho5ul`). Agents branch from `main`, so it must be merged first.

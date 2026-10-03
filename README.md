@@ -41,6 +41,8 @@ option for this tablet is **official LineageOS 22.2**.
 | `WORKLOG.md` | Record of all work done so far, including blocked or failed steps |
 | `HANDOVER.md` | **Start here when picking the project up:** state, next steps, environment setup |
 | `CLAUDE.md` | Short guide for Claude sessions working in this repo |
+| `AGENTS.md` | Entry point for helper AI agents (OpenCode, Codex, …); points to `AGENT-TASKS.md` |
+| `AGENT-TASKS.md` | Parallel research tasks for helper agents: steps, templates, prerequisites, model per task |
 | `REPO-SETUP.md` | Review of this repo's name and layout, and the recommended setup |
 | `analysis/exyhyperbrick-trial/` | Trial port of the Galaxy S9 4.9 eBPF kernel series onto the Tab S5e kernel, and conflict classification |
 | `analysis/build-test/` | Kernel build test: baseline vs. port tree |
