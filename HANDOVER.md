@@ -10,7 +10,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
 | Area | State |
 |---|---|
-| Repos | Docs here (`main`). Kernel fork: `lineage-23.2` = `a30605a` (untouched), **`port/pick` @ `801f3f20e54a` = the ported kernel, 2,458 commits**. Device fork: `lineage-23.2` @ `2e50286` (untouched), **`port/dt` @ `e3ccc923bcf2` = 1 device commit**. Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
+| Repos | Docs here (`main`). Kernel fork: **`lineage-23.2` = `port/pick` @ `801f3f20e54a`** (the ported kernel, 2,458 commits on top of `a30605a`). Device fork: **`lineage-23.2` = `port/dt` @ `e3ccc923bcf2`** (0001–0004 + the audio XML commit). Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
 | Research | **All done and merged** (rounds 1–3). Findings: [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) |
 | Kernel cherry-pick (P1) | **Done and reviewed.** 2,438 picks, 60 hand-resolved, 0 problems, no review rejections ([review-P1.md](analysis/port/review-P1.md)) |
 | Known fixes (P3) | **Done.** 6 commits, `problems: 0`, `fix commits: 6`. Found a 6th `wakeup_source_register` caller the spec missed |
@@ -32,15 +32,14 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 | ~~5~~ | ~~P4 build loop until `Image.gz-dtb` links~~ **done, nothing escalated** | done | |
 | ~~6~~ | ~~P5: 1 device-tree commit into `port/dt` + skip log~~ **done** | done | |
 | ~~6.5~~ | ~~P3-R, P4-R and P5-R~~ **passed** ([review-P4.md](analysis/port/review-P4.md)); reviewer rebuilt the kernel independently | done | |
-| 7 | Fast-forward both forks' `lineage-23.2` | owner | minutes |
+| ~~7~~ | ~~Fast-forward both forks' `lineage-23.2`~~ **done** (kernel `801f3f20e54a`, device `e3ccc923bcf2`) | done | |
 | 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch gts4lvwifi` (and `gts4lv`); build errors to a free agent + review | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
 | 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
 | 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
 | 11 | Later: `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
 
 **Owner to-do now (step 7, then 8):**
-1. Fast-forward both `lineage-23.2` branches (RUNBOOK §7): kernel to `801f3f20e54a`, device tree to `e3ccc923bcf2`.
-   **Must be a fast-forward; never force-push.** Branch protection lets only you do it.
+1. ~~Fast-forward both `lineage-23.2` branches~~ **Done 2026-10-04**: kernel `801f3f20e54a`, device tree `e3ccc923bcf2`.
 2. Start a free agent on task **B1** on your own machine (RUNBOOK §8a: ~150 GB sync, then `brunch gts4lvwifi`). If the build fails,
    a free agent runs **P6** on the errors (§8b) and a strong model reviews the fixes.
 3. First boot (⚠️ flashing erases data; back up first). After every attempt a free agent collects the logs (**P7**, §8c) for the strong model.

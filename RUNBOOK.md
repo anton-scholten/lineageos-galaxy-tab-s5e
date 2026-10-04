@@ -5,7 +5,7 @@ The agents' own instructions are in [AGENTS.md](AGENTS.md) and [AGENT-TASKS.md](
 [analysis/port/STATUS.md](analysis/port/STATUS.md).
 
 > **Where we are (2026-10-04):** steps 1–6 are done and every 🔍 review has passed ([review-P4.md](analysis/port/review-P4.md)).
-> The kernel builds. **Next: step 7 (you, minutes), then step 8a (B1, a free agent builds the ROM on your machine).**
+> The kernel builds, and step 7 is done (both `lineage-23.2` fast-forwarded). **Next: step 8a (B1, a free agent builds the ROM on your machine).**
 
 **Roles**
 - **Free model** ("Space Bunny Free" in OpenCode): every work step.
@@ -130,7 +130,7 @@ and commit and push it on agent/P5.
 ```
 🔍 **P5-R:** prompt R with task "P5-R: review device fork port/dt against AGENT-TASKS §6c P5 and R6".
 
-## 7. Move the real branches forward (you, minutes)
+## 7. ✅ Move the real branches forward (done 2026-10-04)
 After all 🔍 reviews pass:
 ```bash
 cd ~/work/k670 && git fetch origin && git push origin origin/port/pick:refs/heads/lineage-23.2   # must be a fast-forward

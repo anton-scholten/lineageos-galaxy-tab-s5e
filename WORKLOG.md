@@ -537,3 +537,8 @@ force-pushed. After that, the owner's ROM build, for which the one instruction t
     verifies the kernel and device commits, builds, and doesn't fix errors itself.
   - **P7**: read-only boot-log triage per flash attempt into `analysis/port/boot-<n>.md` for the strong model.
 - STATUS, AGENTS.md and HANDOVER updated to match (open: B1, P6, P7).
+
+## 2026-10-04: step 7 done
+- Fast-forwarded both forks' `lineage-23.2` with plain (non-force) pushes, after checking ancestry:
+  kernel `a30605a54f3b` → `801f3f20e54a` (= `port/pick`), device tree `2e50286` → `e3ccc923bcf2` (= `port/dt`).
+  The local manifests (which track `lineage-23.2`) now pull the port. Next is B1 (ROM sync and build). STATUS, HANDOVER, RUNBOOK, CLAUDE.md and REPO-SETUP updated.
