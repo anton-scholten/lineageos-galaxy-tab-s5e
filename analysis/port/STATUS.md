@@ -16,8 +16,8 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 3 P2 automerge triage | ✅ | `agent/P2-1`, `agent/P2-2` | 6 packets: **4 BENIGN, 2 SUSPECT — both SUSPECTs are real defects**, now confirmed by the lead. |
 | 3 🔍 P2-R | ✅ | [review-P1.md](review-P1.md) | F1, F2 confirmed → P3 items 4–5. F3 left as is. |
 | 4 P3 known fixes + defconfig | ☐ **next** | kernel `port/pick`, `agent/P3` | 6 items (AGENT-TASKS §6c P3, rewritten 2026-10-04). Can start now. |
-| 5 P4 build loop | ◐ | kernel `port/pick`, `agent/P4` | **Running.** 3–9 days. Restarts from `port/pick` each time it stops. `task_util_est()` shim still required. |
-| 5 🔍 P4-R | ☐ | `review-P4.md` | Strong-model step. |
+| 5 P4 build loop | ✅ | kernel `port/pick` @ `801f3f20e54a`, `agent/P4` @ `89ef1fa` | **BOTH defconfigs link `Image.gz-dtb`.** 14 commits, all `Fix-by:`. `problems: 0`, `fix commits: 20`. Nothing escalated. |
+| 5 🔍 P4-R | ☐ | `review-P4.md` | **Now the highest-value review left**: 5 commits carry `Needs-review:`. Lead has pre-verified all 5 mechanically; the open questions are the `vfs_getattr` and `fuse_req_init_context` backport alternatives. |
 | 6 P5 device-tree commits | ☐ **can start** | device `port/dt`, `agent/P5` | Now 1 commit (audio policy XML) + a log of the skipped items. `target-level` stays 5. |
 | 6 🔍 P5-R | ☐ | `review-P5.md` | Strong-model step. **Worth it for one thing only:** R6's claim that the parser splits on whitespace is unverified — `frameworks/av` isn't cloned. P5 logged that as medium confidence, the space-separated form itself high. |
 | 7 Fast-forward both `lineage-23.2` | ☐ | | Only after every 🔍 review passes. Never force-push. |
