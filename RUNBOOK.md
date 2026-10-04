@@ -4,6 +4,9 @@ For the **owner**. It says what to start, in which order, with which prompt, and
 The agents' own instructions are in [AGENTS.md](AGENTS.md) and [AGENT-TASKS.md](AGENT-TASKS.md). Progress is tracked in
 [analysis/port/STATUS.md](analysis/port/STATUS.md).
 
+> **Where we are (2026-10-04):** steps 1–3 are done and reviewed. **Next: step 4 (P3) and step 6 (P5), in parallel.**
+> Still open from step 0: branch protection on `lineage-23.2` (both forks) and `main`. SSH keys with write access work instead of `fork-token`.
+
 **Roles**
 - **Free model** ("Space Bunny Free" in OpenCode): every work step.
 - **Strong model** (Claude, or another frontier model): the review steps marked 🔍, and anything a free agent escalates.

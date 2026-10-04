@@ -1,30 +1,20 @@
 # Time estimate: LineageOS 23.2 on the Galaxy Tab S5e
 
-## Remaining work (updated 2026-10-03: free model does the work, strong model reviews)
-
-Inputs: research rounds 1–2 done ([LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md)), and a cherry-pick **dry run** over the whole series:
-**83 stops** instead of the trial's 150, 71 of them with a brief ([analysis/port/](analysis/port/README.md)).
-Plan and task split: [HANDOVER.md](HANDOVER.md), [AGENT-TASKS.md](AGENT-TASKS.md) §2.3.
+## Remaining work (updated 2026-10-04: research, cherry-pick and its review are done)
 
 | Step | Low | Expected | High | Notes |
 |---|---|---|---|---|
-| Round 3 research (5 free agents in parallel) | 0.5 d | 0.5 d | 1 d | |
-| P1 cherry-pick, ~83 stops (free model) | 2 d | 3 d | 5 d | Sequential. The 12 large conflicts and linked groups get escalation notes |
-| P1-R + P2 review and automerge triage (strong + free) | 1 d | 1.5 d | 3 d | Rework rounds included |
-| P3 known fixes + defconfig (free) | 0.5 d | 0.5 d | 1 d | Eight items, all specified |
+| ~~Round 3, P1 cherry-pick, P1-R/P2~~ | | done | | Took about 1 day instead of the 3.5–5 estimated |
+| P3 known fixes + defconfig (free) | 0.5 d | 0.5 d | 1 d | Six specified items |
 | P4 build loop to `Image.gz-dtb` (free, strong for escalations) | 3 d | 5 d | 9 d | Unknown tail: the API audit covered 2% of changed headers |
-| P5 device-tree commits + review | 0.5 d | 1 d | 2 d | |
+| P5 device tree + review | 0.5 d | 0.5 d | 1 d | Now one commit; runs in parallel with P3/P4 |
 | ROM sync + build + build fixes (owner's machine) | 1 d | 2 d | 4 d | |
 | First boot and debugging (owner + tablet) | 3 d | 7 d | 15 d | Still the most uncertain step |
 | Testing, 24 h soak, LTE (owner + tablet) | 3 d | 4 d | 6 d | |
-| **Total, wall-clock** | **≈ 14.5 d** | **≈ 24.5 d** | **≈ 46 d** | was 16.5 / 28 / 49.5 before the dry run |
+| **Total left, wall-clock** | **≈ 10.5 d** | **≈ 18.5 d** | **≈ 35 d** | was 14.5 / 24.5 / 46 on 2026-10-03 |
 
-About **5 weeks wall-clock** (range 3–9). The first ~12 days are mostly agents running unattended. The owner's own time there is starting
-agents and approving reviews. The last ~13 days need the owner, the build machine and the tablet.
-At a hobby pace for the owner-only steps (~10 h/week), add about 6–8 weeks to the second half.
-
-Cost: the free model costs nothing. The strong model's share is the reviews (~25 full + ~12 spot + ~4 automerge packets ≈ under 70k tokens of diffs,
-plus reasoning), the escalations, and reading boot logs. That's well under half of what the strong model doing everything would cost.
+About **3½–4 weeks wall-clock** (range 2–7). The next ~6 days are agents (P3, P4, P5) plus a few review sessions.
+The rest needs the owner, the build machine and the tablet.
 
 ---
 

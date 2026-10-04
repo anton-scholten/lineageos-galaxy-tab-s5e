@@ -10,9 +10,8 @@ Every task gives you:
 A lead agent or the owner reviews and merges your output. You never change the kernel or device tree
 directly: you **research and write reports**. State checked on 2026-10-03; see [HANDOVER.md](HANDOVER.md).
 
-> **Status (2026-10-03): rounds 1 and 2 are done, reviewed and merged into `main`.** All tasks in §3–§6 have their
-> output in the repo already. Their sections stay as the format reference. **Open: round 3 (§2.2, research) and
-> round 4 (§2.3, the actual kernel and device-tree port, done by the free model and checked by a strong one).**
+> **Status (2026-10-04): rounds 1–3, P1 and P2 are done, reviewed and merged.** Their sections stay as the format reference.
+> **Open: P3, P4 and P5 (§2.3, §6c).** Review record: [analysis/port/review-P1.md](analysis/port/review-P1.md).
 > The cross-agent findings are in [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md).
 
 ---
@@ -228,7 +227,7 @@ To see the conflict markers in one file: `git cat-file -p <tree-id>:<path> | gre
 Round 1 ran under the old IDs R6/R7 (now R5/R6), K4d (folded into K4c) and K5f (retired). Superseded round-1 outputs stay on
 their `agent/*` branches only. All agents ran on one free model; the review (§11) re-checked the load-bearing claims and they held.
 
-### 2.2 Round 3: open
+### 2.2 Round 3: done (2026-10-03, reviewed 2026-10-04)
 Small follow-ups the review found. Same rules, same hand-in. 5 agent runs, a few hours each.
 
 | ID | Agents | Model (§10) | Clone needed | Output | Rough time |
@@ -239,7 +238,7 @@ Small follow-ups the review found. Same rules, same hand-in. 5 agent runs, a few
 | R8 LTE radio HAL version | 1 | free | vendor blobs (gts4lv) | `analysis/rom/radio-hal.md` | 1–2 h |
 | R9 soundtrigger and per_proxy_helper | 1 | free | device tree + vendor blobs | `analysis/rom/soundtrigger-perproxy.md` | 1–2 h |
 
-### 2.3 Round 4: open (the port itself, free model first)
+### 2.3 Round 4: P1, P2 and their reviews done; P3, P4, P5 open
 The free model does the work; a strong model only reviews and handles escalations. Specs in §6c.
 
 | ID | What | Agents | Model | Needs | Output |
@@ -633,22 +632,50 @@ Task IDs `P2-1` … `P2-4`; the owner tells each agent its share. Read-only on `
 Output `analysis/port/automerge-triage-<n>.tsv`: `sha12	BENIGN|SUSPECT	reason	evidence`.
 
 ### P3: known fixes and defconfig (free model, 1 agent)
-One commit per item on `port/pick`, each with trailer `Fix-by: <model>; <source>`. Sources: [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) §1–§2, K7.
-1. `arch/arm64/include/asm/set_memory.h`: new file modelled on `arch/arm/include/asm/set_memory.h` (§1.3). Keep the GPL header.
-2. `net/ipc_router/ipc_router_core.c:1384`: `wakeup_source_register(NULL, port_ptr->rx_ws_name)` (§6.2).
-3. `arch/arm64/include/asm/thread_info.h`: `TIF_UPROBE` to a free bit (5 if free; check), add `_TIF_UPROBE` to `_TIF_WORK_MASK` (§2).
-4. `include/linux/mm.h`: `FAULT_FLAG_INTERRUPTIBLE` to a free value (`0x800` if free; check every `FAULT_FLAG_` define) (§2).
-5. Every other collision K7 lists as real, the same way.
-6. `fs/unicode/`: copy the directory unchanged from `baa585f67e0e` (`git checkout baa585f67e0e -- fs/unicode`) and make sure
-   `fs/Makefile` has `obj-$(CONFIG_UNICODE) += unicode/` and `fs/Kconfig` sources `fs/unicode/Kconfig` (§1.6).
-7. Merge `analysis/defconfig/gts4lv-23.2.fragment` into all four `arch/arm64/configs/gts4lv*_defconfig` files: for each `CONFIG_X=y` or
+The list was re-checked against `port/pick` @ `d73f07cf8b5c` in [review-P1.md](analysis/port/review-P1.md).
+One commit per item on `port/pick`, each with trailer `Fix-by: <model>; <source>`.
+
+**Already done by P1. Don't redo:** `TIF_UPROBE`→5 with `_TIF_WORK_MASK`, `FAULT_FLAG_INTERRUPTIBLE`→`0x800`, `VM_FLUSH_RESET_PERMS`→`0x200`
+(never re-add the series' `0x100`). The other K7 rows are moot in this tree.
+
+1. **`arch/arm64/include/asm/set_memory.h`**: new file modelled on `arch/arm/include/asm/set_memory.h`, keeping the GPL header
+   ([LEAD-SYNTHESIS.md §1.3](LEAD-SYNTHESIS.md)). `arch/arm64/Kconfig:43` selects `ARCH_HAS_SET_MEMORY`, so `include/linux/set_memory.h` includes it.
+   Declare `set_memory_ro/rw/x/nx` as in the arm template. Check whether `arch/arm64/mm/pageattr.c` already defines them:
+   `grep -n 'int set_memory_' arch/arm64/mm/pageattr.c`. If it does, only add the declarations.
+2. **`wakeup_source_register()` callers with the old 1-argument form** become `wakeup_source_register(NULL, <name>)` (LEAD-SYNTHESIS §6.2).
+   All five: `drivers/char/diag/diagchar_core.c:4148`, `drivers/power/supply/qcom/battery.c:1605`, `drivers/power/supply/qcom/smb1390-charger.c:779`,
+   `drivers/power/supply/qcom/step-chg-jeita.c:755`, `net/ipc_router/ipc_router_core.c:1384`. Re-check with
+   `git grep -n 'wakeup_source_register(' -- '*.c'`: every call must have 2 arguments.
+3. **`fs/unicode/`**: `git checkout baa585f67e0e -- fs/unicode` (unchanged GPL code). Then add `obj-$(CONFIG_UNICODE) += unicode/` to `fs/Makefile`
+   and `source "fs/unicode/Kconfig"` to `fs/Kconfig`, both where the series head has them
+   (`git show baa585f67e0e:fs/Makefile | grep -n unicode`, the same for `fs/Kconfig`).
+4. **F1** `include/uapi/drm/drm_mode.h`: delete the pick's duplicate block, the `DRM_MODE_PICTURE_ASPECT_*` and `DRM_MODE_FLAG_PIC_AR_*` defines
+   using `<<19` (lines 92–104 plus their comment line). **Keep** the `<<24` block below it. Read [duplicate-picks.md](analysis/port/duplicate-picks.md) first.
+5. **F2** `fs/userfaultfd.c`: delete the first of the two identical `VM_MAYWRITE` check blocks (`:1391-1403`), exactly as duplicate-picks.md says.
+6. **Defconfig:** merge `analysis/defconfig/gts4lv-23.2.fragment` into all four `arch/arm64/configs/gts4lv*_defconfig` files. For each `CONFIG_X=y` or
    `# CONFIG_X is not set` line, replace the existing line for X or append it. **Must include** `CONFIG_CGROUP_SCHED=y`, `CONFIG_UPROBES=y`, `CONFIG_BPF_JIT=y`.
-   Check with: `make ARCH=arm64 gts4lvwifi_defconfig` (from `kbuild.sh`), then `grep -E 'CONFIG_(CGROUP_SCHED|SCHED_WALT|UPROBES|BPF_JIT)=' out/.config` shows all four `=y`.
+   Check: run `kbuild.sh` up to `olddefconfig` (or `make O=~/work/out ARCH=arm64 gts4lvwifi_defconfig`), then
+   `grep -E 'CONFIG_(CGROUP_SCHED|SCHED_WALT|UPROBES|BPF_JIT|UNICODE)=' ~/work/out/.config` must show all five `=y`.
+
+Not P3: F3 (the parisc duplicate) stays. `restore_pcpu_tick` is no longer referenced. The uclamp symbols come in P4.
 
 ### P4: build loop (free model, 1 agent, escalates)
 Build: `bash $DOCS/analysis/build-test/kbuild.sh . ~/work/out ~/work/build.log` (needs the §1.0 tools plus
 `clang lld flex bison libssl-dev binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves` (for `pahole`); about 10 GB disk;
 12 min per full build on 4 cores, later builds are incremental).
+**Expect early, already decided by the reviewer** ([review-P1.md](analysis/port/review-P1.md)):
+- `cpu_cgrp_id` undefined (`kernel/sched/core.c:1354`, `:9396`): it's generated by `include/linux/cgroup_subsys.h` only when `CONFIG_CGROUP_SCHED=y`.
+  P3's defconfig sets it. If you still see this error, P3's defconfig didn't take: fix the defconfig, not the code.
+- `task_util_est()` undefined (`kernel/sched/core.c:1335`): **don't** cherry-pick upstream util_est (`d272fed29eea`). sdm670 uses WALT instead of PELT util_est.
+  Add this shim next to `task_util()` in `kernel/sched/sched.h` (≈line 1955), as one commit with trailer `Fix-by: <model>; reviewer decision review-P1.md`:
+  ```c
+  /* 4.9/WALT: no PELT util_est here; WALT's task_util() is the equivalent estimate. */
+  static inline unsigned long task_util_est(struct task_struct *p)
+  {
+  	return task_util(p);
+  }
+  ```
+
 **Loop:** build → take the **first** error in `build.log` → fix it → commit → repeat until `Image.gz-dtb` exists.
 Allowed fixes, in order of preference:
 1. A missing prerequisite from the Exynos base: find it (`git log -S'<symbol>' exy/l222`), `git cherry-pick -x` it. Trailer `Fix-by: <model>; prerequisite for <error>`.
@@ -660,14 +687,17 @@ To escalate: write it in `analysis/port/P4-log.md` under `## Escalated` (error t
 then you continue. Push `port/pick` after every fix commit. Log one line per fix: `error | file | fix | commit`.
 
 ### P5: device-tree commits (free model, 1 agent)
-Clone our device tree, branch `port/dt` from `lineage-23.2`, with push via the §0.6 token. One commit per item, each with trailer `Fix-by: <model>; <source report>`:
-1. `manifest.xml`: `target-level="5"` → `"6"` (R5).
-2. Remove the `soundtrigger` HAL block from `manifest.xml`, and whatever R9 says must go with it (R1, R9).
-3. The `per_proxy_helper` `file_contexts` line from R9.
-4. `audio_policy_configuration.xml`: comma-separated `samplingRates`/`channelMasks`/`formats` → space-separated (R6, commit `924cf7e4adcc` in the exynos9810-common backup shows the format).
-5. Whatever R7 decides for the vendor property names.
-6. Only if R8 says the RIL supports it: LTE radio 1.4 → 1.5 in the `gts4lv` tree. (That's a different repo, so log it in `P5-log.md` for the lead instead.)
-Check each XML with `xmllint --noout`. Push `port/dt`. Log in `analysis/port/P5-log.md`.
+Round 3 turned most of the planned items into no-ops ([review-P1.md](analysis/port/review-P1.md), LEAD-SYNTHESIS §7.4). Clone our device tree,
+branch `port/dt` from `lineage-23.2`, push with the fork token.
+1. **Do:** `audio_policy_configuration.xml` (and any other `audio_policy*.xml` in the tree): turn comma-separated `samplingRates`, `channelMasks` and
+   `formats` lists into space-separated ones (R6; commit `924cf7e4adcc` in the exynos9810-common backup shows the format). One commit, trailer
+   `Fix-by: <model>; R6 924cf7e4adcc`. Check with `xmllint --noout`.
+2. **Skip, and log as "considered, intentionally skipped"** in `analysis/port/P5-log.md`:
+   - `target-level` stays **5** for the first build (reviewer decision; the owner may change it);
+   - the soundtrigger block stays (R9);
+   - no `per_proxy_helper` label (R9: no binary exists);
+   - vendor property names unchanged (R7: the check doesn't run at API 28);
+   - LTE radio stays 1.4 (R8: the RIL can't do 1.5).
 
 ### Strong-model review (P1-R, P2-R, P4-R, P5-R)
 1. Run `python3 scripts/check-pick.py <kernel> pick-review`. It must say `problems: 0`.

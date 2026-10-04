@@ -13,6 +13,9 @@ out=open(W + '/conflict_detail.tsv','w')
 out.write('commit\tsubject\tfiles\tblocks\tours_lines\ttheirs_lines\tmodify_delete\tsize_class\tgroup\n')
 # group: what 23.2 needs (keyword heuristic on the subject)
 REQ=re.compile(r'bpf|btf|xdp|sock|tcp|udp|\bnet\b|net:|inet|ipv|flow_dissector|epoll|close_range|uprobe|perf|refcount|LSM|hrtimer|syscall|cgroup',re.I)
+# KNOWN BUG (2026-10-03): no word boundaries, so 'EAS' matches inside e.g. 'rel-EAS-e'/'proc-EAS-s'. That wrongly put the fuse-bpf pair
+# and the process_mrelease commits in the skip group. Not regenerated on purpose: P1 is complete, and the fixes are recorded in
+# analysis/port/review-P1.md and dropped.tsv. Rerunning this script with a fixed regex would change conflict_detail.tsv.
 SKIP=re.compile(r'exynos|videodev2|stale merge-conflict|dex touchpad|hall|switch event|speaker|f2fs|ext4|SchedTune|EAS|zstd|lz4',re.I)
 cls=collections.Counter()
 for st,h,subj,*rest in rows:

@@ -14,6 +14,74 @@ Cross-agent findings, verification log and next actions. This document holds wha
 individual agent report — conclusions that came out of comparing them, plus the checks the lead ran
 directly. Per-task output stays on its own `agent/<task-id>` branch.
 
+## Round 3 + P1 (2026-10-03, after `main` @ `432d5f3`)
+
+The task spec was revised again and `RUNBOOK.md` added. All 5 round-3 research tasks ran, plus P1.
+**P1 is complete:** kernel `port/pick` @ `d73f07cf8b5c`, **2,438 picks**, `check-pick.py` -> **`problems: 0`**
+(2,372 clean, 60 hand-resolved = 23 full-review + 37 spot, 6 auto-merged-but-different). `lineage-22.2`,
+`lineage-23.2` and `main` all verified untouched at `a30605a54f3b`. Progress is tracked in
+[`analysis/port/STATUS.md`](analysis/port/STATUS.md).
+
+**K7 found four more bit collisions** - see the rewritten
+[section 2](#2-flag-and-bitfield-collisions--none-of-these-produce-a-conflict). The most serious new one,
+`VM_ARCH_2`/`VM_WIPEONFORK` at `0x2000000`, is *actively* set by the series (`mm/madvise.c:99`), so it is a
+live overlap rather than a latent one. Section 6c P3's list does not cover it.
+
+**Round 3 overturned three round-2 conclusions** (section 7.4): the `target-level` change is a decision not
+a change, the soundtrigger block should be kept, and the radio bump is impossible. Round 3 also *closed* the
+vendor property-namespace question two rounds had failed on. Full detail in the WORKLOG.
+
+### What P1 escalated, still open
+
+1. **`process_mrelease` is missing.** Its three introducing commits were silently deleted by
+   `classify.py:35`'s `EAS` regex matching inside `proc-EAS-s`/`rel-EAS-e` - the same defect class as the
+   fuse-bpf pair, but larger. P1 could not verify the userspace fallback, so it escalated rather than
+   decided. Porting it to 4.9 is expensive (no `mmap_lock` API; `rw_semaphore mmap_sem`).
+   **This is a ROM question: does the target `lmkd` need it?**
+2. **Expect a whitespace-heavy diff at `1c225cfcb958`.** P1 introduced a `get_scan_count` tab drift,
+   isolated it by tab-counting every commit touching `mm/vmscan.c` since the last push, and fixed it in the
+   *next* commit because fixing it in place would have required a forbidden rebase. `git diff -w` there shows
+   only the intended comment swap, but a reviewer skimming it will see noise.
+
+### Two landmines, deliberately not fixed
+
+- **`classify.py` is unfixed on purpose.** Regenerating `conflict_detail.tsv` would change which *remaining*
+  commits `pick-series.sh` skips, so it must be fixed as one unit with a decision, not piecemeal.
+- **A clean cherry-pick is not evidence of correctness.** `ec3b287a8a17` applied cleanly and silently
+  duplicated `bpf_probe_read_str` (sdm670 already had it); it healed at `dddb8c0eafe8`. `check-pick.py`'s
+  *clean* bucket gets no human review, which is exactly why `pick-review/full/` and `spot/` exist.
+
+### Three confirmed defects in `port/pick`, and what they tell us
+
+P2's automerge triage found 2 real defects in its 6 packets; a sweep of **all 2,438 picks** found 1 more and
+cleared 183 false positives. Full write-up with lead-verified line numbers:
+[`analysis/port/duplicate-picks.md`](analysis/port/duplicate-picks.md).
+
+**A clean cherry-pick is not evidence of correctness — there are now two distinct ways it lies.** The change
+can be *already present in the sdm670 base* with git finding a non-overlapping insertion point for a duplicate
+(F1 `drm_mode.h`, F2 `userfaultfd.c`), or the series can carry the **same upstream patch under two SHAs** so
+the second pick is a pure duplicate (F3 `arch/parisc`). The second class is only detectable via the
+`cherry picked from commit` trailers. Neither is visible to `check-pick.py`'s `clean` bucket.
+
+**The counter-intuitive fix, recorded because two agents got it wrong:** for F1 delete `drm_mode.h` **92-104**,
+the pick's `(0x0F<<19)` copy — **not** 106-124. The base copy is a superset (it alone defines
+`DRM_MODE_PICTURE_ASPECT_64_27` and `_256_135`) and its `<<24` is what currently prevents a **bit-22 collision**
+with `DRM_MODE_FLAG_SUPPORTS_YUV420 (1<<22)` at line 90. Deleting the wrong copy causes the collision it looks
+like it prevents.
+
+**The reassuring number:** sweeping the **2,372-commit `clean` bucket that nobody ever reviewed produced exactly
+one finding**, in unbuilt `arch/parisc`, and it is legal C. The unreviewed bucket is in better shape than the
+`ec3b287a8a17` anecdote implied. Factor this into how much of the 37-commit spot pool needs reading. The sweep's
+limit, stated so it is not over-read: it finds duplicate *definitions* and *blocks*, not semantically wrong
+non-duplicated picks.
+
+### The next step is blocked on a strong model
+
+Section 2.3 marks P1-R, P2-R, P4-R and P5-R **strong**. P1-R gates P3, which gates P4 and P5.
+`RUNBOOK.md` "Without a strong model" allows a free-model fallback in a fresh session, with "reject
+anything you can't prove from the code" and spot-checks raised from 20% to 50%. That is a judgement for the
+owner, not for the agent that orchestrated P1.
+
 ## Round 2 (2026-10-03, after `main` @ `42b525d`)
 
 `AGENT-TASKS.md` was revised: task IDs renumbered (R6/R7 -> R5/R6), K4 down to 3 agents, K5f retired,
@@ -57,6 +125,10 @@ Three things the lead found that no single agent could:
 4. **The driver API audit covers under 2% of the changed surface.** `changed-api.txt` is built from the
    7 headers the task names; the series changes **367**. K5d-r2 found a real break in a header that was
    never in the list. Read every "0 real breaks" as "0 within those 7 headers" — §6.1.
+6. **Six bit collisions, four of them newly found.** K7 swept all 367 changed headers and found 6 real
+   collisions; only 2 were known. Two are serious and one of those (`TIF_*` bit 4) also needs a
+   `_TIF_WORK_MASK` fix or the tablet hangs. §2 has the table and P3 must cover all of them — `§6c P3`
+   currently lists only the two known ones.
 5. **One item produces no build error at all: silent scheduler loss.** If the series' `init/Kconfig`
    form of `SCHED_WALT` wins while `CGROUP_SCHED` is `n`, `walt.o` stops building and the tablet runs on
    plain CFS with no warning. `CONFIG_SCHED_WALT=y` is in all four defconfigs, so this is live. The
@@ -193,24 +265,81 @@ Someone must copy the directory and add `obj-$(CONFIG_UNICODE) += unicode/` to `
 sdm670 is old enough that the series reuses bit values and field widths sdm670 already spent. A
 keep-both merge **silently fuses them** and no compiler error results.
 
-| Flag / field | sdm670 @ `a30605a54f3b` | series @ `baa585f67e0e` | Fix |
-|---|---|---|---|
-| `arch/arm64` `TIF_*` bit 4 | `TIF_FSCHECK 4` (`thread_info.h:83`) | `TIF_UPROBE 4` (`thread_info.h:88`) | keep both; move UPROBE to bit 5, add `_TIF_UPROBE` to `_TIF_WORK_MASK` |
-| `FAULT_FLAG_* 0x200` | `FAULT_FLAG_SPECULATIVE` (`include/linux/mm.h:293`) | `FAULT_FLAG_INTERRUPTIBLE 0x200` (`include/linux/mm.h:320`) | use `0x800` |
-| `net/sock.h` `skc_tx_queue_mapping` | `int` | `unsigned short` | `-1` now reads back as 65535 |
-| `struct sk_buff.cb` | `char cb[48]` (`skbuff.h:662`) | `char cb[48]` (`skbuff.h:749`) | **no change needed** — already identical |
+Task K7 swept all 367 changed headers (224 examined, 143 skipped — 136 absent from sdm670, 7 deleted by
+the series) and found **6 real collisions**. Its script is `analysis/collisions/find_collisions.py`, output
+`K7.tsv` (46 findings, deterministic — verified by three identical sha256sums).
 
-The `TIF_*` row was found independently by K4c and K2a-2, by different methods, with the same answer.
-The `FAULT_FLAG` row is K2d-3's. `skc_tx_queue_mapping` and `skb_steal_sock()` were flagged by K5a as
-the two likeliest build-breakers in the whole header diff, and **no K5 area owns their call sites** —
-K5b–f were keyed to directory paths, and neither symbol's callers fall in their areas.
+| # | File | Value | sdm670 | series | Free value | Severity |
+|---|---|---|---|---|---|---|
+| 1 | `arch/arm64/include/asm/thread_info.h` | `4` | `TIF_FSCHECK:83` | `TIF_UPROBE:88` | **5** | **high** — breaks the scheduler wakeup |
+| 2 | `include/linux/mm.h` | `0x200` | `FAULT_FLAG_SPECULATIVE:293` | `FAULT_FLAG_INTERRUPTIBLE:320` | **0x800** | **high** — fuses two page-fault paths |
+| 3 | `include/linux/mm.h` | `0x2000000` | `VM_ARCH_2:190` | `VM_WIPEONFORK:215` | **0x800000** | medium — see below |
+| 4 | `include/linux/vmalloc.h` | `0x100` | `VM_LOWMEM:22` | `VM_FLUSH_RESET_PERMS:26` | `0x10` | **already handled by P1** — see below |
+| 5 | `include/uapi/linux/input-event-codes.h` | `0x10` | `SW_HPHL_OVERCURRENT:824` | `SW_MACHINE_COVER:811` | **`0x14`** | medium — uapi, `SW_MAX` also moves |
+| 6 | `include/uapi/linux/input-event-codes.h` | `252` | `KEY_DUMMY_HOME:339` | `KEY_HOT:340` | **`0x300`** | medium — 255 is reserved |
 
-`sk_buff.cb` is the instructive non-case: the 72→48 shrink is MPTCP-only, sdm670 has **zero** MPTCP hits
-in `include/linux/skbuff.h`/`include/net/sock.h`/`net/`, and sdm670 already has `cb[48]`. K5b and K5c
-both reached that conclusion from their own areas.
+Rows 1 and 2 were already known; **rows 3-6 are new.** All six are live in all four defconfigs — none is
+behind an off config, and `CONFIG_MPTCP` resolves to `n` everywhere, so nothing found is hidden behind it.
 
-**Action for the lead:** audit every flag, bitfield and fixed-width field the series redefines, not just
-the ones that conflict. The three above are the known set; there may be more in paths no agent covered.
+### 2.1 Row 1 is worse than a name clash
+
+sdm670 `init/Kconfig:407-409` vs series `:402-405` — see §1.2. Fixing the bit is necessary but **not
+sufficient**: the merged `_TIF_WORK_MASK` must list **both** `_TIF_FSCHECK` and `_TIF_UPROBE`, or
+`TIF_FSCHECK` stops waking the task and the tablet hangs.
+
+### 2.2 Row 3 is an *active* overlap, not a latent one
+
+Verified: sdm670 `mm.h:190` `#define VM_ARCH_2 0x02000000`, series `mm.h:215`
+`#define VM_WIPEONFORK 0x02000000`. The series **actively sets** it —
+`mm/madvise.c:99`, `new_flags |= VM_WIPEONFORK;` for `MADV_DONTFORK`.
+
+So after a `MADV_DONTFORK`, `/proc/pid/maps` shows the bit under sdm670's name, not the series' name.
+
+**Severity: medium, not high** — K7's assessment checks out. `VM_MPX` is defined as `VM_ARCH_2`
+(`mm.h:238` sdm670, `:263` series) but is **not used** anywhere in `arch/arm64` or `mm/`; its only reader
+on this SoC is the `__def_vmaflag_names` trace table. So the impact is a wrong flag *name* in `/proc`,
+not a misbehaving kernel. Fix by moving `VM_ARCH_2` to `0x800000`, or dropping it on arm64.
+
+### 2.3 Row 4 is already resolved by P1 — do not let P3 re-add it
+
+The series defines `VM_FLUSH_RESET_PERMS` at `0x100`, which is sdm670's `VM_LOWMEM`. **P1 already
+avoided this**: its log for `4cf42717d891` records keeping `VM_LOWMEM 0x00000100` and adding
+`VM_FLUSH_RESET_PERMS 0x00000200`, having verified `0x200` free in both trees. P1's value differs from
+K7's suggestion (`0x10`) but both are valid; **what matters is that P3 must not re-apply the series'
+`0x100` value** and undo P1's resolution.
+
+### 2.4 Rows 5-6 are uapi breaks with a second-order effect
+
+`input-event-codes.h` is a **uapi** header, so these reach userspace. Row 5 has two parts: `0x10` fuses,
+**and** `SW_MAX` drops from `0x20` to `0x10`, which changes how `drivers/input/evdev.c:813` sizes
+`dev->swbit`. Taking the series' list wholesale would also **delete Samsung headphone-overcurrent
+reporting** (`SW_HPHL_OVERCURRENT` is used by `sound/core/jack.c:43`, and `CONFIG_SND_JACK=y` in both
+`*_eur_open` defconfigs). K7 recommends keeping sdm670's block and adding `SW_MACHINE_COVER 0x14`, and
+moving `INPUT_DEVICE_ID_SW_MAX` (`mod_devicetable.h:294`) with it.
+
+**A caution about K7's own output:** its script's automatic `suggest=` for `KEY_HOT` is `0xff`, which is
+**wrong** — code 255 is documented reserved (`input-event-codes.h:343`). K7 flagged this itself and
+overrode it to `0x300` in the report. The script does not know reserved ranges, so do not trust
+`suggest=` without reading the block.
+
+### 2.5 Confirmed non-issues
+
+- **`sk_buff.cb`** (the 72→48 shrink) **does not appear** — both trees declare `char cb[48]`. §2's earlier
+  "no change needed" is confirmed by the sweep.
+- Seven same-enum *renumbering* rows (`ARG_PTR_TO_STACK`→`ARG_PTR_TO_UNINIT_MAP_VALUE` and four siblings
+  in `enum bpf_arg_type`, `PTR_TO_MAP_VALUE_ADJ`→`PTR_TO_SOCKET`, `CPUHP_AP_*`,
+  `NL80211_ATTR_AUTH_DATA`→`NL80211_ATTR_SAE_DATA`) are **not fusions** — take those enums whole from the
+  series and rename the call sites (`kernel/bpf/verifier.c`, `net/core/filter.c`, `kernel/trace/bpf_trace.c`).
+  Never merge them hunk-by-hunk.
+- 14 width/bitfield changes, 8 `VALUE_CHANGED` and 3 `TEXT_PREFIX_ONLY` (`EXT4_*` families hundreds of
+  lines apart) round out the 46 findings.
+
+### 2.6 One more thing for P3, from K7
+
+`include/net/sock.h` has three layout changes that **compile cleanly**: `sk_type` and `sk_protocol` go
+from bitfields inside one `unsigned int` to separate `u16` fields, and `sk_padding` narrows 2→1. These
+are `BITFIELD_TO_FIELD` rather than collisions, but they **move every field after them** in `struct sock`.
+
 
 ## 3. Base-only prerequisites — a class the trial cannot see
 
@@ -564,20 +693,169 @@ framework-side), LTE 16 (+47).
 
 | # | Change | Where |
 |---|---|---|
-| M1 | `target-level="5"` → `"6"` | our `manifest.xml:1` |
-| M2 | **Delete** the `soundtrigger` block — do **not** copy sm7125's `@2.2` line, that tree has the same violation | `manifest.xml:105` |
-| M3 | LTE `radio` 1.4 → 1.5 | `gts4lv/manifest.xml:5` |
+| **M1** | **`target-level` — DECISION NEEDED. Do not bump blindly** | `manifest.xml:1` |
+| **M2** | **No action** — keep the `soundtrigger` block. Reversed by R9 | `manifest.xml:102-110` |
+| **M3** | **Impossible** — the RIL caps at radio 1.4. Do not bump | `gts4lv/manifest.xml:5` |
 | M4 | **No action** for livedisplay; just verify `compatibility_matrix.lineage.xml` lands in the image | — |
 | M5 | Do **not** add `<kernel target-level="6"/>` | `kEnforceDeviceManifestNoKernelLevel = Level::T` makes it a hard `assemble_vintf` error |
+| **M6** | **No action** for the vendor property namespace — the check never runs at API 28. Do not set the flag, do not rename | `sepolicy/vendor/property_contexts` |
+| **M7** | **No action** for `per_proxy_helper` — no blob exists, so no `file_contexts` line | `sepolicy/vendor/per_proxy_helper.te` |
+
+#### M1 is now a decision, not a change — read this before P5
+
+`target-level` is **not per-model**. Verified:
+
+- `gts4lv-common/manifest.xml:1` @ `2e50286` → `<manifest version="1.0" type="device" target-level="5">`
+- `gts4lv/manifest.xml:1` (the LTE per-model repo) → `<manifest version="1.0" type="device">` — **no
+  `target-level` attribute**, and **0 files** in that whole repo mention `target-level`.
+
+So one bump in the common tree moves **both** models. "LTE stays at 5, Wi-Fi goes to 6" would require
+splitting the shared manifest — a restructuring nobody has costed.
+
+And bumping to 6 is not free, because **neither model currently satisfies it**:
+
+| | level 6 cost |
+|---|---|
+| Wi-Fi model | **19** vendor-relevant mandatory instances unsatisfied |
+| LTE model | **16** unsatisfied, starting with `radio@1.4` |
+
+The two facts that make this concrete, both verified directly:
+
+- **`compatibility_matrix.5.xml` on 23.2 is a 7-line empty file.** Its whole body is a comment:
+  *"Android R FCM has been deprecated, but this file is kept to help manage the android11-5.4 kernel config
+  requirements."* It mandates **nothing**.
+- **`compatibility_matrix.6.xml` has 80 `<version>` entries**, none wrapped in `<optional>`.
+
+**The trade-off, stated plainly:**
+
+- **Stay at 5** — zero VINTF validation, but nothing to satisfy and nothing that can fail. The radio keeps
+  working at the 1.4 it already uses on 22.2. Requires no manifest surgery.
+- **Go to 6** — real VINTF validation, which is genuinely useful for catching HAL breakage. But both models
+  then have unsatisfied mandatory entries, `soundtrigger` needs deleting (M2), the LTE radio **cannot** be
+  made compliant (M3), and `checkvintf` behaviour on an unsatisfied mandatory entry has to be settled.
+
+**This is a project call, not a technical one**, and R8 — which found it — marked its own recommendation
+`confidence: medium` for exactly that reason. It recommends staying at 5: level 5 costs nothing at build
+time or runtime, and an FCM exemption is pointless for a ROM with no GMS.
+
+**What P5 must not do without this decision:** §6c P5 item 1 says "bump target-level to 6". If the
+decision is to stay at 5, P5 skips it.
+
+**Also skip §6c P5 items 2, 3 and 5.** Items 2 (soundtrigger) and 3 (`per_proxy_helper`) are no-ops per R9,
+and item 5 (vendor property names) is a no-op per R7. R9 asks that items 2 and 3 be logged in `P5-log.md` as
+intentionally skipped — do that, so the reviewer sees they were considered rather than forgotten.
+
+#### M2 is also a no-op — keep the soundtrigger block
+
+**Reversed by R9.** R1-r2 recommended deleting the block. Do **not**.
+
+The decisive fact is empirical: `LineageOS/android_device_samsung_sm7125-common` @ `865ff7e37424` is at
+`target-level="6"` (`configs/manifest.xml:1`) and declares `android.hardware.soundtrigger` version **2.2**
+(`configs/manifest.xml:84-88`), with **no** soundtrigger entry in any of its framework compatibility
+matrices — and it ships 23.2. The commit that moved it to level 6 (`88c7b738785b`) touched soundtrigger in
+**zero** commits.
+
+Meanwhile `compatibility_matrix.6.xml:540-547` @ `13d687a84c83` does mandate 2.3, with no `<optional>`
+wrapper. So the matrix and the shipping tree genuinely disagree, and the shipping tree is the ground truth.
+
+**`confidence: medium` on the mechanism, `high` on the conclusion.** R9 could not read the rule that
+explains it: `selinux_contexts.go` is in `android_system_sepolicy`, and the deciding code is in
+`system/tools/vintf`, which is **not clonable** — `LineageOS/android_system_tools_vintf` and
+`aosp-mirror/platform_system_tools_vintf` both 404. R9's best explanation is that a frozen matrix
+supersedes the level-6 entry. Plausible, unproven. The decision does not depend on it: sm7125 does exactly
+what we would do, and it ships.
+
+R9 also confirmed the blast radius is tiny — if the block is ever removed, only **two** lines change:
+`manifest.xml:102-110` and `gts4lv.mk:58`. No `.rc`, sepolicy, blob-list or `Android.bp` change, because
+soundtrigger 2.2 is a passthrough over the legacy hw module started by the audio HAL service
+(`init.qcom.rc:785`), not its own service.
+
+#### M2b: `per_proxy_helper` — no blob, so no `file_contexts` line
+
+R9 found **no `per_proxy_helper` binary anywhere**: 0 path hits and 0 content hits across both vendor
+repos, absent from all 34 `vendor/bin/**` rows of `proprietary-files.txt`. The declaration came from
+`e88df885ca24` (2019, *"somewhat blindly reverse engineered from stock"*).
+
+So the domain is **provably dead** — with no exec label, `domain_auto_trans()` never fires. **Do not add
+the `file_contexts` line** R9 drafted. Deleting `sepolicy/vendor/per_proxy_helper.te` (8 dead lines) is
+optional; leaving it is equally safe and smaller.
+
+`kgsl_device` is also genuinely dead and must stay that way: `qsevndr`
+`legacy/vendor/common/file_contexts:36` already labels `/dev/kgsl-3d0` as `gpu_device`, and 17 blobs use
+that node. **Do not label it.**
+
+#### M1c: vendor property namespace — resolved, no change needed
+
+**R7 closed this; two earlier rounds failed to.** The check will **not** run for us.
+
+The condition is in `build/soong/selinux_contexts.go:419-423` @ `885cc500f607` — note that file is in
+`android_system_sepolicy`, **not** `android_build_soong`:
+
+```go
+shippingApiLevel := ctx.DeviceConfig().ShippingApiLevel()
+ApiLevelQ := android.ApiLevelOrPanic(ctx, "Q")
+if (ctx.SocSpecific() || ctx.DeviceSpecific()) && shippingApiLevel.GreaterThanOrEqualTo(ApiLevelQ) {
+    builtCtxFile = m.checkVendorPropertyNamespace(ctx, builtCtxFile)
+}
+```
+
+`Q` = 29 (`soong android/api_levels.go:466-468`). Our level is **28**:
+
+- `gts4lv.mk:18` @ `2e50286ebc01` → `build/target/product/product_launched_with_p.mk:2` @ `e5aaa62172df`
+  → `PRODUCT_SHIPPING_API_LEVEL := 28`
+
+`28 >= 29` is false, so the check never runs. `BUILD_BROKEN_VENDOR_PROPERTY_NAMESPACE` is set by nothing
+in the whole chain (only its definition at `build/core/board_config.rb:187`).
+
+**Do not set the flag** — it would be a permanent dead suppression. **Do not rename the properties**: only
+one of the 15 is set anywhere outside the file (`vendor.prop:119` `ro.fastbootd.available=true`), and
+`system/core/init/reboot.cpp:1111` reads that exact name — renaming builds fine and silently kills the
+`adb reboot fastboot` fallback.
+
+This also explains the 15-vs-11 discrepancy two rounds disagreed on: **15** lines fail at shipping API ≥ R,
+**11** at ≤ R (the `persist.camera.` case is allowed and the `vendor_`/`odm_` context rule is off). We are
+at 28, so 11.
+
+**The thing actually worth guarding:** anything that raises `PRODUCT_SHIPPING_API_LEVEL` above 28 turns the
+check on and the build starts failing. The same 28 also keeps the `>= 29` `$(error)` blocks in
+`build/core/config.mk:839-845,912-918` quiet. **confidence: high**.
+
+#### A pattern worth noting
+
+Three of the ROM-side plan items (M1, M2, M3) were all questioned or overturned by round-3 agents, and in
+each case it was a round-2 conclusion (R1-r2, R5) that did not survive. R1-r2's *facts* were sound; its
+*inferences* about what they meant were not — twice it read a lint result as a build gate. When a round-3
+agent contradicts a round-2 verdict on this device, check the claim against a shipping tree before acting
+on either.
+
+#### M3 is impossible, not just optional
+
+R8 established with four independent signals that the vendor RIL **cannot** do radio 1.5:
+
+| Evidence | Ceiling |
+|---|---|
+| `readelf -d lib64/libril.so` `NEEDED` | `android.hardware.radio@1.4.so` |
+| HIDL descriptor strings in `lib/libril.so` | `@1.1\|1.2\|1.3\|1.4::IRadio` — no 1.5 or 1.6, 0 occurrences |
+| Impl classes | `RadioImpl_V1_4` — no `V1_5`/`V1_6` |
+| Samsung's own 23.2 source, `hardware/samsung/interfaces/radio/{2.0,2.1,2.2}/Android.bp:14-17` | highest dep is `android.hardware.radio@1.4` |
+
+**`android.hardware.radio@1.5` appears nowhere** — 0 hits across all 81 files of `proprietary_vendor_samsung_gts4lv`
+and all 685 of the `-common` sibling. Note the trap R8 was warned about did **not** fire: this is not one
+binary carrying several version strings where the highest is aspirational. It carries four version strings
+and the fourth really is the ceiling — `libril.so` is the CAF HIDL shim that both links the proxies and calls
+`registerAsService()`.
+
+There is also a second, independent blocker: the qcom-caf fragment our own build installs
+(`vendor_framework_compatibility_matrix.xml:248-261` @ `1805784d14b3`) allows only radio `1.0-4`, so 1.5 is
+*above our own declared range*. R1-r2 had used that fragment only in the safe direction.
+
+`radio.config` has the same shape of problem: the RIL serves 1.1 and does not even register the 1.2 it
+links, so `gts4lv/manifest.xml:11` cannot be bumped either.
 
 On M2: `soundtrigger@2.2` is declared at `manifest.xml:105` and level 6 requires 2.3
 (`compatibility_matrix.6.xml:540-547`). It cannot simply be bumped — `android_hardware_qcom_audio`
 @ `90647c475fc5` `configs/sdm710/sdm710.mk:411` builds **only** `android.hardware.soundtrigger@2.1-impl`,
 so no 2.2 or 2.3 exists for sdm710 at all.
-
-On M3: `android.hardware.radio@1.4` passes the unused-HAL check but is below the level-6 mandatory
-minimum of 1.5-6 (`compatibility_matrix.6.xml:451-460`). LTE model only. Also `radio.config` 1.3
-mandatory vs 1.1 declared (`gts4lv/manifest.xml:11`) — low priority.
 
 ### 7.5 Round-2 sepolicy branch pins (R2)
 
