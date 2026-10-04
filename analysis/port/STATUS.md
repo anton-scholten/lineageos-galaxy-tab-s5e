@@ -22,7 +22,7 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 6 P5 device-tree commits | ✅ | device `port/dt` @ `e3ccc923bcf2`, `agent/P5` @ `bfc078f` | 1 commit: 79 comma-lists → space-separated, 499 commas. `xmllint` clean. **Verified by reverse-transform, byte-identical.** `target-level` stays 5. |
 | 6 🔍 P5-R | ✅ | [review-P4.md](review-P4.md) | Passed. sm7125-common 23.2 ships space-separated lists (0 comma lists). Check audio on first boot (HAL 6.0 vs sm7125's 7.0). |
 | 7 Fast-forward both `lineage-23.2` | ✅ | | Done 2026-10-04 (plain fast-forward pushes): kernel `a30605a`→`801f3f20e54a`, device `2e50286`→`e3ccc923bcf2`. |
-| 8a B1 ROM sync + first build | ☐ **next** | `agent/B1`, `~/android/lineage` | Free agent on the owner's machine. Step 7 done, so it can start. `brunch gts4lvwifi` (not `lineage_gts4lvwifi`). |
+| 8a B1 ROM sync + first build | ⛔ | `agent/B1`, `~/android/lineage` | **⛔ BLOCKED: host OOM, not a port defect.** Tree synced (1,170 projects) and **verified correct**: kernel `801f3f20e54a`, device `e3ccc92`. `brunch gts4lvwifi` OOM-killed twice at Soong glob (14.2 GB RAM + 13.6 GB swap peak on a 15.4 GB host). **Recipe to finish on a bigger machine: [BUILD-HANDOFF.md](BUILD-HANDOFF.md).** |
 | 8b P6 ROM build-error loop | ☐ | device `port/dt-2`, `agent/P6` | Free agent on the owner's machine, after the first `brunch`. |
 | 8b 🔍 P6-R | ☐ | `review-P6.md` | Strong-model step. |
 | 8 ROM build | ☐ | | Owner's machine. Use `brunch gts4lvwifi`, **not** a bare `m`. |

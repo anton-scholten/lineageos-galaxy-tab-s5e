@@ -19,6 +19,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
 | Reviews | **All passed** (P1-R…P5-R). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
 | Not yet done | **No ROM built, nothing flashed, nothing booted.** The kernel compiles; that is as far as it has got |
+| **Blocked** | **`brunch gts4lvwifi` OOM-killed twice on the 15.4 GB host** during Soong's glob phase (14.2 GB RAM + 13.6 GB swap peak). Not a port defect. Tree is synced and verified correct. **To finish on a machine with 32 GB: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md)** — a self-contained recipe, including the re-sync, the package list, the two commits to verify, and the traps that cost time here |
 
 ## Plan of remaining work
 The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.

@@ -542,3 +542,63 @@ force-pushed. After that, the owner's ROM build, for which the one instruction t
 - Fast-forwarded both forks' `lineage-23.2` with plain (non-force) pushes, after checking ancestry:
   kernel `a30605a54f3b` → `801f3f20e54a` (= `port/pick`), device tree `2e50286` → `e3ccc923bcf2` (= `port/dt`).
   The local manifests (which track `lineage-23.2`) now pull the port. Next is B1 (ROM sync and build). STATUS, HANDOVER, RUNBOOK, CLAUDE.md and REPO-SETUP updated.
+
+## 2026-10-04: ROM phase reached — step 7 done, tree synced, build blocked by the host
+
+**Step 7 verified.** Both forks' `lineage-23.2` fast-forwarded to the port: kernel `801f3f20e54a` (2,458 commits
+past the sdm670 base), device `e3ccc923bcf2` (1 commit). `lineage-22.2` untouched on both. `port/pick` ==
+`lineage-23.2` and `port/dt` == `lineage-23.2`, so nothing was clobbered.
+
+**Toolchain and packages.** The owner installed the §6c P4 set plus B1's 30 packages. Everything present.
+`libxml2` looked missing to `dpkg -s` but is installed for both amd64 and i386 — a multi-arch reporting quirk, not
+a gap. All 30 exist in Debian 13 (trixie) with no renames needed. **My earlier suggestion to clear ccache was
+wrong**: it was empty (0.0 of 5.0 GiB) and lives at `~/.cache/ccache`, so that would have freed nothing.
+
+**Manifest pre-flight before fetching anything** — worth doing, because a bad manifest fails only at the end of a
+multi-hour sync. All six projects resolve, and two land *exactly* on the ported commits (`801f3f20e54a`,
+`e3ccc923bcf2`). Also verified LineageOS's own `default.xml` declares the `remote="github"` our manifest
+references; an undeclared remote would otherwise have failed hours in.
+
+**Sync: 1,170 projects, 181 GB.** Four repos lost to GitHub HTTP 429 rate-limiting at `-j12`
+(`platform/external/tinyalsa_new`, `platform/tools/doc_generation`, `trusty/lib`, `trusty/user/desktop`).
+Retrying at `-j4` recovered `trusty/user/desktop`; the other three sit in `.repo/projects/` with the checkout
+skipped. **None is referenced by our device trees**, and `tinyalsa_new` is a Qualcomm audio library while sdm670
+uses Samsung's own stack. `repo` reporting "finished successfully" while leaving three projects absent is a real
+trap — the retry saw the git data and considered them done.
+
+**`brunch gts4lvwifi` failed twice, both times OOM-killed during Soong's glob phase.** Direct evidence:
+
+```
+rombuild.service: A process of this unit has been killed by the OOM killer.
+rombuild.service: Failed with result 'oom-kill'.
+rombuild.service: 21min 24.848s CPU time, 14.2G memory peak, 13.6G memory swap peak.
+```
+
+Android's build system warned beforehand: *"You are building on a machine with 15.4GB of RAM. The minimum required
+amount of free memory is around 16GB, and even with that, some configurations may not work."* Measured
+`soong_build` at 13.6 GB RSS with 0 GB available and 8 GB of swap consumed. **No code was ever reached, so this is
+not a port defect and not P6's work.** `-j` cannot help: globbing runs before ninja and is single-process. Disk was
+never the constraint — 96 GB free held through both attempts.
+
+### Three process failures worth remembering, all mine
+
+1. **I diagnosed "not a memory problem" from `dmesg` showing no OOM kill.** Technically true and practically
+   useless: the OS killed the *terminal session* for low memory, which killed the build. Absence of an OOM record
+   is not absence of memory pressure. I over-claimed from a negative.
+2. **`setsid` does not detach from the systemd cgroup.** It escapes the session ID but the job stays in the
+   launching shell's scope, so a session kill takes it down. The cgroup was visible in `ps` and I read past it.
+   `systemd-run --user --unit=…` gives a job its own unit; the retry under it was correctly isolated and *still*
+   OOM'd, which is how we know fault one was real but not the only problem.
+3. **My build wrapper masked the failure.** It captured `brunch`'s status then ran more commands, so the unit exited
+   0 and systemd reported `Result=success` for a failed build. A unit wrapper must `exit $st`. Trusting that would
+   have been a bad call.
+
+Also: a waiter script I wrote reported `NOT SYNCED` for both repos and `tree size: 90M` because I ran it without
+`cd ~/android/lineage`, so it looked relative to the docs repo. The real result was PASS. **A verification step
+whose own working directory is wrong is worse than no verification**, because it looks authoritative.
+
+**Left for the owner:** run the build on a machine with 32 GB. The tree is a normal `repo` checkout and is
+portable; **[analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md)** is a self-contained recipe —
+requirements, both ways to get the tree, the package list, the two commits to verify, the build command, the traps,
+and P6's forbidden list. `P6` has deliberately **not** been started: there is no port error to hand it, and
+pointing it at a memory shortage would only have it chase a phantom.
