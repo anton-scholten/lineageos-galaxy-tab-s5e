@@ -77,6 +77,38 @@ with `429` or `RESOURCE_EXHAUSTED`, wait a few minutes and re-run rather than ra
 
 Copy `gts4lv.xml` too and run `breakfast gts4lv` if you also want the LTE model. Wi-Fi first is the primary target.
 
+### Option B — copy the existing tree to another machine
+
+**Check the tree is relocatable first** (verified 2026-10-04): the project `.git` entries are real directories, not
+path-bound gitfiles, and there are **0 absolute `gitdir:` entries**. So the tree moves cleanly.
+
+**The drive must be ext4.** The tree contains **6,486 symlinks** and no hardlinked objects, so:
+
+- `rsync -a` is **mandatory** — without `-a` the symlinks break and the tree will not build
+- **exFAT and NTFS will not work** — they cannot represent symlinks or Linux permissions
+- `-H` is harmless but not required (no hardlinks to preserve)
+
+```bash
+# on the ORIGINAL machine
+sudo mkfs.ext4 -L andybuild /dev/sdX          # DESTROYS EVERYTHING ON THE DRIVE
+sudo mkdir -p /mnt/build && sudo mount /dev/sdX /mnt/build
+sudo chown "$USER:$USER" /mnt/build
+rsync -aH --info=progress2 ~/android/lineage/ /mnt/build/lineage/
+
+# on the TARGET machine, after plugging the drive in
+sudo mkdir -p /mnt/build && sudo mount /dev/sdX /mnt/build
+rsync -aH --info=progress2 /mnt/build/lineage/ ~/android/lineage/
+cd ~/android/lineage
+git -C kernel/samsung/sdm670 rev-parse --short HEAD         # must be 801f3f20e54a
+git -C device/samsung/gts4lv-common rev-parse --short HEAD  # must be e3ccc923bcf2
+```
+
+`~/work/prep-build-drive.sh` (on the original machine) does the copy, checks there is enough space, verifies both
+commits on the drive, and writes a `UNPLUG-THEN-RUN-THIS-ON-THE-TARGET.txt` with the target-side steps.
+
+Only the tree is worth copying. `~/bin/repo` is one `curl`, `~/work/llvmbin` is a symlink loop, and the kernel clone
+is a `git clone` — all re-created in seconds. `~/work/k670` (2.5 GB) is worth copying only to save a re-clone.
+
 ### Option B — copy the existing tree
 
 ```bash
