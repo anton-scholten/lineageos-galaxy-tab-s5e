@@ -92,3 +92,54 @@ Of these, the ones that will actually stop the build: `gcc-multilib` and `g++-mu
 - Steps 3–5: confirm `kernel/samsung/sdm670` is `801f3f20e54a` and `device/samsung/gts4lv-common` is
   `e3ccc923bcf2`, then `source build/envsetup.sh && brunch gts4lvwifi 2>&1 | tee ~/work/rom-build.log`.
 - Record the zip's path, size and sha256. **B1 fixes nothing itself** — a failure hands over to P6.
+---
+
+## Result: BLOCKED — the host cannot build this ROM
+
+`brunch gts4lvwifi` **failed twice**, both times killed during Soong's glob phase. No code was reached, so this is
+**not** a port defect and **not** P6's work. `confidence: high` — systemd and the kernel both say so directly.
+
+### The evidence
+
+```
+rombuild.service: A process of this unit has been killed by the OOM killer.
+rombuild.service: Failed with result 'oom-kill'.
+rombuild.service: Consumed 21min 24.848s CPU time, 14.2G memory peak, 13.6G memory swap peak.
+```
+
+And the build system warned before starting:
+
+> You are building on a machine with **15.4GB of RAM**. The minimum required amount of free memory is around
+> **16GB**, and even with that, some configurations may not work. If you run into segfaults or other errors, try
+> reducing your `-j` value.
+
+Measured: `soong_build` reached **13.6 GB RSS** during `Running globs...`, with 0 GB RAM available and 8 GB of swap
+consumed. Total demand was ~14.2 GB RAM plus ~13.6 GB swap against 15 GB RAM plus 15 GB swap shared with the desktop.
+The kernel OOM-killed it. **`-j` does not help**: globbing happens before ninja starts, and it is single-process.
+
+### Two separate faults, both mine
+
+1. **The first attempt was not detached properly.** `setsid` escapes the session ID but **not the systemd cgroup**.
+   The build was still inside `app-org.kde.konsole@...service`, so when the OS killed the terminal session for low
+   memory the build died with it. Its cgroup was visible in `ps` and I did not act on it.
+   **Fix:** run under `systemd-run --user`, which gives the job its own unit and cgroup.
+2. **The second attempt was correctly isolated and still OOM'd** — in `rombuild.service`, `MemoryMax=infinity`,
+   peak 14.2 GB. So fault 1 was real but was not the only problem.
+
+### Also fixed: the wrapper masked the failure
+
+The script captured `brunch`'s status into `$st` but then ran more `echo`s, so the unit exited **0** and systemd
+reported `Result=success` for a build that had failed. A unit wrapper must `exit $st`. Anyone scripting a build
+should not trust that unit status — read the log.
+
+### What is needed to proceed
+
+| option | effect |
+|---|---|
+| **Add swap** (needs the owner's `sudo`) | 32 GB extra would roughly double paging headroom. Uncertain: demand was ~28 GB and still failed |
+| **Add RAM** | 32 GB total would be comfortable. This is the reliable fix |
+| **Build on another machine** | The tree is portable; `~/android/lineage` is a normal `repo` checkout |
+| Free disk | **Not the blocker** — 96 GB free held steady through both attempts |
+
+Reducing `-j` will not fix this. Adding swap might, but RAM is the honest answer: Android's own build system
+declares 15.4 GB insufficient before it starts.
