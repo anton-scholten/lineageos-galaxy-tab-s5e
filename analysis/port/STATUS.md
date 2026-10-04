@@ -19,7 +19,7 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 5 P4 build loop | ☐ | kernel `port/pick`, `agent/P4` | Blocked on P3. **Toolchain now installed** (clang 19.1.7, lld 19.1.7, flex, bison, aarch64 gcc 14.2, dwarves 1.30). `make LLVM=1 gts4lvwifi_defconfig` verified exit 0. `dtc` absent but not in the §6c P4 list. |
 | 5 🔍 P4-R | ☐ | `review-P4.md` | Strong-model step. |
 | 6 P5 device-tree commits | ☐ **can start** | device `port/dt`, `agent/P5` | Now 1 commit (audio policy XML) + a log of the skipped items. `target-level` stays 5. |
-| 6 🔍 P5-R | ☐ | `review-P5.md` | Strong-model step. |
+| 6 🔍 P5-R | ☐ | `review-P5.md` | Strong-model step. **Worth it for one thing only:** R6's claim that the parser splits on whitespace is unverified — `frameworks/av` isn't cloned. P5 logged that as medium confidence, the space-separated form itself high. |
 | 7 Fast-forward both `lineage-23.2` | ☐ | | Only after every 🔍 review passes. Never force-push. |
 | 8 ROM build | ☐ | | Owner's machine. Use `brunch lineage_gts4lvwifi`, **not** a bare `m`. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
