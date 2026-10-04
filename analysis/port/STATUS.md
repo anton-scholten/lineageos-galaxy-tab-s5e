@@ -4,7 +4,7 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 
 | Step | State | Branch / output | Notes |
 |---|---|---|---|
-| 0 Setup: tokens, branch protection, clones | ◐ | | SSH keys already have write access to both forks, so no `fork-token` is needed and none is stored on disk. Branch protection **not** set up by me — owner action. |
+| 0 Setup: tokens, branch protection, clones | ✅ | | No `fork-token` needed or stored — SSH already has write access to both forks (verified by dry-run push). Branch protection set up by the owner. |
 | 1 Round 3: K7 | ✅ | `agent/K7` | 6 bit collisions found, 4 previously unknown. 367 headers swept. |
 | 1 Round 3: K8 | ✅ | `agent/K8` | Proved both "unbriefed conflicts" apply **cleanly** — the trial was right. |
 | 1 Round 3: R7 | ✅ | `agent/R7` | Check never runs: our API level is 28, it needs ≥29. |
@@ -15,10 +15,11 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 3 🔍 P1-R | ✅ | [review-P1.md](review-P1.md) | Passed, no rejections. All 6 K7 collisions already resolved in `port/pick`. |
 | 3 P2 automerge triage | ✅ | `agent/P2-1`, `agent/P2-2` | 6 packets: **4 BENIGN, 2 SUSPECT — both SUSPECTs are real defects**, now confirmed by the lead. |
 | 3 🔍 P2-R | ✅ | [review-P1.md](review-P1.md) | F1, F2 confirmed → P3 items 4–5. F3 left as is. |
-| 4 P3 known fixes + defconfig | ☐ **next** | kernel `port/pick`, `agent/P3` | 6 items (AGENT-TASKS §6c P3, rewritten 2026-10-04). Can start now. |
+| 4 P3 known fixes + defconfig | ✅ | kernel `port/pick` @ `316352012ff2`, `agent/P3` @ `6eff7f0` | 6 commits, `problems: 0`, `fix commits: 6`. **Found a 6th `wakeup_source_register()` caller the spec missed** — flagged `Needs-review:`. |
+| 4 🔍 P3-R | ☐ optional | `review-P3.md` | Not required by RUNBOOK (P3 is small and fully specified), but **one ruling is needed**: `&pdev->dev` vs `NULL` at `msm_geni_serial.c:2793`. |
 | 5 P4 build loop | ✅ | kernel `port/pick` @ `801f3f20e54a`, `agent/P4` @ `89ef1fa` | **BOTH defconfigs link `Image.gz-dtb`.** 14 commits, all `Fix-by:`. `problems: 0`, `fix commits: 20`. Nothing escalated. |
 | 5 🔍 P4-R | ☐ | `review-P4.md` | **Now the highest-value review left**: 5 commits carry `Needs-review:`. Lead has pre-verified all 5 mechanically; the open questions are the `vfs_getattr` and `fuse_req_init_context` backport alternatives. |
-| 6 P5 device-tree commits | ☐ **can start** | device `port/dt`, `agent/P5` | Now 1 commit (audio policy XML) + a log of the skipped items. `target-level` stays 5. |
+| 6 P5 device-tree commits | ✅ | device `port/dt` @ `e3ccc923bcf2`, `agent/P5` @ `bfc078f` | 1 commit: 79 comma-lists → space-separated, 499 commas. `xmllint` clean. **Verified by reverse-transform, byte-identical.** `target-level` stays 5. |
 | 6 🔍 P5-R | ☐ | `review-P5.md` | Strong-model step. **Worth it for one thing only:** R6's claim that the parser splits on whitespace is unverified — `frameworks/av` isn't cloned. P5 logged that as medium confidence, the space-separated form itself high. |
 | 7 Fast-forward both `lineage-23.2` | ☐ | | Only after every 🔍 review passes. Never force-push. |
 | 8 ROM build | ☐ | | Owner's machine. Use `brunch lineage_gts4lvwifi`, **not** a bare `m`. |
@@ -26,6 +27,144 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
 
 States: ☐ not started · ◐ running · ✅ done · ⛔ blocked (say why in Notes).
+
+## Review outcome, 2026-10-04
+
+`review-P1.md`: **P1 passes with no rejections.** Four things changed the plan:
+1. **All six K7 collisions are already resolved in `port/pick`.** TIF, FAULT_FLAG and `VM_FLUSH_RESET_PERMS`
+   were done by P1; `VM_ARCH_2` is x86-only so moot on arm64; `KEY_HOT` and `SW_MACHINE_COVER` are absent and
+   unreferenced. **P3 needs none of K7.**
+2. **`wakeup_source_register()` has 5 old-style callers, not 1.**
+3. **`process_mrelease` deferred, not ported.** AOSP lmkd probes for it and should fall back to a plain kill on
+   `ENOSYS`, but this was **not verified against 23.2 lmkd**. Check `logcat -s lmkd` on first boot. The chain to
+   pick later is in `dropped.tsv`: `2e700093ca33 → e987691659c0 → 030886f39a44 → e0c1326972d75 → 996b9f83a3fa`.
+4. **`target-level` stays 5** for the first build (empty matrix on 23.2, so nothing can fail); P5 skips the bump.
+
+## P3 outcome, 2026-10-04
+
+Six commits, `port/pick` @ `316352012ff2`, `check-pick.py` → `problems: 0`, `fix commits: 6`, zero conflict markers.
+
+| # | SHA | What |
+|---|---|---|
+| 1 | `81b964043704` | `arch/arm64/include/asm/set_memory.h` |
+| 2 | `d6239359349d` | `wakeup_source_register()` dev argument — **also the 6th caller, below** |
+| 3 | `d147e3464f7c` | `fs/unicode` + wiring in `fs/Makefile` and `fs/Kconfig` |
+| 4 | `14bf14fcdd22` | F1 `drm_mode.h` |
+| 5 | `d26bd320c51d` | F2 second `VM_MAYWRITE` block |
+| 6 | `316352012ff2` | defconfig fragment × 4 |
+
+**F1 came out right.** One `DRM_MODE_FLAG_PIC_AR_MASK`, at `(0x0F<<24)`; `_64_27`, `_256_135` and
+`FLAG_PIC_AR_256_135` all still defined; **zero** occurrences of `0x0F<<19` left, so the bit-22 collision with
+`DRM_MODE_FLAG_SUPPORTS_YUV420` is gone. F2: exactly one `VM_MAYWRITE` check. All four defconfigs give **7/7**.
+35 of the fragment's 37 options reach `.config`; `SCHED_TUNE` and `CGROUP_SCHEDTUNE` cannot, because
+`init/Kconfig:1536` is `depends on !UCLAMP_TASK` and `CONFIG_UCLAMP_TASK=y` — the fragment's own §4.3/4.4
+prediction, not a failure.
+
+### Two things P3 did that the spec did not authorise
+
+1. **A 6th `wakeup_source_register()` caller, which the spec and `review-P1.md` both missed.**
+   `drivers/tty/serial/msm_geni_serial.c:2793` called `wakeup_source_register(dev_name(&pdev->dev))`, putting a
+   `const char *` where the new signature wants `struct device *`. Verified: `0c6f8a9a50ad` — the commit that
+   changed the signature — touches **0** lines of that file, and the series has **0** commits touching it, so nothing
+   anywhere fixed it. `CONFIG_SERIAL_MSM_GENI=y` in all four defconfigs, so this was a hard build error.
+   P3 used `&pdev->dev`, following `wakeup.c:324` and `alarmtimer.c:1039`, and flagged it `Needs-review:`.
+   **This is the one open question for P3-R.** `NULL` preserves the original name-only behaviour more faithfully;
+   `&pdev->dev` ties the wakeup source to device suspend. Both defensible — do not "fix" it without a ruling.
+2. **It skipped fragment section 5.** The spec's mechanical rule would have applied two `is not set` lines that are
+   written as *comments*, cancelling section 1's `CONFIG_DEBUG_INFO_BTF=y` — the opposite of the fragment's intent.
+   P3 applied sections 1–4 and stopped at the `SECTION 5` header (`fragment:454`).
+
+### The accident, and the repair
+
+P3's first `git checkout port/pick` failed on a single-branch clone; because it sat in an `&&` chain piped through
+`tail`, the following `git merge --ff-only` ran anyway and fast-forwarded the **local** `lineage-23.2`. P3 caught it
+and repaired with `git branch -f lineage-23.2 a30605a54f3b` before committing anything. **Verified:** remote
+`lineage-22.2` and `lineage-23.2` are both still `a30605a54f3b`. The remote was never touched. This is the second
+time in this project an `&&` chain swallowed a failure — prefer separate commands with explicit checks.
+
+## P4 outcome, 2026-10-04 — the kernel builds
+
+**Both target defconfigs link `Image.gz-dtb` from a clean output tree.**
+
+| Target | Result | Size |
+|---|---|---|
+| `gts4lvwifi_defconfig` | `EXIT=0` | 18,735,923 B |
+| `gts4lv_defconfig` | `EXIT=0` | 18,743,864 B |
+
+All 20 warnings are `DWARF2 only supports one section per compilation unit` from hand-written `.S` files; the 22.2
+baseline had exactly the same 20, so nothing new. `check-pick.py` → **`problems: 0`, `fix commits: 20`** (6 from P3
++ 14 from P4). `lineage-22.2` and `lineage-23.2` both still `a30605a54f3b`. **Nothing was escalated** — no error
+needed a forbidden fix and no command failed twice. Every diff is 1–36 lines and surgical; **nothing disables or
+deletes a check to silence an error.**
+
+### The vdso is fine — checked, because it looked alarming
+
+`include/generated/vdso-offsets.h` is 36 bytes and `vdso.so` only 3,576 B, which reads like a stub. It is not.
+arm64's vdso needs exactly **one** offset — `#define vdso_offset_sigtramp 0x0810` — present and non-zero, with
+`vdso.so.dbg` linked, exporting `__kernel_clock_gettime`, `__kernel_gettimeofday`, `__kernel_clock_getres`,
+`__kernel_time` and `__kernel_rt_sigreturn` under SONAME `linux-vdso.so.1`. The large `__vdso_*` offset table is an
+x86 thing. (Binaries live in `arch/arm64/kernel/vdso/`, not `arch/arm64/boot/`.)
+
+### The `BPF_ARCH_SPINLOCK` fix is correct — verified, because it looked wrong
+
+`5078de1ee272` adds one line, `select BPF_ARCH_SPINLOCK`, under `config SMP` in `arch/arm64/Kconfig`, and P4 wanted
+a ruling on it. It is correct: the symbol is defined in `kernel/Kconfig.locks:245` (not `kernel/bpf/Kconfig`, which
+is where one looks first), it evaluates to `CONFIG_BPF_ARCH_SPINLOCK=y` in both built configs, and that makes
+`kernel/bpf/helpers.c:652` take the `arch_spinlock_t` branch — so the broken `atomic_cond_read_relaxed(l, !VAL)` at
+`:678` sits in the `#else` and is **no longer compiled**. Note it is *not* a restoration: neither the base nor the
+series head had that select on arm64; P4 added it, matching mainline arm64.
+
+The other reviewer-specified fix, the `task_util_est()` → WALT `task_util()` shim (`1cb9785b0d64`), is a 6-line
+inline calling `task_util(p)`, and correctly does **not** port upstream's PELT util_est.
+
+## ⚠ The build needs `/home/anton/work/llvmbin` on `PATH`
+
+Debian's `llvm-19` ships only versioned names (`llvm-nm-19`) but `LLVM=1` looks for unversioned ones. P4 made
+persistent symlinks in `/home/anton/work/llvmbin`. **Nothing in the repo, the kernel tree or `kbuild.sh` was
+changed** — all verified clean.
+
+Without that directory on `PATH`, `vdso.so.dbg` does not link and `vdso_offset_sigtramp` comes out **wrong**: a
+silently broken sigreturn trampoline, **not a build failure**. The build succeeds and ships a bad kernel. This will
+bite anyone who rebuilds here, so it is recorded in
+[LEAD-SYNTHESIS.md §10](../LEAD-SYNTHESIS.md#10-environment-and-reproduction) too.
+
+## P5 outcome, 2026-10-04
+
+`port/dt` @ `e3ccc923bcf2`, one commit, one file: `audio/configs/audio_policy_configuration.xml`, the only
+`audio_policy*.xml` in the tree (`audio_platform_info.xml` and `audio_platform_info_diff.xml` are `audio_platform*`
+and out of scope). 79 lines / 499 commas converted inside `samplingRates`, `channelMasks` and `formats`; the
+comma-separated `sources=` route attributes and the licence comments keep theirs (84 commas before and after).
+`xmllint --noout` clean. `lineage-23.2` untouched at `2e50286`.
+
+**Verified by reversing the transform** on the new file: it reproduces `lineage-23.2`'s copy **byte for byte**, all
+110 attributes have identical token lists, no token lost. That is what distinguishes this from a blind
+`sed 's/,/ /g'`, which would have destroyed the `sources=` attributes and which the diffstat alone would not reveal.
+
+Two guards: `sepolicy/vendor/per_proxy_helper.te` exists (8 lines) but **0** binaries named `per_proxy_helper` exist
+anywhere, so the domain is provably dead (R9) — left in place, harmless. And nothing may raise
+`PRODUCT_SHIPPING_API_LEVEL` above **28**; `gts4lv.mk:18` inherits `$(SRC_TARGET_DIR)/product/product_launched_with_p.mk`,
+but that file is **outside this repo**, so the value is a build-system fact to re-check, not a tree fact.
+
+R6's *mechanism* — that the parser splits these attributes on whitespace — is **unverified**; `frameworks/av` is not
+cloned. P5 rated the space-separated form high confidence and the mechanism medium, which is the right split and the
+only thing P5-R needs to check.
+
+## Decisions still open
+
+| Question | Raised by | Where |
+|---|---|---|
+| `&pdev->dev` vs `NULL` at `msm_geni_serial.c:2793` | P3 | `Needs-review:` on `d6239359349d` |
+| Backport 4.11 `vfs_getattr()`, or keep 4.9's two-arg form | P4 | `Needs-review:` on `d078fd143e53` |
+| Fuse `pid_ns` backport | P4 | `Needs-review:` on `a7f561e7e1b3` |
+| Tracepoints widened 12→18 args | P4 | `Needs-review:` on `c8f303abafce` |
+| Keep the inert DRM `IN_FORMATS` blob, or drop the `drm_plane.c` hunk | P4 | `Needs-review:` on `1c21d6589088` |
+| **`target-level` 5 → 6** | R8 / reviewer | the one open *project* decision; harmless at 5 |
+| `process_mrelease` | reviewer | deferred; check `logcat -s lmkd` at first boot |
+
+The DRM format-modifier feature is **half-present by the series' own design**: there is no `drm_mode_mod_get()` and
+no `DRM_MODE_MOD_*` anywhere in the series head, so no userspace can consume the `IN_FORMATS` blob
+`1c21d6589088` creates. No driver sets `allow_fb_modifiers`, so it is inert. P4 escalated rather than delete the
+`drm_plane.c` hunk of `c72864d9d467`, because that would have been a deletion. Correct restraint.
 
 ## Three confirmed defects in `port/pick`
 

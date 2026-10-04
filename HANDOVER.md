@@ -10,14 +10,14 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
 | Area | State |
 |---|---|
-| Repos | Docs here (`main`). Kernel fork: `lineage-23.2` = `a30605a` (untouched), **`port/pick` @ `d73f07cf8b5c` = the cherry-picked series**. Device fork: `lineage-23.2` @ `2e50286` (0001–0004). Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
+| Repos | Docs here (`main`). Kernel fork: `lineage-23.2` = `a30605a` (untouched), **`port/pick` @ `801f3f20e54a` = the ported kernel, 2,458 commits**. Device fork: `lineage-23.2` @ `2e50286` (untouched), **`port/dt` @ `e3ccc923bcf2` = 1 device commit**. Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
 | Research | **All done and merged** (rounds 1–3). Findings: [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) |
-| Kernel cherry-pick (P1) | **Done and reviewed.** 2,438 picks, 60 hand-resolved, 0 problems, no review rejections ([review-P1.md](analysis/port/review-P1.md)). Flag collisions (TIF, FAULT_FLAG, vmalloc) already fixed in it |
-| Next kernel step (P3) | 6 known fixes: `set_memory.h`, 5 `wakeup_source_register` callers, `fs/unicode`, two duplicate blocks (F1/F2), defconfig fragment (`CGROUP_SCHED=y` is mandatory) |
-| Then (P4) | Build until `Image.gz-dtb` links. First expected errors are decided already (`task_util_est` shim; `cpu_cgrp_id` comes from the defconfig) |
-| Device tree (P5) | Only **1 change** left: space-separated lists in the audio policy XML. `target-level` stays 5 for the first build; soundtrigger, `per_proxy_helper`, property names and LTE radio need nothing (R7–R9) |
-| Deferred | `process_mrelease` (lmkd should fall back; check on first boot); the 46 optional conflicts are already in `port/pick` |
-| Nothing booted | No kernel built yet, no ROM built, nothing flashed |
+| Kernel cherry-pick (P1) | **Done and reviewed.** 2,438 picks, 60 hand-resolved, 0 problems, no review rejections ([review-P1.md](analysis/port/review-P1.md)) |
+| Known fixes (P3) | **Done.** 6 commits, `problems: 0`, `fix commits: 6`. Found a 6th `wakeup_source_register` caller the spec missed |
+| **Build (P4)** | **Done — the kernel builds.** Both `gts4lvwifi_defconfig` and `gts4lv_defconfig` link `Image.gz-dtb`, `EXIT=0`, 14 commits, nothing escalated, `problems: 0`, `fix commits: 20` |
+| Device tree (P5) | **Done.** 1 commit: space-separated lists in the audio policy XML, verified by a byte-for-byte reverse-transform |
+| Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
+| Not yet done | **No ROM built, nothing flashed, nothing booted.** The kernel compiles; that is as far as it has got |
 
 ## Plan of remaining work
 The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.
@@ -27,22 +27,38 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 | # | Step | Who | Expected (wall-clock) |
 |---|---|---|---|
 | ~~1–3~~ | ~~Round 3, P1 cherry-pick, P1-R + P2 review~~ | done | |
-| 4 | **P3 known fixes + defconfig** (6 items) on `port/pick` | free | ½ day |
-| 5 | **P4 build loop** until `Image.gz-dtb` links; strong model takes escalations (BPF/JIT/mm) and reviews fixes (P4-R) | free + strong | 3–9 days |
-| 6 | **P5**: 1 device-tree commit into `port/dt` + skip log; P5-R | free + strong | ½ day (can run now, in parallel) |
+| ~~4~~ | ~~P3 known fixes + defconfig, 6 items~~ **done** | done | |
+| ~~5~~ | ~~P4 build loop until `Image.gz-dtb` links~~ **done, nothing escalated** | done | |
+| ~~6~~ | ~~P5: 1 device-tree commit into `port/dt` + skip log~~ **done** | done | |
+| 6.5 | **P4-R and P5-R** — the last strong-model reviews. Six commits carry `Needs-review:` (one from P3, five from P4); all six are listed with their alternatives in [STATUS.md](analysis/port/STATUS.md#decisions-still-open) | **strong** | hours |
 | 7 | Fast-forward both forks' `lineage-23.2` | owner | minutes |
 | 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch lineage_gts4lvwifi` (and `gts4lv`); build errors to a free agent + review | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
 | 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
 | 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
 | 11 | Later: `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
 
-**Owner to-do now:** protect `lineage-23.2` in both forks and `main` here (RUNBOOK §0.4; still open per STATUS). Then start P3 and P5 (RUNBOOK §4, §6).
+**Owner to-do now:**
+1. Protect `lineage-23.2` in both forks and `main` here (RUNBOOK §0.4; still open per STATUS).
+2. Get **P4-R** and **P5-R** done on a strong model. This is the last gate. Six commits carry `Needs-review:`; the
+   lead has already verified all six mechanically, so what remains are judgement calls, listed in
+   [STATUS.md](analysis/port/STATUS.md#decisions-still-open).
+3. Then step 7: fast-forward both `lineage-23.2` branches. **Must be a fast-forward. Never force-push.** If GitHub
+   refuses, stop and ask a strong model.
 
 ## Rebuilding the working environment (cloud container)
 ```bash
 # Toolchain: clang/lld are usually there already; add the cross binutils
-apt-get install -y flex libssl-dev binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi \
-  gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
+apt-get install -y clang lld flex bison libssl-dev binutils-aarch64-linux-gnu \
+  binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves
+# dtc is NOT needed: arm64 .dtsi files compile through clang.
+
+# ⚠️ CRITICAL, easy to miss: Debian's llvm-19 ships only versioned names (llvm-nm-19) but
+# kbuild's LLVM=1 looks for unversioned ones. Without this, the build still SUCCEEDS but
+# vdso.so.dbg does not link and vdso_offset_sigtramp is generated WRONG - a silently
+# broken sigreturn trampoline, not a build error.
+mkdir -p ~/work/llvmbin
+for f in /usr/bin/llvm-*-19; do ln -sf "$f" ~/work/llvmbin/"$(basename "$f" -19)"; done
+export PATH="$HOME/work/llvmbin:$PATH"
 
 W=/tmp/work; mkdir -p $W && cd $W
 git clone --single-branch -b lineage-23.2 https://github.com/anton-scholten/android_kernel_samsung_sdm670 k670   # ~2.3 GB

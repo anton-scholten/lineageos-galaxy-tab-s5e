@@ -70,7 +70,7 @@ It runs long, so it's fine to restart the agent with the same prompt: the script
 - Rejected items go back to the P1 agent: start it with the P1 prompt plus "Apply the fix requests in analysis/port/review-P1.md as new commits with a Fix-by trailer".
 - Then 🔍 **P2-R**: the strong model reads every SUSPECT and 10% of BENIGN.
 
-## 4. P3: known fixes + defconfig (1 free agent, ≈½ day)
+## 4. ✅ P3: known fixes + defconfig (done 2026-10-04)
 Make the worktree first: `git -C ~/work/docs fetch origin && git -C ~/work/docs worktree add ~/work/wt/P3 -b agent/P3 origin/main`.
 ```text
 You are a helper agent doing task P3. Docs repo: ~/work/wt/P3 (branch agent/P3). Kernel clone: ~/work/k670.
@@ -84,7 +84,19 @@ When done, commit and push analysis/port/P3-log.md on branch agent/P3.
 `python3 ~/work/docs/scripts/check-pick.py ~/work/k670 ~/work/pick-review` says `problems: 0` with `fix commits: 6`.
 P3 is small and fully specified, so a strong review is optional. If you want one, give prompt R the task "P3 review: read pick-review/fixes/".
 
-## 5. P4: build loop (1 free agent, ≈3–9 days) with 🔍 P4-R
+## 5. ✅ P4: build loop (done 2026-10-04) — both defconfigs link `Image.gz-dtb`; 🔍 P4-R still open
+
+⚠️ **Rebuilding needs `/home/anton/work/llvmbin` on `PATH`.** Debian's `llvm-19` ships only versioned names
+(`llvm-nm-19`) but kbuild's `LLVM=1` wants unversioned ones. Without the symlinks the build **still exits 0** while
+`vdso_offset_sigtramp` is generated wrong — a silently broken sigreturn trampoline, not a build error:
+
+```bash
+mkdir -p ~/work/llvmbin
+for f in /usr/bin/llvm-*-19; do ln -sf "$f" ~/work/llvmbin/"$(basename "$f" -19)"; done
+export PATH="$HOME/work/llvmbin:$PATH"
+```
+
+`dtc` is not needed and is not in the §6c P4 list: arm64 `.dtsi` files compile through clang.
 Needs P3. Install the build tools first: AGENT-TASKS §1.0 plus §6c P4
 (`clang lld flex bison libssl-dev binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves`).
 Worktree: `git -C ~/work/docs worktree add ~/work/wt/P4 -b agent/P4 origin/main`.
@@ -104,7 +116,7 @@ it continues from where the branch is.
 Run `check-pick.py` first so the packets are fresh.
 **Done when** both builds produce `Image.gz-dtb`, and `check-pick.py` says `problems: 0`.
 
-## 6. P5: device-tree commit (1 free agent, ≈½ day) with 🔍 P5-R
+## 6. ✅ P5: device-tree commit (done 2026-10-04) — 1 commit on `port/dt`; 🔍 P5-R still open
 Can run now, in parallel with P3/P4. Device-tree clone:
 `git clone -b lineage-23.2 https://github.com/anton-scholten/android_device_samsung_gts4lv-common ~/work/dt` (push access via your SSH key or `fork-token`).
 Worktree: `git -C ~/work/docs worktree add ~/work/wt/P5 -b agent/P5 origin/main`.

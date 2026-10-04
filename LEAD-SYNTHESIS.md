@@ -105,6 +105,50 @@ No rework needed: K4 (K4d retired, its conclusion folded into K4c's), R4, R5, R6
 missed, and overturned six round-1 claims — including one this document had promoted to a top risk. See
 §7.1 for the retraction.
 
+## P3, P4 and P5 (2026-10-04): the kernel now builds
+
+`port/pick` @ `801f3f20e54a`, `port/dt` @ `e3ccc923bcf2`. **Both `gts4lvwifi_defconfig` and `gts4lv_defconfig`
+link `Image.gz-dtb` with `EXIT=0`.** `check-pick.py` reports `problems: 0` with `fix commits: 20`. Nothing was
+escalated at any point in P4. `lineage-22.2` and `lineage-23.2` are still `a30605a54f3b` on both forks.
+Full detail in [STATUS.md](analysis/port/STATUS.md) and [WORKLOG.md](WORKLOG.md).
+
+Four lessons worth carrying into any future port of this series.
+
+**1. A working build is not the same as a correct build.** Three of the twenty P3+P4 commits fixed code that
+*compiled* and was nonetheless wrong: the duplicated `DRM_MODE_FLAG_PIC_AR_MASK`, the duplicated `VM_MAYWRITE`
+check, and the `atomic_cond_read_relaxed(l, !VAL)` path in `kernel/bpf/helpers.c` that only compiles when
+`BPF_ARCH_SPINLOCK` is off. All three were found by reading, not by building. See
+[duplicate-picks.md](analysis/port/duplicate-picks.md).
+
+**2. An agent following a spec exactly will still miss things, and that is not a failure of diligence.** The
+spec listed 5 `wakeup_source_register()` callers; there were **6**. `msm_geni_serial.c:2793` was passing a
+`const char *` into a `struct device *` slot, and neither the spec nor the strong-model review had noticed,
+because the signature change (`0c6f8a9a50ad`) touched 0 lines of that file and the series never mentioned it.
+P3 found it only because the spec's own check could not pass without fixing it. **Specs derived from analysis
+inherit that analysis's blind spots** — so a passing check is evidence the spec was complete, not evidence the
+work was.
+
+The same shape appeared twice more in one day: a fragment rule that would have cancelled
+`CONFIG_DEBUG_INFO_BTF=y` by applying two comment lines as if they were config, and a `STR_REPLACE` chain whose
+anchors each depended on the previous insert, so four narrative sections silently vanished while the table rows
+around them landed. **Assert every edit.** A `str.replace()` with no `assert` is a silent no-op, and a commit
+message describing content that is not in the file is worse than no commit message.
+
+**3. Small is not the same as trivial, and "verified" can be wrong three times in one session.** Checking a
+cherry-pick by reversing the transform is the right instinct — but my first run returned `False` because I dropped
+a closing quote. Two more of my own checks were wrong before they reached the repo: I looked for the vdso in
+`arch/arm64/boot/` when it lives in `arch/arm64/kernel/vdso/`, and I doubted `select BPF_ARCH_SPINLOCK` on the
+grounds that a `select` of an undefined symbol is a no-op — when the symbol is defined in `kernel/Kconfig.locks:245`,
+not the `kernel/bpf/Kconfig` one expects. All three were caught by re-running rather than by being careful the
+first time.
+
+**4. The kernel's own history is the best available oracle.** `git log -S'<symbol>'` on the series, or diffing
+against the base, repeatedly settled questions that reading the code could not — most importantly that arm64 never
+had `select BPF_ARCH_SPINLOCK`, so P4's fix was a deliberate addition matching mainline rather than a restoration.
+Note the limit: the series head `baa585f67e0e` is from a **much newer kernel** (it includes `fb.h`, `cpu_pm.h`,
+`ems/ems.h`), so "does the result match the series head?" is only a meaningful check for hunks the series actually
+touched — a whole-file diff there is 800+ lines of noise.
+
 ## Summary
 
 All **39** helper tasks in [`AGENT-TASKS.md`](AGENT-TASKS.md) were dispatched and are complete:
@@ -959,6 +1003,22 @@ kernel clone   ~/work/k670        READ-ONLY, shared by ~30 agents
 Kernel tree verified state: sdm670 tip `a30605a54f3b92627d868f169c72ef9c6ef82123`, series base
 `d54533f1546b91f94eb4e445dfea3a94ffa58a74`, series head
 `baa585f67e0efc9f1efa046d0b0e76955ca4c8d5`, 2,599 commits, `exy/l222` + `exy/l232` fetched.
+
+**The build needs `/home/anton/work/llvmbin` on `PATH`, and getting this wrong does not fail the build.**
+Debian's `llvm-19` installs only versioned names (`llvm-nm-19`, `llvm-addr2line-19`, ...) while kbuild's
+`LLVM=1` invokes the unversioned ones. P4 bridged that with symlinks in `/home/anton/work/llvmbin`. Without them
+`vdso.so.dbg` does not link, `vdso_offset_sigtramp` is generated **wrong**, and **the build still exits 0** — you
+would ship a kernel with a silently broken sigreturn trampoline. Reproduce with:
+
+```bash
+mkdir -p ~/work/llvmbin
+for f in /usr/bin/llvm-*-19; do ln -sf "$f" ~/work/llvmbin/"$(basename "$f" -19)"; done
+export PATH="$HOME/work/llvmbin:$PATH"
+```
+
+Also: `dtc` is **not** in the §6c P4 package list and is not needed — arm64 `.dtsi` files compile through clang.
+The full working set on Debian 13 is `clang lld flex bison libssl-dev binutils-aarch64-linux-gnu
+binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves`.
 
 Two notes for the next run:
 
