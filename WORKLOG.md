@@ -602,3 +602,10 @@ portable; **[analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md)** i
 requirements, both ways to get the tree, the package list, the two commits to verify, the build command, the traps,
 and P6's forbidden list. `P6` has deliberately **not** been started: there is no port error to hand it, and
 pointing it at a memory shortage would only have it chase a phantom.
+
+## 2026-10-04: B1 merged; cloud-session build ruled out
+- Merged `agent/B1` (fast-forward). On the owner's 15 GB machine, sync and setup passed, but `brunch gts4lvwifi` was OOM-killed twice
+  in Soong's glob phase (14.2 GB RSS + 13.6 GB swap). That's a host limit, not a port defect. `analysis/port/BUILD-HANDOFF.md` has the bigger-machine recipe.
+- Checked whether a Claude Code cloud session could build instead: no. It has 4 CPUs, 15 GB RAM and ~25–30 GB of writable disk, against ~180 GB sync + ~40 GB out
+  and the same RAM that already failed. Recorded in BUILD-HANDOFF.md.
+- Fixed the stale comment in `local_manifests/gts4lv-common.xml` that B1 flagged.

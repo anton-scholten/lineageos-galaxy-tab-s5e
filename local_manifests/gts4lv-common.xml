@@ -5,9 +5,10 @@
   and/or gts4lv.xml (LTE), then run `repo sync`.
 
   device/samsung/gts4lv-common and kernel/samsung/sdm670 come from the
-  anton-scholten forks, branch lineage-23.2. The device tree already has
-  patches 0001-0004. The kernel is still plain lineage-22.2 (the eBPF port is
-  not done yet), so a build boots only once the kernel work lands.
+  anton-scholten forks, branch lineage-23.2: the device tree with patches 0001-0004
+  plus the audio XML commit (e3ccc923bcf2), and the kernel with the ported eBPF
+  series (801f3f20e54a), which builds Image.gz-dtb.
+  Build with: source build/envsetup.sh && brunch gts4lvwifi
   The other repos have no lineage-23.2 branch and stay on lineage-22.2.
 -->
 <manifest>

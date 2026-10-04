@@ -15,6 +15,11 @@ brunch gts4lvwifi
 That is the whole remaining task. If it fails, the error is a real port error and belongs to P6
 ([AGENT-TASKS.md §6c](../../AGENT-TASKS.md)). If it is OOM-killed again, it is the host.
 
+## Not an option: a Claude Code cloud session (checked 2026-10-04)
+A cloud session has 4 CPUs, **15 GB RAM** (the same as the host that was OOM-killed) and a writable-disk allowance of about 25–30 GB
+(this session: 23 GB free), against the ~180 GB sync plus ~40 GB `out/`. Neither fits. Use a machine with ≥32 GB RAM and ≥250 GB disk:
+the owner's machine with more RAM, a friend's PC, or a rented cloud VM. A Claude session is still useful for P6/P7 *reviews* (it reads logs, not the tree).
+
 ## Requirements
 
 | | minimum | recommended |
@@ -167,7 +172,7 @@ outside this repo).
 
 ## If the kernel needs rebuilding
 
-Unlikely — it is verified — but if it does, the build needs `/home/anton/work/llvmbin` on `PATH`, because Debian's
+Unlikely — it is verified — but if it does, the build needs `~/work/llvmbin` on `PATH`, because Debian's
 `llvm-19` ships only versioned names (`llvm-nm-19`) while `LLVM=1` wants unversioned ones:
 
 ```bash
