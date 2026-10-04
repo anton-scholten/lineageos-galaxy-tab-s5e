@@ -2,14 +2,14 @@
 
 You are a helper agent on a project to port LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e.
 This repo holds **docs, analysis, reports and scripts**, not Android source code. There are two kinds of tasks:
-- **Research** (round 3: `K7`, `K8`, `R7`, `R8`, `R9`): you write a report into this repo. You don't change any kernel or device code.
-- **Port** (round 4: `P1`–`P5`): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
+- **Research** (rounds 1–3, all done): you write a report into this repo. You don't change any kernel or device code.
+- **Port** (round 4: `P1`–`P5`; P1 and P2 done, **P3, P4, P5 open**): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
   A stronger model reviews everything you do.
 
 The owner runs the project from [RUNBOOK.md](RUNBOOK.md). That's where your prompt came from.
 
 ## Your first 5 minutes
-1. **Get your task ID.** Your prompt should name it, like `K7`, `R8` or `P1`. If it doesn't, **stop and ask**.
+1. **Get your task ID.** Your prompt should name it. The open tasks are `P3`, `P4` and `P5` (AGENT-TASKS.md §2.3). If it doesn't name one, **stop and ask**.
    Don't pick one yourself, because another agent may be doing it.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
    - §0, all of it: project, words, repos, rules, how to hand in.
@@ -29,7 +29,7 @@ Background, if you need it:
 | [`HANDOVER.md`](HANDOVER.md) | Current state and plan of the whole project |
 | [`LEAD-SYNTHESIS.md`](LEAD-SYNTHESIS.md) | Findings from earlier research: known breakages and traps |
 | [`analysis/conflicts/`](analysis/conflicts/) | One brief per conflicting kernel commit. **P1 follows these** |
-| [`analysis/port/`](analysis/port/README.md) | Round-4 working files: `full-review.txt`, `dropped.tsv`, `dry-run-stops.tsv`, `STATUS.md` |
+| [`analysis/port/`](analysis/port/README.md) | Round-4 working files: `STATUS.md`, **`review-P1.md` (reviewer decisions you must follow)**, `dropped.tsv`, `duplicate-picks.md` |
 | [`analysis/agent-batches/`](analysis/agent-batches/) | Input lists for conflict-brief tasks |
 | [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Other device trees that already did 23.2 |
 | `CLAUDE.md` | Notes for the reviewing lead. Not for you |

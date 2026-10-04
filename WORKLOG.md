@@ -399,3 +399,15 @@ larger blind spot and the reason the spot-check pool still matters.
   - Leave F3.
   - Document the `classify.py` regex bug in the script instead of regenerating.
 - AGENT-TASKS §6c: P3 rewritten (6 items, with "already done by P1, don't redo"); P4 gains the two decided early fixes; P5 reduced to the audio-XML commit plus a skip log.
+
+## 2026-10-04: P3–P5 made ready for the free model
+- Re-checked every P3 item against `port/pick` and wrote it as exact edits with a check per item:
+  - `set_memory.h` only needs to include `asm/cacheflush.h`, because arm64 already declares and defines `set_memory_*`.
+  - `fs/Makefile:93` / `fs/Kconfig:312` insertion points.
+  - F1: delete `drm_mode.h:92-104`. Verified to give exactly the sdm670 base.
+  - F2: delete `fs/userfaultfd.c:1417-1428`, the *second* copy, which leaves the block identical to the series head (duplicate-picks.md had proposed the first).
+  - The defconfig merge rule and a 7-option `.config` check.
+- P4: host-only `COMPAT_VDSO` note, build `gts4lv_defconfig` after `gts4lvwifi`, `pahole` requirement.
+- RUNBOOK: steps 1–3 marked done. Dedicated copy-paste prompts and checks for P3, P4 (with the escalation loop and P4-R) and P5.
+  New "Prompt O": a free-model orchestrator that may start agents and update STATUS but may not do 🔍 reviews or touch main/lineage-23.2.
+- AGENTS.md: the open tasks are P3, P4, P5, and agents must follow `review-P1.md`.

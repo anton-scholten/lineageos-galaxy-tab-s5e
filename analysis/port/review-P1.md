@@ -29,9 +29,9 @@ Verified facts:
    `drivers/power/supply/qcom/smb1390-charger.c:779`, `drivers/power/supply/qcom/step-chg-jeita.c:755`, `net/ipc_router/ipc_router_core.c:1384`.
 3. **Duplicates to delete** ([duplicate-picks.md](duplicate-picks.md)):
    - **F1** `include/uapi/drm/drm_mode.h`: remove the pick's copy at lines 92–104 (`<<19`). Keep 106–124.
-   - **F2** `fs/userfaultfd.c`: remove the first of the two identical `VM_MAYWRITE` blocks (`:1391-1403`).
+   - **F2** `fs/userfaultfd.c`: remove the **second** of the two identical `VM_MAYWRITE` blocks (`:1417-1428`). That leaves the block identical to the series head (verified). duplicate-picks.md proposed the first; both behave the same.
    - **F3** (parisc) stays: identical value, not built.
-4. **`set_memory.h` and `fs/unicode` are still missing**, as expected: `arch/arm64/Kconfig:43` selects `ARCH_HAS_SET_MEMORY`, and nothing wires `fs/unicode` into `fs/Makefile` or `fs/Kconfig`.
+4. **`set_memory.h` and `fs/unicode` are still missing**, as expected. arm64 already declares `set_memory_*` in `asm/cacheflush.h:161-164`, so the new header just includes that. `arch/arm64/Kconfig:43` selects `ARCH_HAS_SET_MEMORY`, and nothing wires `fs/unicode` into `fs/Makefile` or `fs/Kconfig`.
 5. **The two symbols P1 left undefined** (commit `d217c733a`):
    - `cpu_cgrp_id` isn't really missing. `include/linux/cgroup_subsys.h:15-16` generates it when `CONFIG_CGROUP_SCHED` is on, which P3's defconfig does.
    - `task_util_est()`: decided. Map it onto sdm670's WALT `task_util()` with a 3-line inline (AGENT-TASKS §6c P4), instead of porting upstream's

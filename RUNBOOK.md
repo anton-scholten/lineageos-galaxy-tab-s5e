@@ -39,7 +39,7 @@ The agents' own instructions are in [AGENTS.md](AGENTS.md) and [AGENT-TASKS.md](
 
 ---
 
-## 1. Round 3 research (5 free agents in parallel, ≈½ day)
+## 1. ✅ Round 3 research (done 2026-10-03)
 
 Start one agent per ID: `K7`, `K8`, `R7`, `R8`, `R9`. Prompt (change `<ID>`):
 ```text
@@ -52,7 +52,7 @@ then commit and push branch agent/<ID>. If anything fails twice, write it under 
 Then 🔍 review (prompt R below), and merge the `agent/*` branches into `main` (GitHub "Compare & pull request" → merge, or `git merge` locally).
 P1 doesn't need to wait for this; P3 needs K7, and P5 needs R7–R9.
 
-## 2. P1: kernel cherry-pick (1 free agent, sequential, ≈2–4 days)
+## 2. ✅ P1: kernel cherry-pick (done 2026-10-03)
 ```text
 You are a helper agent doing task P1 (AGENT-TASKS.md §6c). Docs repo: ~/work/wt/P1 (branch agent/P1). Kernel clone: ~/work/k670.
 Read AGENTS.md, then AGENT-TASKS.md sections 0, 1, 9, 2.3 and 6c ("Shared setup" and "P1") completely before starting.
@@ -64,23 +64,59 @@ and scripts/check-pick.py prints "problems: 0".
 It runs long, so it's fine to restart the agent with the same prompt: the script resumes where it stopped.
 **Check:** `python3 ~/work/docs/scripts/check-pick.py ~/work/k670 ~/work/pick-review` → `problems: 0`. Look at `## Blocked` in `analysis/port/P1-log.md`.
 
-## 3. 🔍 P1-R review, and P2 triage (in parallel, ≈1–2 days)
+## 3. ✅ 🔍 P1-R review, and P2 triage (done 2026-10-04)
 - **P2** (free, 1–4 agents, IDs `P2-1`…): split `~/work/pick-review/automerge/` alphabetically. Prompt as in step 1 with the ID `P2-<n>`, plus "Your files: <list>".
 - **P1-R** (strong): prompt R below, with "task P1-R: AGENT-TASKS.md §6c 'Strong-model review' steps 1–3 and 6, for P1; packets in ~/work/pick-review".
 - Rejected items go back to the P1 agent: start it with the P1 prompt plus "Apply the fix requests in analysis/port/review-P1.md as new commits with a Fix-by trailer".
 - Then 🔍 **P2-R**: the strong model reads every SUSPECT and 10% of BENIGN.
 
 ## 4. P3: known fixes + defconfig (1 free agent, ≈½ day)
-Needs K7 merged. Prompt: the P1 prompt with "task P3 (AGENT-TASKS.md §6c P3)". Writes to `port/pick`.
+Make the worktree first: `git -C ~/work/docs fetch origin && git -C ~/work/docs worktree add ~/work/wt/P3 -b agent/P3 origin/main`.
+```text
+You are a helper agent doing task P3. Docs repo: ~/work/wt/P3 (branch agent/P3). Kernel clone: ~/work/k670.
+Read AGENTS.md, then AGENT-TASKS.md sections 0, 1, 9 and 6c ("Shared setup" and "P3") completely, plus analysis/port/review-P1.md.
+Work on kernel branch port/pick ONLY: start by fast-forwarding it to origin/port/pick as P3's first paragraph says.
+Make exactly the 6 commits P3 lists, in order, each with its "Fix-by:" trailer, and run each item's check. Push port/pick after each commit.
+If a line number or file doesn't match what the spec says, stop and write it under "## Problems" in analysis/port/P3-log.md. Don't guess.
+When done, commit and push analysis/port/P3-log.md on branch agent/P3.
+```
+**Check:** `git -C ~/work/k670 log --oneline d73f07cf8b5c..origin/port/pick` shows 6 `P3:` commits, and
+`python3 ~/work/docs/scripts/check-pick.py ~/work/k670 ~/work/pick-review` says `problems: 0` with `fix commits: 6`.
+P3 is small and fully specified, so a strong review is optional. If you want one, give prompt R the task "P3 review: read pick-review/fixes/".
 
 ## 5. P4: build loop (1 free agent, ≈3–9 days) with 🔍 P4-R
-Prompt: the P1 prompt with "task P4 (AGENT-TASKS.md §6c P4). Build with analysis/build-test/kbuild.sh. Never use a forbidden fix; escalate instead."
-When it stops with `## Escalated` in `P4-log.md`: give that entry to the strong model (prompt R, task "P4 escalation"). Then restart P4.
-🔍 P4-R: every few days, the strong model reviews the new `fixes/` packets (`check-pick.py` writes them).
-**Done when** `~/work/out/arch/arm64/boot/Image.gz-dtb` exists and `check-pick.py` says `problems: 0`.
+Needs P3. Install the build tools first: AGENT-TASKS §1.0 plus §6c P4
+(`clang lld flex bison libssl-dev binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi gcc-aarch64-linux-gnu dwarves`).
+Worktree: `git -C ~/work/docs worktree add ~/work/wt/P4 -b agent/P4 origin/main`.
+```text
+You are a helper agent doing task P4. Docs repo: ~/work/wt/P4 (branch agent/P4). Kernel clone: ~/work/k670, branch port/pick.
+Read AGENTS.md, then AGENT-TASKS.md sections 0, 1, 9 and 6c ("Shared setup" and "P4") completely, plus analysis/port/review-P1.md.
+First fast-forward port/pick to origin/port/pick. Then loop: build with
+  bash ~/work/wt/P4/analysis/build-test/kbuild.sh ~/work/k670 ~/work/out ~/work/build.log
+take the FIRST error in ~/work/build.log, fix it with an allowed fix only, commit with a "Fix-by:" trailer, push port/pick, repeat.
+Apply the two "Expect early" decisions exactly as written. Never use a forbidden fix: write it under "## Escalated" in
+analysis/port/P4-log.md, commit and push that log on agent/P4, and stop. Done when ~/work/out/arch/arm64/boot/Image.gz-dtb exists
+for gts4lvwifi_defconfig and then for gts4lv_defconfig.
+```
+When it stops on `## Escalated`: give that entry to the strong model (prompt R, task "P4 escalation: <paste>"). Then start P4 again with the same prompt;
+it continues from where the branch is.
+🔍 **P4-R:** every couple of days, and at the end, prompt R with task "P4-R: review pick-review/fixes/ since the last review".
+Run `check-pick.py` first so the packets are fresh.
+**Done when** both builds produce `Image.gz-dtb`, and `check-pick.py` says `problems: 0`.
 
-## 6. P5: device-tree commits (1 free agent, ≈½–1 day) with 🔍 P5-R
-Needs R7–R9 merged. Prompt: "task P5 (AGENT-TASKS.md §6c P5)", device-tree clone in `~/work/dt`, branch `port/dt`.
+## 6. P5: device-tree commit (1 free agent, ≈½ day) with 🔍 P5-R
+Can run now, in parallel with P3/P4. Device-tree clone:
+`git clone -b lineage-23.2 https://github.com/anton-scholten/android_device_samsung_gts4lv-common ~/work/dt` (push access via your SSH key or `fork-token`).
+Worktree: `git -C ~/work/docs worktree add ~/work/wt/P5 -b agent/P5 origin/main`.
+```text
+You are a helper agent doing task P5. Docs repo: ~/work/wt/P5 (branch agent/P5). Device-tree clone: ~/work/dt.
+Read AGENTS.md, then AGENT-TASKS.md sections 0, 1, 9 and 6c ("P5") completely, plus analysis/port/review-P1.md.
+In ~/work/dt create branch port/dt from lineage-23.2. Make the ONE commit P5 item 1 describes (audio policy XML lists comma -> space),
+check every changed XML with xmllint --noout, and push port/dt (never lineage-23.2).
+Then write analysis/port/P5-log.md listing each skipped item from P5 item 2 as "considered, intentionally skipped" with its reason,
+and commit and push it on agent/P5.
+```
+🔍 **P5-R:** prompt R with task "P5-R: review device fork port/dt against AGENT-TASKS §6c P5 and R6".
 
 ## 7. Move the real branches forward (you, minutes)
 After all 🔍 reviews pass:
@@ -99,6 +135,16 @@ If GitHub refuses ("non-fast-forward"), stop and ask the strong model. Never for
 5. Contact krazey (ExyHyperBrick) before publishing the kernel.
 
 ---
+
+## Prompt O: free-model orchestrator (optional)
+If you'd rather not run the steps yourself, a free-model session can run them, the way the round-1–3 lead did:
+```text
+You are the orchestrator for the LineageOS 23.2 Tab S5e port. Docs repo: ~/work/docs. Read CLAUDE.md, HANDOVER.md, RUNBOOK.md and
+analysis/port/STATUS.md. Start the next agents RUNBOOK.md says are ready, each in its own worktree with its RUNBOOK prompt, and run the
+RUNBOOK checks when they finish. Update analysis/port/STATUS.md and WORKLOG.md on a branch named lead/<date> and push it.
+You may NOT: do any step marked 🔍 (ask the owner for a strong model, or for permission to use the "Without a strong model" fallback);
+push to main or to any lineage-23.2 branch; force-push; delete branches. Stop and report to the owner when a step is blocked or done.
+```
 
 ## Prompt R: strong-model review
 ```text

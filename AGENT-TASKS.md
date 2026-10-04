@@ -632,30 +632,61 @@ Task IDs `P2-1` … `P2-4`; the owner tells each agent its share. Read-only on `
 Output `analysis/port/automerge-triage-<n>.tsv`: `sha12	BENIGN|SUSPECT	reason	evidence`.
 
 ### P3: known fixes and defconfig (free model, 1 agent)
-The list was re-checked against `port/pick` @ `d73f07cf8b5c` in [review-P1.md](analysis/port/review-P1.md).
-One commit per item on `port/pick`, each with trailer `Fix-by: <model>; <source>`.
+Every item below was checked by the reviewer against `port/pick` @ `d73f07cf8b5c` ([review-P1.md](analysis/port/review-P1.md)).
+**Before starting:** `git -C ~/work/k670 fetch origin && git -C ~/work/k670 checkout port/pick && git -C ~/work/k670 merge --ff-only origin/port/pick`,
+then `git log -1 --format=%h` must print `d73f07cf8b5c` (or a later commit, if P3 was already partly done: then skip the items already in `git log`).
+One commit per item, message `P3: <what>`, trailer `Fix-by: <model>; <source>`. Push `port/pick` after each commit.
+If a line number below doesn't match what you see, **stop and report**: don't guess a new location.
 
-**Already done by P1. Don't redo:** `TIF_UPROBE`→5 with `_TIF_WORK_MASK`, `FAULT_FLAG_INTERRUPTIBLE`→`0x800`, `VM_FLUSH_RESET_PERMS`→`0x200`
+**Already done by P1, don't redo:** `TIF_UPROBE`→5 with `_TIF_WORK_MASK`, `FAULT_FLAG_INTERRUPTIBLE`→`0x800`, `VM_FLUSH_RESET_PERMS`→`0x200`
 (never re-add the series' `0x100`). The other K7 rows are moot in this tree.
 
-1. **`arch/arm64/include/asm/set_memory.h`**: new file modelled on `arch/arm/include/asm/set_memory.h`, keeping the GPL header
-   ([LEAD-SYNTHESIS.md §1.3](LEAD-SYNTHESIS.md)). `arch/arm64/Kconfig:43` selects `ARCH_HAS_SET_MEMORY`, so `include/linux/set_memory.h` includes it.
-   Declare `set_memory_ro/rw/x/nx` as in the arm template. Check whether `arch/arm64/mm/pageattr.c` already defines them:
-   `grep -n 'int set_memory_' arch/arm64/mm/pageattr.c`. If it does, only add the declarations.
-2. **`wakeup_source_register()` callers with the old 1-argument form** become `wakeup_source_register(NULL, <name>)` (LEAD-SYNTHESIS §6.2).
-   All five: `drivers/char/diag/diagchar_core.c:4148`, `drivers/power/supply/qcom/battery.c:1605`, `drivers/power/supply/qcom/smb1390-charger.c:779`,
-   `drivers/power/supply/qcom/step-chg-jeita.c:755`, `net/ipc_router/ipc_router_core.c:1384`. Re-check with
-   `git grep -n 'wakeup_source_register(' -- '*.c'`: every call must have 2 arguments.
-3. **`fs/unicode/`**: `git checkout baa585f67e0e -- fs/unicode` (unchanged GPL code). Then add `obj-$(CONFIG_UNICODE) += unicode/` to `fs/Makefile`
-   and `source "fs/unicode/Kconfig"` to `fs/Kconfig`, both where the series head has them
-   (`git show baa585f67e0e:fs/Makefile | grep -n unicode`, the same for `fs/Kconfig`).
-4. **F1** `include/uapi/drm/drm_mode.h`: delete the pick's duplicate block, the `DRM_MODE_PICTURE_ASPECT_*` and `DRM_MODE_FLAG_PIC_AR_*` defines
-   using `<<19` (lines 92–104 plus their comment line). **Keep** the `<<24` block below it. Read [duplicate-picks.md](analysis/port/duplicate-picks.md) first.
-5. **F2** `fs/userfaultfd.c`: delete the first of the two identical `VM_MAYWRITE` check blocks (`:1391-1403`), exactly as duplicate-picks.md says.
-6. **Defconfig:** merge `analysis/defconfig/gts4lv-23.2.fragment` into all four `arch/arm64/configs/gts4lv*_defconfig` files. For each `CONFIG_X=y` or
-   `# CONFIG_X is not set` line, replace the existing line for X or append it. **Must include** `CONFIG_CGROUP_SCHED=y`, `CONFIG_UPROBES=y`, `CONFIG_BPF_JIT=y`.
-   Check: run `kbuild.sh` up to `olddefconfig` (or `make O=~/work/out ARCH=arm64 gts4lvwifi_defconfig`), then
-   `grep -E 'CONFIG_(CGROUP_SCHED|SCHED_WALT|UPROBES|BPF_JIT|UNICODE)=' ~/work/out/.config` must show all five `=y`.
+1. **New file `arch/arm64/include/asm/set_memory.h`.** arm64 already declares `set_memory_ro/rw/x/nx` in `asm/cacheflush.h:161-164` and defines them
+   in `arch/arm64/mm/pageattr.c`. So the new header only has to pull those in. Exact content:
+   ```c
+   /* SPDX-License-Identifier: GPL-2.0 */
+   #ifndef _ASM_ARM64_SET_MEMORY_H
+   #define _ASM_ARM64_SET_MEMORY_H
+
+   /* 4.9: set_memory_ro/rw/x/nx are declared in asm/cacheflush.h and defined in arch/arm64/mm/pageattr.c. */
+   #include <asm/cacheflush.h>
+
+   #endif /* _ASM_ARM64_SET_MEMORY_H */
+   ```
+   Source: LEAD-SYNTHESIS §1.3 (`arch/arm64/Kconfig:43` selects `ARCH_HAS_SET_MEMORY`; `include/linux/set_memory.h:12` includes this file).
+2. **Five old-style `wakeup_source_register()` calls** get `NULL` as a new first argument, e.g. `wakeup_source_register(NULL, "DIAG_WS")`:
+   - `drivers/char/diag/diagchar_core.c:4148`
+   - `drivers/power/supply/qcom/battery.c:1605`
+   - `drivers/power/supply/qcom/smb1390-charger.c:779`
+   - `drivers/power/supply/qcom/step-chg-jeita.c:755`
+   - `net/ipc_router/ipc_router_core.c:1384`
+
+   Check: `git grep -n 'wakeup_source_register(' -- '*.c'`. Every call must now have two arguments (`qdf_lock.c:273` already does). Source: LEAD-SYNTHESIS §6.2.
+3. **`fs/unicode`:** `git checkout baa585f67e0e -- fs/unicode`. Then two one-line insertions, both exactly where the series head has them:
+   - `fs/Makefile`: after line 93, `obj-$(CONFIG_NLS)		+= nls/`, add `obj-$(CONFIG_UNICODE)		+= unicode/`
+   - `fs/Kconfig`: after line 312, `source "fs/dlm/Kconfig"`, add `source "fs/unicode/Kconfig"`
+
+   Source: LEAD-SYNTHESIS §1.6.
+4. **F1, `include/uapi/drm/drm_mode.h`:** delete lines **92–104**: the pick's duplicate block, from `/* Picture aspect ratio options */` down to the
+   `(DRM_MODE_PICTURE_ASPECT_16_9<<19)` line. Keep the `<<24` block that follows. Check: the region from `DRM_MODE_FLAG_SUPPORTS_YUV420` to
+   `DRM_MODE_FLAG_PIC_AR_256_135` is then identical to the sdm670 base (`git show a30605a54f3b:include/uapi/drm/drm_mode.h`), and
+   `grep -c 'PIC_AR_MASK' include/uapi/drm/drm_mode.h` prints `1`. Background: [duplicate-picks.md](analysis/port/duplicate-picks.md).
+5. **F2, `fs/userfaultfd.c`:** delete lines **1417–1428**: the *second* copy of the `UFFDIO_COPY will fill file holes` comment and its
+   `VM_MAYWRITE` check, the one *after* the hugetlb alignment block. Keep the first copy. That makes the block identical to the series head.
+   (duplicate-picks.md proposed deleting the first copy; both are equivalent, but the reviewer chose the one that matches upstream.)
+   Check: `grep -c 'if (unlikely(!(cur->vm_flags & VM_MAYWRITE)))' fs/userfaultfd.c` prints `1`.
+6. **Defconfig:** merge `analysis/defconfig/gts4lv-23.2.fragment` into all four defconfigs: `arch/arm64/configs/gts4lvwifi_defconfig`,
+   `gts4lv_defconfig`, `gts4lvwifi_eur_open_defconfig`, `gts4lv_eur_open_defconfig`. For each `CONFIG_X=y` or `# CONFIG_X is not set` line in the
+   fragment (comment lines starting `# ` followed by anything else are notes, so skip those): if the defconfig has a line for `CONFIG_X` (either form),
+   replace it; otherwise append it at the end. **Must end up with** `CONFIG_CGROUP_SCHED=y`, `CONFIG_UPROBES=y`, `CONFIG_BPF_JIT=y`, `CONFIG_UNICODE=y`.
+   Check (needs the P4 build tools):
+   `make O=~/work/out ARCH=arm64 LLVM=1 gts4lvwifi_defconfig` then
+   `grep -E '^CONFIG_(CGROUP_SCHED|FAIR_GROUP_SCHED|SCHED_WALT|UPROBES|BPF_JIT|BPF_LSM|UNICODE)=y' ~/work/out/.config | wc -l` prints `7`.
+   If one is missing, Kconfig dropped it because a dependency is off: find it with `make O=~/work/out ARCH=arm64 LLVM=1 menuconfig`'s search, or the
+   fragment's comments. Add the dependency, don't drop the option.
+
+**Done when** all 6 commits are pushed and these all hold: `ls arch/arm64/include/asm/set_memory.h fs/unicode/Kconfig` works, and the checks
+in items 2, 4, 5 and 6 pass. Log one line per item in `analysis/port/P3-log.md` (on `agent/P3`), with the commit SHA.
 
 Not P3: F3 (the parisc duplicate) stays. `restore_pcpu_tick` is no longer referenced. The uclamp symbols come in P4.
 
@@ -675,6 +706,13 @@ Build: `bash $DOCS/analysis/build-test/kbuild.sh . ~/work/out ~/work/build.log` 
   	return task_util(p);
   }
   ```
+
+**Notes:**
+- `kbuild.sh` turns off `CONFIG_COMPAT_VDSO`. That's a host workaround for building outside a LineageOS tree; the real ROM build keeps it on. Don't copy
+  it into a defconfig.
+- Build `gts4lvwifi_defconfig` first (the script's default). When `Image.gz-dtb` links, change the defconfig name in your copy of the command to
+  `gts4lv_defconfig`, build once more, and fix anything new the same way.
+- `DEBUG_INFO_BTF=y` needs `pahole` ≥ 1.13 (`dwarves` package) on `PATH`.
 
 **Loop:** build → take the **first** error in `build.log` → fix it → commit → repeat until `Image.gz-dtb` exists.
 Allowed fixes, in order of preference:
