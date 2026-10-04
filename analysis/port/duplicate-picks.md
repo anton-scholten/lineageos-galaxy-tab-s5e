@@ -55,7 +55,12 @@ fs/userfaultfd.c:1427   if (unlikely(!(cur->vm_flags & VM_MAYWRITE)))   <- base 
 
 Ranges 1392–1402 and 1418–1428 are byte-identical. Nothing was lost: the two `WARN_ON` lines the patch wanted
 are present at `:1461` and `:1633`. **Currently:** benign — the check is idempotent, so the second copy is
-unreachable dead code. Fix: delete `fs/userfaultfd.c:1391–1403`. `confidence: high`.
+unreachable dead code. `confidence: high`.
+
+> **Superseded by the reviewer (2026-10-04).** [review-P1.md](review-P1.md) chose the **other** copy: delete
+> the **second** block, `fs/userfaultfd.c:1417–1428`, keeping the first. Both are behaviourally equivalent, but
+> deleting the second is what makes the result identical to the series head, which is the state P1-R verified.
+> **Follow the reviewer: delete `:1417–1428`, not `:1391–1403`.** That is what P3 item 5 does.
 
 Worth checking the rest of the `fs/userfaultfd.c` linked group (`10a07035a7e7`, `fad9a6a81aa6`, `f0f30b4639c2`,
 `9114ddb3b20f`, `b07d07e8f011`) for the same "already present in base, landed anyway" shape.
@@ -109,9 +114,10 @@ construction, so its patch-id can never equal the base's patch-id for the same c
 
 ## Left for P1-R
 
-- Apply F1 and F2 (both one-block deletions; F1's target lines are load-bearing — see above).
+**All three items below are now assigned to P3** (`AGENT-TASKS.md` §6c items 4, 5, and the "not P3" note).
+- Apply F1 and F2 — both one-block deletions; F1's target lines are load-bearing, see above.
 - Read the rest of the `fs/userfaultfd.c` linked group for class A.
-- Decide whether F3 is worth touching at all. It is benign; deleting it is cosmetic.
+- **F3 is settled: leave it.** The reviewer decided it stays (legal C, `arch/parisc` is not built).
 - The sweep's own caveat: it looked for duplicate *definitions* and duplicate *blocks*. It cannot detect a
   pick that landed a **semantically wrong** but non-duplicated change, which is the larger blind spot and the
   reason the spot-check pool still matters.
