@@ -411,3 +411,102 @@ larger blind spot and the reason the spot-check pool still matters.
 - RUNBOOK: steps 1–3 marked done. Dedicated copy-paste prompts and checks for P3, P4 (with the escalation loop and P4-R) and P5.
   New "Prompt O": a free-model orchestrator that may start agents and update STATUS but may not do 🔍 reviews or touch main/lineage-23.2.
 - AGENTS.md: the open tasks are P3, P4, P5, and agents must follow `review-P1.md`.
+
+## 2026-10-04: P5 and P3 complete, P4 builds — the kernel compiles for the first time
+
+Owner installed the P4 toolchain between turns. Re-checked every item in §6c P4's list: clang 19.1.7, ld.lld
+19.1.7, flex 2.6.4, bison 3.8.2, aarch64-linux-gnu-gcc 14.2.0, binutils for aarch64 and arm, dwarves 1.30,
+libssl-dev, 296 GB free. `dtc` is absent and **not needed** — arm64 `.dtsi` files compile through clang, and it is
+not in the spec's list. I also re-ran the spec's exact P3 item-6 command, `make O=... ARCH=arm64 LLVM=1
+gts4lvwifi_defconfig`, which now exits 0, so P3 needed no deviation from the spec.
+
+Housekeeping first: corrected `duplicate-picks.md`, which proposed deleting F2's *first* copy where the reviewer
+overrode it to the *second* (`fs/userfaultfd.c:1417-1428`) to match the series head. Left alone, that file would have
+sent P3 to the wrong lines. Also refreshed `STATUS.md`, which still said P1-R was blocked.
+
+**P5 — done.** `port/dt` @ `e3ccc923bcf2`, one commit, one file: 79 lines / 499 commas in
+`audio/configs/audio_policy_configuration.xml` converted from comma-separated to space-separated. `xmllint --noout`
+clean, `lineage-23.2` untouched. I pre-verified its scope so it would not wander: exactly one `audio_policy*.xml`
+exists, and `audio_platform_info.xml` / `audio_platform_info_diff.xml` are `audio_platform*` and out of scope —
+"any other `audio_policy*.xml`" invites exactly that mistake.
+
+I checked the commit by reversing the transform on the new file and comparing to `lineage-23.2`'s copy: **byte for
+byte identical**, all 110 attributes' token lists equal, no token lost, no double or edge whitespace. That is what
+distinguishes it from a blind `sed 's/,/ /g'`, which would have destroyed the 84 commas in the `sources=` route
+attributes — and which the diffstat alone would not have revealed.
+
+**My first attempt at that check returned `False`, and it was my bug**, not the agent's: I dropped the closing quote
+in the replacement and mis-normalised the token lists. Third time this project an `&&` chain or a sloppy regex has
+produced a wrong intermediate result. Worth stating plainly rather than quietly fixing.
+
+**P3 — done.** `port/pick` @ `316352012ff2`, six commits, `problems: 0`, `fix commits: 6`. All verified by me:
+F1 came out right (one `PIC_AR_MASK` at `<<24`, `_64_27` and `_256_135` intact, **zero** occurrences of `0x0F<<19`,
+so the bit-22 collision with `SUPPORTS_YUV420` is gone), F2 down to one `VM_MAYWRITE` check, all four defconfigs
+7/7. The two fragment options that cannot reach `.config` — `SCHED_TUNE` and `CGROUP_SCHEDTUNE` — are blocked by
+`init/Kconfig:1536 depends on !UCLAMP_TASK` with `UCLAMP_TASK=y`, which I confirmed is the fragment's own §4.3/4.4
+prediction rather than a failure.
+
+Two things P3 did that the spec did not authorise, both correct and both documented:
+
+- **It found a 6th `wakeup_source_register()` caller that neither the spec nor `review-P1.md` knew about.**
+  `drivers/tty/serial/msm_geni_serial.c:2793` was passing a `const char *` into the new `struct device *` slot.
+  Verified: `0c6f8a9a50ad`, the commit that changed the signature, touches **0** lines of that file, and the series
+  has **0** commits touching it — so nothing anywhere fixed it, and `CONFIG_SERIAL_MSM_GENI=y` in all four defconfigs.
+  It fixed this with `&pdev->dev`, following `wakeup.c:324` and `alarmtimer.c:1039`, and flagged it
+  `Needs-review:`. **That flag is the one open question for P3-R**: `NULL` would preserve the original name-only
+  behaviour more faithfully, `&pdev->dev` ties the wakeup source to device suspend. Both defensible; do not "fix" it
+  without a ruling.
+- **It skipped fragment section 5.** The spec's mechanical rule would have applied two `is not set` lines that are
+  written as *comments*, cancelling section 1's `CONFIG_DEBUG_INFO_BTF=y` — the opposite of the fragment's intent.
+
+P3 also caught and repaired an accident of its own: its first `git checkout port/pick` failed on a single-branch
+clone, and because the command sat in an `&&` chain piped through `tail`, the following `git merge --ff-only` ran
+anyway and fast-forwarded the **local** `lineage-23.2`. Repaired with `git branch -f` before any commit. I verified
+the remote was never touched. Second time this project an `&&` chain swallowed a failure — the same shape that
+produced round 2's two false "unbriefed conflicts".
+
+**P4 — done, and the kernel compiles.** Both target defconfigs link `Image.gz-dtb` from clean output trees:
+`gts4lvwifi_defconfig` EXIT=0 at 18,735,923 B and `gts4lv_defconfig` EXIT=0 at 18,743,864 B. All 20 warnings are
+`DWARF2 only supports one section per compilation unit` from hand-written `.S` files, and the 22.2 baseline had
+exactly the same 20. `check-pick.py` → `problems: 0`, `fix commits: 20`. Nothing escalated: no error needed a
+forbidden fix, and no command failed twice.
+
+I reviewed all 14 commits individually, because "no forbidden fix" was the claim most worth testing. Every diff is
+1–36 lines and surgical; **nothing disables or deletes a check to silence an error.**
+
+Two of P4's commits looked wrong to me and were not:
+
+- **The vdso.** `include/generated/vdso-offsets.h` is 36 bytes and `vdso.so` is 3,576 B, which reads like a stub. It
+  is not: arm64's vdso needs exactly **one** offset — `#define vdso_offset_sigtramp 0x0810` — and it is present,
+  non-zero, with `vdso.so.dbg` linked, exporting `__kernel_clock_gettime`, `__kernel_gettimeofday`,
+  `__kernel_clock_getres`, `__kernel_time` and `__kernel_rt_sigreturn` under SONAME `linux-vdso.so.1`. The large
+  `__vdso_*` offset table is an x86 thing. My first check also failed outright because I looked for the binaries in
+  `arch/arm64/boot/` when they live in `arch/arm64/kernel/vdso/`.
+- **`5078de1ee272`, the one-line `select BPF_ARCH_SPINLOCK` P4 most wanted a ruling on.** I doubted it because the
+  symbol is not in `kernel/bpf/Kconfig` and a `select` of an undefined symbol is a silent no-op. Wrong: it is defined
+  in `kernel/Kconfig.locks:245`, evaluates to `CONFIG_BPF_ARCH_SPINLOCK=y` in both configs, and that makes
+  `kernel/bpf/helpers.c:652` take the `arch_spinlock_t` branch, so the broken `atomic_cond_read_relaxed(l, !VAL)` at
+  `:678` is no longer compiled. **The fix works.** It is not a restoration, though — neither the base nor the series
+  head had that select on arm64; P4 added it, matching mainline arm64.
+
+**The one real handoff gap.** The build needs `/home/anton/work/llvmbin` on `PATH`: Debian's `llvm-19` ships only
+versioned names (`llvm-nm-19`) while `LLVM=1` looks for unversioned ones. P4 made persistent symlinks there.
+Nothing in the repo, the kernel tree or `kbuild.sh` was changed — all verified clean. Without that directory on
+`PATH`, `vdso.so.dbg` does not link and `vdso_offset_sigtramp` comes out **wrong**: a silently broken sigreturn
+trampoline rather than a build failure. Documented in `STATUS.md` because it will bite anyone who rebuilds here.
+
+**Open, and needing the owner or a strong model:**
+
+- **P4-R** is now the highest-value review left. Five commits carry `Needs-review:`. I have pre-verified all five
+  mechanically; what remains are judgement calls — chiefly whether to backport 4.11's `vfs_getattr()` or keep 4.9's
+  two-argument form, and the fuse `pid_ns` backport.
+- **The DRM format-modifier feature is half-present by the series' own design** (`1c21d6589088`). There is no
+  `drm_mode_mod_get()` and no `DRM_MODE_MOD_*` anywhere in the series head, so no userspace can consume the
+  `IN_FORMATS` blob it creates; no driver sets `allow_fb_modifiers`, so it is inert. P4 escalated rather than
+  deleting the `drm_plane.c` hunk of `c72864d9d467`, because that would have been a deletion. Correct restraint.
+- **`target-level`** is still the one open project decision. Harmless at 5 for a first build.
+- **`process_mrelease`** remains unported on an unverified lmkd fallback. Check `logcat -s lmkd` at first boot.
+
+**Next: P4-R, then step 7** — fast-forward `lineage-23.2` on both forks, which must be a fast-forward and is never
+force-pushed. After that, the owner's ROM build, for which the one instruction that matters is
+`brunch lineage_gts4lvwifi`, not a bare `m`.
