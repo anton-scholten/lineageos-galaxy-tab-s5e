@@ -17,6 +17,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | **Build (P4)** | **Done — the kernel builds.** Both `gts4lvwifi_defconfig` and `gts4lv_defconfig` link `Image.gz-dtb`, `EXIT=0`, 14 commits, nothing escalated, `problems: 0`, `fix commits: 20` |
 | Device tree (P5) | **Done.** 1 commit: space-separated lists in the audio policy XML, verified by a byte-for-byte reverse-transform |
 | Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
+| Reviews | **All passed** (P1-R…P5-R). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
 | Not yet done | **No ROM built, nothing flashed, nothing booted.** The kernel compiles; that is as far as it has got |
 
 ## Plan of remaining work
@@ -30,20 +31,19 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 | ~~4~~ | ~~P3 known fixes + defconfig, 6 items~~ **done** | done | |
 | ~~5~~ | ~~P4 build loop until `Image.gz-dtb` links~~ **done, nothing escalated** | done | |
 | ~~6~~ | ~~P5: 1 device-tree commit into `port/dt` + skip log~~ **done** | done | |
-| 6.5 | **P4-R and P5-R** — the last strong-model reviews. Six commits carry `Needs-review:` (one from P3, five from P4); all six are listed with their alternatives in [STATUS.md](analysis/port/STATUS.md#decisions-still-open) | **strong** | hours |
+| ~~6.5~~ | ~~P3-R, P4-R and P5-R~~ **passed** ([review-P4.md](analysis/port/review-P4.md)); reviewer rebuilt the kernel independently | done | |
 | 7 | Fast-forward both forks' `lineage-23.2` | owner | minutes |
 | 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch lineage_gts4lvwifi` (and `gts4lv`); build errors to a free agent + review | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
 | 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
 | 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
 | 11 | Later: `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
 
-**Owner to-do now:**
-1. Protect `lineage-23.2` in both forks and `main` here (RUNBOOK §0.4; still open per STATUS).
-2. Get **P4-R** and **P5-R** done on a strong model. This is the last gate. Six commits carry `Needs-review:`; the
-   lead has already verified all six mechanically, so what remains are judgement calls, listed in
-   [STATUS.md](analysis/port/STATUS.md#decisions-still-open).
-3. Then step 7: fast-forward both `lineage-23.2` branches. **Must be a fast-forward. Never force-push.** If GitHub
-   refuses, stop and ask a strong model.
+**Owner to-do now (step 7, then 8):**
+1. Fast-forward both `lineage-23.2` branches (RUNBOOK §7): kernel to `801f3f20e54a`, device tree to `e3ccc923bcf2`.
+   **Must be a fast-forward; never force-push.** Branch protection lets only you do it.
+2. Start the ROM build on your own machine (RUNBOOK §8): ~150 GB sync, then `brunch lineage_gts4lvwifi`.
+   Hand any build errors to a free agent (RUNBOOK §8 prompt) and the fixes to a strong-model review.
+3. First boot (⚠️ flashing erases data; back up first). Check audio and `logcat -s lmkd` early ([review-P4.md](analysis/port/review-P4.md)).
 
 ## Rebuilding the working environment (cloud container)
 ```bash

@@ -1004,9 +1004,9 @@ Kernel tree verified state: sdm670 tip `a30605a54f3b92627d868f169c72ef9c6ef82123
 `d54533f1546b91f94eb4e445dfea3a94ffa58a74`, series head
 `baa585f67e0efc9f1efa046d0b0e76955ca4c8d5`, 2,599 commits, `exy/l222` + `exy/l232` fetched.
 
-**The build needs `/home/anton/work/llvmbin` on `PATH`, and getting this wrong does not fail the build.**
+**The build needs `~/work/llvmbin` on `PATH`, and getting this wrong does not fail the build.**
 Debian's `llvm-19` installs only versioned names (`llvm-nm-19`, `llvm-addr2line-19`, ...) while kbuild's
-`LLVM=1` invokes the unversioned ones. P4 bridged that with symlinks in `/home/anton/work/llvmbin`. Without them
+`LLVM=1` invokes the unversioned ones. P4 bridged that with symlinks in `~/work/llvmbin`. Without them
 `vdso.so.dbg` does not link, `vdso_offset_sigtramp` is generated **wrong**, and **the build still exits 0** — you
 would ship a kernel with a silently broken sigreturn trampoline. Reproduce with:
 

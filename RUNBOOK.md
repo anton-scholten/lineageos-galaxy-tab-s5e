@@ -4,8 +4,8 @@ For the **owner**. It says what to start, in which order, with which prompt, and
 The agents' own instructions are in [AGENTS.md](AGENTS.md) and [AGENT-TASKS.md](AGENT-TASKS.md). Progress is tracked in
 [analysis/port/STATUS.md](analysis/port/STATUS.md).
 
-> **Where we are (2026-10-04):** steps 1–3 are done and reviewed. **Next: step 4 (P3) and step 6 (P5), in parallel.**
-> Still open from step 0: branch protection on `lineage-23.2` (both forks) and `main`. SSH keys with write access work instead of `fork-token`.
+> **Where we are (2026-10-04):** steps 1–6 are done and every 🔍 review has passed ([review-P4.md](analysis/port/review-P4.md)).
+> The kernel builds. **Next: step 7 (you, minutes), then step 8 (ROM build on your machine).**
 
 **Roles**
 - **Free model** ("Space Bunny Free" in OpenCode): every work step.
@@ -86,7 +86,7 @@ P3 is small and fully specified, so a strong review is optional. If you want one
 
 ## 5. ✅ P4: build loop (done 2026-10-04) — both defconfigs link `Image.gz-dtb`; 🔍 P4-R still open
 
-⚠️ **Rebuilding needs `/home/anton/work/llvmbin` on `PATH`.** Debian's `llvm-19` ships only versioned names
+⚠️ **Rebuilding needs `~/work/llvmbin` on `PATH`.** Debian's `llvm-19` ships only versioned names
 (`llvm-nm-19`) but kbuild's `LLVM=1` wants unversioned ones. Without the symlinks the build **still exits 0** while
 `vdso_offset_sigtramp` is generated wrong — a silently broken sigreturn trampoline, not a build error:
 
@@ -139,12 +139,37 @@ cd ~/work/dt   && git fetch origin && git push origin origin/port/dt:refs/heads/
 If GitHub refuses ("non-fast-forward"), stop and ask the strong model. Never force-push.
 
 ## 8. ROM build, flash, test (you + tablet, ≈2–3 weeks)
-1. Build: [PORTING-LINEAGE-23.2.md §3](PORTING-LINEAGE-23.2.md#3-building). Use `brunch lineage_gts4lvwifi`, **not** a bare `m`
-   ([LEAD-SYNTHESIS.md §7.1](LEAD-SYNTHESIS.md)). Give build errors to a free agent (prompt R-style, "fix this build error in the device fork, port/dt").
-2. Flash: [README.md](README.md) path A or B. ⚠️ **Unlocking and installing erases all data on the tablet.** Back up first.
-3. If it doesn't boot: collect logs as in [TESTING.md](TESTING.md) after **every** crash (pstore keeps only the newest), and give them to the strong model.
-4. Once it boots: `scripts/device-checks.sh`, then 24 h of normal use, then the LTE model.
-5. Contact krazey (ExyHyperBrick) before publishing the kernel.
+### 8a. Sync and build (your machine: ~300 GB disk, 16 GB+ RAM, ≈1 day for the first sync and build)
+Follow [PORTING-LINEAGE-23.2.md §3](PORTING-LINEAGE-23.2.md#3-building): `repo init` lineage-23.2, copy `local_manifests/gts4lv-common.xml` and
+`gts4lvwifi.xml` (they pull both forks' `lineage-23.2`, which after step 7 contain the port), `repo sync`, then
+`source build/envsetup.sh && brunch lineage_gts4lvwifi`. **Use `brunch`, never a bare `m`** ([LEAD-SYNTHESIS.md §7.1](LEAD-SYNTHESIS.md)).
+Save the log: `brunch lineage_gts4lvwifi 2>&1 | tee ~/work/rom-build.log`.
+
+### 8b. P6: ROM build-error loop (1 free agent) with 🔍 P6-R
+Most errors will be in the device tree (sepolicy neverallows, VINTF, blob linkage). Worktree: `git -C ~/work/docs worktree add ~/work/wt/P6 -b agent/P6 origin/main`.
+```text
+You are a helper agent doing task P6. Docs repo: ~/work/wt/P6 (branch agent/P6). Android tree: ~/android/lineage (synced, lineage-23.2).
+Read AGENTS.md, AGENT-TASKS.md sections 0, 9 and 6c ("P6"), plus analysis/port/review-P1.md and review-P4.md.
+Take the FIRST error in ~/work/rom-build.log. Fix it in device/samsung/gts4lv-common on a branch port/dt-2 (from lineage-23.2) with one commit
+per fix and a "Fix-by:" trailer, using only the allowed fixes in AGENT-TASKS 6c P6. Rebuild with
+  source build/envsetup.sh && brunch lineage_gts4lvwifi 2>&1 | tee ~/work/rom-build.log
+and repeat. Push port/dt-2 after each fix (never lineage-23.2). Escalate anything forbidden under "## Escalated" in
+analysis/port/P6-log.md and stop. Done when the build produces out/target/product/gts4lvwifi/lineage-23.2-*.zip.
+```
+A kernel error in the ROM build goes back to P4's rules on `port/pick`. 🔍 P6-R: prompt R, task "P6-R: review port/dt-2".
+Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way as step 7.
+
+### 8c. Flash and first boot (you + tablet)
+1. ⚠️ **Unlocking the bootloader and installing erase all data on the tablet.** Back up first ([README.md](README.md) "Back up first").
+2. Flash: [README.md](README.md) path A (from stock) or B (from 22.2), using your build's `recovery.img`, `vbmeta.img` and zip.
+3. First checks, before anything else: Wi-Fi, audio playback and the mic (P5's change), and
+   `adb logcat -d | grep -iE 'lmkd|AudioPolicy|netbpfload|bpfloader'`.
+4. If it doesn't boot or crashes: collect logs as in [TESTING.md](TESTING.md) after **every** crash (pstore keeps only the newest), and give
+   them to the strong model (prompt R, task "boot debugging: <paste logs>"). Kernel fixes go to `port/pick` (P4 rules), device fixes to `port/dt-2` (P6 rules).
+
+### 8d. Test and finish
+1. `scripts/device-checks.sh`, then 24 h of normal use, then repeat 8a–8c for the LTE model (`brunch lineage_gts4lv`).
+2. Contact krazey (ExyHyperBrick) before publishing the kernel.
 
 ---
 

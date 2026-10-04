@@ -10,8 +10,8 @@ Every task gives you:
 A lead agent or the owner reviews and merges your output. You never change the kernel or device tree
 directly: you **research and write reports**. State checked on 2026-10-03; see [HANDOVER.md](HANDOVER.md).
 
-> **Status (2026-10-04): rounds 1–3, P1 and P2 are done, reviewed and merged.** Their sections stay as the format reference.
-> **Open: P3, P4 and P5 (§2.3, §6c).** Review record: [analysis/port/review-P1.md](analysis/port/review-P1.md).
+> **Status (2026-10-04): rounds 1–3 and P1–P5 are done, reviewed and merged; the kernel builds.** Their sections stay as the format reference.
+> **Open: P6 (ROM build errors, after the owner's first ROM build, §6c).** Review records: [review-P1.md](analysis/port/review-P1.md), [review-P4.md](analysis/port/review-P4.md).
 > The cross-agent findings are in [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md).
 
 ---
@@ -69,7 +69,7 @@ Which task needs which repo:
 2. **Branch:** commit on a new branch `agent/<task-id>` in *this* repo (`anton-scholten/lineageos-galaxy-tab-s5e`) and push it.
    Don't push to `main`. Don't open a pull request unless you're told to.
 3. **Never push to these repos:** `android_kernel_samsung_sdm670`, `android_device_samsung_gts4lv-common`, or anything from LineageOS, ExyHyperBrick or TheMuppets.
-   You clone them read-only. **Only exception, round 4:** P1/P3/P4 push to branch `port/pick` in the kernel fork, and P5 to `port/dt` in the
+   You clone them read-only. **Only exception, round 4:** P1/P3/P4 push to branch `port/pick` in the kernel fork, and P5/P6 to `port/dt` / `port/dt-2` in the
    device fork. Never to `lineage-23.2` or any other branch there.
 4. **Don't edit** `WORKLOG.md`, `HANDOVER.md`, `README.md` or any file outside your output path. Many agents run at once,
    and edits to shared files cause merge conflicts. The lead updates the shared files.
@@ -238,7 +238,7 @@ Small follow-ups the review found. Same rules, same hand-in. 5 agent runs, a few
 | R8 LTE radio HAL version | 1 | free | vendor blobs (gts4lv) | `analysis/rom/radio-hal.md` | 1–2 h |
 | R9 soundtrigger and per_proxy_helper | 1 | free | device tree + vendor blobs | `analysis/rom/soundtrigger-perproxy.md` | 1–2 h |
 
-### 2.3 Round 4: P1, P2 and their reviews done; P3, P4, P5 open
+### 2.3 Round 4: P1–P5 done and reviewed; P6 opens after the owner's first ROM build
 The free model does the work; a strong model only reviews and handles escalations. Specs in §6c.
 
 | ID | What | Agents | Model | Needs | Output |
@@ -251,7 +251,9 @@ The free model does the work; a strong model only reviews and handles escalation
 | P4 | Build loop: fix compile errors one at a time | 1 (sequential) | free, escalates | P3 | commits on `port/pick`; `analysis/port/P4-log.md` |
 | P4-R | Review P3+P4 fix commits; handle escalations | 1 | **strong** | P4 (can run in chunks) | `analysis/port/review-P4.md` |
 | P5 | Device-tree commits | 1 | free | R7–R9 | device fork `port/dt`; `analysis/port/P5-log.md` |
-| P5-R | Review P5 | 1 | **strong** | P5 | `analysis/port/review-P5.md` |
+| P5-R | Review P5 | 1 | **strong** | P5 | `analysis/port/review-P4.md` (done) |
+| P6 | ROM build-error loop | 1 (sequential) | free, escalates | owner's first ROM build | device fork `port/dt-2`; `analysis/port/P6-log.md` |
+| P6-R | Review P6 | 1 | **strong** | P6 | `analysis/port/review-P6.md` |
 
 ---
 
@@ -737,7 +739,27 @@ branch `port/dt` from `lineage-23.2`, push with the fork token.
    - vendor property names unchanged (R7: the check doesn't run at API 28);
    - LTE radio stays 1.4 (R8: the RIL can't do 1.5).
 
-### Strong-model review (P1-R, P2-R, P4-R, P5-R)
+### P6: ROM build-error loop (free model, 1 agent, on the owner's machine)
+Runs after the owner's first `brunch lineage_gts4lvwifi` (RUNBOOK §8b). Work in `device/samsung/gts4lv-common` of the synced tree, on branch
+`port/dt-2` from `lineage-23.2`, with one commit per fix (trailer `Fix-by: <model>; <error line>`).
+**Loop:** take the first error in `~/work/rom-build.log` → fix → `brunch lineage_gts4lvwifi 2>&1 | tee ~/work/rom-build.log` → repeat until the zip exists.
+**Allowed:**
+- sepolicy: add a missing type or label, or a narrow `allow` that names the exact source, target, class and permission from the denial;
+- `proprietary-files.txt` / `blob_fixup()` entries (e.g. `replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so')` as PORTING §2 describes);
+- adding a missing package to `PRODUCT_PACKAGES`;
+- removing a reference to a file or module 23.2 deleted, citing the LineageOS commit that deleted it.
+
+**Forbidden** (escalate instead):
+- `permissive` domains, wildcard `allow` rules, or `neverallow` exceptions;
+- any `BUILD_BROKEN_*` flag;
+- skipping VINTF checks (`PRODUCT_ENFORCE_VINTF_MANIFEST*`), or changing `target-level` (the owner decides that);
+- raising `PRODUCT_SHIPPING_API_LEVEL` (R7: it would switch on the property-namespace check);
+- editing any repo other than our device fork;
+- the same error after 3 tries.
+
+Log one line per fix in `analysis/port/P6-log.md` on `agent/P6`.
+
+### Strong-model review (P1-R, P2-R, P4-R, P5-R, P6-R)
 1. Run `python3 scripts/check-pick.py <kernel> pick-review`. It must say `problems: 0`.
 2. Read **every** packet in `pick-review/full/` and every commit with a `Needs-review:` trailer.
 3. Read 20% of `pick-review/spot/`, picked at random. If one is wrong, read the whole batch of 10 it came from.

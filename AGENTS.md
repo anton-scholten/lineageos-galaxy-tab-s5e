@@ -3,13 +3,13 @@
 You are a helper agent on a project to port LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e.
 This repo holds **docs, analysis, reports and scripts**, not Android source code. There are two kinds of tasks:
 - **Research** (rounds 1–3, all done): you write a report into this repo. You don't change any kernel or device code.
-- **Port** (round 4: `P1`–`P5`; P1 and P2 done, **P3, P4, P5 open**): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
+- **Port** (round 4: `P1`–`P6`; P1–P5 done, **P6 open**): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
   A stronger model reviews everything you do.
 
 The owner runs the project from [RUNBOOK.md](RUNBOOK.md). That's where your prompt came from.
 
 ## Your first 5 minutes
-1. **Get your task ID.** Your prompt should name it. The open tasks are `P3`, `P4` and `P5` (AGENT-TASKS.md §2.3). If it doesn't name one, **stop and ask**.
+1. **Get your task ID.** Your prompt should name it. The only open task is `P6` (ROM build errors, AGENT-TASKS.md §6c), and it starts after the owner's first ROM build. If it doesn't name one, **stop and ask**.
    Don't pick one yourself, because another agent may be doing it.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
    - §0, all of it: project, words, repos, rules, how to hand in.
@@ -29,14 +29,14 @@ Background, if you need it:
 | [`HANDOVER.md`](HANDOVER.md) | Current state and plan of the whole project |
 | [`LEAD-SYNTHESIS.md`](LEAD-SYNTHESIS.md) | Findings from earlier research: known breakages and traps |
 | [`analysis/conflicts/`](analysis/conflicts/) | One brief per conflicting kernel commit. **P1 follows these** |
-| [`analysis/port/`](analysis/port/README.md) | Round-4 working files: `STATUS.md`, **`review-P1.md` (reviewer decisions you must follow)**, `dropped.tsv`, `duplicate-picks.md` |
+| [`analysis/port/`](analysis/port/README.md) | Round-4 working files: `STATUS.md`, **`review-P1.md` and `review-P4.md` (reviewer decisions you must follow)**, `dropped.tsv`, `duplicate-picks.md` |
 | [`analysis/agent-batches/`](analysis/agent-batches/) | Input lists for conflict-brief tasks |
 | [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Other device trees that already did 23.2 |
 | `CLAUDE.md` | Notes for the reviewing lead. Not for you |
 
 ## Hard rules (full list in AGENT-TASKS.md §0.4)
 - Write **only** what your task names. In this repo, commit to `agent/<task-id>` only. Never push to `main`.
-- Kernel and device repos are read-only, **except** round-4 tasks, which push only to `port/pick` (kernel fork) or `port/dt` (device fork).
+- Kernel and device repos are read-only, **except** round-4 tasks, which push only to `port/pick` (kernel fork) or `port/dt` / `port/dt-2` (device fork).
   Never push to `lineage-23.2`, never force-push, never rebase or amend pushed commits.
 - Don't edit `WORKLOG.md`, `HANDOVER.md`, `README.md`, `AGENTS.md`, `AGENT-TASKS.md`, `RUNBOOK.md` or `analysis/port/STATUS.md`.
 - Every fact needs a source (12+ character SHA, `file:line @ commit`, or URL), plus a confidence level.

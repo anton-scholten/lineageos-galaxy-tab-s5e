@@ -16,12 +16,14 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 3 P2 automerge triage | ✅ | `agent/P2-1`, `agent/P2-2` | 6 packets: **4 BENIGN, 2 SUSPECT — both SUSPECTs are real defects**, now confirmed by the lead. |
 | 3 🔍 P2-R | ✅ | [review-P1.md](review-P1.md) | F1, F2 confirmed → P3 items 4–5. F3 left as is. |
 | 4 P3 known fixes + defconfig | ✅ | kernel `port/pick` @ `316352012ff2`, `agent/P3` @ `6eff7f0` | 6 commits, `problems: 0`, `fix commits: 6`. **Found a 6th `wakeup_source_register()` caller the spec missed** — flagged `Needs-review:`. |
-| 4 🔍 P3-R | ☐ optional | `review-P3.md` | Not required by RUNBOOK (P3 is small and fully specified), but **one ruling is needed**: `&pdev->dev` vs `NULL` at `msm_geni_serial.c:2793`. |
+| 4 🔍 P3-R | ✅ | [review-P4.md](review-P4.md) | Passed. Ruling: `&pdev->dev` at `msm_geni_serial.c:2793` is correct. |
 | 5 P4 build loop | ✅ | kernel `port/pick` @ `801f3f20e54a`, `agent/P4` @ `89ef1fa` | **BOTH defconfigs link `Image.gz-dtb`.** 14 commits, all `Fix-by:`. `problems: 0`, `fix commits: 20`. Nothing escalated. |
-| 5 🔍 P4-R | ☐ | `review-P4.md` | **Now the highest-value review left**: 5 commits carry `Needs-review:`. Lead has pre-verified all 5 mechanically; the open questions are the `vfs_getattr` and `fuse_req_init_context` backport alternatives. |
+| 5 🔍 P4-R | ✅ | [review-P4.md](review-P4.md) | Passed, all 14 commits accepted. **Reviewer rebuilt `port/pick` independently: `Image.gz-dtb`, 0 errors, key configs `=y`, vDSO offset sane.** |
 | 6 P5 device-tree commits | ✅ | device `port/dt` @ `e3ccc923bcf2`, `agent/P5` @ `bfc078f` | 1 commit: 79 comma-lists → space-separated, 499 commas. `xmllint` clean. **Verified by reverse-transform, byte-identical.** `target-level` stays 5. |
-| 6 🔍 P5-R | ☐ | `review-P5.md` | Strong-model step. **Worth it for one thing only:** R6's claim that the parser splits on whitespace is unverified — `frameworks/av` isn't cloned. P5 logged that as medium confidence, the space-separated form itself high. |
-| 7 Fast-forward both `lineage-23.2` | ☐ | | Only after every 🔍 review passes. Never force-push. |
+| 6 🔍 P5-R | ✅ | [review-P4.md](review-P4.md) | Passed. sm7125-common 23.2 ships space-separated lists (0 comma lists). Check audio on first boot (HAL 6.0 vs sm7125's 7.0). |
+| 7 Fast-forward both `lineage-23.2` | ☐ **next (owner)** | | All reviews passed. Kernel → `801f3f20e54a`, device → `e3ccc923bcf2`. RUNBOOK §7. Never force-push. |
+| 8b P6 ROM build-error loop | ☐ | device `port/dt-2`, `agent/P6` | Free agent on the owner's machine, after the first `brunch`. |
+| 8b 🔍 P6-R | ☐ | `review-P6.md` | Strong-model step. |
 | 8 ROM build | ☐ | | Owner's machine. Use `brunch lineage_gts4lvwifi`, **not** a bare `m`. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
@@ -117,16 +119,16 @@ series head had that select on arm64; P4 added it, matching mainline arm64.
 The other reviewer-specified fix, the `task_util_est()` → WALT `task_util()` shim (`1cb9785b0d64`), is a 6-line
 inline calling `task_util(p)`, and correctly does **not** port upstream's PELT util_est.
 
-## ⚠ The build needs `/home/anton/work/llvmbin` on `PATH`
+## ⚠ The build needs `~/work/llvmbin` on `PATH`
 
 Debian's `llvm-19` ships only versioned names (`llvm-nm-19`) but `LLVM=1` looks for unversioned ones. P4 made
-persistent symlinks in `/home/anton/work/llvmbin`. **Nothing in the repo, the kernel tree or `kbuild.sh` was
+persistent symlinks in `~/work/llvmbin`. **Nothing in the repo, the kernel tree or `kbuild.sh` was
 changed** — all verified clean.
 
 Without that directory on `PATH`, `vdso.so.dbg` does not link and `vdso_offset_sigtramp` comes out **wrong**: a
 silently broken sigreturn trampoline, **not a build failure**. The build succeeds and ships a bad kernel. This will
 bite anyone who rebuilds here, so it is recorded in
-[LEAD-SYNTHESIS.md §10](../LEAD-SYNTHESIS.md#10-environment-and-reproduction) too.
+[LEAD-SYNTHESIS.md §10](../../LEAD-SYNTHESIS.md#10-environment-and-reproduction) too.
 
 ## P5 outcome, 2026-10-04
 
@@ -149,24 +151,19 @@ R6's *mechanism* — that the parser splits these attributes on whitespace — i
 cloned. P5 rated the space-separated form high confidence and the mechanism medium, which is the right split and the
 only thing P5-R needs to check.
 
-## Decisions still open
+## Decisions (all settled 2026-10-04, [review-P4.md](review-P4.md))
 
-| Question | Raised by | Where |
-|---|---|---|
-| `&pdev->dev` vs `NULL` at `msm_geni_serial.c:2793` | P3 | `Needs-review:` on `d6239359349d` |
-| Backport 4.11 `vfs_getattr()`, or keep 4.9's two-arg form | P4 | `Needs-review:` on `d078fd143e53` |
-| Fuse `pid_ns` backport | P4 | `Needs-review:` on `a7f561e7e1b3` |
-| Tracepoints widened 12→18 args | P4 | `Needs-review:` on `c8f303abafce` |
-| Keep the inert DRM `IN_FORMATS` blob, or drop the `drm_plane.c` hunk | P4 | `Needs-review:` on `1c21d6589088` |
-| **`target-level` 5 → 6** | R8 / reviewer | the one open *project* decision; harmless at 5 |
-| `process_mrelease` | reviewer | deferred; check `logcat -s lmkd` at first boot |
+| Question | Decision |
+|---|---|
+| `&pdev->dev` vs `NULL` at `msm_geni_serial.c:2793` | `&pdev->dev` (registered probe device; upstream style) |
+| 4.11 `vfs_getattr()` backport vs 4.9 two-argument form | Keep the 4.9 form (only the statx mask is lost) |
+| Fuse `pid_ns` backport | Not needed; the one-argument `fuse_req_init_context()` is fine |
+| Tracepoints widened 12→18 args | Accept (generic, backward-compatible) |
+| Inert DRM `IN_FORMATS` blob | Keep (harmless) |
+| `target-level` 5 → 6 | Stay at 5 for the first build; revisit after boot |
+| `process_mrelease` | Deferred; check `logcat -s lmkd` at first boot |
 
-The DRM format-modifier feature is **half-present by the series' own design**: there is no `drm_mode_mod_get()` and
-no `DRM_MODE_MOD_*` anywhere in the series head, so no userspace can consume the `IN_FORMATS` blob
-`1c21d6589088` creates. No driver sets `allow_fb_modifiers`, so it is inert. P4 escalated rather than delete the
-`drm_plane.c` hunk of `c72864d9d467`, because that would have been a deletion. Correct restraint.
-
-## Three confirmed defects in `port/pick`
+## Three confirmed defects in `port/pick` (F1 and F2 fixed by P3 on 2026-10-04; F3 left)
 
 Found by P2 (2 of 3) plus an ad-hoc sweep of all 2,438 picks (1 of 3). Full detail, with verified line numbers
 and the counterintuitive fix for F1, in [`duplicate-picks.md`](duplicate-picks.md).

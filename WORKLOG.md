@@ -489,7 +489,7 @@ Two of P4's commits looked wrong to me and were not:
   `:678` is no longer compiled. **The fix works.** It is not a restoration, though — neither the base nor the series
   head had that select on arm64; P4 added it, matching mainline arm64.
 
-**The one real handoff gap.** The build needs `/home/anton/work/llvmbin` on `PATH`: Debian's `llvm-19` ships only
+**The one real handoff gap.** The build needs `~/work/llvmbin` on `PATH`: Debian's `llvm-19` ships only
 versioned names (`llvm-nm-19`) while `LLVM=1` looks for unversioned ones. P4 made persistent symlinks there.
 Nothing in the repo, the kernel tree or `kbuild.sh` was changed — all verified clean. Without that directory on
 `PATH`, `vdso.so.dbg` does not link and `vdso_offset_sigtramp` comes out **wrong**: a silently broken sigreturn
@@ -510,3 +510,19 @@ trampoline rather than a build failure. Documented in `STATUS.md` because it wil
 **Next: P4-R, then step 7** — fast-forward `lineage-23.2` on both forks, which must be a fast-forward and is never
 force-pushed. After that, the owner's ROM build, for which the one instruction that matters is
 `brunch lineage_gts4lvwifi`, not a bare `m`.
+
+## 2026-10-04: P3, P4, P5 reviewed and merged; kernel build independently confirmed
+- Merged the lead branch `lead/2026-10-04` (it fast-forwarded: STATUS, HANDOVER, RUNBOOK, LEAD-SYNTHESIS, WORKLOG, duplicate-picks) and the
+  P3/P4/P5 logs. Local paths made generic.
+- **P3-R, P4-R, P5-R (strong model): all pass, no rejections** (`analysis/port/review-P4.md`).
+  - Read all 20 fix commits on `port/pick` (6 P3 + 14 P4), and the `port/dt` commit.
+  - Ruling: `&pdev->dev` at `msm_geni_serial.c:2793`.
+  - Accepted: the BPF_ARCH_SPINLOCK select, cred-based binder LSM hooks, the 4.9 fuse/vfs_getattr forms, tracepoints widened 12→18, and the inert DRM `IN_FORMATS` property.
+- **Independent build:** rebuilt `port/pick` @ `801f3f20e54a` here (clang 18, `gts4lvwifi_defconfig`).
+  - `Image.gz-dtb` 18.7 MB, 0 errors.
+  - WALT, CGROUP_SCHED, FAIR_GROUP_SCHED, BPF_SYSCALL/LSM/JIT, UPROBES, UNICODE and BTF all `=y`.
+  - `vdso_offset_sigtramp` 0x810.
+- P5: confirmed sm7125-common 23.2 ships space-separated audio policy lists (0 comma lists). Audio on HAL 6.0 is to be checked at first boot.
+- `analysis/build-test/kbuild.sh` now refuses to run without the unversioned `llvm-*` tools (the silent broken-vDSO trap the lead found).
+- Added P6 (ROM build-error loop, free model, with allowed and forbidden fixes) to AGENT-TASKS §6c, RUNBOOK §8 (8a–8d) and STATUS.
+  Updated AGENTS.md (only P6 open), HANDOVER (owner to-do: fast-forward, ROM build) and ESTIMATE: ≈14 days wall-clock left (7.5–27).

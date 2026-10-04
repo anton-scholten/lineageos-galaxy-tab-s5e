@@ -1,20 +1,19 @@
 # Time estimate: LineageOS 23.2 on the Galaxy Tab S5e
 
-## Remaining work (updated 2026-10-04: research, cherry-pick and its review are done)
+## Remaining work (updated 2026-10-04 evening: the kernel builds and every review has passed)
 
 | Step | Low | Expected | High | Notes |
 |---|---|---|---|---|
-| ~~Round 3, P1 cherry-pick, P1-R/P2~~ | | done | | Took about 1 day instead of the 3.5–5 estimated |
-| P3 known fixes + defconfig (free) | 0.5 d | 0.5 d | 1 d | Six specified items |
-| P4 build loop to `Image.gz-dtb` (free, strong for escalations) | 3 d | 5 d | 9 d | Unknown tail: the API audit covered 2% of changed headers |
-| P5 device tree + review | 0.5 d | 0.5 d | 1 d | Now one commit; runs in parallel with P3/P4 |
-| ROM sync + build + build fixes (owner's machine) | 1 d | 2 d | 4 d | |
-| First boot and debugging (owner + tablet) | 3 d | 7 d | 15 d | Still the most uncertain step |
-| Testing, 24 h soak, LTE (owner + tablet) | 3 d | 4 d | 6 d | |
-| **Total left, wall-clock** | **≈ 10.5 d** | **≈ 18.5 d** | **≈ 35 d** | was 14.5 / 24.5 / 46 on 2026-10-03 |
+| ~~Research, P1–P5, all reviews~~ | | done | | 2 days of wall-clock in total, against 10–18 estimated: the free model was fast and accurate |
+| Fast-forward both `lineage-23.2` (owner) | | minutes | | |
+| ROM sync + first build (owner's machine) | 1 d | 1.5 d | 2 d | ~150 GB download; first build 2–6 h depending on cores |
+| P6 ROM build errors (free) + P6-R | 0.5 d | 1.5 d | 4 d | Device tree only; the research rounds pre-cleared most known issues |
+| First boot and debugging (owner + tablet) | 3 d | 7 d | 15 d | **Still the most uncertain step.** Watch audio, lmkd, netbpfload/bpfloader |
+| Testing, 24 h soak, LTE model (owner + tablet) | 3 d | 4 d | 6 d | |
+| **Total left, wall-clock** | **≈ 7.5 d** | **≈ 14 d** | **≈ 27 d** | was 10.5 / 18.5 / 35 this morning |
 
-About **3½–4 weeks wall-clock** (range 2–7). The next ~6 days are agents (P3, P4, P5) plus a few review sessions.
-The rest needs the owner, the build machine and the tablet.
+About **2–3 weeks wall-clock** (range 1½–5½). From here on, almost all of it needs the owner's machine and the tablet.
+The agent and review work left is small: P6, plus reading boot logs.
 
 ---
 
