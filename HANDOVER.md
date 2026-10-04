@@ -33,7 +33,7 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 | ~~6~~ | ~~P5: 1 device-tree commit into `port/dt` + skip log~~ **done** | done | |
 | ~~6.5~~ | ~~P3-R, P4-R and P5-R~~ **passed** ([review-P4.md](analysis/port/review-P4.md)); reviewer rebuilt the kernel independently | done | |
 | 7 | Fast-forward both forks' `lineage-23.2` | owner | minutes |
-| 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch lineage_gts4lvwifi` (and `gts4lv`); build errors to a free agent + review | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
+| 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch gts4lvwifi` (and `gts4lv`); build errors to a free agent + review | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
 | 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
 | 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
 | 11 | Later: `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
@@ -41,9 +41,10 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 **Owner to-do now (step 7, then 8):**
 1. Fast-forward both `lineage-23.2` branches (RUNBOOK §7): kernel to `801f3f20e54a`, device tree to `e3ccc923bcf2`.
    **Must be a fast-forward; never force-push.** Branch protection lets only you do it.
-2. Start the ROM build on your own machine (RUNBOOK §8): ~150 GB sync, then `brunch lineage_gts4lvwifi`.
-   Hand any build errors to a free agent (RUNBOOK §8 prompt) and the fixes to a strong-model review.
-3. First boot (⚠️ flashing erases data; back up first). Check audio and `logcat -s lmkd` early ([review-P4.md](analysis/port/review-P4.md)).
+2. Start a free agent on task **B1** on your own machine (RUNBOOK §8a: ~150 GB sync, then `brunch gts4lvwifi`). If the build fails,
+   a free agent runs **P6** on the errors (§8b) and a strong model reviews the fixes.
+3. First boot (⚠️ flashing erases data; back up first). After every attempt a free agent collects the logs (**P7**, §8c) for the strong model.
+   Check audio and `logcat -s lmkd` early ([review-P4.md](analysis/port/review-P4.md)).
 
 ## Rebuilding the working environment (cloud container)
 ```bash

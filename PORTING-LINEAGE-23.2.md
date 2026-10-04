@@ -129,8 +129,10 @@ cp <this repo>/local_manifests/gts4lv-common.xml <this repo>/local_manifests/gts
 repo sync -c -j$(nproc)
 
 # The manifests pull device/samsung/gts4lv-common and kernel/samsung/sdm670 from the
-# anton-scholten forks (branch lineage-23.2). Patches 0001-0004 are already in the device fork.
-# The kernel branch has no eBPF port yet, so the result won't boot until that lands.
+# anton-scholten forks (branch lineage-23.2). Once RUNBOOK step 7 has fast-forwarded those
+# branches, they contain the ported kernel (port/pick) and the device commits (port/dt).
+# Use brunch gts4lvwifi (or breakfast gts4lvwifi + mka bacon). Not "brunch lineage_gts4lvwifi":
+# breakfast adds the lineage_ prefix itself.
 
 source build/envsetup.sh
 breakfast gts4lvwifi        # lineage_gts4lvwifi-bp4a-userdebug

@@ -11,7 +11,7 @@ A lead agent or the owner reviews and merges your output. You never change the k
 directly: you **research and write reports**. State checked on 2026-10-03; see [HANDOVER.md](HANDOVER.md).
 
 > **Status (2026-10-04): rounds 1–3 and P1–P5 are done, reviewed and merged; the kernel builds.** Their sections stay as the format reference.
-> **Open: P6 (ROM build errors, after the owner's first ROM build, §6c).** Review records: [review-P1.md](analysis/port/review-P1.md), [review-P4.md](analysis/port/review-P4.md).
+> **Open: B1 (ROM sync + build), then P6 (ROM build errors) and P7 (boot-log triage), all in §6c.** B1 waits for the owner's RUNBOOK step 7. Review records: [review-P1.md](analysis/port/review-P1.md), [review-P4.md](analysis/port/review-P4.md).
 > The cross-agent findings are in [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md).
 
 ---
@@ -252,8 +252,10 @@ The free model does the work; a strong model only reviews and handles escalation
 | P4-R | Review P3+P4 fix commits; handle escalations | 1 | **strong** | P4 (can run in chunks) | `analysis/port/review-P4.md` |
 | P5 | Device-tree commits | 1 | free | R7–R9 | device fork `port/dt`; `analysis/port/P5-log.md` |
 | P5-R | Review P5 | 1 | **strong** | P5 | `analysis/port/review-P4.md` (done) |
-| P6 | ROM build-error loop | 1 (sequential) | free, escalates | owner's first ROM build | device fork `port/dt-2`; `analysis/port/P6-log.md` |
+| B1 | ROM sync + first build | 1 | free | step 7 (owner) | `out/…zip`; `analysis/port/B1-log.md` |
+| P6 | ROM build-error loop | 1 (sequential) | free, escalates | B1 fails | device fork `port/dt-2`; `analysis/port/P6-log.md` |
 | P6-R | Review P6 | 1 | **strong** | P6 | `analysis/port/review-P6.md` |
+| P7 | Boot-log triage, per flash attempt | 1 | free (strong diagnoses) | a flashed tablet | `analysis/port/boot-<n>.md` |
 
 ---
 
@@ -739,10 +741,34 @@ branch `port/dt` from `lineage-23.2`, push with the fork token.
    - vendor property names unchanged (R7: the check doesn't run at API 28);
    - LTE radio stays 1.4 (R8: the RIL can't do 1.5).
 
+### B1: ROM sync and first build (free model, 1 agent, on the owner's machine)
+Unattended and long (hours), but mechanical. **Machine:** Linux x86-64, ≥300 GB free, ≥16 GB RAM (32 GB better), fast network.
+**Before starting, check** that both forks' `lineage-23.2` point at the port:
+`git ls-remote https://github.com/anton-scholten/android_kernel_samsung_sdm670 refs/heads/lineage-23.2` must print `801f3f20e54a…`, and the
+device fork's must print `e3ccc923bcf2…`. If they still print `a30605a…` / `2e50286…`, the owner hasn't done RUNBOOK step 7. **Stop and say so.**
+Don't edit the manifests to work around it.
+
+1. Build packages. This is the LineageOS wiki's Ubuntu list; check it there if your distro differs:
+   `sudo apt install bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf imagemagick protobuf-compiler python3-protobuf lib32readline-dev lib32z1-dev libdw-dev libelf-dev lz4 libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev python-is-python3`.
+   Then the `repo` tool: `mkdir -p ~/bin && curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo && chmod a+x ~/bin/repo`, with `~/bin` on `PATH`.
+   Set `git config --global user.name/user.email` if unset. Optional: `export USE_CCACHE=1 CCACHE_EXEC=/usr/bin/ccache` and `ccache -M 50G`.
+2. Sync, exactly as in [PORTING-LINEAGE-23.2.md §3](PORTING-LINEAGE-23.2.md#3-building), in `~/android/lineage`, with the docs repo as `<this repo>`:
+   `repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs --no-clone-bundle`, copy `local_manifests/gts4lv-common.xml`
+   and `gts4lvwifi.xml` into `.repo/local_manifests/`, then `repo sync -c -j$(nproc) --force-sync`. If the sync fails, rerun it (it resumes).
+   After 3 failures, stop and log the error.
+3. Check the right code arrived: `git -C kernel/samsung/sdm670 log -1 --format=%h` prints `801f3f20e54a`, and
+   `git -C device/samsung/gts4lv-common log -1 --format=%h` prints `e3ccc923bcf2`.
+4. Build: `source build/envsetup.sh && brunch gts4lvwifi 2>&1 | tee ~/work/rom-build.log`. **`brunch gts4lvwifi`, not `brunch lineage_gts4lvwifi`**:
+   breakfast adds the prefix itself, and the doubled name fails.
+5. Result: a zip at `out/target/product/gts4lvwifi/lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip` → done (write its path, size and sha256 in the log).
+   Otherwise hand over to P6 with `~/work/rom-build.log`. Don't fix anything yourself in B1.
+
+Log in `analysis/port/B1-log.md` on `agent/B1`: the machine, the times for sync and build, the checks in steps 3 and 5, and the first error if any.
+
 ### P6: ROM build-error loop (free model, 1 agent, on the owner's machine)
-Runs after the owner's first `brunch lineage_gts4lvwifi` (RUNBOOK §8b). Work in `device/samsung/gts4lv-common` of the synced tree, on branch
+Runs when B1's build fails (RUNBOOK §8b). Work in `device/samsung/gts4lv-common` of the synced tree, on branch
 `port/dt-2` from `lineage-23.2`, with one commit per fix (trailer `Fix-by: <model>; <error line>`).
-**Loop:** take the first error in `~/work/rom-build.log` → fix → `brunch lineage_gts4lvwifi 2>&1 | tee ~/work/rom-build.log` → repeat until the zip exists.
+**Loop:** take the first error in `~/work/rom-build.log` → fix → `brunch gts4lvwifi 2>&1 | tee ~/work/rom-build.log` → repeat until the zip exists.
 **Allowed:**
 - sepolicy: add a missing type or label, or a narrow `allow` that names the exact source, target, class and permission from the denial;
 - `proprietary-files.txt` / `blob_fixup()` entries (e.g. `replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so')` as PORTING §2 describes);
@@ -758,6 +784,19 @@ Runs after the owner's first `brunch lineage_gts4lvwifi` (RUNBOOK §8b). Work in
 - the same error after 3 tries.
 
 Log one line per fix in `analysis/port/P6-log.md` on `agent/P6`.
+
+### P7: boot-log triage (free model, 1 agent, with the owner and the tablet)
+After each flash that doesn't fully work. The free model collects and sorts the logs; the strong model diagnoses.
+1. Collect, read-only, exactly as [TESTING.md](TESTING.md) says: `adb logcat -b all -d`, `adb shell dmesg`, `pstore`/`console-ramoops*` (copy it
+   **before** another reboot; only the newest panic is kept), tombstones, and `scripts/device-checks.sh` if the tablet boots.
+   Never run anything that flashes, wipes or formats; that's the owner's call (⚠️ in README).
+2. Write `analysis/port/boot-<n>.md` (n = attempt number) on `agent/P7`:
+   - build and commit IDs (kernel `port/pick`, device tree);
+   - how far it got (no logo / bootloop / boots to UI);
+   - the first 20 lines around the **first** error of each kind (kernel panic, `FATAL EXCEPTION`, `avc: denied`, `netbpfload`/`bpfloader`, `lmkd`, `AudioPolicy`), with timestamps;
+   - your best guess, marked `confidence: low|medium|high`.
+3. Put the raw logs in `analysis/port/boot-<n>/` (gzip anything over 1 MB). Then hand over to the strong model (RUNBOOK prompt R, "boot debugging").
+   Kernel fixes then go through P4's rules on `port/pick`, device fixes through P6's rules on `port/dt-2`.
 
 ### Strong-model review (P1-R, P2-R, P4-R, P5-R, P6-R)
 1. Run `python3 scripts/check-pick.py <kernel> pick-review`. It must say `problems: 0`.

@@ -22,9 +22,11 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 6 P5 device-tree commits | ✅ | device `port/dt` @ `e3ccc923bcf2`, `agent/P5` @ `bfc078f` | 1 commit: 79 comma-lists → space-separated, 499 commas. `xmllint` clean. **Verified by reverse-transform, byte-identical.** `target-level` stays 5. |
 | 6 🔍 P5-R | ✅ | [review-P4.md](review-P4.md) | Passed. sm7125-common 23.2 ships space-separated lists (0 comma lists). Check audio on first boot (HAL 6.0 vs sm7125's 7.0). |
 | 7 Fast-forward both `lineage-23.2` | ☐ **next (owner)** | | All reviews passed. Kernel → `801f3f20e54a`, device → `e3ccc923bcf2`. RUNBOOK §7. Never force-push. |
+| 8a B1 ROM sync + first build | ☐ | `agent/B1`, `~/android/lineage` | Free agent on the owner's machine. Needs step 7. `brunch gts4lvwifi` (not `lineage_gts4lvwifi`). |
 | 8b P6 ROM build-error loop | ☐ | device `port/dt-2`, `agent/P6` | Free agent on the owner's machine, after the first `brunch`. |
 | 8b 🔍 P6-R | ☐ | `review-P6.md` | Strong-model step. |
-| 8 ROM build | ☐ | | Owner's machine. Use `brunch lineage_gts4lvwifi`, **not** a bare `m`. |
+| 8 ROM build | ☐ | | Owner's machine. Use `brunch gts4lvwifi`, **not** a bare `m`. |
+| 8c P7 boot-log triage | ☐ | `agent/P7`, `boot-<n>.md` | Free agent collects and sorts logs per flash; strong model diagnoses. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
 

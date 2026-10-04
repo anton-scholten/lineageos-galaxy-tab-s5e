@@ -526,3 +526,14 @@ force-pushed. After that, the owner's ROM build, for which the one instruction t
 - `analysis/build-test/kbuild.sh` now refuses to run without the unversioned `llvm-*` tools (the silent broken-vDSO trap the lead found).
 - Added P6 (ROM build-error loop, free model, with allowed and forbidden fixes) to AGENT-TASKS §6c, RUNBOOK §8 (8a–8d) and STATUS.
   Updated AGENTS.md (only P6 open), HANDOVER (owner to-do: fast-forward, ROM build) and ESTIMATE: ≈14 days wall-clock left (7.5–27).
+
+## 2026-10-04: branches checked; ROM phase made ready for the free model
+- The owner deleted `agent/P3`, `agent/P4`, `agent/P5` and `lead/2026-10-04`. Remote is clean. The forks' `lineage-23.2` are not fast-forwarded yet (owner step 7).
+- **Fixed a command that would have failed:** the docs said `brunch lineage_gts4lvwifi`, but LineageOS 23.2's `breakfast` adds the `lineage_` prefix
+  itself (`vendor/lineage/build/envsetup.sh`), so that becomes `lineage_lineage_gts4lvwifi` and fails. Now `brunch gts4lvwifi` everywhere
+  (AGENT-TASKS, RUNBOOK, HANDOVER, STATUS, LEAD-SYNTHESIS, analysis/rom/soong.md). PORTING §3 no longer says the kernel has no port.
+- New free-model tasks in AGENT-TASKS §6c with RUNBOOK prompts:
+  - **B1**: ROM sync and first build on the owner's machine. It pre-checks that step 7 was done, installs packages and repo, syncs,
+    verifies the kernel and device commits, builds, and doesn't fix errors itself.
+  - **P7**: read-only boot-log triage per flash attempt into `analysis/port/boot-<n>.md` for the strong model.
+- STATUS, AGENTS.md and HANDOVER updated to match (open: B1, P6, P7).

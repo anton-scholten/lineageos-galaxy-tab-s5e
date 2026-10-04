@@ -3,13 +3,13 @@
 You are a helper agent on a project to port LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e.
 This repo holds **docs, analysis, reports and scripts**, not Android source code. There are two kinds of tasks:
 - **Research** (rounds 1–3, all done): you write a report into this repo. You don't change any kernel or device code.
-- **Port** (round 4: `P1`–`P6`; P1–P5 done, **P6 open**): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
+- **Port** (round 4: P1–P5 done; **B1, P6, P7 open**): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.
   A stronger model reviews everything you do.
 
 The owner runs the project from [RUNBOOK.md](RUNBOOK.md). That's where your prompt came from.
 
 ## Your first 5 minutes
-1. **Get your task ID.** Your prompt should name it. The only open task is `P6` (ROM build errors, AGENT-TASKS.md §6c), and it starts after the owner's first ROM build. If it doesn't name one, **stop and ask**.
+1. **Get your task ID.** Your prompt should name it. The open tasks are `B1` (ROM sync + build), `P6` (ROM build errors) and `P7` (boot-log triage), all in AGENT-TASKS.md §6c. B1 waits for the owner's RUNBOOK step 7. If it doesn't name one, **stop and ask**.
    Don't pick one yourself, because another agent may be doing it.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
    - §0, all of it: project, words, repos, rules, how to hand in.

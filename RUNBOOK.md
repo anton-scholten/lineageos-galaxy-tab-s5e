@@ -5,7 +5,7 @@ The agents' own instructions are in [AGENTS.md](AGENTS.md) and [AGENT-TASKS.md](
 [analysis/port/STATUS.md](analysis/port/STATUS.md).
 
 > **Where we are (2026-10-04):** steps 1–6 are done and every 🔍 review has passed ([review-P4.md](analysis/port/review-P4.md)).
-> The kernel builds. **Next: step 7 (you, minutes), then step 8 (ROM build on your machine).**
+> The kernel builds. **Next: step 7 (you, minutes), then step 8a (B1, a free agent builds the ROM on your machine).**
 
 **Roles**
 - **Free model** ("Space Bunny Free" in OpenCode): every work step.
@@ -139,11 +139,17 @@ cd ~/work/dt   && git fetch origin && git push origin origin/port/dt:refs/heads/
 If GitHub refuses ("non-fast-forward"), stop and ask the strong model. Never force-push.
 
 ## 8. ROM build, flash, test (you + tablet, ≈2–3 weeks)
-### 8a. Sync and build (your machine: ~300 GB disk, 16 GB+ RAM, ≈1 day for the first sync and build)
-Follow [PORTING-LINEAGE-23.2.md §3](PORTING-LINEAGE-23.2.md#3-building): `repo init` lineage-23.2, copy `local_manifests/gts4lv-common.xml` and
-`gts4lvwifi.xml` (they pull both forks' `lineage-23.2`, which after step 7 contain the port), `repo sync`, then
-`source build/envsetup.sh && brunch lineage_gts4lvwifi`. **Use `brunch`, never a bare `m`** ([LEAD-SYNTHESIS.md §7.1](LEAD-SYNTHESIS.md)).
-Save the log: `brunch lineage_gts4lvwifi 2>&1 | tee ~/work/rom-build.log`.
+### 8a. B1: sync and first build (1 free agent on your machine: ≥300 GB disk, ≥16 GB RAM, ≈½–1 day unattended)
+Needs step 7. Worktree: `git -C ~/work/docs fetch origin && git -C ~/work/docs worktree add ~/work/wt/B1 -b agent/B1 origin/main`.
+```text
+You are a helper agent doing task B1. Docs repo: ~/work/wt/B1 (branch agent/B1). Build tree: ~/android/lineage (create it).
+Read AGENTS.md, then AGENT-TASKS.md sections 0, 9 and 6c ("B1") completely. First run B1's pre-check (both forks' lineage-23.2
+must already point at the port); if it fails, stop and tell the owner. Then install the build packages and repo, sync, verify
+the kernel and device-tree commits, and build with:  source build/envsetup.sh && brunch gts4lvwifi 2>&1 | tee ~/work/rom-build.log
+Do not fix build errors yourself. Write analysis/port/B1-log.md, commit and push it on agent/B1, and stop.
+```
+The apt install needs `sudo`: run it yourself first if the agent can't. **Done when** the zip exists (B1-log.md has its path and sha256).
+If the build failed, go to 8b.
 
 ### 8b. P6: ROM build-error loop (1 free agent) with 🔍 P6-R
 Most errors will be in the device tree (sepolicy neverallows, VINTF, blob linkage). Worktree: `git -C ~/work/docs worktree add ~/work/wt/P6 -b agent/P6 origin/main`.
@@ -152,23 +158,30 @@ You are a helper agent doing task P6. Docs repo: ~/work/wt/P6 (branch agent/P6).
 Read AGENTS.md, AGENT-TASKS.md sections 0, 9 and 6c ("P6"), plus analysis/port/review-P1.md and review-P4.md.
 Take the FIRST error in ~/work/rom-build.log. Fix it in device/samsung/gts4lv-common on a branch port/dt-2 (from lineage-23.2) with one commit
 per fix and a "Fix-by:" trailer, using only the allowed fixes in AGENT-TASKS 6c P6. Rebuild with
-  source build/envsetup.sh && brunch lineage_gts4lvwifi 2>&1 | tee ~/work/rom-build.log
+  source build/envsetup.sh && brunch gts4lvwifi 2>&1 | tee ~/work/rom-build.log
 and repeat. Push port/dt-2 after each fix (never lineage-23.2). Escalate anything forbidden under "## Escalated" in
 analysis/port/P6-log.md and stop. Done when the build produces out/target/product/gts4lvwifi/lineage-23.2-*.zip.
 ```
 A kernel error in the ROM build goes back to P4's rules on `port/pick`. 🔍 P6-R: prompt R, task "P6-R: review port/dt-2".
 Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way as step 7.
 
-### 8c. Flash and first boot (you + tablet)
+### 8c. Flash and first boot (you + tablet), with P7 log triage
 1. ⚠️ **Unlocking the bootloader and installing erase all data on the tablet.** Back up first ([README.md](README.md) "Back up first").
-2. Flash: [README.md](README.md) path A (from stock) or B (from 22.2), using your build's `recovery.img`, `vbmeta.img` and zip.
-3. First checks, before anything else: Wi-Fi, audio playback and the mic (P5's change), and
-   `adb logcat -d | grep -iE 'lmkd|AudioPolicy|netbpfload|bpfloader'`.
-4. If it doesn't boot or crashes: collect logs as in [TESTING.md](TESTING.md) after **every** crash (pstore keeps only the newest), and give
-   them to the strong model (prompt R, task "boot debugging: <paste logs>"). Kernel fixes go to `port/pick` (P4 rules), device fixes to `port/dt-2` (P6 rules).
+2. Flash: [README.md](README.md) path A (from stock) or B (from 22.2), using the zip, `recovery.img` and `vbmeta.img` from
+   `out/target/product/gts4lvwifi/`. ⚠️ Path B from official 22.2 to this unofficial build also needs a data wipe (different signing keys).
+3. Whatever happens, collect logs with a free agent (P7). Worktree `~/work/wt/P7` on `agent/P7`. Prompt:
+   ```text
+   You are a helper agent doing task P7, flash attempt <n>. Docs repo: ~/work/wt/P7 (branch agent/P7). The tablet is on USB with adb.
+   Read AGENTS.md, AGENT-TASKS.md sections 0, 9 and 6c ("P7"), and TESTING.md. Collect the logs read-only exactly as P7 says (copy pstore
+   BEFORE any reboot), write analysis/port/boot-<n>.md and the raw logs, commit and push on agent/P7, and stop.
+   Never flash, wipe, format or reboot into download mode.
+   ```
+4. Give `boot-<n>.md` to the strong model (prompt R, task "boot debugging: analysis/port/boot-<n>.md"). Its fixes go to a free agent:
+   kernel fixes with P4's rules on `port/pick`, device fixes with P6's rules on `port/dt-2`. Then rebuild (8a step 4 only) and flash again.
+5. Early checks once it boots: Wi-Fi, audio playback and the mic (P5's change), `adb logcat -d | grep -iE 'lmkd|AudioPolicy|netbpfload|bpfloader'`.
 
 ### 8d. Test and finish
-1. `scripts/device-checks.sh`, then 24 h of normal use, then repeat 8a–8c for the LTE model (`brunch lineage_gts4lv`).
+1. `scripts/device-checks.sh`, then 24 h of normal use, then repeat 8a–8c for the LTE model (`brunch gts4lv`).
 2. Contact krazey (ExyHyperBrick) before publishing the kernel.
 
 ---

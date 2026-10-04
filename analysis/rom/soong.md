@@ -22,7 +22,7 @@ Also settled: `TARGET_BOARD_PLATFORM := sdm710` needs **no** sdm710 manifest pro
 `gralloc.qcom` renamed at build time by `ANDROID.target_board_platform`.
 **Lead must check first:** nothing here breaks the build. The one real gap is 9 `lineage_health.*`
 variables the reader wants and we do not set (safe defaults), and the fact that **`LINEAGE_BUILD` must be
-set** or `BoardConfigQcom.mk` is silently skipped - so always build via `brunch lineage_gts4lvwifi`.
+set** or `BoardConfigQcom.mk` is silently skipped - so always build via `brunch gts4lvwifi`.
 
 ## Method and pinned commits
 
@@ -282,7 +282,7 @@ chain, each link verified:
 **The one condition is `LINEAGE_BUILD`.** It is not a make variable any device tree sets - `git grep
 LINEAGE_BUILD` in all three of our device repos returns nothing. It is an **environment** variable exported
 by `android_vendor_lineage` @ `686d8669737d` `build/envsetup.sh:15-20`, which sets it to the product name
-minus the `lineage_` prefix and exports it. So `brunch lineage_gts4lvwifi` -> `LINEAGE_BUILD=gts4lvwifi` ->
+minus the `lineage_` prefix and exports it. So `brunch gts4lvwifi` -> `LINEAGE_BUILD=gts4lvwifi` ->
 included. **A bare `m`/`mm` without going through `envsetup.sh`'s brunch path would silently skip
 `BoardConfigQcom.mk`.** Worth stating because the failure is silent.
 
@@ -415,7 +415,7 @@ diff sm7125's full soong-config block against ours line by line (that is task R5
 
 ## What the lead must check first
 
-1. **Build with `brunch lineage_gts4lvwifi` / `lineage_gts4lv`, not a bare `m`.** `LINEAGE_BUILD` is only
+1. **Build with `brunch gts4lvwifi` / `lineage_gts4lv`, not a bare `m`.** `LINEAGE_BUILD` is only
    exported by `android_vendor_lineage` `build/envsetup.sh:20`; without it
    `android_build` `core/config.mk:477` skips `BoardConfigLineage.mk`, which skips
    `BoardConfigQcom.mk`, which silently empties the whole `qtiaudio`/`qtidisplay` namespace. No error,

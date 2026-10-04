@@ -668,7 +668,7 @@ So `BoardConfigQcom.mk` **is** included — R3-r1's "nothing in our build includ
 **The one real caveat, and it is the same silent-failure class as §1.2:** `LINEAGE_BUILD` is exported
 only by `android_vendor_lineage` `build/envsetup.sh:20`, i.e. only by **`brunch`**. Building with a bare
 `m` skips the whole include chain, and the entire `qtiaudio.*` / `qtidisplay.*` soong namespace empties
-**with no error and no warning**. Always build via `brunch lineage_gts4lvwifi`.
+**with no error and no warning**. Always build via `brunch gts4lvwifi`.
 
 That namespace is *populated*, not defaulted — `drmpp=true` and `master_side_cp=true` fire automatically
 (sdm710 ∈ `UM_4_9_FAMILY`, `qcom_defs.mk:8`), plus `target_uses_aligned_ycbcr_height=true` and
