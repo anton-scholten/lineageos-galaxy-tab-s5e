@@ -373,16 +373,133 @@ Two honest qualifications, stated rather than buried:
 *before* `repo sync`, then check `repo status` / spot-check an LFS path with `file`.** Otherwise the WebView
 build fails at 82% after ~15 hours. The same trap applies to `repo sync --force-sync` after this log.
 
+## Fix 3 — NOT MADE. `libwfdservice` is escalated: every available fix is destructive
+
+**The error, from `~/work/rom-enum.log:183-192` — and it is the only one left.**
+
+```
+FAILED: out/soong/.intermediates/vendor/samsung/gts4lv-common/libwfdservice/android_arm_armv8-a_shared/libwfdservice.so.check_elf_file
+vendor/samsung/gts4lv-common/proprietary/system_ext/lib/libwfdservice.so: error: Unresolved symbol:
+  _ZN7android11AudioSystem24setDeviceConnectionStateE24audio_policy_dev_state_tRKNS_5media5audio6common9AudioPortE14audio_format_t
+```
+
+**Root cause: AOSP changed a C++ signature; the 2019-era blob calls the old one.** Not CFI, not a missing
+dependency, not a packaging mistake. Commit `709977845deb` in `frameworks/av` ("audio policy: optimize Bluetooth
+device switch", 2025-01-16, in `lineage-23.2`) appended a fourth parameter `bool deviceSwitch` to
+`AudioSystem::setDeviceConnectionState`:
+
+```
+frameworks/av/media/libaudioclient/include/media/AudioSystem.h:299-302
+    static status_t setDeviceConnectionState(audio_policy_dev_state_t state,
+                                             const android::media::audio::common::AudioPort& port,
+                                             audio_format_t encodedFormat,
+                                             bool deviceSwitch);      <- new
+```
+
+The trailing `b` in the mangled name **is** that `bool`. Proof from the shipped image, not from intermediates:
+
+```
+$ readelf -W --dyn-syms img-libaudioclient.so | grep -c 'setDeviceConnectionStateE...E14audio_format_t$'      # 3-arg
+0
+$ readelf -W --dyn-syms img-libaudioclient.so | grep -c 'setDeviceConnectionStateE...E14audio_format_tb$'     # 4-arg
+1
+```
+
+I first suspected CFI mangling and tested it directly — a C++ method mangles identically with and without
+`-fsanitize=cfi` (`_ZN1A1C1fEiRKNS_1PEi` both ways), so CFI is ruled out. `confidence: high`.
+
+**Scope: exactly one blob, exactly one symbol, 32-bit only.**
+
+```
+$ find vendor/samsung/gts4lv-common/proprietary -name '*.so' -print0 | xargs -0 -P8 -I{} \
+    sh -c "readelf -W --dyn-syms '$1' | grep -q 'UND _ZN7android11AudioSystem24setDeviceConnectionStateE..._t\$' && echo \"\$1\""
+vendor/samsung/gts4lv-common/proprietary/system_ext/lib/libwfdservice.so      <- the only hit
+```
+
+There is no 64-bit `libwfdservice.so` (`system_ext/lib64/` has none), which is why only the `[arm]` edge failed
+and every other WFD prebuilt — 33 of them, all listed in `rom-enum.log` — passed `check elf file`.
+
+**Why I am not fixing it.** Every option costs something the reviewer, not me, should decide:
+
+| option | why not |
+|---|---|
+| `allow_undefined_symbols: true` on the module | The check exists to catch exactly this. The blob has `FLAGS BIND_NOW`, so the dynamic linker resolves it eagerly at `dlopen` and **`wfdservice` would fail to start at boot**. This trades a build error for a runtime crash. |
+| drop `libwfdservice` from `PRODUCT_PACKAGES` | Silently removes WFD (Miracast sink) — a real feature loss, and it still leaves `bin/wfdservice` (which `NEEDED`s it) broken. |
+| rebuild the blob | Impossible; no source. |
+| drop the whole WFD sink stack | Large feature removal decided by a helper agent. Not mine to make. |
+| edit `vendor/samsung/gts4lv-common/Android.bp` | **Forbidden** — AGENT-TASKS §6c P6: "editing any repo other than our device fork". That file is also where the `shared_libs` list lives, so it is the only place a real fix could go. |
+
+**The fix a strong model should make, and where.** LineageOS already solved this exact symbol for other
+devices: `hardware/lineage/compat/libwfdservice/libwfdservice_shim.cpp` (commit `8a4285c0377`, "libwfdservice:
+Update for 16", which cites `709977845deb` as its Ref) is a shim whose whole purpose is to re-provide the old
+WFD entry points on 16. But it only exports `WiFiDisplaySession::broadcastWifiDisplayAudioIntent`, **not** the
+3-argument `setDeviceConnectionState` this blob wants, and it is not in this blob's `shared_libs`
+(`vendor/samsung/gts4lv-common/Android.bp:12761-12782`, zero `shim` entries). So the honest options are: extend
+that shim (a `hardware/lineage/compat` change, outside my write scope), or drop WFD. Both are owner calls.
+
+**Note for whoever picks this up:** the check is a *validation* edge, not a link step
+(`build/soong/cc/linker.go:714-761`, `--allow-undefined-symbols` at :733). That is why
+`mka bacon -k 0` still produced a zip: the prebuilt is copied and installed regardless. Confirmed by extracting
+it back out of `system.img`:
+
+```
+$ debugfs -R "dump /system_ext/lib/libwfdservice.so ..." system-raw.img
+$ sha256sum <extracted> vendor/.../libwfdservice.so
+dc04cf2353957298ae718e45a0743c9538b046459295085c95563a8d732eafc6  extracted
+dc04cf2353957298ae718e45a0743c9538b046459295085c95563a8d732eafc6  blob     <- byte-identical
+```
+
+So **the zip is real but the ROM has a latent boot-time fault**: `wfdservice` (32-bit) will fail to load. It is
+started only by `on property:vendor.wfdservice=enable`
+(`vendor/samsung/gts4lv-common/proprietary/system_ext/etc/init/wfdservice.rc:15-22`), and nothing in this tree
+sets that property — so the service stays `disabled` and the fault may never trigger. **It is a latent fault,
+not a certain boot failure, and it is not something to discover for the first time by flashing.** `confidence:
+high` on the diagnosis, `medium` on the runtime consequence (I cannot test it without a tablet).
+
+## Enumerating the remaining errors in one pass
+
+The 23.2 build stops at the *first* `FAILED` edge, which costs ~1.5 h per error discovered. `mka bacon -k 0`
+tells ninja to continue, so one run lists everything still broken:
+
+```bash
+source build/envsetup.sh && breakfast gts4lvwifi && mka bacon -k 0
+```
+
+Result on `~/work/rom-enum.log`: **5,099 targets, exactly one `FAILED:`** (line 183, the WFD blob above). So
+after fix 2 the build had exactly one real error left, not an unknown number. Recommend every later P6 run use
+`-k 0`. `confidence: high`.
+
 ## Escalated
 
-None. Fix 2 needed no repository change at all, so there is nothing for a strong model to review in code. The
-one judgement call worth a reviewer's eye is the decision **not** to silence the
-`arm-linux-gnueabi-ld.bfd` message; the reasoning and the rejected alternatives are above, and the reviewer may
-disagree — that disagreement would cost one line in `BoardConfigCommon.mk`, not a rebuild.
+**One item: `libwfdservice` / `check_elf_file`** — see "Fix 3" above for the full diagnosis, the five options and
+why each is wrong. It needs either a `hardware/lineage/compat` change or a decision to drop WFD; neither is in
+P6's write scope and neither is a helper agent's call.
+
+Fix 2 needed no repository change, so there is nothing else for a strong model to review in code. The other
+judgement call worth a reviewer's eye is the decision **not** to silence the `arm-linux-gnueabi-ld.bfd` message;
+reasoning and rejected alternatives are in their own section, and the reviewer may disagree — that disagreement
+would cost one line in `BoardConfigCommon.mk`, not a rebuild.
 
 ## Build result
 
-See "Build state" below, appended when the rebuild finishes.
+A zip exists, **but the build did not pass** and the ROM has the latent WFD fault above. Reported plainly so
+nobody mistakes this for a finished ROM.
+
+```
+path   /home/anton/android/lineage/out/target/product/gts4lvwifi/lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip
+size   1133973020 bytes  (1.06 GiB)
+sha256 cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea
+```
+
+It came from `mka bacon -k 0` (`~/work/rom-enum.log`), not from a clean `brunch`: ninja continued past the
+`check_elf_file` failure and packaged anyway, then exited 1 (`rom-enum.log`, `ninja failed with: exit status 1`,
+18:50:40). Contents are complete — `boot.img`, `dtbo.img`, `recovery.img`, `vbmeta.img`, both `.dat.br` payloads,
+both transfer lists, `update-binary`, `otacert` — and `libwfdservice.so` is genuinely inside `system.img`,
+byte-identical to the blob. **Flashing it should work; WFD sink will not.** Whether to flash before the WFD
+decision is the owner's call, not mine.
+
+The five review checks were re-run against this build and all still hold — see "The five review checks" above;
+nothing in the port changed between the `rom-build2` run and this one.
 
 ## Process note
 
