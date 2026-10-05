@@ -75,6 +75,42 @@ This is the first time the ROM build has got past the `PRODUCT_PACKAGES` check, 
 - **`out/build.ninja` does not exist** even though ninja is running; Android 16 keeps the graph in
   `out/soong/`. Do not treat its absence as a failure.
 
+## What a successful build does and does not prove — read before approving fix 2
+
+**A green build is necessary but not sufficient. It is not evidence that a fix is correct.**
+
+A successful `brunch` proves exactly one thing: the build constraint stopped firing. It does **not** prove the
+change did the right thing. In this project that distinction has a very concrete failure mode, because the error
+being fixed is itself a *policy* check — so the easiest way to make it go away is to remove the thing the policy
+is protecting.
+
+For fix 2 (`Disallowed PATH tool "arm-linux-gnueabi-ld.bfd"`), these all produce a **green build** and are not
+equivalent:
+
+| fix shape | build | what it actually did |
+|---|---|---|
+| point the arm32 toolchain at the system `arm-linux-gnueabi-ld.bfd` | green | intended — 32-bit modules built as designed |
+| **disable `CONFIG_COMPAT`** | green | **silently drops 32-bit support.** vdso32 gone, 32-bit HWC, and any 32-bit-only app path |
+| **drop vdso32 from `Kbuild`** | green | **silently drops the 32-bit vDSO.** No error, no warning |
+| **bypass or widen the PATH_Tools allowlist** | green | **weakens a security boundary** so the error stops being reported |
+| stub `arm-linux-gnueabi-ld.bfd` to a no-op | green | produces a broken or absent 32-bit vDSO |
+
+So the review question is **not** "does it build". It is:
+
+1. Does `CONFIG_COMPAT=y` still hold in `out/target/product/gts4lvwifi/obj/KERNEL_OBJ/.config` afterwards?
+2. Was `vdso32` actually **built** — is there a real 32-bit vDSO object in the kernel output, not just a skipped
+   step? (`obj/KERNEL_OBJ/arch/arm64/kernel/vdso32/` should exist and be non-trivial.)
+3. Do the 32-bit kernel modules exist under `vendor/lib/modules/`?
+4. Did anything get **disabled, stubbed or allowlisted** rather than made to work? A diff that deletes a
+   `Kbuild` line, flips a `CONFIG_`, or edits AOSP's `PATH_Tools` allowlist is a red flag, not a fix.
+5. Is the linker used the **real** system linker, and not AOSP's `.path_interposer`?
+
+`confidence: high` that this is the right framing; the specific fix has not been chosen yet.
+
+The general rule this instantiates: **when the build error is a guard rather than a missing symbol, the cheapest
+green build is usually the guard being removed rather than the problem being solved.** A fix that only makes the
+checker quiet has moved the cost, not removed it.
+
 ## Escalated
 
 None.
