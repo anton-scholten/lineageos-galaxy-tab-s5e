@@ -22,10 +22,10 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 6 P5 device-tree commits | ✅ | device `port/dt` @ `e3ccc923bcf2`, `agent/P5` @ `bfc078f` | 1 commit: 79 comma-lists → space-separated, 499 commas. `xmllint` clean. **Verified by reverse-transform, byte-identical.** `target-level` stays 5. |
 | 6 🔍 P5-R | ✅ | [review-P4.md](review-P4.md) | Passed. sm7125-common 23.2 ships space-separated lists (0 comma lists). Check audio on first boot (HAL 6.0 vs sm7125's 7.0). |
 | 7 Fast-forward both `lineage-23.2` | ✅ | | Done 2026-10-04 (plain fast-forward pushes): kernel `a30605a`→`801f3f20e54a`, device `2e50286`→`e3ccc923bcf2`. |
-| 8a B1 ROM sync + first build | ⛔ | `agent/B1`, `~/android/lineage` | **⛔ BLOCKED: host OOM, not a port defect.** Tree synced (1,170 projects) and **verified correct**: kernel `801f3f20e54a`, device `e3ccc92`. `brunch gts4lvwifi` OOM-killed twice at Soong glob (14.2 GB RAM + 13.6 GB swap peak on a 15.4 GB host). **Recipe to finish on a bigger machine: [BUILD-HANDOFF.md](BUILD-HANDOFF.md).** |
-| 8b P6 ROM build-error loop | ☐ | device `port/dt-2`, `agent/P6` | Free agent on the owner's machine, after the first `brunch`. |
-| 8b 🔍 P6-R | ☐ | `review-P6.md` | Strong-model step. |
-| 8 ROM build | ☐ | | Owner's machine. Use `brunch gts4lvwifi`, **not** a bare `m`. |
+| 8a B1 ROM sync + first build | ✅ | `agent/B1`, `~/android/lineage` | **Done — the host OOM was solved with a 32 GB swapfile.** Tree synced (1,170 projects), verified correct: kernel `801f3f20e54a`, device `e3ccc92`. **ROM built — see 8b.** | Tree synced (1,170 projects) and **verified correct**: kernel `801f3f20e54a`, device `e3ccc92`. `brunch gts4lvwifi` OOM-killed twice at Soong glob (14.2 GB RAM + 13.6 GB swap peak on a 15.4 GB host). **Recipe to finish on a bigger machine: [BUILD-HANDOFF.md](BUILD-HANDOFF.md).** |
+| 8b P6 ROM build-error loop | ✅ | device `port/dt-2` @ `d154fb4`, `agent/P6` | **2 errors fixed, 1 escalated.** `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, 1.06 GB, sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. **⚠️ Latent defect — see below.** | Free agent on the owner's machine, after the first `brunch`. |
+| 8b 🔍 P6-R | ☐ | `review-P6.md` | **Wanted.** P6 escalated a real runtime defect (`libwfdservice` ABI break) it was not permitted to fix. Needs a ruling: flash with it, or fix first. | Strong-model step. |
+| 8 ROM build | ✅ | zip on the removable drive | Built 2026-10-05. Use `brunch gts4lvwifi`, **not** a bare `m`. ⚠️ Built via `mka bacon -k 0`, not a clean `brunch`. |
 | 8c P7 boot-log triage | ☐ | `agent/P7`, `boot-<n>.md` | Free agent collects and sorts logs per flash; strong model diagnoses. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
@@ -184,6 +184,54 @@ duplicate — F3. Neither is visible to `check-pick.py`'s `clean` bucket, which 
 **2,372-commit `clean` bucket that nobody ever reviewed turned up exactly one finding**, and it is in unbuilt
 `arch/parisc` and is legal C. The unreviewed bucket is in better shape than the `ec3b287a8a17` anecdote
 suggested. This should inform how much of the 37-commit spot-check pool really needs reading.
+
+## ROM built 2026-10-05 — and one latent defect to decide on
+
+```
+/home/anton/android/lineage/out/target/product/gts4lvwifi/lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip
+1,133,973,020 bytes
+sha256  cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea
+```
+
+All of `out/` (119 GB including this zip) is on the **removable drive** — a single bind mount of `/dev/sda[/out]`
+with no nested mounts. `out.old` (46 GB) remains on the NVMe and can be reclaimed once the ROM is confirmed good.
+
+⚠️ **The zip came from `mka bacon -k 0`, not a clean `brunch`.** Ninja packaged past a failure and then exited 1.
+Contents are complete and it should flash, but it is not a from-scratch verified artifact. `confidence: medium`.
+
+**Two errors fixed, and neither needed a code change:**
+
+1. `AntHalService` — a dangling `PRODUCT_PACKAGES` entry, `d154fb4` on `port/dt-2`. See [P6-log.md](P6-log.md).
+2. `webview.apk` was a **134-byte git-lfs pointer file**, so `aapt2` could not read it. `git-lfs` had been
+   installed at 10:35:20, **three minutes after** the tree was checked out at 10:32:32 — the sync predated the
+   package install. Fixed with `git lfs pull`. No commit.
+
+**The error I sent P6 after was a red herring.** I briefed it that `Disallowed PATH tool
+"arm-linux-gnueabi-ld.bfd"` was the blocker. P6 reproduced it, found it **non-fatal**, and went on to the real first
+error. The vDSO was in fact linked by the in-tree `ld.lld` by absolute path and `.path_interposer` was never the
+linker. P6 also **declined** the fix I had suggested — pointing `CROSS_COMPILE_ARM32` at the host
+`/usr/bin/arm-linux-gnueabi-ld.bfd` — because it would make the ROM non-hermetic and is not reachable from the
+device tree. That was the right call and it contradicted me.
+
+### The latent defect — P6 escalated rather than fixed
+
+`libwfdservice` (32-bit) will fail to load at runtime. AOSP `709977845deb` added a 4th parameter
+(`bool deviceSwitch`) to `AudioSystem::setDeviceConnectionState`; the 2019-era 32-bit blob calls the 3-argument
+version. Proven from the shipped image: **3-arg call sites = 0, 4-arg = 1**. CFI was ruled out by direct test.
+
+**Latent, not certain:** nothing in the tree sets `vendor.wfdservice=enable`, so it stays `disabled`. WFD is
+Wi-Fi Display (screen mirroring) — non-essential.
+
+P6 did not fix it because every option is destructive or out of scope: `allow_undefined_symbols` converts a build
+error into a **boot-time `dlopen` failure** (the blob is `BIND_NOW`); dropping it removes WFD; the real fix is
+extending `hardware/lineage/compat/libwfdservice/`, which is not P6's write scope. LineageOS already did exactly
+this for a *different* symbol in `8a4285c0377`, so a known path exists. `confidence: high` on the diagnosis.
+
+### Read this before approving any future ROM fix
+
+**A green build does not prove a fix is correct** — and when the error is a *guard* rather than a missing symbol, the
+cheapest green build is usually the guard being removed rather than the problem solved. Five concrete review
+questions are in [P6-log.md](P6-log.md).
 
 ## Open items carried into the next step
 

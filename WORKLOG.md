@@ -609,3 +609,77 @@ pointing it at a memory shortage would only have it chase a phantom.
 - Checked whether a Claude Code cloud session could build instead: no. It has 4 CPUs, 15 GB RAM and ~25–30 GB of writable disk, against ~180 GB sync + ~40 GB out
   and the same RAM that already failed. Recorded in BUILD-HANDOFF.md.
 - Fixed the stale comment in `local_manifests/gts4lv-common.xml` that B1 flagged.
+
+## 2026-10-05: the ROM builds — `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`
+
+```
+1,133,973,020 bytes
+sha256  cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea
+```
+
+All of `out/` (119 GB, zip included) is on the removable drive — a single bind mount of `/dev/sda[/out]`, no nested
+mounts. `out.old` (46 GB) is still on the NVMe and can be reclaimed once the ROM is confirmed good.
+
+**The host OOM was solved by the owner's 32 GB swapfile.** Peak went to 14.2 GB RSS + 28 GB swap and the build
+survived; previously 15 GB RAM + 15 GB swap was killed twice. Android's own warning ("15.4GB of RAM… minimum is
+around 16GB") was accurate but the swapfile bought the headroom.
+
+**`out/` had to move to the drive mid-build.** At 40% the NVMe had 20 GB against a 30–50 GB `out/`. The relocation
+itself was clean — `.ninja_log`, `.ninja_deps` and 39,261 object files all transferred, and `sda` turned out to run
+at 1.6% utilisation, so the USB move cost nothing in speed. **But restarting afterwards cost 6.6 hours of build
+time**, because `rom-build2.sh` omitted `USE_CCACHE=1` while the 6.6-hour run had it set. That changes every
+command line ninja hashes, so all 92k completed targets were invalidated and the build restarted from zero.
+**The wrapper now exports `USE_CCACHE=1` permanently, with a comment saying why.** A second restart attempt to
+recover the lost work failed for the same class of reason, so ~7 hours went to that mistake.
+
+**Also lost to my own diagnosis:** I reported the CPU as "pinned at 800 MHz, ~4x speedup available" from
+`scaling_governor=powersave`. Later under sustained load it read 3,100 MHz with no change, so the governor biases
+idle but `intel_pstate` boosts on its own under load. The finding was real but I overstated how permanent it was.
+The owner was right to decline the change.
+
+**Two errors fixed in the end, and neither needed a code change.**
+
+1. `AntHalService` — a dangling `PRODUCT_PACKAGES` entry that kati refuses. `d154fb4` on `port/dt-2`. P6 found the
+   precedent itself: `dd5671a31b39` added it with `com.dsi.ant.antradio_library`, and `635baf7e30aa` removed the
+   latter as "no longer shipped by default with lineage-19.0" and left this behind.
+2. `webview.apk` was a **134-byte git-lfs pointer**. `git-lfs` was installed at 10:35:20, three minutes *after* the
+   tree was checked out at 10:32:32, so the sync predated the package install. `git lfs pull` fixed it.
+
+**I briefed P6 on the wrong error.** I named `Disallowed PATH tool "arm-linux-gnueabi-ld.bfd"` as the blocker. P6
+reproduced it, found it **non-fatal**, and went on to the real first error. The vDSO was linked by the in-tree
+`ld.lld` by absolute path; `.path_interposer` was never the linker. P6 also **declined the fix I had suggested** —
+point `CROSS_COMPILE_ARM32` at the host `/usr/bin/arm-linux-gnueabi-ld.bfd` — because it would make the ROM
+non-hermetic and is not reachable from the device tree. It was right and it contradicted me.
+
+P6 also introduced a technique worth keeping: **`mka bacon -k 0`** enumerates *every* remaining failure in one
+pass. It covered 5,099 remaining targets in 1 h 11 min and found exactly one real error — versus one error per
+15-hour run before. Any future P6 run should use it.
+
+**The zip is not a from-scratch verified artifact.** It came from `mka bacon -k 0`: ninja packaged past a failure
+and then exited 1. Contents are complete and it should flash, but a clean `brunch` has not been proven on this tree.
+`confidence: medium`.
+
+### Escalated, not fixed — needs an owner ruling
+
+`libwfdservice` (32-bit) will fail to load. AOSP `709977845deb` added a 4th parameter (`bool deviceSwitch`) to
+`AudioSystem::setDeviceConnectionState`; the 2019-era blob calls the 3-argument form. Proven from the shipped image:
+3-arg call sites = 0, 4-arg = 1. CFI ruled out by direct test. **Latent, not certain** — nothing sets
+`vendor.wfdservice=enable`, so it stays `disabled`, and WFD is only Wi-Fi Display.
+
+P6 did not fix it because every option is destructive or out of scope: `allow_undefined_symbols` turns a build
+error into a **boot-time `dlopen` failure** (the blob is `BIND_NOW`); dropping it removes WFD; the real fix is
+extending `hardware/lineage/compat/libwfdservice/`, which is not P6's write scope. LineageOS already did exactly
+this for a *different* symbol in `8a4285c0377`, so there is a known path. `confidence: high`.
+
+### The lesson worth keeping
+
+**A green build does not prove a fix is correct.** When the error is a *guard* rather than a missing symbol, the
+cheapest green build is usually the guard being removed rather than the problem solved. For the linter-style errors
+here, five fix shapes all produce a green build and are not equivalent — one correct, and four that silently drop
+32-bit support or weaken a security boundary. `P6-log.md` now carries the five review questions to ask instead of
+"does it build": does `CONFIG_COMPAT=y` still hold, was `vdso32` genuinely built rather than skipped, do the 32-bit
+modules exist, was anything disabled or allowlisted rather than made to work, and is the real linker being used.
+
+**Next:** the owner's flash, per `README.md`. ⚠️ **unlocking and installing erases all data on the tablet.** Then
+P7 for log triage. `P6-R` is still worth running, mainly to rule on `libwfdservice` — flash with it, or fix it
+first.

@@ -18,7 +18,9 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Device tree (P5) | **Done.** 1 commit: space-separated lists in the audio policy XML, verified by a byte-for-byte reverse-transform |
 | Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
 | Reviews | **All passed** (P1-R…P5-R). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
-| Not yet done | **No ROM built, nothing flashed, nothing booted.** The kernel compiles; that is as far as it has got |
+| **ROM built** | **`lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, 1.06 GB, on the removable drive under `out/target/product/gts4lvwifi/`. sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. Built via `mka bacon -k 0`, not a clean `brunch`.** |
+| Latent defect | **`libwfdservice` (32-bit) will fail to load** — AOSP `709977845deb` added a 4th parameter to `AudioSystem::setDeviceConnectionState`; the 2019 blob calls the 3-arg form. Latent because nothing sets `vendor.wfdservice=enable`. P6 escalated rather than fixed it; every available fix was destructive. Details and the known LineageOS path (`8a4285c0377`) in [P6-log.md](analysis/port/P6-log.md) |
+| Not yet done | **Nothing flashed, nothing booted.** The next step is the owner's flash per `README.md` — ⚠️ **unlocking and installing erases all tablet data** |
 | **Blocked** | **`brunch gts4lvwifi` OOM-killed twice on the 15.4 GB host** during Soong's glob phase (14.2 GB RAM + 13.6 GB swap peak). Not a port defect. Tree is synced and verified correct. **To finish on a machine with 32 GB: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md)** — a self-contained recipe, including the re-sync, the package list, the two commits to verify, and the traps that cost time here |
 
 ## Plan of remaining work
