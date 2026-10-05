@@ -683,3 +683,19 @@ modules exist, was anything disabled or allowlisted rather than made to work, an
 **Next:** the owner's flash, per `README.md`. ⚠️ **unlocking and installing erases all data on the tablet.** Then
 P7 for log triage. `P6-R` is still worth running, mainly to rule on `libwfdservice` — flash with it, or fix it
 first.
+
+## 2026-10-05 (lead review): P6-R passed; device fork moved on; README rewritten
+
+- **P6-R passed** ([review-P6.md](analysis/port/review-P6.md)). Fix 1 (`AntHalService`, `d154fb4384fb`) accepted. Fix 2 (git-lfs) needed no code change.
+  The decision to leave the non-fatal `arm-linux-gnueabi-ld.bfd` message alone was accepted.
+- **`libwfdservice` ruling:** flash allowed. It is latent and only affects Wi-Fi Display (screen casting).
+  Upstream `hardware/lineage/compat` @ `8a4285c` shims `broadcastWifiDisplayAudioIntent`, but our `libwfdservice.so` doesn't link the shim.
+  Fix later as P8: re-extract with an `add_needed` fixup, which needs a vendor fork, or drop WFD.
+- **Device fork `lineage-23.2` fast-forwarded `e3ccc92` → `d154fb4384fb`.** Pins updated in CLAUDE, REPO-SETUP, AGENT-TASKS, BUILD-HANDOFF and the manifest comment.
+- Merged `lead/2026-10-04-drive`, `agent/P6` and `lead/2026-10-05`. Fixed a broken STATUS row, and changed `/home/anton/` to `~/`.
+- **README rewritten:**
+  - current status (kernel ported and building, Wi-Fi ROM built, not booted);
+  - a prior-work credits table;
+  - concise install steps: a path chooser (stock → A, LineageOS 22.2 → B), Wi-Fi vs LTE differences, and ⚠️ on every data-erasing step;
+  - the build command fixed to `brunch`.
+- Next: owner flashes (⚠️ erases data), then P7. LTE build after the first boot.

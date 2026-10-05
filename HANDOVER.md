@@ -6,22 +6,21 @@ Read this first, then [WORKLOG.md](WORKLOG.md) for the full history.
 LineageOS 23.2 (Android 16) on the Samsung Galaxy Tab S5e: SM-T720/T720N (`gts4lvwifi`)
 and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
-## Where things stand (2026-10-04)
+## Where things stand (2026-10-05)
 
 | Area | State |
 |---|---|
-| Repos | Docs here (`main`). Kernel fork: **`lineage-23.2` = `port/pick` @ `801f3f20e54a`** (the ported kernel, 2,458 commits on top of `a30605a`). Device fork: **`lineage-23.2` = `port/dt` @ `e3ccc923bcf2`** (0001–0004 + the audio XML commit). Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
+| Repos | Docs here (`main`). Kernel fork: **`lineage-23.2` = `port/pick` @ `801f3f20e54a`** (the ported kernel, 2,458 commits on top of `a30605a`). Device fork: **`lineage-23.2` = `port/dt-2` @ `d154fb4384fb`** (0001–0004 + the audio XML commit + the P6 `AntHalService` fix). Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
 | Research | **All done and merged** (rounds 1–3). Findings: [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) |
 | Kernel cherry-pick (P1) | **Done and reviewed.** 2,438 picks, 60 hand-resolved, 0 problems, no review rejections ([review-P1.md](analysis/port/review-P1.md)) |
 | Known fixes (P3) | **Done.** 6 commits, `problems: 0`, `fix commits: 6`. Found a 6th `wakeup_source_register` caller the spec missed |
 | **Build (P4)** | **Done — the kernel builds.** Both `gts4lvwifi_defconfig` and `gts4lv_defconfig` link `Image.gz-dtb`, `EXIT=0`, 14 commits, nothing escalated, `problems: 0`, `fix commits: 20` |
 | Device tree (P5) | **Done.** 1 commit: space-separated lists in the audio policy XML, verified by a byte-for-byte reverse-transform |
 | Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
-| Reviews | **All passed** (P1-R…P5-R). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
+| Reviews | **All passed** (P1-R…P6-R, [review-P6.md](analysis/port/review-P6.md)). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
 | **ROM built** | **`lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, 1.06 GB, on the removable drive under `out/target/product/gts4lvwifi/`. sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. Built via `mka bacon -k 0`, not a clean `brunch`.** |
-| Latent defect | **`libwfdservice` (32-bit) will fail to load** — AOSP `709977845deb` added a 4th parameter to `AudioSystem::setDeviceConnectionState`; the 2019 blob calls the 3-arg form. Latent because nothing sets `vendor.wfdservice=enable`. P6 escalated rather than fixed it; every available fix was destructive. Details and the known LineageOS path (`8a4285c0377`) in [P6-log.md](analysis/port/P6-log.md) |
+| Latent defect | `libwfdservice` (32-bit) won't load: an AOSP signature change. Only Wi-Fi Display (screen casting) is affected, and it is off by default. **P6-R: flash allowed; fix later as P8** ([review-P6.md](analysis/port/review-P6.md)) |
 | Not yet done | **Nothing flashed, nothing booted.** The next step is the owner's flash per `README.md` — ⚠️ **unlocking and installing erases all tablet data** |
-| **Blocked** | **`brunch gts4lvwifi` OOM-killed twice on the 15.4 GB host** during Soong's glob phase (14.2 GB RAM + 13.6 GB swap peak). Not a port defect. Tree is synced and verified correct. **To finish on a machine with 32 GB: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md)** — a self-contained recipe, including the re-sync, the package list, the two commits to verify, and the traps that cost time here |
 
 ## Plan of remaining work
 The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.
@@ -36,17 +35,17 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 | ~~6~~ | ~~P5: 1 device-tree commit into `port/dt` + skip log~~ **done** | done | |
 | ~~6.5~~ | ~~P3-R, P4-R and P5-R~~ **passed** ([review-P4.md](analysis/port/review-P4.md)); reviewer rebuilt the kernel independently | done | |
 | ~~7~~ | ~~Fast-forward both forks' `lineage-23.2`~~ **done** (kernel `801f3f20e54a`, device `e3ccc923bcf2`) | done | |
-| 8 | **ROM build**: full `lineage-23.2` sync (~150 GB), `brunch gts4lvwifi` (and `gts4lv`); build errors to a free agent + review | **owner's machine** (~300 GB disk, 16 GB+ RAM) | 2–3 days |
+| ~~8~~ | ~~ROM build `gts4lvwifi`, P6 errors, P6-R~~ **done 2026-10-05**; device `lineage-23.2` → `d154fb4384fb` | done | |
+| 8.5 | `brunch gts4lv` (LTE), after the Wi-Fi model boots | owner's machine | ½ day |
 | 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
 | 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
-| 11 | Later: `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
+| 11 | Later: **P8** restore WFD (review-P6.md); `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
 
-**Owner to-do now (step 7, then 8):**
-1. ~~Fast-forward both `lineage-23.2` branches~~ **Done 2026-10-04**: kernel `801f3f20e54a`, device tree `e3ccc923bcf2`.
-2. Start a free agent on task **B1** on your own machine (RUNBOOK §8a: ~150 GB sync, then `brunch gts4lvwifi`). If the build fails,
-   a free agent runs **P6** on the errors (§8b) and a strong model reviews the fixes.
-3. First boot (⚠️ flashing erases data; back up first). After every attempt a free agent collects the logs (**P7**, §8c) for the strong model.
-   Check audio and `logcat -s lmkd` early ([review-P4.md](analysis/port/review-P4.md)).
+**Owner to-do now (step 9):**
+1. Flash `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip` per README path A (from stock) or B (from 22.2). ⚠️ **Both erase all data.** Back up first.
+2. After every boot attempt, a free agent collects the logs (**P7**, RUNBOOK §8c) for the strong model.
+   Check bpfloader/netd, audio and `logcat -s lmkd` early ([review-P4.md](analysis/port/review-P4.md)).
+3. Once it boots: `brunch gts4lv` for the LTE model.
 
 ## Rebuilding the working environment (cloud container)
 ```bash

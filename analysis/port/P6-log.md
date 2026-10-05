@@ -215,7 +215,7 @@ uses clang's default linker. Reproduced directly (`clang-real -v`):
 
 ```
 # B) the same command WITHOUT -fuse-ld=bfd, i.e. what actually built vdso.so.raw
-"/home/anton/android/lineage/prebuilts/clang/host/linux-x86/clang-r563880c/bin/ld.lld"
+"~/android/lineage/prebuilts/clang/host/linux-x86/clang-r563880c/bin/ld.lld"
 exit=0
 
 # C) with out/.path first on PATH, i.e. the real build environment
@@ -354,8 +354,8 @@ command line shows no `-fuse-ld=bfd`, i.e. no attempt to reach the rejected tool
 ```
 $ cat out/target/product/gts4lvwifi/obj/KERNEL_OBJ/arch/arm64/kernel/vdso32/.vdso.so.raw.cmd
 cmd_arch/arm64/kernel/vdso32/vdso.so.raw := clang --target=arm-linux-gnueabi \
-  --gcc-toolchain=/home/anton/android/lineage/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 \
-  --prefix=/home/anton/android/lineage/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/ ... \
+  --gcc-toolchain=~/android/lineage/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 \
+  --prefix=~/android/lineage/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/ ... \
   -Wl,--hash-style=sysv -Wl,--build-id -Wl,-T arch/arm64/kernel/vdso32/vdso.lds ... -o .../vdso.so.raw
 ```
 
@@ -486,7 +486,7 @@ A zip exists, **but the build did not pass** and the ROM has the latent WFD faul
 nobody mistakes this for a finished ROM.
 
 ```
-path   /home/anton/android/lineage/out/target/product/gts4lvwifi/lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip
+path   ~/android/lineage/out/target/product/gts4lvwifi/lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip
 size   1133973020 bytes  (1.06 GiB)
 sha256 cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea
 ```

@@ -22,13 +22,15 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 6 P5 device-tree commits | ✅ | device `port/dt` @ `e3ccc923bcf2`, `agent/P5` @ `bfc078f` | 1 commit: 79 comma-lists → space-separated, 499 commas. `xmllint` clean. **Verified by reverse-transform, byte-identical.** `target-level` stays 5. |
 | 6 🔍 P5-R | ✅ | [review-P4.md](review-P4.md) | Passed. sm7125-common 23.2 ships space-separated lists (0 comma lists). Check audio on first boot (HAL 6.0 vs sm7125's 7.0). |
 | 7 Fast-forward both `lineage-23.2` | ✅ | | Done 2026-10-04 (plain fast-forward pushes): kernel `a30605a`→`801f3f20e54a`, device `2e50286`→`e3ccc923bcf2`. |
-| 8a B1 ROM sync + first build | ✅ | `agent/B1`, `~/android/lineage` | **Done — the host OOM was solved with a 32 GB swapfile.** Tree synced (1,170 projects), verified correct: kernel `801f3f20e54a`, device `e3ccc92`. **ROM built — see 8b.** | Tree synced (1,170 projects) and **verified correct**: kernel `801f3f20e54a`, device `e3ccc92`. `brunch gts4lvwifi` OOM-killed twice at Soong glob (14.2 GB RAM + 13.6 GB swap peak on a 15.4 GB host). **Recipe to finish on a bigger machine: [BUILD-HANDOFF.md](BUILD-HANDOFF.md).** |
-| 8b P6 ROM build-error loop | ✅ | device `port/dt-2` @ `d154fb4`, `agent/P6` | **2 errors fixed, 1 escalated.** `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, 1.06 GB, sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. **⚠️ Latent defect — see below.** | Free agent on the owner's machine, after the first `brunch`. |
-| 8b 🔍 P6-R | ☐ | `review-P6.md` | **Wanted.** P6 escalated a real runtime defect (`libwfdservice` ABI break) it was not permitted to fix. Needs a ruling: flash with it, or fix first. | Strong-model step. |
+| 8a B1 ROM sync + first build | ✅ | `agent/B1`, `~/android/lineage` | Done. The host OOM was solved with a 32 GB swapfile. Tree synced (1,170 projects), verified: kernel `801f3f20e54a`, device `e3ccc92`. |
+| 8b P6 ROM build-error loop | ✅ | device `port/dt-2` @ `d154fb4384fb`, `agent/P6` | 2 errors fixed (AntHalService, git-lfs), 1 escalated (`libwfdservice`). Zip `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. |
+| 8b 🔍 P6-R | ✅ | [review-P6.md](review-P6.md) | Passed. Device `lineage-23.2` fast-forwarded `e3ccc92`→`d154fb4384fb`. WFD: flash allowed, fix later as P8. |
 | 8 ROM build | ✅ | zip on the removable drive | Built 2026-10-05. Use `brunch gts4lvwifi`, **not** a bare `m`. ⚠️ Built via `mka bacon -k 0`, not a clean `brunch`. |
 | 8c P7 boot-log triage | ☐ | `agent/P7`, `boot-<n>.md` | Free agent collects and sorts logs per flash; strong model diagnoses. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
+| 8 LTE build `brunch gts4lv` | ☐ | | After the Wi-Fi model boots. |
+| 9 P8 restore WFD (screen casting) | ☐ | review-P6.md | Strong model / owner. Not blocking. |
 
 States: ☐ not started · ◐ running · ✅ done · ⛔ blocked (say why in Notes).
 
@@ -188,7 +190,7 @@ suggested. This should inform how much of the 37-commit spot-check pool really n
 ## ROM built 2026-10-05 — and one latent defect to decide on
 
 ```
-/home/anton/android/lineage/out/target/product/gts4lvwifi/lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip
+~/android/lineage/out/target/product/gts4lvwifi/lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip
 1,133,973,020 bytes
 sha256  cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea
 ```

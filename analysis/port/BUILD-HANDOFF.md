@@ -41,13 +41,13 @@ right and any failure is a genuine build error.
 ```bash
 cd <tree>
 git -C kernel/samsung/sdm670 rev-parse --short HEAD        # must print 801f3f20e54a
-git -C device/samsung/gts4lv-common rev-parse --short HEAD # must print e3ccc923bcf2
+git -C device/samsung/gts4lv-common rev-parse --short HEAD # must print d154fb4384fb (or newer on lineage-23.2)
 ```
 
 Both are the `lineage-23.2` tips of the owner's forks, fast-forwarded in RUNBOOK step 7:
 
 - kernel `https://github.com/anton-scholten/android_kernel_samsung_sdm670` → `801f3f20e54a…`
-- device `https://github.com/anton-scholten/android_device_samsung_gts4lv-common` → `e3ccc923bcf2…`
+- device `https://github.com/anton-scholten/android_device_samsung_gts4lv-common` → `d154fb4384fb…`
 
 ## Getting the tree
 
@@ -100,7 +100,7 @@ sudo mkdir -p /mnt/build && sudo mount /dev/sdX /mnt/build
 rsync -aH --info=progress2 /mnt/build/lineage/ ~/android/lineage/
 cd ~/android/lineage
 git -C kernel/samsung/sdm670 rev-parse --short HEAD         # must be 801f3f20e54a
-git -C device/samsung/gts4lv-common rev-parse --short HEAD  # must be e3ccc923bcf2
+git -C device/samsung/gts4lv-common rev-parse --short HEAD  # must be d154fb4384fb (or newer)
 ```
 
 `~/work/prep-build-drive.sh` (on the original machine) does the copy, checks there is enough space, verifies both

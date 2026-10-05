@@ -1,33 +1,155 @@
 # LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
 
-Work-in-progress port of LineageOS 23.2 (Android 16) to the Samsung Galaxy
+Work-in-progress, unofficial port of LineageOS 23.2 (Android 16) to the Samsung Galaxy
 Tab S5e, both Wi-Fi and LTE models. Officially, LineageOS supports these tablets only up to **22.2**
 (Android 15).
 
-## Will the tablet run LineageOS 23.2?
+## Status (2026-10-05)
 
-**Not yet.** The SoC and userspace are fine, and the first device-tree changes are
-done in [our fork](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2). The blocker is the kernel. Android 16 needs eBPF
-features from Linux 5.4, and the tablet runs Linux 4.9. LineageOS only ships 23.x
-on old kernels after they get a full eBPF backport (~1000+ commits) plus the
-`close_range` and `epoll_pwait2` syscalls. No official LineageOS 4.9 kernel has this,
-which is why every 4.9 Qualcomm device is still on 22.2. However, the community
-Galaxy S9 kernel by ExyHyperBrick (also 4.9.337) has done it, and 94% of its
-commits apply cleanly to the Tab S5e kernel
-([trial](analysis/exyhyperbrick-trial/README.md)). Porting it is estimated at
-about **7 weeks of full-time work** for the whole port
-(range 4–11 weeks; about 5 months at hobby pace). See [ESTIMATE.md](ESTIMATE.md).
+| Part | State |
+|---|---|
+| Kernel backport | **Done.** 2,458 commits of the ExyHyperBrick 4.9 eBPF series ported onto the Tab S5e kernel (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, …). Reviewed, and it builds `Image.gz-dtb` for both models. Fork: [android_kernel_samsung_sdm670 `lineage-23.2`](https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2) |
+| Device tree | **Done for the build.** 6 commits on [android_device_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2) |
+| ROM, Wi-Fi (`gts4lvwifi`) | **Built** (`lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`), **not booted yet** |
+| ROM, LTE (`gts4lv`) | Not built yet. Same kernel and common tree, so it should follow the Wi-Fi model |
+| Known gaps | Screen casting (Wi-Fi Display) won't work: an old Samsung library no longer matches Android 16. ANT+ is gone. LTE: no VoLTE/VoWiFi |
 
-- Without the backports, a 23.2 build compiles but **will not boot**
-  (bpfloader/netd fail).
-- With the backports, it should run normally. The port is then unofficial,
-  and you install builds you made yourself.
+**There is no download yet.** Nobody has booted 23.2 on this tablet. Flashing it now is a test, not an upgrade.
+For daily use, stay on (or install) **official LineageOS 22.2**. Progress: [HANDOVER.md](HANDOVER.md).
 
-Details are in [PORTING-LINEAGE-23.2.md](PORTING-LINEAGE-23.2.md). The step-by-step plan to fix the kernel
-is in [KERNEL-BACKPORT-PLAN.md](KERNEL-BACKPORT-PLAN.md).
+## Prior work this port is built on
 
-There is no downloadable 23.2 build. Until the kernel work is done, the best
-option for this tablet is **official LineageOS 22.2**.
+None of this would be possible without these projects. Full survey: [PRIOR-WORK.md](PRIOR-WORK.md).
+
+| Project | Author | What we used |
+|---|---|---|
+| [ExyHyperBrick/android_kernel_samsung_exynos9810](https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810) | Mathias Gluszczynski (krazey) | **The kernel backport.** Its `lineage-22.2..lineage-23.2` series (Galaxy S9, also Linux 4.9.337) was cherry-picked with `-x`, keeping every original author. Backup: [our fork](https://github.com/anton-scholten/android_kernel_samsung_exynos9810) |
+| [ExyHyperBrick/android_device_samsung_exynos9810-common](https://github.com/ExyHyperBrick/android_device_samsung_exynos9810-common) | krazey | Reference for the 4.9-specific 23.2 device changes, e.g. `ro.bpf.kver_override=5.15.178` |
+| [LineageOS gts4lv trees](https://github.com/LineageOS/android_device_samsung_gts4lv-common) (`gts4lv-common`, `gts4lv`, `gts4lvwifi`) and [kernel](https://github.com/LineageOS/android_kernel_samsung_sdm670) | LineageOS maintainers | The 22.2 base that our forks start from |
+| [LineageOS sm7125-common](https://github.com/LineageOS/android_device_samsung_sm7125-common) and [sm7125 kernel](https://github.com/LineageOS/android_kernel_samsung_sm7125) | LineageOS (basamaryan and others) | Reference for the official Samsung Qualcomm 22.2 → 23.2 changes |
+| [LineageOS hardware/samsung](https://github.com/LineageOS/android_hardware_samsung) | LineageOS | Samsung HALs (used as-is, `lineage-23.2`) |
+| [TheMuppets vendor blobs](https://github.com/TheMuppets/proprietary_vendor_samsung_gts4lv-common) | TheMuppets | Proprietary Samsung/Qualcomm files (used as-is) |
+| [luk1337/gts4lv-fw](https://github.com/luk1337/gts4lv-fw/releases) | luk1337 | Stock Android 11 firmware images for the install steps |
+| [Doze-off/fuck-bpf](https://github.com/Doze-off/fuck-bpf), [duckyduckG 4.19 kernel](https://github.com/duckyduckG/android_kernel_xiaomi_sdm845_419) | | Studied as alternatives; not used |
+
+Licences: kernel GPL-2.0, device trees Apache-2.0. Ask krazey before publishing builds.
+
+## Which models?
+
+All models share the SDM670 chip and one kernel. Find your model number on the back, or under *Settings → About tablet*.
+
+| Model | Type | Codename | Latest stock firmware (Android 11) |
+|---|---|---|---|
+| SM-T720 | Wi-Fi (global/US) | `gts4lvwifi` | T720XXS3DWA1 |
+| SM-T720N | Wi-Fi (Korea) | `gts4lvwifi` | latest Android 11 for T720N |
+| SM-T725 | LTE (global) | `gts4lv` | T725XXS3DWA1 |
+| SM-T725C | LTE (China) | `gts4lv` | T725CZCS3DWA1 |
+| SM-T725N | LTE (Korea) | `gts4lv` | T725NKOS3DWA1 |
+| SM-T727 | LTE (T727 / U / V / R4) | `gts4lv` | T727JXS3DWA1 / T727UUES4DVI1 / T727VVRS4DVI3 / T727R4TYS4DVI2 |
+
+> ⚠️ **US carrier models (SM-T727U/V/R4/A)** often have no *OEM unlock* switch. If *Developer options* has none,
+> LineageOS can't be installed. For the SM-T727V there is an unchecked
+> [XDA conversion guide](https://xdaforums.com/t/guide-convert-sm-t727v-to-sm-t725-unlock-bootloader-install-lineageos-22-2.4760328/post-90293075). It is risky.
+
+**Wi-Fi vs LTE: the only differences**
+
+| | Wi-Fi (`gts4lvwifi`) | LTE (`gts4lv`) |
+|---|---|---|
+| Files | `…-gts4lvwifi.zip`, its `recovery.img`, `vbmeta.img` | `…-gts4lv.zip`, its `recovery.img`, `vbmeta.img`. ⚠️ **Never mix codenames**: the wrong recovery may not boot |
+| Stock firmware update (only if needed) | `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5` | Add the modem: `… --CP CP_*.tar.md5`. Use **your exact model's** firmware: CP is region-specific |
+| After install | | Data and SMS work. Calls fall back to 2G/3G (no VoLTE), which may fail where those networks are off |
+
+Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T725N, T727). Other models: take the stock OTA before unlocking.
+
+---
+
+## Install / upgrade
+
+> ⚠️ Flashing can brick the tablet and voids the warranty. Unlocking trips Knox for good: Samsung Pay, Secure Folder
+> and Samsung Health stop working, even back on stock.
+
+**Pick your path:**
+
+| You are on | Go to | Data |
+|---|---|---|
+| Samsung stock (One UI) | **Path A** | ⚠️ **Always erased** |
+| Official LineageOS 22.2 | **Path B** | ⚠️ **Erased** (23.2 builds here are unofficial, signed with other keys) |
+| Your own 22.2 build, same signing keys as your 23.2 build | **Path B**, keep-data option | Kept (back up anyway) |
+
+**You need:** a PC with [`adb`](https://developer.android.com/tools/releases/platform-tools) and
+[`samloader-rs`](https://github.com/topjohnwu/samloader-rs/releases/latest), a good USB-C cable, battery above 50%,
+and the three files for **your codename** (see the table above).
+
+**Buttons:** Download mode = power off, plug in USB, hold *Vol Up + Vol Down + Power*. Recovery = power off, hold *Vol Up + Power*.
+
+### Back up first (both paths)
+
+1. Files: `adb pull /sdcard/ ./tablet-backup/`, or copy them over USB.
+2. Apps: Smart Switch or Google backup on stock; *Settings → System → Backup* (Seedvault) on LineageOS.
+3. Have your Google password and 2FA codes ready.
+
+### Path A: from Samsung stock
+
+1. **Update stock to the latest Android 11:** *Settings → Software update*. Data kept.
+   LTE: this also updates the modem (CP) firmware, which LTE needs.
+2. **Unlock the bootloader.** ⚠️ **Erases all data.**
+   1. Connect to Wi-Fi. Tap *Settings → About tablet → Software information → Build number* 7×.
+   2. *Developer options → OEM unlock*: on.
+   3. Boot to Download mode, choose *Device unlock mode*, confirm. The tablet wipes itself.
+   4. Set it up again, re-enable Developer options, check *OEM unlock* is still on.
+3. **Disable verified boot.** ⚠️ **Forces another factory reset.**
+   In Download mode: `samloader flash --partition VBMETA vbmeta.img`, then accept the reset.
+4. **Flash Lineage Recovery.** In Download mode: `samloader flash --partition RECOVERY recovery.img --no-reboot`.
+   Hold *Vol Down + Power* until the screen goes black, then go **straight** to recovery with *Vol Up + Power*.
+   If stock boots first, it overwrites the recovery: repeat this step.
+5. **Install.** ⚠️ **Erases all data.**
+   1. Recovery: *Factory reset → Format data / factory reset*.
+   2. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
+   3. Optional: sideload Android 16 GApps now, before the first boot. Adding them later needs another wipe.
+6. *Reboot system now*. First boot can take 5–10 min. Restore your backup.
+
+To install official 22.2 instead, use the same steps with the files from
+<https://download.lineageos.org/devices/gts4lvwifi> (Wi-Fi) or <https://download.lineageos.org/devices/gts4lv> (LTE).
+
+### Path B: from LineageOS 22.2
+
+The built-in Updater can't do a major upgrade, so you sideload. The Samsung firmware is already right; don't touch it.
+
+⚠️ **Coming from official 22.2, your data will be erased.** Official builds use LineageOS's keys and these builds don't.
+Android won't boot the old data. Keeping data is only possible between builds signed with the same keys, **and** with
+the same GApps state (had GApps → sideload Android 16 GApps; had none → add none).
+
+1. Update 22.2 to its last build (*Settings → System → Updater*) and back up.
+2. Enable *Developer options → USB debugging*, run `adb -d reboot download`.
+3. **Flash the 23.2 recovery:** `samloader flash --partition RECOVERY recovery.img --no-reboot`.
+   Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery.
+4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
+   Skip this only in the same-keys, same-GApps case.
+5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
+6. GApps users: sideload the Android 16 GApps the same way now. *"Signature verification failed"* is normal for GApps: choose *Yes*.
+7. *Reboot system now*. First boot can take 5–10 min.
+
+**Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload the zip again.
+
+**Back to 22.2?** Path A, steps 4–6 with the 22.2 files. ⚠️ Downgrading always erases data.
+
+---
+
+## Building (developers)
+
+```bash
+repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs --no-clone-bundle
+mkdir -p .repo/local_manifests
+cp <this repo>/local_manifests/gts4lv-common.xml .repo/local_manifests/
+cp <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/   # LTE: gts4lv.xml
+repo sync -c -j$(nproc)
+source build/envsetup.sh && brunch gts4lvwifi   # LTE: brunch gts4lv
+```
+
+The build outputs `lineage-23.2-*-UNOFFICIAL-<codename>.zip`, `recovery.img`
+and `vbmeta.img` to `out/target/product/<codename>/`.
+
+Needs ~300 GB disk and 16 GB+ RAM (32 GB recommended). Install `git-lfs` **before** `repo sync`. Full recipe: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md).
 
 ## Repo contents
 
@@ -56,174 +178,6 @@ option for this tablet is **official LineageOS 22.2**.
 | `scripts/` | `check-agent-output.sh` (report format), `check-pins.sh` (pinned commits), `device-checks.sh` (on-device checks) |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree (they point at our forks) |
 | `patches/` | Record of the device-tree changes. They're already committed to the fork's `lineage-23.2` branch, so you don't need to apply them |
-
-## Building (developers)
-
-```bash
-repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs --no-clone-bundle
-mkdir -p .repo/local_manifests
-cp <this repo>/local_manifests/gts4lv-common.xml .repo/local_manifests/
-cp <this repo>/local_manifests/gts4lvwifi.xml .repo/local_manifests/   # LTE: gts4lv.xml
-repo sync -c -j$(nproc)
-source build/envsetup.sh && breakfast gts4lvwifi && mka bacon   # LTE: breakfast gts4lv
-```
-
-The build outputs `lineage-23.2-*-UNOFFICIAL-<codename>.zip`, `recovery.img`
-and `vbmeta.img` to `out/target/product/<codename>/`.
-
----
-
-## Which Tab S5e models can be upgraded?
-
-All of them use the same chip (SDM670) and the same kernel. Once the kernel
-work is done, **every model LineageOS supports today can run 23.2**. The LTE
-model gets the same common patches. Its own device tree needs no further
-changes, apart from checking the RIL/FCM level (see the plan).
-
-| Model | Variant | Codename | Latest stock (Android 11) firmware |
-|---|---|---|---|
-| SM-T720 | Wi-Fi (global/US) | `gts4lvwifi` | T720XXS3DWA1 |
-| SM-T720N | Wi-Fi (Korea) | `gts4lvwifi` | latest Android 11 for T720N |
-| SM-T725 | LTE (global) | `gts4lv` | T725XXS3DWA1 |
-| SM-T725C | LTE (China) | `gts4lv` | T725CZCS3DWA1 |
-| SM-T725N | LTE (Korea) | `gts4lv` | T725NKOS3DWA1 |
-| SM-T727 | LTE (T727 / T727U / T727V / T727R4) | `gts4lv` | T727JXS3DWA1 / T727UUES4DVI1 / T727VVRS4DVI3 / T727R4TYS4DVI2 |
-
-> ⚠️ **US carrier models (SM-T727U/V/R4/A).** Samsung often ships US carrier
-> devices **without an "OEM unlock" switch**. The LineageOS tree includes Wi-Fi
-> firmware for these models, which suggests some of them can be unlocked. Check
-> *Developer options* first: **if there is no "OEM unlock" switch, LineageOS can't
-> be installed on that tablet at all**, whatever the version.
-> For the **SM-T727V** (Verizon), XDA has a [guide to convert it to SM-T725 and unlock it](https://xdaforums.com/t/guide-convert-sm-t727v-to-sm-t725-unlock-bootloader-install-lineageos-22-2.4760328/post-90293075).
-> I haven't checked it. Converting firmware is risky, so read the whole thread first.
-
-The model number is on the back of the tablet, or under *Settings → About tablet*.
-
-### How the steps differ between models
-
-The steps below are the same for every model, except for these points:
-
-| Step | Wi-Fi (`gts4lvwifi`) | LTE (`gts4lv`) |
-|---|---|---|
-| Files to download / build | `…-gts4lvwifi.zip`, its `recovery.img` and `vbmeta.img` | `…-gts4lv.zip`, its `recovery.img` and `vbmeta.img`. **Never mix the two codenames**: the installer refuses the wrong one, and a recovery built for the other codename may not boot |
-| Updating Samsung firmware from recovery | `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5` | Also flash the modem: `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5 --CP CP_*.tar.md5` |
-| Required firmware | Latest Android 11 for **your exact model** (table above). | Same. Use your model's own build, because the CP (modem) firmware is region-specific |
-| Mobile data / calls | n/a | Data and SMS work. **VoLTE/VoWiFi (IMS) isn't supported** ("ims" quirk on the wiki), so calls fall back to 2G/3G, which may not work where those networks have been shut down |
-
-Firmware images: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725,
-T725C, T725N, T727). For other models, get the latest Android 11 through the stock
-OTA *before* unlocking.
-
----
-
-## Installing / upgrading
-
-> ⚠️ **WARNING:** flashing custom firmware can brick the device and voids the
-> Samsung warranty. Unlocking the bootloader permanently trips Knox, so Samsung
-> Pay, Secure Folder and Samsung Health stop working, even after going back to stock.
-
-**Tools:** a PC with [`adb`](https://developer.android.com/tools/releases/platform-tools)
-and [`samloader-rs`](https://github.com/topjohnwu/samloader-rs/releases/latest),
-a good USB-C cable, and battery above 50%.
-
-**Button combos:**
-- **Download mode:** power off, plug in USB, then hold *Vol Up + Vol Down + Power*.
-- **Recovery:** power off, then hold *Vol Up + Power*.
-
-### Back up first (everyone)
-
-Every path below either can lose data or will lose data. Before you start:
-
-1. Copy your files to a PC: `adb pull /sdcard/ ./tablet-backup/` (or use USB file transfer).
-2. Back up your apps:
-   - **On stock Android:** use Samsung Smart Switch or Google backup.
-   - **On LineageOS:** use the built-in *Settings → System → Backup* (Seedvault) to a USB stick or microSD.
-3. Make sure you know your Google account password and have 2FA codes available.
-
-### A. From the original Samsung Android (stock One UI)
-
-The last official Samsung release for the SM-T720 is **Android 11 (One UI 3.x)**.
-LineageOS requires the **latest Android 11 firmware** as its base.
-
-> ⚠️ **WARNING: Moving from stock to LineageOS always erases all data.**
-> Unlocking the bootloader forces a factory reset. Stock and LineageOS
-> encryption are also not compatible, so `/data` has to be formatted. Nothing on
-> the internal storage survives. Restore from the backup afterwards.
-
-1. **Update stock to the latest Android 11.** Go to *Settings → Software update*
-   and install everything offered. This keeps your data.
-2. **Unlock the bootloader.** ⚠️ *Erases data.*
-   1. Connect to Wi-Fi.
-   2. Open *Settings → About tablet → Software information* and tap *Build number* 7× to enable Developer options.
-   3. In *Developer options*, enable **OEM unlock**.
-   4. Boot into Download mode and choose *Device unlock mode*. Confirm. The tablet wipes itself.
-   5. Go through setup again, re-enable Developer options, and check that *OEM unlock* is still on.
-3. **Flash `vbmeta.img`** to disable verified boot. ⚠️ *Forces another factory reset.*
-   1. Boot into Download mode.
-   2. Run `samloader flash --partition VBMETA vbmeta.img`.
-   3. Accept the factory reset the tablet asks for.
-4. **Flash Lineage Recovery.**
-   1. Boot into Download mode.
-   2. Run `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   3. Hold *Vol Down + Power* until the screen goes black. Then go **straight**
-      into recovery with *Vol Up + Power*. If stock boots first, it replaces the recovery and you must flash it again.
-5. **Install LineageOS.** ⚠️ *Erases data.*
-   1. In recovery, choose *Factory reset → Format data / factory reset*.
-   2. Choose *Apply update → Apply from ADB*.
-   3. Run `adb -d sideload lineage-*.zip`.
-   4. Optional: sideload Google Apps for the **same Android version** now, before the first boot. You can't add them later without another wipe.
-6. Choose *Reboot system now*, then restore your backup.
-
-Until 23.2 is bootable, use the official **22.2** files from
-<https://download.lineageos.org/devices/gts4lvwifi> (Wi-Fi) or
-<https://download.lineageos.org/devices/gts4lv> (LTE) in these steps. Later you
-can move to 23.2 with path B.
-
-### B. From LineageOS 22.2 to 23.2 (major-version upgrade)
-
-The built-in Updater **cannot** do a major-version upgrade, so you have to
-sideload. This path **can keep your data ("dirty flash")**, but only if both
-of these are true:
-
-- **Same signing keys.** The 23.2 build must be signed with the same keys as
-  the 22.2 install. Official 22.2 uses LineageOS's private keys. A
-  self-built/unofficial 23.2 uses different keys, and Android refuses to boot
-  over existing data signed with the old keys.
-  ⚠️ So **official 22.2 to unofficial 23.2 requires a data wipe** (step 5b).
-  Data is kept only for official-to-official (if LineageOS ever ships 23.2
-  for this tablet) or for your own 22.2 build to your own 23.2 build signed
-  with the same keys.
-- **Same Google Apps state.** If you had GApps on 22.2, sideload Android 16
-  GApps in the same session. Adding or removing GApps needs a wipe.
-
-The firmware requirement (Android 11) is already met on 22.2. Don't downgrade
-the Samsung firmware.
-
-Steps:
-
-1. Update 22.2 to its latest build with *Settings → System → Updater*. Data is kept.
-2. Back up (see above). Also do this even if you plan to keep your data.
-3. Enable *Developer options → USB debugging*. Then run `adb -d reboot download`,
-   or boot into Download mode with the buttons.
-4. **Flash the 23.2 recovery** (data is kept):
-   1. Run `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   2. Hold *Vol Down + Power* until the screen goes black, then hold *Vol Up + Power* to enter recovery.
-5. In recovery:
-   1. **(a) Keep data:** this only works when the conditions above are met. Do **not** wipe anything.
-   2. **(b) Different keys, or changing GApps:** ⚠️ *Erases data.* Choose *Factory reset → Format data / factory reset*.
-6. Choose *Apply update → Apply from ADB*, then run `adb -d sideload lineage-23.2-*.zip`.
-7. If you use GApps, choose *Apply update → Apply from ADB* again and sideload the Android 16 GApps package **before** rebooting.
-   (*"Signature verification failed"* is expected for GApps. Choose *Yes* to continue.)
-8. Choose *Reboot system now*. The first boot can take 5–10 minutes.
-
-**If the tablet bootloops after a dirty flash:**
-1. Boot into recovery.
-2. ⚠️ Choose *Factory reset → Format data*. This *erases data.*
-3. Sideload the zip again.
-
-You can always go back to 22.2 with path A's step 5, starting from "Install LineageOS". ⚠️ Downgrading always erases data.
-
----
 
 ## License
 

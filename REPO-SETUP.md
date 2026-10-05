@@ -7,7 +7,7 @@ All setup is done (2026-10-03). The history of how we got here is in [WORKLOG.md
 | Repo | What's in it | Branch to use | Licence |
 |---|---|---|---|
 | `anton-scholten/lineageos-galaxy-tab-s5e` (private) | This repo: docs, analysis, local manifests, patch record | `main` | Apache-2.0 |
-| [`anton-scholten/android_device_samsung_gts4lv-common`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Device tree fork | `lineage-23.2` @ `e3ccc923bcf2` = LineageOS `d1b339b` + patches 0001–0004 + the audio-policy XML commit | Apache-2.0 |
+| [`anton-scholten/android_device_samsung_gts4lv-common`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Device tree fork | `lineage-23.2` @ `d154fb4384fb` = LineageOS `d1b339b` + patches 0001–0004 + the audio-policy XML commit + the P6 `AntHalService` fix | Apache-2.0 |
 | [`anton-scholten/android_kernel_samsung_sdm670`](https://github.com/anton-scholten/android_kernel_samsung_sdm670) | Kernel fork | `lineage-23.2` @ `801f3f20e54a` = LineageOS `a30605a54f3b` + the ported ExyHyperBrick eBPF series + build fixes (builds `Image.gz-dtb`) | GPL-2.0 |
 | [`anton-scholten/android_kernel_samsung_exynos9810`](https://github.com/anton-scholten/android_kernel_samsung_exynos9810) | **Backup** of the ExyHyperBrick S9 kernel: the source of the eBPF series. All 48 branches | `lineage-22.2` `d54533f1546b` → `lineage-23.2` `baa585f67e0e` | GPL-2.0 |
 | [`anton-scholten/android_device_samsung_exynos9810-common`](https://github.com/anton-scholten/android_device_samsung_exynos9810-common) | **Backup** of the ExyHyperBrick S9 device tree (4.9-specific 23.2 changes). All 24 branches | `lineage-22.2` `c7d22a36ba1e` → `lineage-23.2` `ced977559b13` | Apache-2.0 |

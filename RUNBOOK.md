@@ -163,7 +163,7 @@ and repeat. Push port/dt-2 after each fix (never lineage-23.2). Escalate anythin
 analysis/port/P6-log.md and stop. Done when the build produces out/target/product/gts4lvwifi/lineage-23.2-*.zip.
 ```
 A kernel error in the ROM build goes back to P4's rules on `port/pick`. 🔍 P6-R: prompt R, task "P6-R: review port/dt-2".
-Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way as step 7.
+Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way as step 7. **Done 2026-10-05** (`d154fb4384fb`, [review-P6.md](analysis/port/review-P6.md)). For new errors, use `mka bacon -k 0` to list them all in one pass.
 
 ### 8c. Flash and first boot (you + tablet), with P7 log triage
 1. ⚠️ **Unlocking the bootloader and installing erase all data on the tablet.** Back up first ([README.md](README.md) "Back up first").
