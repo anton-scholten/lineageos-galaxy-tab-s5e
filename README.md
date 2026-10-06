@@ -114,6 +114,9 @@ Download Mode protocol, which is the entire reason samloader, heimdroid and Odin
 1. Files: `adb pull /sdcard/ ./tablet-backup/`, or copy them over USB.
 2. Apps: Smart Switch or Google backup on stock; *Settings → System → Backup* (Seedvault) on LineageOS.
 3. Have your Google password and 2FA codes ready.
+4. ⚠️ **Remove all Google accounts from the tablet first** (or be ready to enter them during setup). After a
+   factory reset, Factory Reset Protection locks the setup wizard behind the previous account's credentials.
+   This is in the official install guide's basic requirements and it is the most common cause of a stuck setup.
 
 ### Path A: from Samsung stock
 
@@ -162,6 +165,16 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
 
    *This is one-time only. Once 23.2 is installed, later 23.2 → 23.2 updates sideload the zip alone: it contains
    its own `recovery.img`, so it updates the recovery too.*
+
+   *Boot straight into recovery and **check it shows the LineageOS logo**. A wrong recovery is the usual cause of
+   a sideload that fails or a device that boots to stock. If stock booted instead, it has overwritten the recovery —
+   repeat this step.*
+
+   **No `vbmeta` flash is needed on this path.** The official guide flashes
+   `samloader flash --partition VBMETA vbmeta.img` as **step 7 of the bootloader unlock**, which you already did
+   when you installed 22.2 — unlocking wipes the device and is not repeated for an in-place upgrade. The `vbmeta.img`
+   shipped in our zip is the same disabled/empty one, so the existing state already matches. If you ever relock the
+   bootloader, or start from stock instead, follow the official guide's full pre-install sequence including VBMETA.
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
    Skip this only in the same-keys, same-GApps case.
 5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
@@ -174,7 +187,9 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
    first and you must factory reset and install them again, otherwise expect crashes.
 
    If you had **no** Google Apps before, skip this and add none later — the two states have to match.
-7. *Reboot system now*. First boot can take 5–10 min.
+7. *Reboot system now*. The official guide allows up to **15 minutes**; if it goes past that, a step was missed.
+   ⚠️ `adb sideload` stopping at **47%** with `adb: failed to read command: Success` is **normal** and still
+   succeeds — that is a known quirk, not a failure.
 
 **Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload the zip again.
 
