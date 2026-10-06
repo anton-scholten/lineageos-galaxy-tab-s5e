@@ -788,3 +788,7 @@ themselves, not for a plain sideload.
 - Step B is ready: kernel branch `test/base-config` (ported code + 22.2 defconfigs + `KPROBES` + `CGROUP_SCHED`)
   builds here (15,939,579 bytes). Found on the way: `KPROBES=n` with `UPROBES=y` doesn't build (`asm/kprobes.h`
   vs the stub in `linux/kprobes.h`). Not our config, so it is only noted.
+- Owner ran Step A. Download mode showed nothing unusual. With `recovery-nobtf.img` in `RECOVERY`, even a normal
+  boot fell into Download mode, until the with-BTF `recovery.img` was flashed instead. So after a failed recovery
+  boot, the bootloader keeps trying recovery. Step A is revised: keep 22.2's recovery in `RECOVERY`, test
+  kernels in `BOOT`, and read `/proc/last_kmsg` from the 22.2 recovery.

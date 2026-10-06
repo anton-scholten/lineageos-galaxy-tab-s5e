@@ -29,31 +29,33 @@
 > - **Don't test on `BOOT`.** Use `RECOVERY`: the test kernel goes there, and `BOOT` keeps 22.2, so the tablet always
 >   boots normally afterwards and you can read the crash log from 22.2. No restore step is needed between tests.
 >
-> ### Step A: read the crash log (no build, ~15 min). Do this first.
-> Samsung's `sec_log` (`CONFIG_SEC_LOG_LAST_KMSG=y`, `drivers/samsung/debug/sec_log_buf.c`) records printk from the
-> first line. It shows the **previous** boot as `/proc/last_kmsg` (mode 0444). `pstore` ramoops (`0xA1300000`) is a second copy.
-> 1. 22.2: *Developer options → Rooted debugging* on.
-> 2. `adb -d reboot download`, then `samloader flash --partition RECOVERY ~/work/recovery-nobtf.img --no-reboot`
->    (check its header first: kernel 16,011,654).
-> 3. **Unplug USB.** Hold *Vol Down + Power* until black, then *Vol Up + Power*. It falls into Download mode.
->    **Photograph the whole Download-mode screen**, including the small text.
-> 4. USB still unplugged: hold *Vol Down + Power* until black and release. **22.2 boots** (`BOOT` is untouched).
-> 5. Collect:
+> ### Step A, revised after the owner's run (2026-10-06): read the crash log **from the 22.2 recovery**
+> **Owner's result on the first Step A:**
+> - Download mode showed nothing unusual.
+> - With `recovery-nobtf.img` in `RECOVERY`, a normal boot **also** fell into Download mode, even though `BOOT` was untouched.
+> - After flashing the with-BTF `recovery.img` to `RECOVERY`, 22.2 booted normally.
+>
+> **Reading:** after a failed *recovery* boot, the bootloader keeps trying recovery. The most likely mechanism is a
+> recovery request left set, which only a fresh flash in Download mode clears. Unproven.
+> Either way, **don't leave a non-booting image in `RECOVERY`.**
+> **So swap roles:** keep the proven 22.2 recovery in `RECOVERY`, put the test kernel in `BOOT`, and read the log from
+> 22.2's recovery. Its kernel has the same `sec_log` driver, and its adbd runs as root.
+> 1. `RECOVERY` = 22.2 `recovery.img` (it is there now). `BOOT` = a test `boot.img`. Check the kernel size in the header first.
+>    `adb -d reboot download`, then `samloader flash --partition BOOT <test boot.img> --no-reboot`.
+> 2. Unplug USB, hold *Vol Down + Power* until black, release. It tries the test kernel and falls into Download mode.
+> 3. USB unplugged: hold *Vol Down + Power* until black, then **immediately** *Vol Up + Power* → **22.2 recovery**.
+> 4. In recovery: *Advanced → Enable ADB* if it is offered, then plug in USB:
 >    ```bash
->    adb root
 >    adb shell cat /proc/last_kmsg > last_kmsg-1.txt
->    adb shell 'for f in /sys/fs/pstore/*; do echo "== $f"; cat $f; done' > pstore-1.txt
->    adb shell 'ls /proc | grep -i -e reset -e summary -e last'  > procs.txt
->    adb shell cat /proc/cmdline > cmdline.txt
+>    adb shell 'mkdir -p /tmp/ps; mount -t pstore pstore /tmp/ps; for f in /tmp/ps/*; do echo "== $f"; cat $f; done' > pstore-1.txt
 >    grep -n "Linux version" last_kmsg-1.txt pstore-1.txt
 >    ```
->    Commit them to `analysis/port/flash-logs/` (P7's job).
-> 6. **Read it:**
->    - `Linux version 4.9.337-gcfe0b6979655` appears → **our kernel ran**. The last 50 lines show where it died.
->    - It reaches `Run /init` / `init: ...` and then dies → kernel OK; it is Android 16 userspace on this kernel (different fix).
->    - Only the previous 22.2 boot is there → either our kernel never started, or Download mode cleared the
->      buffer. Go to Step B.
+> 5. Restore: `samloader flash --partition BOOT ~/Downloads/lineageos_22p2/boot.img --no-reboot`, then boot normally.
 >
+> Read the result the same way as before: our kernel's `Linux version 4.9.337-g…` banner present → it ran; the tail
+> shows where it died. Only 22.2's own previous boot present → the test kernel never ran (or the log was cleared).
+> Then Step B.
+
 > ### Step B (only if A shows nothing): config isolation, one build
 > Kernel branch **`test/base-config`** @ `b3a9e9a99369`: the ported code with the **22.2 defconfigs**, every P3 option off except `KPROBES` (needed to build) and `CGROUP_SCHED` (needed by Android 16 init).
 > The reviewer built it here: `Image.gz-dtb` 15,939,579 bytes, 0 errors. Build `mka recoveryimage` on it, flash to `RECOVERY`, repeat Step A.
