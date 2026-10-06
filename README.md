@@ -57,6 +57,7 @@ All models share the SDM670 chip and one kernel. Find your model number on the b
 |---|---|---|
 | Files | `…-gts4lvwifi.zip`, its `recovery.img`, `vbmeta.img` | `…-gts4lv.zip`, its `recovery.img`, `vbmeta.img`. ⚠️ **Never mix codenames**: the wrong recovery may not boot |
 | Stock firmware update (only if needed) | `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5` | Add the modem: `… --CP CP_*.tar.md5`. Use **your exact model's** firmware: CP is region-specific |
+| Google Apps (only if you had them) | [MindTheGapps 16.0.0 **ARM64**](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) — sideloaded **in recovery, before the first reboot** | Same file. These 23.2 builds are arm64 |
 | After install | | Data and SMS work. Calls fall back to 2G/3G (no VoLTE), which may fail where those networks are off |
 
 Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T725N, T727). Other models: take the stock OTA before unlocking.
@@ -77,10 +78,34 @@ Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T7
 | Your own 22.2 build, same signing keys as your 23.2 build | **Path B**, keep-data option | Kept (back up anyway) |
 | LineageOS 22.2 **with Google Apps** | **Path B**, incl. the MindTheGapps step | ⚠️ **Erased**, but you must reinstall GApps
 
-**You need:** a PC with [`adb`](https://developer.android.com/tools/releases/platform-tools), a good USB-C cable,
-battery above 50%, and the three files for **your codename** (see the table above).
-You also need [`samloader`](https://github.com/topjohnwu/samloader-rs/releases/latest) **only if a path below tells you to
-flash the recovery or vbmeta yourself** — not for a plain sideload.
+**You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for **your codename**
+(see the table above).
+
+### Install the tools
+
+**Debian / Ubuntu:**
+
+```bash
+sudo apt install -y adb fastboot usbutils
+```
+
+`samloader` is **only needed if a path below tells you to flash the recovery or vbmeta yourself** — not for a plain
+sideload. It is a standalone Rust binary, **not** a pip or apt package. Download and unpack it:
+
+```bash
+mkdir -p ~/bin && cd ~/bin
+curl -LO https://github.com/topjohnwu/samloader-rs/releases/download/2.2.0/samloader-v2.2.0-linux-x86_64.zip
+unzip -o samloader-v2.2.0-linux-x86_64.zip && chmod +x samloader
+export PATH="$HOME/bin:$PATH"      # so you can just type "samloader"
+```
+
+Grab the `linux-x86_64` build (3.4 MB) on an ordinary PC; there are also `linux-aarch64`, `macos-universal`,
+`windows-x86_64` and `windows-aarch64` builds. Newer versions are listed on the
+[releases page](https://github.com/topjohnwu/samloader-rs/releases/latest).
+
+**Heimdroid is not an alternative** — it is not in Debian and also needs Java installed. **Odin is Windows-only.**
+And `fastboot` from the `fastboot` package **does not work on Samsung**: the bootloader speaks Samsung's own
+Download Mode protocol, which is the entire reason samloader, heimdroid and Odin exist.
 
 **Buttons:** Download mode = power off, plug in USB, hold *Vol Up + Vol Down + Power*. Recovery = power off, hold *Vol Up + Power*.
 
@@ -123,9 +148,11 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
 
 1. Update 22.2 to its last build (*Settings → System → Updater*) and back up.
 2. Enable *Developer options → USB debugging*, run `adb -d reboot download`.
-3. **Flash the 23.2 recovery:** `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery.
-   *This is a one-time step. It is needed because the zip is read **by** the recovery already on the tablet, and a
+3. **Try step 5 first.** Sideloading the zip directly often just works: the recovery will warn that the package is
+   signed with an unknown key, and you accept *Yes*. **Only if it refuses** do step 3a.
+   3a. **Flash the 23.2 recovery:** `samloader flash --partition RECOVERY recovery.img --no-reboot`.
+   Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery, then repeat step 4 and 5.
+   *Still one-time only. It is needed because the zip is read **by** the recovery already on the tablet, and a
    22.2-era recovery can refuse a 23.2 package. Once 23.2 is installed, later 23.2 → 23.2 updates sideload the zip
    alone: it contains its own `recovery.img`, so it updates the recovery too.
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
