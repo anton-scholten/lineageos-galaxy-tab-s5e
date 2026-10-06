@@ -26,7 +26,7 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 8b P6 ROM build-error loop | ✅ | device `port/dt-2` @ `d154fb4384fb`, `agent/P6` | 2 errors fixed (AntHalService, git-lfs), 1 escalated (`libwfdservice`). Zip `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. |
 | 8b 🔍 P6-R | ✅ | [review-P6.md](review-P6.md) | Passed. Device `lineage-23.2` fast-forwarded `e3ccc92`→`d154fb4384fb`. WFD: flash allowed, fix later as P8. |
 | 8 ROM build | ✅ | zip on the removable drive | Built 2026-10-05. Use `brunch gts4lvwifi`, **not** a bare `m`. ⚠️ Built via `mka bacon -k 0`, not a clean `brunch`. |
-| 8 Flash SM-T720 to 23.2 | ⛔ | [`FLASH-BLOCKER.md`](FLASH-BLOCKER.md) ruling 6 | **⛔ Our ported kernel doesn't boot** (both with and without BTF, on `BOOT` and `RECOVERY`). The bootloader sees the same DTBs and header as the 22.2 kernel, so the kernel most likely starts, then dies. **Next: Step A**, read `/proc/last_kmsg` from 22.2 after a failed attempt (no build). Step B: `test/base-config` kernel. |
+| 8 Flash SM-T720 to 23.2 | ◐ | [`FLASH-BLOCKER.md`](FLASH-BLOCKER.md) ruling 7 | **Cause found from `last_kmsg`:** the kernel boots, then Android 16 `init` can't load the SELinux policy, because the base kernel's "Android M" `avtab.c` hack misreads it. It then reboots to Download mode. **Fix to test:** kernel `port/selinux-avtab` @ `500658be3c16`. |
 | 8c P7 boot-log triage | ☐ | `agent/P7`, `boot-<n>.md` | Free agent collects and sorts logs per flash; strong model diagnoses. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |

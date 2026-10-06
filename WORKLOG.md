@@ -792,3 +792,14 @@ themselves, not for a plain sideload.
   boot fell into Download mode, until the with-BTF `recovery.img` was flashed instead. So after a failed recovery
   boot, the bootloader keeps trying recovery. Step A is revised: keep 22.2's recovery in `RECOVERY`, test
   kernels in `BOOT`, and read `/proc/last_kmsg` from the 22.2 recovery.
+
+## 2026-10-06 (lead review 4): the cause, from last_kmsg
+
+- The owner read `last_kmsg` from the 22.2 recovery after a test `boot.img` on `BOOT`. **Our kernel
+  (`-gcfe0b6979655`) booted all its drivers.** Android 16 init then failed: `SELinux: avtab: invalid type or class`,
+  then `Could not load policy`, then `InitFatalReboot`, then `reboot bootloader`, which is Samsung's Download mode.
+- Cause: the Android M avtab compatibility hack in the base msm-4.9 `security/selinux/ss/avtab.c`. It misreads
+  extended-permission rules with new specifiers (Android 16's nlmsg xperms). The S9 kernel doesn't have it.
+- Fix: kernel branch `port/selinux-avtab` @ `500658be3c16` = `801f3f20e54a` + avtab.c set to the S9 version.
+  It compiles here. Owner to test it on `RECOVERY`.
+- Size/BTF/AVB/ramdisk theories are all closed. `port/no-btf` and `test/base-config` aren't needed for this; delete them later.

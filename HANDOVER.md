@@ -20,7 +20,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Reviews | **All passed** (P1-R…P6-R, [review-P6.md](analysis/port/review-P6.md)). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
 | **ROM built** | **`lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, 1.06 GB, on the removable drive under `out/target/product/gts4lvwifi/`. sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. Built via `mka bacon -k 0`, not a clean `brunch`.** |
 | Latent defect | `libwfdservice` (32-bit) won't load: an AOSP signature change. Only Wi-Fi Display (screen casting) is affected, and it is off by default. **P6-R: flash allowed; fix later as P8** ([review-P6.md](analysis/port/review-P6.md)) |
-| Not yet done | **Not booted. Our ported kernel doesn't boot.** Both kernel builds fail on `BOOT` and `RECOVERY`, and the tablet falls back to Download mode. The tablet is back on 22.2 and works. Next: read the crash log (`/proc/last_kmsg`), [FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md) ruling 6, Step A |
+| Not yet done | **Not booted yet, but the cause is found.** The kernel boots its drivers. Android 16 `init` then fails to load SELinux policy, because of an old Android-M hack in `avtab.c`, and reboots to Download mode. Fix: kernel `port/selinux-avtab` @ `500658be3c16`, waiting for the owner's test. See [FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md) ruling 7 |
 
 ## Plan of remaining work
 The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.

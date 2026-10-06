@@ -1,4 +1,46 @@
 <!-- task: FLASH -->
+> ## Reviewer ruling 7 (2026-10-06): FOUND. The kernel boots; Android 16's SELinux policy can't be parsed by our 4.9 SELinux code.
+>
+> `last_kmsg` from the `BOOT` test ([excerpt](flash-logs/boot-1-last_kmsg-excerpt.md)) shows
+> `Linux version 4.9.337-gcfe0b6979655` booting all its drivers for ~5 s. Then:
+> ```
+> init: Loading SELinux policy
+> SELinux:  Android master kernel running Android M policy in compatibility mode.
+> SELinux: avtab: invalid type or class
+> init: SELinux:  Could not load policy: Invalid argument
+> init: InitFatalReboot: signal 6
+> reboot: Restarting system with command 'bootloader'      <- Samsung's "bootloader" = Download mode
+> ```
+> **So the "silent fallback to Download mode" was init asking for it.** It wasn't the bootloader and it wasn't a kernel crash.
+> **The kernel backport works up to userspace.** Size, BTF, AVB and the ramdisk were all red herrings.
+>
+> **Cause** (`security/selinux/ss/avtab.c`, from the LineageOS/CAF msm-4.9 base, *not* from the port): an
+> "Android M compatibility" hack. At policy version 30, any extended-permission rule whose specifier isn't
+> `IOCTLFUNCTION`/`IOCTLDRIVER` is taken as an Android M rule, and its `driver` byte is not read. Android 16 policy has
+> such rules (netlink `nlmsg` xperms are the likely ones). From the first one on, the reader is a byte out of step and
+> every later entry is garbage, hence `invalid type or class`. The ExyHyperBrick S9 kernel doesn't have this hack, which is why
+> the same Android 16 policy loads there. `confidence: high`.
+>
+> **Fix:** kernel branch **`port/selinux-avtab` @ `500658be3c16`** = `lineage-23.2` (`801f3f20e54a`, *with* BTF) + one
+> commit making `avtab.c` identical to the S9 kernel's (−61 lines, the hack removed). It compiles clean here.
+>
+> **Test (owner):**
+> ```bash
+> cd ~/android/lineage
+> git -C kernel/samsung/sdm670 fetch anton port/selinux-avtab && git -C kernel/samsung/sdm670 checkout FETCH_HEAD
+> source build/envsetup.sh && breakfast gts4lvwifi && mka recoveryimage bootimage
+> cat kernel/samsung/sdm670/include/config/kernel.release     # must end in -g500658be3c16
+> ```
+> Flash `recovery.img` to `RECOVERY` and boot it (USB unplugged, *Vol Up + Power*).
+> - **23.2 recovery appears** → fixed. Fast-forward `lineage-23.2` to `port/selinux-avtab`. Then run `mka bacon -k 0`,
+>   ⚠️ *Format data*, sideload, and sideload MindTheGapps.
+> - **Download mode again** → put the 22.2 recovery back, flash the new `boot.img` to `BOOT`, and read `last_kmsg` from
+>   the 22.2 recovery exactly as in Step A. The next error will be in the log. More SELinux or init incompatibilities
+>   are possible; this was only the first.
+>
+> Lesson: on this tablet, "Download mode after a boot attempt" can be **Android's own `reboot bootloader`**. Read
+> `last_kmsg` before guessing.
+
 > ## Reviewer ruling 6 (2026-10-06): the bootloader is almost certainly fine. Our kernel starts and dies. **Get its log next.**
 >
 > **New measurements** (reviewer's own builds, same toolchain, `gts4lvwifi_defconfig`):
