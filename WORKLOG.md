@@ -700,7 +700,7 @@ first.
   - the build command fixed to `brunch`.
 - Next: owner flashes (⚠️ erases data), then P7. LTE build after the first boot.
 
-## 2026-10-05: P6-R passed; added a documented flash path for MicroG
+## 2026-10-05 (helper lead): P6-R notes; zip ships recovery.img; README install tweaks
 
 **P6-R: pass.** Device fork `lineage-23.2` fast-forwarded `e3ccc92` → `d154fb4384fb`. All four items accepted, with
 one deferral. The review checked P6's `libwfdservice` diagnosis against upstream and found a better fix than P6
@@ -733,7 +733,7 @@ So **a separate recovery flash is a one-time bootstrap, not a per-install step.*
 stock case (stock recovery cannot sideload, and stock boot overwrites the recovery partition on every boot), and
 the 22.2 case.
 
-**Path B2 added to `README.md` for MicroG**, which was a genuine gap — the routing table only covered Samsung stock
+**(Later withdrawn in `d87db77`: there is no Path B2/MicroG.)** Path B2 was added to `README.md` for MicroG, which was a genuine gap — the routing table only covered Samsung stock
 and LineageOS 22.2, so a MicroG user had no documented route. Path B2's substantive points: data is erased (MicroG
 is signed with different keys, so there is no keep-data option); MicroG ships **no Google apps, so add none**
 afterwards; the recovery-version check decides whether step 3 is needed at all; and expect an **unverified-package
@@ -741,3 +741,19 @@ signature prompt**, because these builds are `UNOFFICIAL` — declining it is th
 
 Also corrected the "you need" line: `samloader` is only required on paths that flash recovery or vbmeta
 themselves, not for a plain sideload.
+
+## 2026-10-06 (lead review): flash blocker; install procedure corrected
+
+- Merged `lead/2026-10-05b`: README tool install, MindTheGapps, FRP warning and the 47% sideload quirk (all checked
+  against the LineageOS wiki source), plus FLASH-BLOCKER.md.
+- **The A/B hypothesis is wrong:** `AB_OTA_UPDATER := false`, and the wiki gives a single `recovery` partition. Also,
+  Lineage Recovery has no "disable signature verification" menu. Both are corrected in FLASH-BLOCKER.md.
+- **Owner report:** the tablet cycles into Download mode. Likely cause: the force-reboot → recovery button sequence
+  with USB plugged in (*Vol Up + Vol Down + Power* + USB = Download mode). Second possibility: the 23.2 recovery's
+  untested kernel crashing.
+- **README changes:**
+  - Path B now installs from the **22.2 recovery** (it accepts the unofficial zip after a *Yes* prompt), so a
+    working recovery stays on the tablet until 23.2 has booted.
+  - Path A recommends going through official 22.2 first.
+  - New section "Stuck in Download mode?".
+  - "Unplug USB" added before the recovery button sequence.

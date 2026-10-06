@@ -1,6 +1,19 @@
 <!-- task: FLASH -->
 # Flashing blocker: the 23.2 recovery is not taking
 
+> **Reviewer ruling (2026-10-06), read first.** Two of the hypotheses below are wrong:
+> - **No A/B.** `BoardConfigCommon.mk:39` sets `AB_OTA_UPDATER := false`, and the LineageOS wiki says
+>   `recovery_partition_name: recovery`. There are no slots. Hypotheses 1 and 4 are out.
+> - **Lineage Recovery has no "disable signature verification" menu.** It asks *"Signature verification failed"*
+>   for an unofficial zip; answer **Yes**.
+>
+> Most likely cause of the Download-mode cycle: the button sequence with **USB still plugged in**. Download mode is
+> *Vol Up + Vol Down + Power* with USB connected. Moving from the *Vol Down + Power* force-reboot to *Vol Up + Power*
+> briefly holds all three. Second possibility: the 23.2 recovery's kernel, which has never booted, crashed
+> (Samsung shows *Upload mode/RAMDUMP*). **Fix:** install from the **22.2 recovery** instead (README Path B, step 3),
+> and keep 22.2's recovery as the safety net until a 23.2 boot is proven. Getting unstuck: README
+> "Stuck in Download mode?".
+
 Written 2026-10-06 by the lead, for a strong-model review. **Nothing here has been guessed at — every item is a
 command that was run and its observed result.** Where I am inferring, it says so and gives the test that would settle
 it.
@@ -102,7 +115,7 @@ so if the old recovery accepts the package, the 23.2 recovery is installed *as p
 partition question never arises.
 
 1. Power off → **Vol Up + Power** into recovery
-2. *Advanced* → disable **package/signature verification**
+2. (Nothing to disable: Lineage Recovery shows *"Signature verification failed"* during the sideload. Choose **Yes**.)
 3. *Factory reset → Format data* ⚠️ erases all data — expected, the signing keys differ from official 22.2
 4. *Apply update → Apply from ADB* → sideload the zip, accept the unknown-key warning
 

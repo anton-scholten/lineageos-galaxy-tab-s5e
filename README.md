@@ -76,7 +76,7 @@ Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T7
 | Samsung stock (One UI) | **Path A** | ⚠️ **Always erased** |
 | Official LineageOS 22.2 | **Path B** | ⚠️ **Erased** (23.2 builds here are unofficial, signed with other keys) |
 | Your own 22.2 build, same signing keys as your 23.2 build | **Path B**, keep-data option | Kept (back up anyway) |
-| LineageOS 22.2 **with Google Apps** | **Path B**, incl. the MindTheGapps step | ⚠️ **Erased**, but you must reinstall GApps
+| LineageOS 22.2 **with Google Apps** | **Path B**, incl. the MindTheGapps step | ⚠️ **Erased**, and you must reinstall GApps |
 
 **You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for **your codename**
 (see the table above).
@@ -120,6 +120,9 @@ Download Mode protocol, which is the entire reason samloader, heimdroid and Odin
 
 ### Path A: from Samsung stock
 
+> **Recommended while 23.2 is untested:** do Path A with the **official 22.2** files (links at the end of this
+> section), check that 22.2 works, then do Path B. That way you always have a working 22.2 recovery to fall back to.
+
 1. **Update stock to the latest Android 11:** *Settings → Software update*. Data kept.
    LTE: this also updates the modem (CP) firmware, which LTE needs.
 2. **Unlock the bootloader.** ⚠️ **Erases all data.**
@@ -130,8 +133,9 @@ Download Mode protocol, which is the entire reason samloader, heimdroid and Odin
 3. **Disable verified boot.** ⚠️ **Forces another factory reset.**
    In Download mode: `samloader flash --partition VBMETA vbmeta.img`, then accept the reset.
 4. **Flash Lineage Recovery.** In Download mode: `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   Hold *Vol Down + Power* until the screen goes black, then go **straight** to recovery with *Vol Up + Power*.
-   If stock boots first, it overwrites the recovery: repeat this step.
+   When the transfer finishes, the screen keeps saying *Downloading…*. That is normal.
+   **Unplug USB**, hold *Vol Down + Power* until the screen goes black, release, then go **straight** to recovery with
+   *Vol Up + Power*. If stock boots first, it overwrites the recovery: repeat this step.
 5. **Install.** ⚠️ **Erases all data.**
    1. Recovery: *Factory reset → Format data / factory reset*.
    2. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
@@ -150,31 +154,15 @@ Android won't boot the old data. Keeping data is only possible between builds si
 the same GApps state (had GApps → sideload Android 16 GApps; had none → add none).
 
 1. Update 22.2 to its last build (*Settings → System → Updater*) and back up.
-2. Enable *Developer options → USB debugging*, run `adb -d reboot download`.
-3. **Flash the 23.2 recovery.** The zip is read **by** the recovery already on the tablet, and a 22.2-era
-   recovery can refuse a 23.2 package — so upgrade the recovery first, rather than relying on it accepting the
-   package. Take `recovery.img` from the zip you downloaded, **not** the one from 22.2:
-
-   ```bash
-   unzip -o lineage-23.2-*-UNOFFICIAL-<codename>.zip recovery.img
-   adb -d reboot download
-   samloader flash --partition RECOVERY recovery.img --no-reboot
-   ```
-
-   Hold *Vol Down + Power* until the screen goes black, then *Vol Up + Power* into recovery.
-
-   *This is one-time only. Once 23.2 is installed, later 23.2 → 23.2 updates sideload the zip alone: it contains
-   its own `recovery.img`, so it updates the recovery too.*
-
-   *Boot straight into recovery and **check it shows the LineageOS logo**. A wrong recovery is the usual cause of
-   a sideload that fails or a device that boots to stock. If stock booted instead, it has overwritten the recovery —
-   repeat this step.*
-
-   **No `vbmeta` flash is needed on this path.** The official guide flashes
-   `samloader flash --partition VBMETA vbmeta.img` as **step 7 of the bootloader unlock**, which you already did
-   when you installed 22.2 — unlocking wipes the device and is not repeated for an in-place upgrade. The `vbmeta.img`
-   shipped in our zip is the same disabled/empty one, so the existing state already matches. If you ever relock the
-   bootloader, or start from stock instead, follow the official guide's full pre-install sequence including VBMETA.
+2. Enable *Developer options → USB debugging*, then run `adb -d reboot recovery`.
+   Check the top of the screen: it should say **LineageOS recovery, version 22.2**.
+3. **Keep the 22.2 recovery for this install. Don't flash the 23.2 recovery first.**
+   - Lineage Recovery 22.2 can install this zip. Because the build is unofficial, it shows *"Signature verification failed"*: choose **Yes**.
+   - The 23.2 recovery runs the new 23.2 kernel, which hasn't booted on a tablet yet. If that kernel fails, the
+     tablet can't reach any recovery and drops to Download mode. A known-good 22.2 recovery keeps the way back to 22.2 open.
+   - `vbmeta` was already done when you unlocked for 22.2. Don't flash it again.
+   - Only if the 22.2 recovery **refuses** the zip, flash the 23.2 recovery as in [Path A step 4](#path-a-from-samsung-stock),
+     using `recovery.img` from your 23.2 build. Read the warning in [Stuck in Download mode?](#stuck-in-download-mode) first.
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
    Skip this only in the same-keys, same-GApps case.
 5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
@@ -187,13 +175,31 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
    first and you must factory reset and install them again, otherwise expect crashes.
 
    If you had **no** Google Apps before, skip this and add none later — the two states have to match.
-7. *Reboot system now*. The official guide allows up to **15 minutes**; if it goes past that, a step was missed.
+7. *Reboot system now*. The official guide allows up to **15 minutes** for the first boot. If it takes longer, something is wrong. Collect logs ([TESTING.md](TESTING.md)).
    ⚠️ `adb sideload` stopping at **47%** with `adb: failed to read command: Success` is **normal** and still
    succeeds — that is a known quirk, not a failure.
 
 **Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload the zip again.
 
 **Back to 22.2?** Path A, steps 4–6 with the 22.2 files. ⚠️ Downgrading always erases data.
+
+### Stuck in Download mode?
+
+Download mode shows a blue/cyan screen with *"Downloading… Do not turn off target"*. It's harmless: nothing is being written unless a PC tool is flashing.
+
+1. **Unplug the USB cable.** Download mode is *Vol Up + Vol Down + Power* **with USB plugged in**. When you slide from
+   *Vol Down* to *Vol Up* with the cable still in, you are briefly holding all three buttons, so you land straight back in Download mode.
+2. Hold *Vol Down + Power* for 8–10 s until the screen goes black. **Release immediately.**
+3. Then either:
+   - do nothing, and the tablet boots the installed system; or
+   - press *Vol Up + Power* right away (only those two, USB still unplugged) to boot recovery.
+     Release when the logo appears.
+4. If it keeps coming back to Download mode on its own, read the small text at the top-left and any **red** text
+   (for example *"SECURE CHECK FAIL: recovery"*). Report it. Also tell whether the screen says **"Upload mode"** or
+   **"RAMDUMP"** rather than *Downloading*: that means a kernel crash, not a flashing problem.
+   To get back to a working state, flash the **22.2** `recovery.img` from
+   <https://download.lineageos.org/devices/gts4lvwifi> (LTE: `gts4lv`) with
+   `samloader flash --partition RECOVERY recovery.img --no-reboot`. Then repeat steps 1–3.
 
 
 ---
