@@ -1,4 +1,93 @@
 <!-- task: FLASH -->
+> ## Reviewer ruling 3 (2026-10-06): the BTF test FAILED. Read this before ruling 2.
+>
+> **Ruling 2's fix did not work.** `port/no-btf` @ `cfe0b6979655` was checked out, `mka recoveryimage` built
+> cleanly (1:20:41, 0 errors), and the recovery kernel shrank as predicted:
+>
+> | | with BTF | without BTF | 22.2 (boots) |
+> |---|---|---|---|
+> | recovery kernel | 18,684,229 | **16,011,654** | 15,564,314 |
+> | gap to 22.2 | +3,119,915 | **+447,340** | — |
+>
+> `CONFIG_DEBUG_INFO_BTF is not set` confirmed. **It still boots straight back into Download mode.**
+> **Kernel size is therefore not the cause.** Ruling 2's BTF mechanism is disproven.
+>
+> ### The finding that reframes the problem
+>
+> **`boot.img` and `recovery.img` contain the same kernel image.**
+>
+> ```
+> boot.img      kernel 18,684,229   ramdisk  1,494,329
+> recovery.img  kernel 18,684,229   ramdisk 14,283,661   <- same kernel, bigger ramdisk
+> ```
+>
+> So this stopped being a recovery-packaging question. Whatever stops the recovery from booting is a property of
+> **our kernel**, and it will equally stop `boot.img`. **Nothing has ever flashed and booted this kernel** — that is
+> the claim P1-P4 exist to establish, and it is still untested.
+>
+> ### Hypotheses, ranked. All are guesses except where marked verified.
+>
+> **1. Our kernel does not boot at all; the recovery is just where it shows first.** `confidence: medium`.
+> The shared-kernel fact above is verified; the inference is not. Every symptom fits a kernel that never reaches
+> its console: silent fallback to Download mode, no RAMDUMP, no `printk` output anywhere in the logs.
+> **This is now the highest-value thing to test** and it is testable without touching recovery at all — see below.
+>
+> **2. Something the recovery ramdisk provides is missing or wrong, so it dies before the console.** `confidence: low`.
+> The Android 16 recovery ramdisk is +1.8% over 22.2's. A ramdisk failure this early could be quiet. Faint support:
+> `recovery_intermediates/` never contained an image, so exactly what ends up in the recovery ramdisk is not
+> established. Faint counter: ramdisk failures usually still produce a panic or an init message.
+>
+> **3. `TARGET_RECOVERY_FSTAB := $(COMMON_PATH)/init/fstab.qcom` is a Qualcomm path in a Samsung tree.**
+> `confidence: low`. Verified as written. If the recovery cannot mount what it needs it may die before the console.
+> Untested. Listed because it is the kind of thing that is simply wrong and nobody checks.
+>
+> **4. AVB or signature enforcement on the recovery partition.** `confidence: low`.
+> `BoardConfigCommon.mk:59-61` declares `BOARD_AVB_RECOVERY_ALGORITHM := SHA256_RSA4096` and
+> `BOARD_AVB_RECOVERY_KEY_PATH := external/avb/test/data/testkey_rsa4096.pem` — AOSP's **published test key**. If the
+> bootloader enforces AVB on `recovery`, a test-key-signed image would be rejected at the bootloader stage, which is
+> exactly the observed "straight to Download mode, no kernel execution". **I could not verify this**: see the
+> retraction below. A reviewer with a working AVB parser should compare the footers of our `recovery.img` and the
+> known-good 22.2 one. `avbtool info_image --image <file>` is the tool.
+>
+> **5. `librecovery_updater_samsung` — a 2020 vendor library in a 2026 recovery.** `confidence: low`. Verified as
+> configured (`BoardConfigCommon.mk:142`). Unlikely to block *boot* rather than package installation, but it is a
+> vendor component in an otherwise-AOSP recovery and it has no business being there.
+>
+> **6. The port changed something the recovery specifically cannot tolerate.** `confidence: low`. The recovery and
+> boot kernels are the same build, so this collapses into hypothesis 1 unless it is recovery-only.
+>
+> ### The test I would run first
+>
+> **Flash `boot.img` and try to boot.** It tests the kernel directly, sidesteps recovery entirely, and answers the
+> question everything else depends on:
+>
+> ```bash
+> cd ~/android/lineage/out/target/product/gts4lvwifi   # boot.img still has the WITH-BTF kernel
+> adb -d reboot download
+> ~/bin/samloader flash --partition BOOT boot.img --no-reboot
+> ```
+>
+> Then power on and watch: **boots to Android** → the kernel is fine, hypotheses 2-5 stand. **Panic, RAMDUMP, or a
+> hang** → **the kernel does not boot**, and that is a far more important finding than the recovery ever was.
+>
+> ⚠️ **Risk:** the device will not boot until `BOOT` is replaced. The 22.2 `recovery.img` stays installed and can
+> restore a working `boot.img`, so this is recoverable — but have the 22.2 `boot.img` to hand before starting.
+> Getting a boot failure back needs only Download Mode plus samloader, which are proven working.
+>
+> **Cheaper and safer first:** `avbtool info_image --image` on both recovery images, and a diff of the two
+> ramdisks' file lists. Neither risks anything.
+>
+> ### Fourth retracted forensic attempt — the lead's AVB parse
+>
+> The lead searched for the AVB footer magic and reported a parse yielding
+> `version 16777216.0`, `vbmeta at 0x60e20100000000`, `vbmeta magic b''`. Those are garbage: the `AVBf` hit 64 bytes
+> before EOF is a **byte coincidence, not a real footer**. **No claim about AVB is made**, and hypothesis 4 is
+> untested. That is four wrong attempts at inspecting these images — wrong extraction offset, wrong arm64 magic
+> constant, a string search that could not work, and now a bad AVB struct parse. Stop parsing them by hand and use
+> `avbtool` / `unpack_bootimg`.
+
+
+<!-- task: FLASH -->
 # Flashing blocker: the 23.2 recovery is not taking
 
 > ## Reviewer ruling 2 (2026-10-06): two causes, one fix to test. Read this first.
