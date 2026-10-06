@@ -121,12 +121,34 @@ debugging a SIGABRT inside a recovery whose kernel is known to be missing someth
 The bootloader is dated **2026-09-01**, roughly five weeks before this ROM was built. `confidence: medium` on the
 interpretation, `high` that it is not itself a failure.
 
-### Still unexplained
+### The SIGABRT — the `arc4random` lines are now the prime suspect
 
-**The SIGABRT.** `ERROR: recovery: Error in /sideload/package.zip (killed by signal 6)` is recovery reporting that
-the install child process aborted. The two `arc4random` lines above it are almost certainly incidental — a warning
-printed and passed over — so **the abort's own assertion text is still missing.** Everything between
-`MADV_WIPEONFORK` and `killed by signal 6` in the full log is what matters.
+Confirmed with the owner: **there are no error lines between `MADV_WIPEONFORK` and `killed by signal 6`.** The two
+`arc4random` lines are the last thing logged before the abort, which makes them **causally suspect rather than
+incidental** — the opposite of what the lead wrote here an hour ago.
+
+That said, two things argue against the warning being *sufficient* to cause it:
+
+1. bionic's `arc4random` logs the `madvise` failure and continues; it is designed to survive it.
+2. **Official LineageOS packages sideload fine from that same 22.2 recovery**, so anything the kernel's missing
+   `MADV_WIPEONFORK` triggers is triggered by those installs too — and they do not abort.
+
+So either the abort is independent and merely adjacent, or something about *our* package drives a code path the
+official ones do not. `confidence: low` on causation either way; **not established.**
+
+One loose end: `madvise` with an unsupported advice value returns **`EINVAL`** ("Invalid argument"), but the log says
+**`ENOENT`** ("No such file or directory"). Those do not match. So either bionic is reporting a different failure than
+the missing-advice case, or the call is not reaching `madvise` at all. Unresolved, and worth the recovery log to
+settle.
+
+**The decisive experiment is already available.** Our 23.2 recovery boots our kernel, which *does* implement
+`MADV_WIPEONFORK`. If the abort is tied to that missing advice, the 23.2 recovery will install the package cleanly.
+If it aborts there too, the cause is elsewhere. That makes getting the 23.2 recovery to boot both the fix and the
+test.
+
+**Still missing:** the messages logged *after* the abort. They are now the most valuable thing in the log, and may
+name the reason. Specifically anything containing `terminate`, `Aborted`, `stack smashing`, `Assert`, `SIGABRT`, or a
+`tombstone`.
 
 ## What is still needed, and what each item would settle
 
