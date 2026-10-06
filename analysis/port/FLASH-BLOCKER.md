@@ -95,7 +95,44 @@ partition list**, not assumed.
 | 4 | `adb -d reboot bootloader` + its output | what the bootloader reports about slots/partitions |
 | 5 | the recovery version string, read carefully on the main menu | both 22.2 and 23.2 show the **LineageOS logo**, so the logo alone proves nothing |
 
-## Alternative route that avoids the problem entirely
+## CLOSED: the sideload-from-old-recovery route does not work
+
+**Tried and failed.** Sideloading the 23.2 zip from the existing **22.2** recovery:
+
+```
+Verifying update package...
+ERROR:   recovery: failed to verify whole-file signature
+Update package verification took 65.8 s (result 1).
+ERROR:   recovery: Signature verification failed
+ERROR:   recovery: error: 21
+Installing update...
+ERROR:   recovery: Error in /sideload/package.zip (killed by signal 6)
+
+Install completed with status 1.
+Installation aborted.
+```
+
+`adb sideload` itself reported `Total xfer: 1.00x` — the transfer was fine and the *verification* rejected it, which
+is a different failure from the transfer failing.
+
+**Reading it:** `error: 21` is AOSP's `INSTALL_PACKAGE_SIGNATURE_FAILED`. `signal 6` is SIGABRT, i.e. recovery
+aborting deliberately rather than crashing. The 22.2 recovery is signed with LineageOS's keys; our build is
+`UNOFFICIAL` and signed with different ones, so the package is simply unrecognised.
+
+### This makes the recovery flash mandatory
+
+There is no longer a sideload-only route. The 23.2 recovery is the only thing signed with the right keys for our
+package, so **flashing it is now on the critical path** and the A/B question must be answered.
+
+**Correction to the lead's earlier advice.** The lead suggested that the old recovery's *Advanced* menu might have a
+signature-verification toggle to turn off. That is a **TWRP** feature and LineageOS Recovery is not TWRP — the official
+recovery is a minimal AOSP-derived build and does not carry TWRP's on-the-fly verifier bypass. *This needs
+confirming against the actual recovery, but the attempt above is consistent with no such option being present or
+effective.* If a strong model knows a supported bypass, it would unblock this immediately.
+
+So: **`FLASH-BLOCKER.md`'s A/B hypothesis is now the whole problem.**
+
+## Alternative route that avoids the problem entirely (superseded — see above)
 
 **Sideloading from the existing 22.2 recovery may sidestep this whole issue.** The package contains `recovery.img`,
 so if the old recovery accepts the package, the 23.2 recovery is installed *as part of the sideload* and the
