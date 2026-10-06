@@ -1,4 +1,154 @@
 <!-- task: FLASH -->
+> ## Reviewer ruling 5 (2026-10-06): the recovery container is EXONERATED. Only the kernel is left.
+> ### Read this first. It settles ruling 3's hypotheses 2, 3 and 4 with real measurements.
+>
+> Both remaining **risk-free** checks from ruling 3 have now been run. Neither required flashing anything.
+>
+> ### 1. AVB is NOT the cause — hypothesis 4 REFUTED
+>
+> Ruling 3 ranked AVB against AOSP's published test key as a live suspect and marked it untested, because the
+> lead's hand-rolled AVB parse returned garbage. It has now been parsed with the real tool,
+> `out/host/linux-x86/bin/avbtool info_image`:
+>
+> | image | result | public key (sha1) | algorithm | rollback idx | flags |
+> |---|---|---|---|---|---|
+> | ours, with BTF (FAILS) | 23.2 | `2597c218aae470a130f61162feaae70afd97f011` | SHA256_RSA4096 | 1 | 0 |
+> | ours, no BTF (FAILS) | 23.2 | `2597c218aae470a130f61162feaae70afd97f011` | SHA256_RSA4096 | 1 | 0 |
+> | **LineageOS 22.2 (BOOTS)** | 22.2 | **`2597c218aae470a130f61162feaae70afd97f011`** | **SHA256_RSA4096** | **1** | **0** |
+>
+> **The recovery that boots is signed with exactly the key we sign with.** Same key, same algorithm, same rollback
+> index, same flags, same 67,108,864-byte image size. `Flags: 0` means the vbmeta does not demand verification.
+> **Signing cannot be why ours fails. `confidence: verified, not inferred.**`
+>
+> ### 2. The fstab is NOT wrong — hypothesis 3 REFUTED
+>
+> Ruling 3 flagged `TARGET_RECOVERY_FSTAB := $(COMMON_PATH)/init/fstab.qcom` as "a Qualcomm path in a Samsung tree,
+> simply wrong and nobody checks". **The name is a misnomer; the file it produces is correct.** Unpacked both
+> ramdisks and diffed the fstab that actually ships:
+>
+> ```
+> diff 22.2/x/system/etc/recovery.fstab  23.2/x/system/etc/recovery.fstab   ->  IDENTICAL
+> ```
+>
+> It is byte-identical to the known-good one, and it is a proper Samsung fstab (`/dev/block/bootdevice/by-name/...`,
+> `sec_efs`, `apnhlos`, `zram0`). The `# VOLD :: fstab_non_AB_variant.qcom` line is a **comment** on the original
+> donor board, not a Qualcomm path being used. **`confidence: verified.`**
+>
+> ### 3. The recovery ramdisk is not the problem either — hypothesis 2 heavily weakened
+>
+> ```
+> 22.2 recovery ramdisk: 321 files      ours: 321 files
+> only in 22.2: res/Android.bp
+> only in ours: system/bin/disable-overlays
+> ```
+>
+> A two-line difference in a 321-file list, neither entry boot-critical. Structurally the two ramdisks are the
+> same build product. This does not prove every byte is correct, but it removes "the ramdisk is wrong" as a
+> leading explanation.
+>
+> ### What is left
+>
+> Every property of the **container** now matches the image that boots:
+>
+> | property | ours | 22.2 (boots) | verdict |
+> |---|---|---|---|
+> | flash tool, partition, procedure | samloader `RECOVERY` | samloader `RECOVERY` | identical (control test) |
+> | image size | 67,108,864 | 67,108,864 | identical |
+> | AVB key / algorithm / rollback / flags | sha1 `2597c218...`, SHA256_RSA4096, 1, 0 | **the same** | **identical** |
+> | ramdisk file count | 321 | 321 | effectively identical |
+> | `recovery.fstab` | Samsung `by-name` layout | **the same** | **byte-identical** |
+> | **kernel bytes** | **ours (ported)** | **theirs (unported)** | **THE ONLY REAL DIFFERENCE** |
+> | kernel size | 16,011,654 / 18,684,229 | 15,564,314 | disproven twice as the cause |
+>
+> **So the search collapses onto the kernel.** That is now the only hypothesis standing, and ruling 4's
+> `confidence: medium-high` for "our ported kernel does not boot" is the working conclusion of this document.
+>
+> ### What this means for the bisect
+>
+> Do **not** spend time on AVB, fstab or ramdisk forensics. They are measured and equal. Go straight to
+> **NEXT STEPS step 1**: build a `boot.img` from the unported base kernel `a30605a54f3b` and flash it. If the
+> base kernel boots, the fault is inside the 20-commit port and step 2 bisects it. If the base kernel also
+> silently falls back, the fault is in the Android 16 boot-image build path for this device rather than in the
+> ported kernel code.
+>
+> ### Incidental correction to earlier notes
+>
+> The 22.2 control images are **not** at `~/Downloads/recovery.img` any more. They were extracted to
+> **`~/Downloads/lineageos_22p2/`**, which holds both `recovery.img` and `boot.img` with the 15,564,314 kernel.
+> Nothing was lost. Older notes and any command still saying `~/Downloads/recovery.img` are stale and will fail
+> with `No such file or directory`.
+
+> ## Reviewer ruling 4 (2026-10-06): the BOOT test also failed — and the test was mislabelled.
+> ### Read this before rulings 2 and 3. It supersedes both on the central question.
+>
+> A `boot` image containing our kernel was flashed to the `BOOT` partition. Result: **the same silent fallback
+> into Download mode.** No RAMDUMP, no panic, no console.
+>
+> **This is the answer to the question ruling 3 called highest-value: the failure is not recovery-specific.**
+> Two partitions, two kernel variants, one symptom. The common factor is the kernel.
+>
+> ### CORRECTION — `boot-nobtf.img` is not a no-BTF image. The name is false.
+>
+> Verified by reading each image's boot header (`kernel_size`, header offset 8):
+>
+> | file | flashed to | kernel bytes | actually | result |
+> |---|---|---|---|---|
+> | `~/work/boot-nobtf.img` | `BOOT` | 18,684,229 | **WITH BTF** | failed -> Download mode |
+> | `~/work/recovery-nobtf.img` | `RECOVERY` | 16,011,654 | no BTF | failed -> Download mode |
+> | `~/work/recovery.img` (from our zip) | `RECOVERY` | 18,684,229 | WITH BTF | failed -> Download mode |
+> | `~/Downloads/recovery.img` (LineageOS 22.2) | `RECOVERY` | 15,564,314 | n/a | **boots** |
+>
+> **Cause:** `mka recoveryimage` does **not** rebuild `boot.img`. After the no-BTF checkout,
+> `out/target/product/gts4lvwifi/boot.img` still held the stale **with-BTF** 18,684,229 kernel (confirmed still true
+> on disk), and whatever produced `boot-nobtf.img` copied that file.
+>
+> **Consequences, both of which a reviewer must not get wrong:**
+>
+> 1. **The no-BTF-on-`BOOT` test has not been performed.** It is low-value — the no-BTF *recovery* already failed
+>    carrying the same 16,011,654 kernel — but it is untested, and it must not be reported as tested.
+> 2. **The kernel sha256 of the two failed images differ** (`48de111b384eb3ac` vs `fa5292e82e866986`), so they are
+>    genuinely two different kernels. They are not one image mislabelled twice.
+>
+> **What the test does still prove:** the with-BTF kernel fails on `BOOT`, and the no-BTF kernel fails on
+> `RECOVERY`. **Both kernel variants fail, so BTF is not required for the failure.** Ruling 2's mechanism stays dead,
+> for a second and independent reason.
+>
+> ### The conclusion, and its confidence
+>
+> **Our ported kernel does not boot. `confidence: medium-high`** — up from `medium` in ruling 3.
+>
+> Evidence: two independent partitions (`BOOT`, `RECOVERY`), two kernel builds, one symptom, and a control image
+> (22.2's recovery) that boots with an identical samloader command. **Nothing has ever booted this kernel.** That is
+> the claim P1-P4 exist to establish and it is now the open question, not a background assumption.
+>
+> Ruling 3's hypotheses 2-6 (recovery ramdisk, the Qualcomm fstab path, AVB against AOSP's test key,
+> `librecovery_updater_samsung`, a recovery-only regression) are all now **downstream** of this. They stay on the
+> list only as explanations for a residual failure *after* the kernel is fixed.
+>
+> ### Device state: the tablet is currently unbootable
+>
+> `BOOT` holds a non-booting image. `RECOVERY` still holds 22.2's, which boots, but 22.2's recovery cannot install
+> a 23.2 zip (`MADV_WIPEONFORK` -> SIGABRT, closed above). **Restore `BOOT` before any further testing** —
+> commands in "NEXT STEPS" below, step 0.
+>
+> ### Branch-state corrections. Verified 2026-10-06 with `git ls-remote`, and the old docs are misleading.
+>
+> **There is no `origin/port/pick`.** Anyone following older notes and checking out `port/pick` gets the wrong tree.
+>
+> | ref | commit | what it is |
+> |---|---|---|
+> | `origin/lineage-23.2` | `801f3f20e54a` | **the ported kernel the ROM was built from** (P4 tip) |
+> | `origin/lineage-22.2` | `a30605a54f3b` | untouched pre-port tree, untouched by us |
+> | `origin/port/no-btf` | `cfe0b6979655` | `801f3f20e54a` + BTF drop; what the no-BTF recovery was built from |
+> | local `port/pick` | `d73f07cf8b5c` | **stale**, 20 commits behind (the whole P3+P4 set) and **no BTF** |
+>
+> `origin/lineage-23.2` is what RUNBOOK step 7 fast-forwards, so the port living there is expected, not a deviation.
+> The stale local `port/pick` is a P2-era tip; do not build from it.
+>
+> **Where BTF came from, exactly:** `316352012ff2` ("P3: merge the gts4lv-23.2 defconfig fragment into all four
+> defconfigs"), which set `CONFIG_DEBUG_INFO_BTF=y` in all four `gts4lv*` defconfigs. `port/no-btf` reverts exactly
+> that. It is the first of the 20 commits between the stale `port/pick` and `801f3f20e54a`.
+>
 > ## Reviewer ruling 3 (2026-10-06): the BTF test FAILED. Read this before ruling 2.
 >
 > **Ruling 2's fix did not work.** `port/no-btf` @ `cfe0b6979655` was checked out, `mka recoveryimage` built
@@ -446,6 +596,138 @@ The remaining steps are settled and documented in [README.md](../../README.md) P
 
 ⚠️ Remove Google accounts from the tablet before wiping, or be ready to enter them: Factory Reset Protection locks
 the setup wizard behind the previous account's credentials.
+
+## NEXT STEPS (2026-10-06) — the commands
+
+Everything below assumes `~/android/lineage` and `~/bin/samloader` are as documented in
+[BUILD-HANDOFF.md](BUILD-HANDOFF.md), and that `adb` is installed. `samloader` needs the device in Download Mode.
+
+**Verify the kernel in every image before flashing it.** This is the check that would have caught the
+`boot-nobtf.img` mislabel, and it costs nothing:
+
+```bash
+verify-bootimg() {
+  python3 - "$1" <<'PY'
+import struct, sys
+p = sys.argv[1]
+d = open(p, 'rb').read(64)
+k, r = struct.unpack_from('<II', d, 8)
+print(f"{p}\n  kernel {k:,}  ramdisk {r:,}")
+PY
+}
+verify-bootimg "$1"
+```
+
+The number must be the one you expect: **18,684,229** = with BTF, **16,011,654** = no BTF,
+**~15.5M** = a base `a30605a54f3b` kernel. Never flash on the strength of a filename.
+
+### Step 0 — restore the tablet (do this first, it is unbootable)
+
+Use the 22.2 images already on disk -- do not re-download, and note they live in `~/Downloads/lineageos_22p2/`,
+not `~/Downloads/`:
+
+```bash
+cp ~/Downloads/lineageos_22p2/boot.img ~/work/boot-22.2-good.img
+verify-bootimg ~/work/boot-22.2-good.img    # MUST print kernel 15,564,314
+adb -d reboot download
+~/bin/samloader flash --partition BOOT ~/work/boot-22.2-good.img --no-reboot
+```
+
+Power on. If this does **not** come up, stop and say so — that would invalidate the control in step 1.
+
+### Step 1 — the base-kernel control. This is the decisive test.
+
+Build a `boot.img` from the **pre-port** kernel `a30605a54f3b` (= `origin/lineage-22.2`), keeping our Android 16
+ramdisk. This separates "our port broke the kernel" from "the 23.2 build path for this device is broken anyway".
+
+```bash
+cd ~/android/lineage/kernel/samsung/sdm670
+git fetch origin
+git checkout -b test/base-kernel origin/lineage-22.2
+git rev-parse --short=12 HEAD        # MUST print a30605a54f3b — stop if it does not
+
+cd ~/android/lineage
+source build/envsetup.sh && breakfast gts4lvwifi
+mka bootimage                        # ~35 min. NOT 'mka recoveryimage', which does not build boot.img
+```
+
+Confirm the build really is the base kernel. `kernel.release` embeds the HEAD sha, so it is a reliable
+discriminator — the no-BTF build logged `4.9.337-gcfe0b6979655`:
+
+```bash
+cat ~/android/lineage/kernel/samsung/sdm670/include/config/kernel.release
+# MUST contain 'ga30605a54f3b'. If it says gcfe0b6979655 or g801f3f20e54a, the build is stale — stop.
+verify-bootimg ~/android/lineage/out/target/product/gts4lvwifi/boot.img   # expect ~15.5M, not 18,684,229
+```
+
+Then flash and boot:
+
+```bash
+cp ~/android/lineage/out/target/product/gts4lvwifi/boot.img ~/work/boot-base.img
+adb -d reboot download
+~/bin/samloader flash --partition BOOT ~/work/boot-base.img --no-reboot
+```
+
+**How to read the result:**
+
+| outcome | meaning |
+|---|---|
+| **boots to Android** | our port broke the kernel. Go to step 2 and bisect. |
+| **silent fallback to Download mode again** | the kernel is **exonerated**. The 23.2 Android 16 build path for this device is broken independent of the port — go to step 3. |
+
+Note the ambiguity honestly: this image is *base kernel + our 23.2 ramdisk*, so a failure is consistent with either
+"kernel broken" or "Android 16 ramdisk incompatible with a 22.2-era kernel". Step 3 separates those.
+
+### Step 2 — if the base kernel boots, bisect the 20 commits
+
+Order by risk, not by date. The whole port is the 20 commits `d73f07cf8b5c..801f3f20e54a`.
+
+```bash
+cd ~/android/lineage/kernel/samsung/sdm670
+git checkout -b test/bisect origin/lineage-23.2
+```
+
+Candidate first removals, each with the reason it is the most likely culprit:
+
+1. **`5078de1ee272` "P4: select BPF_ARCH_SPINLOCK on arm64 so bpf_spin_lock uses arch_spin_lock()"** — the single
+   riskiest call in the whole port. `review-P1.md`/`review-P4.md` recorded this as unproven until boot.
+2. **`316352012ff2` "P3: merge the gts4lv-23.2 defconfig fragment into all four defconfigs"** — brings in
+   `CONFIG_BPF_LSM=y`, `CONFIG_UCLAMP_TASK=y`, BTF and the rest. `port/no-btf` is this commit minus one line, so
+   `origin/port/no-btf` is a ready-made *partial* test of it.
+3. **`1c21d6589088` "P4: add the DRM format-modifier declarations"** — touches `drm_mode.h`, the file `F1` already
+   had to hand-edit at lines 92-104. See [duplicate-picks.md](duplicate-picks.md).
+4. **`f58d0181a988` "P4: restore the braces the schedutil uclamp merge dropped"** — a hand-merged hunk in the
+   scheduler, the classic place for a silent boot hang.
+
+Fastest bisect: test `origin/port/no-btf` first, because it already exists and needs no new work. It only removes
+BTF, so it does **not** bisect the defconfig fragment — it just re-confirms ruling 4. Then move to candidate 1.
+
+### Step 3 — if the base kernel also fails, the kernel is not the problem
+
+Ruling 3's recovery-side hypotheses are **measured and refuted** (AVB, fstab, ramdisk file list), so this branch is
+a much smaller search than it looks. Ranked:
+
+1. **The Android 16 boot-image build path for this device.** `confidence: low`.
+   The base kernel boots 22.2 userland, but we are pairing it with an Android 16 ramdisk. If it fails, that
+   pairing is suspect, and the discriminator is: build a `boot.img` from the base kernel **plus 22.2's ramdisk**,
+   which is exactly `~/Downloads/lineageos_22p2/boot.img` and is already proven good. Repacking ours is then a
+   diff in one variable.
+2. **`librecovery_updater_samsung` — a 2020 vendor library in a 2026 recovery.** `confidence: low`.
+   Verified as configured (`BoardConfigCommon.mk:142`). Never tested. The only recovery-side item ruling 5
+   leaves untested. It is for package installation, not boot, so `low` is probably right — but it is the last
+   untested recovery-side difference and it has no business in an AOSP recovery.
+3. **Something in `init.rc` or the ramdisk's `first_stage_init` that differs at the byte level.** `confidence: low`.
+   Ruling 5 compared *file lists* and the fstab, not every file's contents. A content diff is still possible:
+   ```bash
+   cd /tmp/opencode && diff -rq r22/x r23/x | head -40
+   ```
+
+### Whatever you do, do not
+
+- Flash a boot or recovery image whose kernel size you have not read off the header.
+- Trust a filename. `boot-nobtf.img` was the proof.
+- Re-open AVB or fstab. They are measured, identical to the image that boots, and closed.
+- Delete anything on the device side; everything here is reversible with Download Mode plus samloader.
 
 ## Once it boots
 
