@@ -744,7 +744,7 @@ branch `port/dt` from `lineage-23.2`, push with the fork token.
 ### B1: ROM sync and first build (free model, 1 agent, on the owner's machine)
 Unattended and long (hours), but mechanical. **Machine:** Linux x86-64, ≥300 GB free, ≥16 GB RAM (32 GB better), fast network.
 **Before starting, check** that both forks' `lineage-23.2` point at the port:
-`git ls-remote https://github.com/anton-scholten/android_kernel_samsung_sdm670 refs/heads/lineage-23.2` must print `801f3f20e54a…`, and the
+`git ls-remote https://github.com/anton-scholten/android_kernel_samsung_sdm670 refs/heads/lineage-23.2` must print `500658be3c16…` (or later), and the
 device fork's must print `d154fb4384fb…` (or a later commit). If they still print `a30605a…` / `2e50286…`, the owner hasn't done RUNBOOK step 7. **Stop and say so.**
 Don't edit the manifests to work around it.
 
@@ -756,7 +756,7 @@ Don't edit the manifests to work around it.
    `repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs --no-clone-bundle`, copy `local_manifests/gts4lv-common.xml`
    and `gts4lvwifi.xml` into `.repo/local_manifests/`, then `repo sync -c -j$(nproc) --force-sync`. If the sync fails, rerun it (it resumes).
    After 3 failures, stop and log the error.
-3. Check the right code arrived: `git -C kernel/samsung/sdm670 log -1 --format=%h` prints `801f3f20e54a`, and
+3. Check the right code arrived: `git -C kernel/samsung/sdm670 log -1 --format=%h` prints `500658be3c16` (or later), and
    `git -C device/samsung/gts4lv-common log -1 --format=%h` prints `d154fb4384fb` (or later).
 4. Build: `source build/envsetup.sh && brunch gts4lvwifi 2>&1 | tee ~/work/rom-build.log`. **`brunch gts4lvwifi`, not `brunch lineage_gts4lvwifi`**:
    breakfast adds the prefix itself, and the doubled name fails.

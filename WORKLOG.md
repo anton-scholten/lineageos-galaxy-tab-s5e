@@ -803,3 +803,12 @@ themselves, not for a plain sideload.
 - Fix: kernel branch `port/selinux-avtab` @ `500658be3c16` = `801f3f20e54a` + avtab.c set to the S9 version.
   It compiles here. Owner to test it on `RECOVERY`.
 - Size/BTF/AVB/ramdisk theories are all closed. `port/no-btf` and `test/base-config` aren't needed for this; delete them later.
+
+## 2026-10-06: the 23.2 recovery boots
+
+- Owner built `recoveryimage bootimage` on `port/selinux-avtab` (`kernel.release` checked) and flashed `recovery.img`.
+  **The LineageOS 23.2 recovery boots and shows 23.2.** First proof that the ported kernel runs Android 16 userspace.
+- Kernel fork `lineage-23.2` fast-forwarded `801f3f20e54a` → `500658be3c16`. Pins updated in CLAUDE, REPO-SETUP,
+  the manifest comment, HANDOVER, AGENT-TASKS and BUILD-HANDOFF. README marks the 20261005 zip as broken.
+- Next: rebuild the zip with the fixed kernel (`mka bacon -k 0`), ⚠️ format data, sideload, first boot.
+- The owner can delete these kernel branches: `port/no-btf`, `test/base-config`, `port/selinux-avtab` (now equal to `lineage-23.2`).

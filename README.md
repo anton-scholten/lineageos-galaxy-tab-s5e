@@ -159,9 +159,8 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
    kernel feature (`MADV_WIPEONFORK`) that 22.2's kernel lacks, so it aborts with *"killed by signal 6"*.
    Take `recovery.img` from your 23.2 build, then `samloader flash --partition RECOVERY recovery.img --no-reboot`.
    **Unplug USB**, hold *Vol Down + Power* until black, release, then *Vol Up + Power*. Check it says **version 23.2**.
-   - ⚠️ **Known issue (2026-10-06):** the 20261005 build's recovery doesn't boot; the tablet falls back to Download mode.
-     A fix is being tested ([FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md)). Until then, flash the official 22.2
-     `recovery.img` back to keep the tablet working.
+   - ⚠️ **The 20261005 build is broken:** its recovery and system can't boot. Use a build with kernel `500658be3c16`
+     or later (fixed 2026-10-06). The 23.2 recovery from such a build boots.
    - `vbmeta` was already done when you unlocked for 22.2. Don't flash it again.
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
    Skip this only in the same-keys, same-GApps case.

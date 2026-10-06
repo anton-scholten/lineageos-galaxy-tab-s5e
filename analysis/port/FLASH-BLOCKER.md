@@ -1,4 +1,8 @@
 <!-- task: FLASH -->
+> ## ✅ RESOLVED (2026-10-06): the 23.2 recovery built with `port/selinux-avtab` boots and shows 23.2.
+> Kernel fork `lineage-23.2` fast-forwarded `801f3f20e54a` → `500658be3c16`. Next is the full install: rebuild the zip
+> (`mka bacon -k 0`), ⚠️ *Format data*, sideload, add GApps, first boot. After that, P7 log triage.
+
 > ## Reviewer ruling 7 (2026-10-06): FOUND. The kernel boots; Android 16's SELinux policy can't be parsed by our 4.9 SELinux code.
 >
 > `last_kmsg` from the `BOOT` test ([excerpt](flash-logs/boot-1-last_kmsg-excerpt.md)) shows
