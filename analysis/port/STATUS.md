@@ -26,6 +26,7 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 8b P6 ROM build-error loop | ✅ | device `port/dt-2` @ `d154fb4384fb`, `agent/P6` | 2 errors fixed (AntHalService, git-lfs), 1 escalated (`libwfdservice`). Zip `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. |
 | 8b 🔍 P6-R | ✅ | [review-P6.md](review-P6.md) | Passed. Device `lineage-23.2` fast-forwarded `e3ccc92`→`d154fb4384fb`. WFD: flash allowed, fix later as P8. |
 | 8 ROM build | ✅ | zip on the removable drive | Built 2026-10-05. Use `brunch gts4lvwifi`, **not** a bare `m`. ⚠️ Built via `mka bacon -k 0`, not a clean `brunch`. |
+| 8 Flash SM-T720 to 23.2 | ⛔ | [`FLASH-BLOCKER.md`](FLASH-BLOCKER.md) | **⛔ Recovery flash not taking.** `samloader detect` succeeds and `flash … RECOVERY` returns `exit=0`, but `adb reboot recovery` still lands in the **22.2** recovery. `recovery.img` verified correct (sha256 matches the zip). Leading hypothesis: **A/B slot mismatch**. Needs a strong model for the partition/slot answer. |
 | 8c P7 boot-log triage | ☐ | `agent/P7`, `boot-<n>.md` | Free agent collects and sorts logs per flash; strong model diagnoses. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
@@ -234,6 +235,22 @@ this for a *different* symbol in `8a4285c0377`, so a known path exists. `confide
 **A green build does not prove a fix is correct** — and when the error is a *guard* rather than a missing symbol, the
 cheapest green build is usually the guard being removed rather than the problem solved. Five concrete review
 questions are in [P6-log.md](P6-log.md).
+
+## Flashing blocker, 2026-10-06 — needs a strong model
+
+The 23.2 recovery is not taking on the SM-T720. Samloader **detects** the tablet and the flash returns **`exit=0`**,
+yet `adb reboot recovery` still boots the **22.2** recovery.
+
+Ruled out already: the image is not the problem. `~/work/recovery.img` is 64.0 MB, a valid `Android bootimg`, and its
+sha256 `fa7c34fe…090b1b` **matches the copy inside the zip exactly**; the codename is right for SM-T720. `vbmeta` does
+not need reflashing either — that step belongs to the bootloader unlock already completed when 22.2 was installed.
+
+Leading hypothesis is **A/B slots**: the write succeeds but lands on the slot the bootloader is not booting from.
+One command tests it — `adb shell getprop ro.boot.slot_suffix`.
+
+Full evidence, four ranked hypotheses, the five missing commands, and a sideload route that avoids the problem
+entirely are in [FLASH-BLOCKER.md](FLASH-BLOCKER.md). **Nothing has been guessed at and no firmware operation has been
+attempted**; the partition name and slot mechanism should be confirmed, not inferred.
 
 ## Open items carried into the next step
 
