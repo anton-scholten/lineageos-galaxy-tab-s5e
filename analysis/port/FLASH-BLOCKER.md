@@ -64,73 +64,35 @@ partition still holds 22.2's.
 
 ## Hypotheses, ranked
 
-**1. A/B slot mismatch — the leading hypothesis.** This device uses A/B. If samloader wrote the recovery for the slot
-the bootloader is *not* booting from, the write genuinely succeeds, reports success, and changes nothing. That
-matches every observation, including the confusing Download Mode behaviour. **Test:** `adb shell getprop
-ro.boot.slot_suffix` — if it returns `_a` or `_b`, that is very likely the whole story. `ro.boot.slot_count` confirms
-A/B is in use. If confirmed, the fix is either writing the *active* slot's recovery or switching slots, and **the
-correct partition name or slot-switch mechanism for this device must come from a strong model or the owner, not from
-me guessing at Samsung's partition naming.**
+**1. ~~A/B slot mismatch.~~ RULED OUT.** The lead proposed this and it is **wrong**.
+`device/samsung/gts4lv-common/BoardConfigCommon.mk:39` sets `AB_OTA_UPDATER := false`, and the LineageOS
+wiki gives `recovery_partition_name: recovery` — a single partition, no slots. There is no slot mismatch
+to explain anything. *The lead should have read the device tree before reaching for A/B by default.*
 
-**2. samloader reported success but wrote nothing.** `exit=0` proves the USB conversation completed, not that a
-partition was written. **Test:** the full samloader output, not just the exit code. Lines naming the partition or the
-transfer will settle it.
+**2. The 23.2 recovery's kernel has never booted and may crash.** The most likely cause of the
+Download-mode cycle. Samsung shows *Upload mode/RAMDUMP* when a kernel panics early, which looks like the
+same thing from the outside. Untested — the recovery has never been seen running. **Test:** boot it and
+watch for RAMDUMP.
 
-**3. Something restored the old recovery.** The official guide warns that *stock* ROM overwrites a custom recovery on
-every boot. This tablet is on LineageOS, which should not do that — but a failed write that left the partition
-untouched is indistinguishable from this without the output from hypothesis 2.
+**3. samloader reported success but wrote nothing.** `exit=0` proves the USB conversation completed, not
+that a partition was written. Still open. **Test:** the full samloader output, not just the exit code.
 
-**4. Wrong partition name for this device's partition table.** The official gts4lvwifi guide does say
-`--partition RECOVERY`, so the name is right *for the 22.2-era PIT*. If the partition table changed, or if this
-device's recovery lives under a slot-suffixed name, that would explain it. **This needs checking against the actual
-partition list**, not assumed.
+**4. ~~Wrong partition name.~~ RULED OUT.** `RECOVERY` is correct per the official guide, and with no
+A/B there are no slot-suffixed variants to try.
 
-## Facts still missing — each is one command
+**5. The button sequence with USB still plugged.** Download mode is *Vol Up + Vol Down + Power* with USB
+connected. Moving straight from the *Vol Down + Power* force-reboot to *Vol Up + Power* briefly holds all
+three, which requests Download mode. Per the reviewer's ruling this is the most likely explanation of the
+cycle, and it is a **user-interface** cause, not a flashing one.
 
-| # | command | what it settles |
+## What is still needed, and what each item would settle
+
+| # | what to get | what it settles |
 |---|---|---|
-| 1 | `adb shell getprop ro.boot.slot_suffix` | A/B hypothesis. **Most informative single command.** |
-| 2 | `adb shell getprop ro.boot.slot_count` | confirms A/B |
-| 3 | full output of `samloader flash --partition RECOVERY recovery.img --no-reboot` | which partition it actually wrote |
-| 4 | `adb -d reboot bootloader` + its output | what the bootloader reports about slots/partitions |
-| 5 | the recovery version string, read carefully on the main menu | both 22.2 and 23.2 show the **LineageOS logo**, so the logo alone proves nothing |
-
-## CLOSED: the sideload-from-old-recovery route does not work
-
-**Tried and failed.** Sideloading the 23.2 zip from the existing **22.2** recovery:
-
-```
-Verifying update package...
-ERROR:   recovery: failed to verify whole-file signature
-Update package verification took 65.8 s (result 1).
-ERROR:   recovery: Signature verification failed
-ERROR:   recovery: error: 21
-Installing update...
-ERROR:   recovery: Error in /sideload/package.zip (killed by signal 6)
-
-Install completed with status 1.
-Installation aborted.
-```
-
-`adb sideload` itself reported `Total xfer: 1.00x` — the transfer was fine and the *verification* rejected it, which
-is a different failure from the transfer failing.
-
-**Reading it:** `error: 21` is AOSP's `INSTALL_PACKAGE_SIGNATURE_FAILED`. `signal 6` is SIGABRT, i.e. recovery
-aborting deliberately rather than crashing. The 22.2 recovery is signed with LineageOS's keys; our build is
-`UNOFFICIAL` and signed with different ones, so the package is simply unrecognised.
-
-### This makes the recovery flash mandatory
-
-There is no longer a sideload-only route. The 23.2 recovery is the only thing signed with the right keys for our
-package, so **flashing it is now on the critical path** and the A/B question must be answered.
-
-**Correction to the lead's earlier advice.** The lead suggested that the old recovery's *Advanced* menu might have a
-signature-verification toggle to turn off. That is a **TWRP** feature and LineageOS Recovery is not TWRP — the official
-recovery is a minimal AOSP-derived build and does not carry TWRP's on-the-fly verifier bypass. *This needs
-confirming against the actual recovery, but the attempt above is consistent with no such option being present or
-effective.* If a strong model knows a supported bypass, it would unblock this immediately.
-
-So: **`FLASH-BLOCKER.md`'s A/B hypothesis is now the whole problem.**
+| 1 | **the recovery install log** — recovery's *Advanced → View logs*, then `adb pull /data/misc/logged_recovery/` after booting back into Android | **The `killed by signal 6` abort is the live failure and its cause is unknown.** The assertion or error text will name it. *Most informative single item.* |
+| 2 | full output of `samloader flash --partition RECOVERY recovery.img --no-reboot` | which partition it actually wrote (hypothesis 3) |
+| 3 | whether the device shows *Upload mode/RAMDUMP* while trying to boot the 23.2 recovery | hypothesis 2 — did the recovery kernel crash? |
+| 4 | free space on the tablet | an out-of-space condition in recovery's staging area also aborts the install |
 
 ## Alternative route that avoids the problem entirely (superseded — see above)
 
