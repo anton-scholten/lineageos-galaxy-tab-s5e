@@ -75,7 +75,7 @@ Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T7
 | Samsung stock (One UI) | **Path A** | ⚠️ **Always erased** |
 | Official LineageOS 22.2 | **Path B** | ⚠️ **Erased** (23.2 builds here are unofficial, signed with other keys) |
 | Your own 22.2 build, same signing keys as your 23.2 build | **Path B**, keep-data option | Kept (back up anyway) |
-| LineageOS MicroG | **Path B2** | ⚠️ **Erased** (different signing keys) |
+| LineageOS 22.2 **with Google Apps** | **Path B**, incl. the MindTheGapps step | ⚠️ **Erased**, but you must reinstall GApps
 
 **You need:** a PC with [`adb`](https://developer.android.com/tools/releases/platform-tools), a good USB-C cable,
 battery above 50%, and the three files for **your codename** (see the table above).
@@ -125,52 +125,27 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
 2. Enable *Developer options → USB debugging*, run `adb -d reboot download`.
 3. **Flash the 23.2 recovery:** `samloader flash --partition RECOVERY recovery.img --no-reboot`.
    Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery.
+   *This is a one-time step. It is needed because the zip is read **by** the recovery already on the tablet, and a
+   22.2-era recovery can refuse a 23.2 package. Once 23.2 is installed, later 23.2 → 23.2 updates sideload the zip
+   alone: it contains its own `recovery.img`, so it updates the recovery too.
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
    Skip this only in the same-keys, same-GApps case.
 5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
-6. GApps users: sideload the Android 16 GApps the same way now. *"Signature verification failed"* is normal for GApps: choose *Yes*.
+6. **If you had Google Apps, reinstall them — in recovery, before the first reboot.**
+   Still in recovery after step 5, *Apply update → Apply from ADB*:
+   [MindTheGapps for LineageOS 23 / Android 16, ARM64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest).
+   *"Signature verification failed"* is normal here: choose *Yes*.
+
+   ⚠️ **Do not reboot into the new LineageOS before the GApps are in.** The LineageOS wiki is explicit: reboot
+   first and you must factory reset and install them again, otherwise expect crashes.
+
+   If you had **no** Google Apps before, skip this and add none later — the two states have to match.
 7. *Reboot system now*. First boot can take 5–10 min.
 
 **Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload the zip again.
 
 **Back to 22.2?** Path A, steps 4–6 with the 22.2 files. ⚠️ Downgrading always erases data.
 
-### Path B2: from LineageOS MicroG
-
-MicroG is a LineageOS derivative, so you already have a working recovery and can sideload. Your data is
-**still erased**: MicroG is signed with different keys than these builds, so Android will not boot it.
-(LineageOS keeps data only between builds sharing the same keys *and* the same GApps state — see Path B.)
-
-**MicroG has no Google apps, so add none afterwards.**
-
-1. Back up (see above). On MicroG use *Settings → System → Backup* if you have it enabled.
-2. **Check your recovery version.** Boot to recovery (*Vol Up + Power*) and read the build string.
-   - LineageOS **23.2** already → **skip step 3.** A plain sideload updates the recovery too, because the
-     zip contains `recovery.img`.
-   - Anything older (22.2, 21, a MicroG-era build) → **do step 3.**
-3. **Flash the 23.2 recovery** only if step 2 said so. This is a **one-time** step: the zip installs
-   `recovery.img` itself, so you never repeat it for later 23.2 → 23.2 updates.
-   ```bash
-   unzip -o lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip recovery.img   # ours, not MicroG's
-   adb -d reboot download
-   samloader flash --partition RECOVERY recovery.img --no-reboot
-   ```
-   Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery.
-4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
-   There is no keep-data option here — the keys differ.
-5. *Apply update → Apply from ADB*, then:
-   ```bash
-   adb -d sideload lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip
-   ```
-6. ⚠️ **Accept the signature warning.** These builds are `UNOFFICIAL` and signed with their own keys, so
-   recovery will warn the package is unverified. Choose *Yes*, or turn off *Verify package signature* in
-   recovery's *Advanced* menu first. Declining it is the most likely cause of an immediate failure.
-7. *Reboot system now*. First boot can take 5–10 min.
-
-**Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload again.
-
-**What you lose:** the MicroG app set and its configuration, replaced by this build's. MicroG-specific
-tweaks do not carry over.
 
 ---
 
