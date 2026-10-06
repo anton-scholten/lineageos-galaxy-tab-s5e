@@ -29,7 +29,7 @@
 > cd ~/android/lineage
 > git -C kernel/samsung/sdm670 fetch anton port/selinux-avtab && git -C kernel/samsung/sdm670 checkout FETCH_HEAD
 > source build/envsetup.sh && breakfast gts4lvwifi && mka recoveryimage bootimage
-> cat kernel/samsung/sdm670/include/config/kernel.release     # must end in -g500658be3c16
+> cat out/target/product/gts4lvwifi/obj/KERNEL_OBJ/include/config/kernel.release   # must end in -g500658be3c16
 > ```
 > Flash `recovery.img` to `RECOVERY` and boot it (USB unplugged, *Vol Up + Power*).
 > - **23.2 recovery appears** → fixed. Fast-forward `lineage-23.2` to `port/selinux-avtab`. Then run `mka bacon -k 0`,
@@ -763,7 +763,7 @@ Confirm the build really is the base kernel. `kernel.release` embeds the HEAD sh
 discriminator — the no-BTF build logged `4.9.337-gcfe0b6979655`:
 
 ```bash
-cat ~/android/lineage/kernel/samsung/sdm670/include/config/kernel.release
+cat ~/android/lineage/out/target/product/gts4lvwifi/obj/KERNEL_OBJ/include/config/kernel.release
 # MUST contain 'ga30605a54f3b'. If it says gcfe0b6979655 or g801f3f20e54a, the build is stale — stop.
 verify-bootimg ~/android/lineage/out/target/product/gts4lvwifi/boot.img   # expect ~15.5M, not 18,684,229
 ```
