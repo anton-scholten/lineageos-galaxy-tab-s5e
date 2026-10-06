@@ -1,4 +1,68 @@
 <!-- task: FLASH -->
+> ## Reviewer ruling 6 (2026-10-06): the bootloader is almost certainly fine. Our kernel starts and dies. **Get its log next.**
+>
+> **New measurements** (reviewer's own builds, same toolchain, `gts4lvwifi_defconfig`):
+>
+> | | base `a30605a54f3b` (22.2 kernel) | ours `cfe0b6979` (no BTF) |
+> |---|---|---|
+> | `Image.gz-dtb` | 15,588,530 (official 22.2: 15,564,314) | 16,050,450 |
+> | `Image` | 39,059,480 | 40,237,080 |
+> | arm64 header `text_offset` / `image_size` / `flags` | 0x80000 / 47,308,800 / 0xa | 0x80000 / 48,508,928 / 0xa |
+> | appended DTBs, sha256 | `120b38c3…0f92` | **`120b38c3…0f92`, byte-identical** |
+>
+> The port changes nothing under `arch/arm64/boot`, `scripts/dtc`, `head.S`, `vmlinux.lds.S` or `asm/memory.h`.
+> So **what the bootloader parses is practically identical to the image that boots**: the same DTBs, the same header
+> flags, and a 2.5% size difference. A bootloader-stage reject is unlikely. **Most likely our kernel starts, then dies early.**
+> `confidence: medium-high`.
+>
+> **Prime suspects, by size of the early-boot change** (`git diff --stat a30605a54f3b 801f3f20e54a`):
+> - `kernel/sched/core.c` **+1,035 lines**: the uclamp series and the hand-merged EAS/WALT conflicts. `sched_init` runs before the console.
+> - `security/security.c` **−453/+**: "Refactor declaration of LSM hooks" + "Add BPF LSM program support"
+>   (`fc1f07443`, `f71bbcac7`) rewrite LSM init on a Samsung tree.
+> - Config-gated: `BPF_LSM`, `KPROBES`/`UPROBES`, `UCLAMP_TASK`, `USERFAULTFD`, `TASKS_RCU`, `BPF_JIT`.
+>   The full added list: `CGROUP_SCHED`, `BPF_*`, `KPROBES`, `UCLAMP_*`, `USERFAULTFD`, `XDP_SOCKETS`, `FUSE_BPF`,
+>   `ANDROID_BINDERFS`, `UNICODE`, `NET_SOCK_MSG`, `PELT_UTIL_HALFLIFE_32`. Removed: `SCHED_TUNE`, `RT_GROUP_SCHED`.
+>
+> **Corrections to rulings 4–5:**
+> - "The whole port is the 20 commits `d73f07cf8b5c..801f3f20e54a`" is **wrong**. Those are only P3+P4. The port is
+>   **2,458 commits** `a30605a54f3b..801f3f20e54a`. A blind `git bisect` would need about 12 builds.
+> - **Don't test on `BOOT`.** Use `RECOVERY`: the test kernel goes there, and `BOOT` keeps 22.2, so the tablet always
+>   boots normally afterwards and you can read the crash log from 22.2. No restore step is needed between tests.
+>
+> ### Step A: read the crash log (no build, ~15 min). Do this first.
+> Samsung's `sec_log` (`CONFIG_SEC_LOG_LAST_KMSG=y`, `drivers/samsung/debug/sec_log_buf.c`) records printk from the
+> first line. It shows the **previous** boot as `/proc/last_kmsg` (mode 0444). `pstore` ramoops (`0xA1300000`) is a second copy.
+> 1. 22.2: *Developer options → Rooted debugging* on.
+> 2. `adb -d reboot download`, then `samloader flash --partition RECOVERY ~/work/recovery-nobtf.img --no-reboot`
+>    (check its header first: kernel 16,011,654).
+> 3. **Unplug USB.** Hold *Vol Down + Power* until black, then *Vol Up + Power*. It falls into Download mode.
+>    **Photograph the whole Download-mode screen**, including the small text.
+> 4. USB still unplugged: hold *Vol Down + Power* until black and release. **22.2 boots** (`BOOT` is untouched).
+> 5. Collect:
+>    ```bash
+>    adb root
+>    adb shell cat /proc/last_kmsg > last_kmsg-1.txt
+>    adb shell 'for f in /sys/fs/pstore/*; do echo "== $f"; cat $f; done' > pstore-1.txt
+>    adb shell 'ls /proc | grep -i -e reset -e summary -e last'  > procs.txt
+>    adb shell cat /proc/cmdline > cmdline.txt
+>    grep -n "Linux version" last_kmsg-1.txt pstore-1.txt
+>    ```
+>    Commit them to `analysis/port/flash-logs/` (P7's job).
+> 6. **Read it:**
+>    - `Linux version 4.9.337-gcfe0b6979655` appears → **our kernel ran**. The last 50 lines show where it died.
+>    - It reaches `Run /init` / `init: ...` and then dies → kernel OK; it is Android 16 userspace on this kernel (different fix).
+>    - Only the previous 22.2 boot is there → either our kernel never started, or Download mode cleared the
+>      buffer. Go to Step B.
+>
+> ### Step B (only if A shows nothing): config isolation, one build
+> Kernel branch **`test/base-config`** @ `b3a9e9a99369`: the ported code with the **22.2 defconfigs**, every P3 option off except `KPROBES` (needed to build) and `CGROUP_SCHED` (needed by Android 16 init).
+> The reviewer built it here: `Image.gz-dtb` 15,939,579 bytes, 0 errors. Build `mka recoveryimage` on it, flash to `RECOVERY`, repeat Step A.
+> - **Boots** (or at least logs further) → the fault is in a config-gated feature. Re-enable options in halves.
+> - **Same failure** → the fault is in always-on ported code (sched/core.c, security.c and others). Build the
+>   base-kernel control (ruling 5 step 1, but on `RECOVERY`), then bisect.
+>
+> Rulings 1–5 below are kept as history. Their measurements stand; ruling 6 supersedes their next steps.
+
 > ## Reviewer ruling 5 (2026-10-06): the recovery container is EXONERATED. Only the kernel is left.
 > ### Read this first. It settles ruling 3's hypotheses 2, 3 and 4 with real measurements.
 >

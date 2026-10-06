@@ -769,3 +769,22 @@ themselves, not for a plain sideload.
   Rebuilt here without it: `Image` 48.7 → 40.2 MB, `image_size` 57.0 → 48.5 MB, `Image.gz-dtb` 18.7 → 16.1 MB.
   The 22.2 kernel is 15.6 MB. Pushed test branch `port/no-btf` @ `cfe0b6979` to the kernel fork (not `lineage-23.2` yet).
 - README Path B: the 23.2 recovery flash is required again, with a "known issue" note. FLASH-BLOCKER has the test.
+
+## 2026-10-06 (lead review 3): the no-BTF kernel failed too; it is the kernel, and we need its log
+
+- Merged `lead/2026-10-05b` rulings 3–5. Their results:
+  - the no-BTF recovery fails;
+  - a with-BTF `boot.img` fails on `BOOT` (mislabelled `boot-nobtf.img`, which they caught themselves);
+  - the AVB key, fstab and ramdisk all match the 22.2 recovery that boots.
+  Corrected two things: the port is 2,458 commits, not 20; and tests should go on `RECOVERY`, so 22.2 keeps booting.
+- Reviewer builds here:
+  - base `a30605a54f3b`: `Image.gz-dtb` 15,588,530 bytes, `Image` 39.1 MB;
+  - ours without BTF: 16,050,450 bytes, 40.2 MB.
+  The appended DTBs are byte-identical, and the arm64 header flags and text_offset are identical. The port doesn't touch
+  `arch/arm64/boot`, dtc or `head.S`. So the bootloader is very unlikely to be rejecting the image: our kernel most
+  likely starts, then dies.
+- **Next (FLASH-BLOCKER ruling 6, Step A):** flash the test kernel to `RECOVERY`, let it fail, boot 22.2, then read
+  `/proc/last_kmsg` (Samsung `sec_log`) and pstore. No build needed.
+- Step B is ready: kernel branch `test/base-config` (ported code + 22.2 defconfigs + `KPROBES` + `CGROUP_SCHED`)
+  builds here (15,939,579 bytes). Found on the way: `KPROBES=n` with `UPROBES=y` doesn't build (`asm/kprobes.h`
+  vs the stub in `linux/kprobes.h`). Not our config, so it is only noted.
