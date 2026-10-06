@@ -757,3 +757,15 @@ themselves, not for a plain sideload.
   - Path A recommends going through official 22.2 first.
   - New section "Stuck in Download mode?".
   - "Unplug USB" added before the recovery button sequence.
+
+## 2026-10-06 (lead review 2): the 23.2 recovery doesn't boot; likely the kernel is too big
+
+- Merged the rest of `lead/2026-10-05b`. Its control test was good: the 22.2 recovery, flashed with the same samloader
+  command, boots. So the procedure is fine and our `recovery.img` is the failing part. My earlier "button sequence /
+  use the 22.2 recovery" ruling is withdrawn.
+- **Sideloading 23.2 from the 22.2 recovery can't work:** Android 16 bionic `arc4random.h:63-64` aborts when
+  `madvise(MADV_WIPEONFORK)` fails, and 22.2's base kernel lacks it. That is the SIGABRT (signal 6). Our kernel has it.
+- **Likely cause of the recovery not booting:** `CONFIG_DEBUG_INFO_BTF=y` (P3 `316352012`) adds an 8.5 MB `.BTF` section.
+  Rebuilt here without it: `Image` 48.7 → 40.2 MB, `image_size` 57.0 → 48.5 MB, `Image.gz-dtb` 18.7 → 16.1 MB.
+  The 22.2 kernel is 15.6 MB. Pushed test branch `port/no-btf` @ `cfe0b6979` to the kernel fork (not `lineage-23.2` yet).
+- README Path B: the 23.2 recovery flash is required again, with a "known issue" note. FLASH-BLOCKER has the test.

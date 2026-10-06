@@ -121,7 +121,7 @@ Download Mode protocol, which is the entire reason samloader, heimdroid and Odin
 ### Path A: from Samsung stock
 
 > **Recommended while 23.2 is untested:** do Path A with the **official 22.2** files (links at the end of this
-> section), check that 22.2 works, then do Path B. That way you always have a working 22.2 recovery to fall back to.
+> section), check that 22.2 works, then do Path B. If the 23.2 recovery fails, you can flash 22.2's back.
 
 1. **Update stock to the latest Android 11:** *Settings → Software update*. Data kept.
    LTE: this also updates the modem (CP) firmware, which LTE needs.
@@ -154,15 +154,15 @@ Android won't boot the old data. Keeping data is only possible between builds si
 the same GApps state (had GApps → sideload Android 16 GApps; had none → add none).
 
 1. Update 22.2 to its last build (*Settings → System → Updater*) and back up.
-2. Enable *Developer options → USB debugging*, then run `adb -d reboot recovery`.
-   Check the top of the screen: it should say **LineageOS recovery, version 22.2**.
-3. **Keep the 22.2 recovery for this install. Don't flash the 23.2 recovery first.**
-   - Lineage Recovery 22.2 can install this zip. Because the build is unofficial, it shows *"Signature verification failed"*: choose **Yes**.
-   - The 23.2 recovery runs the new 23.2 kernel, which hasn't booted on a tablet yet. If that kernel fails, the
-     tablet can't reach any recovery and drops to Download mode. A known-good 22.2 recovery keeps the way back to 22.2 open.
+2. Enable *Developer options → USB debugging*, then run `adb -d reboot download`.
+3. **Flash the 23.2 recovery. This is required:** the 22.2 recovery **can't** install 23.2. Android 16's installer needs a
+   kernel feature (`MADV_WIPEONFORK`) that 22.2's kernel lacks, so it aborts with *"killed by signal 6"*.
+   Take `recovery.img` from your 23.2 build, then `samloader flash --partition RECOVERY recovery.img --no-reboot`.
+   **Unplug USB**, hold *Vol Down + Power* until black, release, then *Vol Up + Power*. Check it says **version 23.2**.
+   - ⚠️ **Known issue (2026-10-06):** the 20261005 build's recovery doesn't boot; the tablet falls back to Download mode.
+     A fix is being tested ([FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md)). Until then, flash the official 22.2
+     `recovery.img` back to keep the tablet working.
    - `vbmeta` was already done when you unlocked for 22.2. Don't flash it again.
-   - Only if the 22.2 recovery **refuses** the zip, flash the 23.2 recovery as in [Path A step 4](#path-a-from-samsung-stock),
-     using `recovery.img` from your 23.2 build. Read the warning in [Stuck in Download mode?](#stuck-in-download-mode) first.
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
    Skip this only in the same-keys, same-GApps case.
 5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
