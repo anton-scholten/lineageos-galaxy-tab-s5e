@@ -94,6 +94,55 @@ cycle, and it is a **user-interface** cause, not a flashing one.
 | 3 | whether the device shows *Upload mode/RAMDUMP* while trying to boot the 23.2 recovery | hypothesis 2 — did the recovery kernel crash? |
 | 4 | free space on the tablet | an out-of-space condition in recovery's staging area also aborts the install |
 
+## CLOSED: the sideload-from-old-recovery route does not work
+
+**Tried and failed.** Sideloading the 23.2 zip from the existing **22.2** recovery:
+
+```
+Verifying update package...
+ERROR:   recovery: failed to verify whole-file signature
+Update package verification took 65.8 s (result 1).
+ERROR:   recovery: Signature verification failed
+ERROR:   recovery: error: 21
+Installing update...
+ERROR:   recovery: Error in /sideload/package.zip (killed by signal 6)
+
+Install completed with status 1.
+Installation aborted.
+```
+
+`adb sideload` itself reported `Total xfer: 1.00x` — the transfer was fine and the *verification* rejected it, which
+is a different failure from the transfer failing.
+
+**Reading it — this is the part that changes the diagnosis.** `error: 21` is AOSP's
+`INSTALL_PACKAGE_SIGNATURE_FAILED`. Per the reviewer's ruling there is **no menu to disable verification**; recovery
+*asks* and you answer **Yes**. The log shows **`Installing update...` _after_ the verification error**, so the prompt
+was answered and the install **proceeded**. Verification was therefore not the final failure — **`signal 6` (SIGABRT)
+during the install is.** That is a different fault and it is unexplained. `adb sideload` reporting `Total xfer:
+1.00x` confirms the transfer itself was clean.
+
+A **specific lead for the SIGABRT: `BoardConfigCommon.mk:142` sets
+`TARGET_RECOVERY_UPDATER_LIBS := librecovery_updater_samsung`.** Recovery does not use AOSP's updater; it uses a
+Samsung-supplied library from the device's Android 11 era (2020). A 2020-era recovery updater aborting on a 2026
+`dat.br` package would explain a SIGABRT neatly. `confidence: low` — a lead, not a finding; the recovery log's
+assertion text will confirm or kill it.
+
+Rule out the mundane cause first: **out of space in recovery's staging area** aborts installs the same way.
+
+### This makes the recovery flash mandatory
+
+There is no longer a sideload-only route. The 23.2 recovery is the only thing signed with the right keys for our
+package, so **flashing it is on the critical path** — but the recovery-flash route has its own open problem (see
+the hypotheses above), so neither route is currently working end to end.
+
+**Correction to the lead's earlier advice.** The lead suggested that the old recovery's *Advanced* menu might have a
+signature-verification toggle to turn off. That is a **TWRP** feature and LineageOS Recovery is not TWRP — the official
+recovery is a minimal AOSP-derived build and does not carry TWRP's on-the-fly verifier bypass. *This needs
+confirming against the actual recovery, but the attempt above is consistent with no such option being present or
+effective.* If a strong model knows a supported bypass, it would unblock this immediately.
+
+So: **`FLASH-BLOCKER.md`'s A/B hypothesis is now the whole problem.**
+
 ## Alternative route that avoids the problem entirely (superseded — see above)
 
 **Sideloading from the existing 22.2 recovery may sidestep this whole issue.** The package contains `recovery.img`,
