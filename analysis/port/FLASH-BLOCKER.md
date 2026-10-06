@@ -85,6 +85,49 @@ connected. Moving straight from the *Vol Down + Power* force-reboot to *Vol Up +
 three, which requests Download mode. Per the reviewer's ruling this is the most likely explanation of the
 cycle, and it is a **user-interface** cause, not a flashing one.
 
+## The recovery log so far — and one finding that reopens the recovery-flash route
+
+Partial log from the failed sideload on the **22.2** recovery:
+
+```
+I:01d spl: 2026-09-01 new spl: 2026-09-01 CHECK passes
+arc4random data MADV_WIPEONFORK failed: No such file or directory
+libc: arc4random data MADV_WIPEONFORK failed: No such file or directory
+ERROR: recovery: Error in /sideload/package.zip (killed by signal 6)
+```
+
+### `MADV_WIPEONFORK` is missing from the 22.2 kernel — verified
+
+| tree | `MADV_WIPEONFORK` in `include/uapi/asm-generic/mman-common.h` |
+|---|---|
+| base `a30605a54f3b` (what 22.2 runs) | **0** definitions |
+| `port/pick` @ `801f3f20e54a` (our kernel) | **2** definitions |
+
+Introduced by two series commits, both titled *UPSTREAM: mm,fork: introduce MADV_WIPEONFORK* —
+`fa5d3954b0e3` and `7b1c5c0a4417`.
+
+So that warning is a **22.2-side mismatch**: 22.2's bionic calls `madvise(MADV_WIPEONFORK)` and 22.2's 4.9 kernel
+does not implement it. It is benign on its own — bionic logs it and carries on — and it is **not evidence of a defect
+in our port**. `confidence: high`.
+
+**The useful consequence:** our 23.2 recovery boots **our** kernel, which does implement `MADV_WIPEONFORK`, so it
+will not emit this warning at all. Combined with the reviewer's guidance to keep 22.2's recovery as the safety net
+until a 23.2 boot is proven, this makes **getting the 23.2 recovery to boot the more promising route** rather than
+debugging a SIGABRT inside a recovery whose kernel is known to be missing something the userspace wants.
+
+### The SPL line
+
+`spl: 2026-09-01 ... CHECK passes` is Samsung's bootloader self-check passing; it is informational and not an error.
+The bootloader is dated **2026-09-01**, roughly five weeks before this ROM was built. `confidence: medium` on the
+interpretation, `high` that it is not itself a failure.
+
+### Still unexplained
+
+**The SIGABRT.** `ERROR: recovery: Error in /sideload/package.zip (killed by signal 6)` is recovery reporting that
+the install child process aborted. The two `arc4random` lines above it are almost certainly incidental — a warning
+printed and passed over — so **the abort's own assertion text is still missing.** Everything between
+`MADV_WIPEONFORK` and `killed by signal 6` in the full log is what matters.
+
 ## What is still needed, and what each item would settle
 
 | # | what to get | what it settles |
