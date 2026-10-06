@@ -42,48 +42,115 @@ file is neither corrupt nor mismatched.
 block-OTA form. This matters: it means the recovery flash is a *convenience*, not a hard requirement — see
 "Alternative route" below.
 
-## The failure
+## The failure — RESOLVED to a single variable
 
 ```bash
 adb -d reboot download
-samloader flash --partition RECOVERY recovery.img --no-reboot
+samloader flash --partition RECOVERY <image> --no-reboot
 ```
 
-Observed:
+### The control test settled it
 
-| check | result |
+The 22.2 recovery was flashed with the **identical** samloader command. It **boots, and the tablet auto-boots into
+it without any button combination.** Therefore:
+
+| component | verdict |
 |---|---|
-| `samloader detect` | **succeeds** — the tool communicates with the tablet |
-| `samloader flash …; echo $?` | **`exit=0`** — samloader reports success |
-| after the flash, the tablet | boots by itself into **LineageOS 22.2** |
-| `adb -d reboot recovery` | lands in the **22.2** recovery, not 23.2 |
-| earlier in the session | the tablet would sit in / return to **Download Mode** |
+| `samloader`, and it reporting success | **proven good** |
+| `--partition RECOVERY` being the right partition | **proven good** — no slots, single partition |
+| the whole Download-mode → samloader → boot procedure | **proven good** |
+| **our 23.2 `recovery.img`** | **the variable that fails** |
 
-So samloader claims a successful write, yet the recovery the bootloader actually boots is unchanged. The recovery
-partition still holds 22.2's.
+The earlier full samloader output confirms the write rather than merely implying it:
 
-## Hypotheses, ranked
+```
+Downloading device's PIT file
+RECOVERY flash successful   64.00 MiB/64.00 MiB (21.23 MiB/s)   [00:00:03]
+```
 
-**1. ~~A/B slot mismatch.~~ RULED OUT.** The lead proposed this and it is **wrong**.
-`device/samsung/gts4lv-common/BoardConfigCommon.mk:39` sets `AB_OTA_UPDATER := false`, and the LineageOS
-wiki gives `recovery_partition_name: recovery` — a single partition, no slots. There is no slot mismatch
-to explain anything. *The lead should have read the device tree before reaching for A/B by default.*
+`64.00 MiB` = 67,108,864 bytes = **exactly** the size of `recovery.img`, transferred in 3 s. So the image *is*
+being written. It then fails to boot: the tablet falls back to Download Mode on its own after the flash, with no
+RAMDUMP observed.
 
-**2. The 23.2 recovery's kernel has never booted and may crash.** The most likely cause of the
-Download-mode cycle. Samsung shows *Upload mode/RAMDUMP* when a kernel panics early, which looks like the
-same thing from the outside. Untested — the recovery has never been seen running. **Test:** boot it and
-watch for RAMDUMP.
+### Header comparison — structurally identical
 
-**3. samloader reported success but wrote nothing.** `exit=0` proves the USB conversation completed, not
-that a partition was written. Still open. **Test:** the full samloader output, not just the exit code.
+Comparing our 23.2 `recovery.img` against the working 22.2 one:
 
-**4. ~~Wrong partition name.~~ RULED OUT.** `RECOVERY` is correct per the official guide, and with no
-A/B there are no slot-suffixed variants to try.
+| field | 22.2 (boots) | 23.2 (fails) |
+|---|---|---|
+| `magic` | `ANDROID!` | `ANDROID!` |
+| `kernel_addr` | `0x00008000` | `0x00008000` |
+| `ramdisk_addr` | `0x02000000` | `0x02000000` |
+| `cmdline` | `SRPSA14B001` | `SRPSA14B001` |
+| `kernel_size` | 15,564,314 | **18,684,229** (+20%) |
+| `ramdisk_size` | 14,032,906 | 14,283,653 (+1.8%) |
 
-**5. The button sequence with USB still plugged.** Download mode is *Vol Up + Vol Down + Power* with USB
-connected. Moving straight from the *Vol Down + Power* force-reboot to *Vol Up + Power* briefly holds all
-three, which requests Download mode. Per the reviewer's ruling this is the most likely explanation of the
-cycle, and it is a **user-interface** cause, not a flashing one.
+**Every header field is identical except the two sizes.** The +3.1 MB kernel is *expected* — our recovery carries
+2,458 ported commits including eBPF, BPF JIT and BTF — so size alone is probably not causal. `confidence: medium`.
+
+⚠️ **An earlier `page_size = 0` reading in this document was a parser artifact.** The working 22.2 image reads
+exactly the same. Do not treat it as a defect.
+
+### New finding from the device tree
+
+```
+device/samsung/gts4lv-common/BoardConfigCommon.mk
+  BOARD_AVB_RECOVERY_ROLLBACK_INDEX := 1
+  BOARD_AVB_RECOVERY_KEY_PATH       := external/avb/test/data/testkey_rsa4096.pem
+  BOARD_KERNEL_OFFSET               := 0x00008000
+  BOARD_KERNEL_TAGS_OFFSET          := 0x01E00000
+```
+
+The recovery is AVB-signed with **AOSP's published test key** and declares rollback index 1. The tablet's bootloader
+is dated **2026-09-01**. Whether an unlocked Samsung bootloader enforces anything against that test key or a
+rollback index on the recovery is **not established** and should not be guessed at. `confidence: low`.
+
+`BOARD_KERNEL_OFFSET := 0x00008000` is the kernel's **load address**, not a file offset in the boot image.
+
+## Lead's forensics — RETRACTED
+
+Three attempts to compare the two kernels' *contents*, all wrong:
+
+1. Extracted the kernel at file offset `0x8000`, which is `BOARD_KERNEL_OFFSET`, a **load address**. Read padding.
+2. Used a wrong arm64 header magic constant, found nothing.
+3. Reported "no strings found" from a search that **could not have worked** — and from it concluded *"the recovery
+   kernel is not our ported kernel."* **That conclusion was an artifact of a broken method and is withdrawn.**
+
+The arm64 `ARM\x64` image magic is present in neither file, so whatever the kernel payload is, it is not a plain
+uncompressed arm64 `Image` at any offset tried. **Nothing about kernel contents has been established either way.**
+
+## The bisect that would settle it
+
+> Build a recovery from the **base `a30605a54f3b` kernel** (unported, stock 4.9) through the **same AOSP flow**,
+> and flash it exactly as above.
+>
+> - **It boots** → the port broke the recovery kernel. Look at what the recovery's build config gained — the eBPF
+>   work, BPF JIT, BTF — and what a recovery may not carry.
+> - **It does not boot** → the AOSP recovery build path for this device is broken *independently of the port*, and
+>   the answer lies in the device tree, not the kernel.
+
+This is well defined and is a legitimate P4/P6-style task. **Do not run it before** answering the cheaper question
+below, because it costs a kernel build.
+
+## Cheaper question to answer first
+
+**How did LineageOS produce a *working* 22.2 recovery for this device?** If it built one locally from the same base
+kernel through the same flow, then our flow is equivalent and the kernel is the only difference. If 22.2's recovery
+was a prebuilt, or came from a different path, then our recovery build differs in some way that is worth finding
+before spending hours on a rebuild.
+
+Relevant: `device/samsung/gts4lv-common/` has a `recovery/` subdirectory, and `TARGET_RECOVERY_FSTAB :=
+$(COMMON_PATH)/init/fstab.qcom` uses a **Qualcomm** fstab path. Also note
+`out/target/product/gts4lvwifi/obj/PACKAGING/recovery_intermediates/` contained **no image**, only a 0-byte
+`ramdisk_files-timestamp` — the packaged `recovery.img` came from elsewhere in the build. Where, exactly, is not
+established. `confidence: low`.
+
+## Hypotheses, superseded
+
+Ranked hypotheses 1-5 were written before the control test. The control test resolved the question: samloader, the
+partition and the procedure are proven good, so hypotheses 1 (A/B), 3 (silent write failure), 4 (partition name) and
+5 (button sequence) are all **eliminated**. What survives is a single question — *why does our 23.2 recovery image
+fail to boot* — which the bisect above addresses.
 
 ## The recovery log so far — and one finding that reopens the recovery-flash route
 
@@ -150,14 +217,14 @@ test.
 name the reason. Specifically anything containing `terminate`, `Aborted`, `stack smashing`, `Assert`, `SIGABRT`, or a
 `tombstone`.
 
-## What is still needed, and what each item would settle
+## What is still needed
 
 | # | what to get | what it settles |
 |---|---|---|
-| 1 | **the recovery install log** — recovery's *Advanced → View logs*, then `adb pull /data/misc/logged_recovery/` after booting back into Android | **The `killed by signal 6` abort is the live failure and its cause is unknown.** The assertion or error text will name it. *Most informative single item.* |
-| 2 | full output of `samloader flash --partition RECOVERY recovery.img --no-reboot` | which partition it actually wrote (hypothesis 3) |
-| 3 | whether the device shows *Upload mode/RAMDUMP* while trying to boot the 23.2 recovery | hypothesis 2 — did the recovery kernel crash? |
-| 4 | free space on the tablet | an out-of-space condition in recovery's staging area also aborts the install |
+| 1 | **How LineageOS produced a working 22.2 recovery for this device** — built locally from the base kernel, or a prebuilt? | the cheapest discriminator; see above. **Do this before the bisect.** |
+| 2 | where `recovery.img` actually comes from in our build — `recovery_intermediates/` held no image | whether our recovery build path differs from upstream's |
+| 3 | the bisect: recovery from base `a30605a54f3b`, flashed identically | settles port-vs-build-path |
+| 4 | any `Upload mode / RAMDUMP` on the 23.2 recovery attempt | whether the recovery kernel panics rather than being rejected |
 
 ## CLOSED: the sideload-from-old-recovery route does not work
 
