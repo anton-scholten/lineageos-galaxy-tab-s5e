@@ -699,3 +699,45 @@ first.
   - concise install steps: a path chooser (stock → A, LineageOS 22.2 → B), Wi-Fi vs LTE differences, and ⚠️ on every data-erasing step;
   - the build command fixed to `brunch`.
 - Next: owner flashes (⚠️ erases data), then P7. LTE build after the first boot.
+
+## 2026-10-05: P6-R passed; added a documented flash path for MicroG
+
+**P6-R: pass.** Device fork `lineage-23.2` fast-forwarded `e3ccc92` → `d154fb4384fb`. All four items accepted, with
+one deferral. The review checked P6's `libwfdservice` diagnosis against upstream and found a better fix than P6
+proposed: LineageOS `hardware/lineage/compat` @ `8a4285c` already re-implements
+`WiFiDisplaySession::broadcastWifiDisplayAudioIntent(bool)`, and this device tree already ships
+`libwfdservice_shim.so` (`extract-files.py:45-46`) — it simply is not listed in the `libwfdservice.so` fixup's
+`shared_libs`, so the shim never interposes. So it is a one-line fix rather than a rewrite, deferred to a future
+task because it needs a fork of `proprietary_vendor_samsung_gts4lv-common`. **Flash is allowed now** — WFD is
+optional, `wfdservice` only starts on `vendor.wfdservice=enable`, and if it did fire only that one service would
+fail. `allow_undefined_symbols` was rejected because it hides the check and leaves the runtime failure in place.
+
+The review also accepted the `mka bacon -k 0` zip for a first flash: the only failed edge is `check_elf_file`, a
+validation step, and P6 proved the installed blob is byte-identical — so the zip equals what a clean build would
+give, minus that check.
+
+**The kernel backport is still unproven until boot.** The reviewer was explicit about this: 2,458 commits are
+ported, reviewed and building, but the real test is whether `bpfloader` and `netd` come up, then
+`scripts/device-checks.sh` and the BPF tests.
+
+### The zip ships its own recovery — verified, and it changes the flashing steps
+
+Checked directly rather than assumed:
+
+```
+boot.img 64 MB   dtbo.img 8 MB   recovery.img 64 MB   vbmeta.img   system/vendor .dat.br
+```
+
+So **a separate recovery flash is a one-time bootstrap, not a per-install step.** The sideload installs
+`recovery.img` itself. It is needed only when the recovery already on the tablet predates 23.2 — which is the
+stock case (stock recovery cannot sideload, and stock boot overwrites the recovery partition on every boot), and
+the 22.2 case.
+
+**Path B2 added to `README.md` for MicroG**, which was a genuine gap — the routing table only covered Samsung stock
+and LineageOS 22.2, so a MicroG user had no documented route. Path B2's substantive points: data is erased (MicroG
+is signed with different keys, so there is no keep-data option); MicroG ships **no Google apps, so add none**
+afterwards; the recovery-version check decides whether step 3 is needed at all; and expect an **unverified-package
+signature prompt**, because these builds are `UNOFFICIAL` — declining it is the most likely immediate failure.
+
+Also corrected the "you need" line: `samloader` is only required on paths that flash recovery or vbmeta
+themselves, not for a plain sideload.

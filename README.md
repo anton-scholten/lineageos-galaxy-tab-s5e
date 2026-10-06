@@ -75,14 +75,16 @@ Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T7
 | Samsung stock (One UI) | **Path A** | ⚠️ **Always erased** |
 | Official LineageOS 22.2 | **Path B** | ⚠️ **Erased** (23.2 builds here are unofficial, signed with other keys) |
 | Your own 22.2 build, same signing keys as your 23.2 build | **Path B**, keep-data option | Kept (back up anyway) |
+| LineageOS MicroG | **Path B2** | ⚠️ **Erased** (different signing keys) |
 
-**You need:** a PC with [`adb`](https://developer.android.com/tools/releases/platform-tools) and
-[`samloader-rs`](https://github.com/topjohnwu/samloader-rs/releases/latest), a good USB-C cable, battery above 50%,
-and the three files for **your codename** (see the table above).
+**You need:** a PC with [`adb`](https://developer.android.com/tools/releases/platform-tools), a good USB-C cable,
+battery above 50%, and the three files for **your codename** (see the table above).
+You also need [`samloader`](https://github.com/topjohnwu/samloader-rs/releases/latest) **only if a path below tells you to
+flash the recovery or vbmeta yourself** — not for a plain sideload.
 
 **Buttons:** Download mode = power off, plug in USB, hold *Vol Up + Vol Down + Power*. Recovery = power off, hold *Vol Up + Power*.
 
-### Back up first (both paths)
+### Back up first (all paths)
 
 1. Files: `adb pull /sdcard/ ./tablet-backup/`, or copy them over USB.
 2. Apps: Smart Switch or Google backup on stock; *Settings → System → Backup* (Seedvault) on LineageOS.
@@ -132,6 +134,43 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
 **Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload the zip again.
 
 **Back to 22.2?** Path A, steps 4–6 with the 22.2 files. ⚠️ Downgrading always erases data.
+
+### Path B2: from LineageOS MicroG
+
+MicroG is a LineageOS derivative, so you already have a working recovery and can sideload. Your data is
+**still erased**: MicroG is signed with different keys than these builds, so Android will not boot it.
+(LineageOS keeps data only between builds sharing the same keys *and* the same GApps state — see Path B.)
+
+**MicroG has no Google apps, so add none afterwards.**
+
+1. Back up (see above). On MicroG use *Settings → System → Backup* if you have it enabled.
+2. **Check your recovery version.** Boot to recovery (*Vol Up + Power*) and read the build string.
+   - LineageOS **23.2** already → **skip step 3.** A plain sideload updates the recovery too, because the
+     zip contains `recovery.img`.
+   - Anything older (22.2, 21, a MicroG-era build) → **do step 3.**
+3. **Flash the 23.2 recovery** only if step 2 said so. This is a **one-time** step: the zip installs
+   `recovery.img` itself, so you never repeat it for later 23.2 → 23.2 updates.
+   ```bash
+   unzip -o lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip recovery.img   # ours, not MicroG's
+   adb -d reboot download
+   samloader flash --partition RECOVERY recovery.img --no-reboot
+   ```
+   Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery.
+4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
+   There is no keep-data option here — the keys differ.
+5. *Apply update → Apply from ADB*, then:
+   ```bash
+   adb -d sideload lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip
+   ```
+6. ⚠️ **Accept the signature warning.** These builds are `UNOFFICIAL` and signed with their own keys, so
+   recovery will warn the package is unverified. Choose *Yes*, or turn off *Verify package signature* in
+   recovery's *Advanced* menu first. Declining it is the most likely cause of an immediate failure.
+7. *Reboot system now*. First boot can take 5–10 min.
+
+**Bootloop?** Boot to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), sideload again.
+
+**What you lose:** the MicroG app set and its configuration, replaced by this build's. MicroG-specific
+tweaks do not carry over.
 
 ---
 
