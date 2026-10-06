@@ -148,13 +148,20 @@ the same GApps state (had GApps → sideload Android 16 GApps; had none → add 
 
 1. Update 22.2 to its last build (*Settings → System → Updater*) and back up.
 2. Enable *Developer options → USB debugging*, run `adb -d reboot download`.
-3. **Try step 5 first.** Sideloading the zip directly often just works: the recovery will warn that the package is
-   signed with an unknown key, and you accept *Yes*. **Only if it refuses** do step 3a.
-   3a. **Flash the 23.2 recovery:** `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   Hold *Vol Down + Power* until black, then *Vol Up + Power* into recovery, then repeat step 4 and 5.
-   *Still one-time only. It is needed because the zip is read **by** the recovery already on the tablet, and a
-   22.2-era recovery can refuse a 23.2 package. Once 23.2 is installed, later 23.2 → 23.2 updates sideload the zip
-   alone: it contains its own `recovery.img`, so it updates the recovery too.
+3. **Flash the 23.2 recovery.** The zip is read **by** the recovery already on the tablet, and a 22.2-era
+   recovery can refuse a 23.2 package — so upgrade the recovery first, rather than relying on it accepting the
+   package. Take `recovery.img` from the zip you downloaded, **not** the one from 22.2:
+
+   ```bash
+   unzip -o lineage-23.2-*-UNOFFICIAL-<codename>.zip recovery.img
+   adb -d reboot download
+   samloader flash --partition RECOVERY recovery.img --no-reboot
+   ```
+
+   Hold *Vol Down + Power* until the screen goes black, then *Vol Up + Power* into recovery.
+
+   *This is one-time only. Once 23.2 is installed, later 23.2 → 23.2 updates sideload the zip alone: it contains
+   its own `recovery.img`, so it updates the recovery too.*
 4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*.
    Skip this only in the same-keys, same-GApps case.
 5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
