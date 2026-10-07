@@ -20,7 +20,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Reviews | **All passed** (P1-R…P6-R, [review-P6.md](analysis/port/review-P6.md)). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
 | ROM built | `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip` (2026-10-05). **Superseded and broken: its kernel predates the SELinux fix. Never flash it.** Rebuild per [B2-HANDOFF.md](analysis/port/B2-HANDOFF.md) |
 | Latent defect | `libwfdservice` (32-bit) won't load: an AOSP signature change. Only Wi-Fi Display (screen casting) is affected, and it is off by default. **P6-R: flash allowed; fix later as P8** ([review-P6.md](analysis/port/review-P6.md)) |
-| Not yet done | **23.2 recovery boots on the tablet** (kernel `500658be3c16`, which includes the SELinux avtab fix). First full-ROM boot (boot-2, 2026-10-07) died in early-init: no `schedtune` cgroup ([boot-2.md](analysis/port/boot-2.md)). Fix: device `port/dt-3` @ `a7f1483`. Next: rebuild, sideload (data already formatted), boot-3 |
+| Not yet done | **23.2 recovery boots on the tablet** (kernel `500658be3c16`, which includes the SELinux avtab fix). **LineageOS 23.2 boots (2026-10-07, boot-5)**: debug build, device `port/dt-3` @ `b26a9d6` (cgroups, lmkd PSI, OMR as /metadata; ⚠️ OMR formatted once). eBPF/NetBpfLoad works ([boot-5.md](analysis/port/boot-5.md)). Next: testing, review `port/dt-3`, release build |
 
 ## Plan of remaining work
 The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.

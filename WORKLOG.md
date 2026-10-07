@@ -869,3 +869,9 @@ themselves, not for a plain sideload.
   Flag storage is unreadable because the tablet has no `/metadata`. Details: [analysis/port/boot-4.md](analysis/port/boot-4.md).
 - Fix: device `port/dt-3` @ `b26a9d6` uses OMR as `/metadata` (same as official exynos9820-common `b6a153f`). ⚠️ Format OMR once from recovery.
 - Rebuilding (debug, `~/work/rom-build6.log`).
+
+## 2026-10-07: boot-5 — LineageOS 23.2 boots on SM-T720
+
+- ⚠️ OMR formatted ext4 from recovery (20 MB). Debug zip sideloaded. Boot completes. No crashes. `/metadata` on OMR works,
+  lmkd runs, and **NetBpfLoad loads all networking BPF programs** (the eBPF backport works). Details: [analysis/port/boot-5.md](analysis/port/boot-5.md).
+- Device `port/dt-3` @ `b26a9d6` (3 fixes on `lineage-23.2`) is the booting tree. Next: owner testing, then a release build.
