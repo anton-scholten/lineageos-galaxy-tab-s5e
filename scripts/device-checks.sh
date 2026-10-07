@@ -34,7 +34,8 @@
 #   1  print `uname -r`; ro.bpf.kver_override must be exactly 5.15.178
 #      (device-tree patch 0004, PORTING-LINEAGE-23.2.md)
 #   2  `su -c 'ls /sys/fs/bpf'` must be non-empty  (SKIP if there is no su)
-#   3  `dumpsys netd`, first 50 lines, must not mention an error
+#   3  netd registered (`service list`) and running, and
+#      `dumpsys connectivity` lists attached cgroup BPF programs
 #   4  `logcat -d -b all`: no FATAL and no abort from bpfloader / netbpfload
 #   5  `ping -c 3 8.8.8.8` must report 0% packet loss
 #   6  record `uptime`, and remind to rerun after a 24 h soak
@@ -388,37 +389,37 @@ check_bpf_fs() {
     show "$out" 20
 }
 
-# Check 3: netd must be alive and not logging errors.
+# Check 3: netd must be registered and running, and its BPF programs attached.
+# Android 16 no longer lets the shell run `dumpsys netd` ("Can't find service"
+# even when netd is fine; `service check` is hidden too), so use `service list`,
+# pidof and dumpsys connectivity.
 check_netd() {
     local id='3-netd'
-    local out hits
+    local svc pid bpf attached
 
-    out=$(adb_do shell dumpsys netd | head -n 50 || true)
-    out=$(trim "$out")
+    svc=$(adb_do shell service list 2>/dev/null | grep -E '^[0-9]+\s+netd:' || true)
+    pid=$(trim "$(adb_do shell pidof netd 2>/dev/null || true)")
 
-    if [[ -z $out ]]; then
-        report FAIL "$id" "'dumpsys netd' printed nothing: the netd service is not reachable"
-        note "netd is the process that loads the networking BPF programs. If it is"
-        note "missing, check 4 will say why."
+    if [[ -z $svc ]]; then
+        report FAIL "$id" "netd is not in 'service list' (not registered with servicemanager)"
+        note "netd is the process that loads the networking BPF programs. Not being"
+        note "registered is the classic symptom of a netbpfload failure; check 4 says why."
         return
     fi
-    if grep -qi "can't find service\|can't be found" <<<"$out"; then
-        report FAIL "$id" "'dumpsys netd' says the service does not exist"
-        show "$out" 10
-        note "netd is not registered. That is the classic symptom of a netbpfload"
-        note "failure on a kernel whose BPF is not at the advertised level."
+    if [[ -z $pid ]]; then
+        report FAIL "$id" "netd is registered but no netd process is running"
         return
     fi
 
-    if hits=$(grep -in 'error' <<<"$out"); then
-        report FAIL "$id" "'error' appears in the first 50 lines of dumpsys netd"
-        show "$hits" 10
-        note "read the matching lines above: a real error fails this check, a harmless"
-        note "counter or field name containing 'error' does not."
+    bpf=$(adb_do shell dumpsys connectivity 2>/dev/null | grep -A20 'Bpf Program Status' || true)
+    attached=$(grep -cE '^ +CGROUP_[A-Z0-9_]+: [0-9]+' <<<"$bpf" || true)
+    if [[ ${attached:-0} -eq 0 ]]; then
+        report FAIL "$id" "netd runs (pid $pid) but dumpsys connectivity lists no attached BPF programs"
+        show "$bpf" 20
         return
     fi
-    report PASS "$id" "no 'error' in the first 50 lines of dumpsys netd"
-    show "$out" 50
+    report PASS "$id" "netd registered and running (pid $pid), $attached cgroup BPF programs attached"
+    show "$bpf" 20
 }
 
 # Check 4: bpfloader / netbpfload must not have died.
