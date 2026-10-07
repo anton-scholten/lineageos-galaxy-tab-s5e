@@ -22,3 +22,11 @@
 - Flash the matching recovery (its fstab has `/metadata`) so *Format data* also wipes `/metadata`.
 - `init.qcom.power.rc` still writes `/dev/stune/*`. Port those writes to uclamp (performance, not boot).
 - P8 (WFD), LTE model (`gts4lv`).
+
+## device-checks.sh (16 min uptime)
+4 PASS, 1 FAIL, 1 SKIP. The FAIL (`3-netd`: "dumpsys netd: Can't find service") is a **false alarm in the script**:
+`service list` shows `netd` and `android.system.net.netd.INetd/default`, netd runs, and Wi-Fi is validated. Android 16
+doesn't let the shell dump netd. `dumpsys connectivity` → "Bpf Program Status" shows all 14 cgroup BPF programs attached
+(INET ingress/egress, sock create/release, bind/connect v4/v6, UDP send/recvmsg, get/setsockopt).
+SKIP (`2-bpf-fs`): no `su`. Follow-up: change check 3 to use `service check netd` + `dumpsys connectivity`.
+Owner reports: microphone, camera, speakers and Wi-Fi all work.
