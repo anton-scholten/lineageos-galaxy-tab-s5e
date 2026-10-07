@@ -851,3 +851,7 @@ themselves, not for a plain sideload.
   approach as krazey's exynos9810 `385c2db`). Rebuilding to `~/work/rom-build4.log`.
 - Build trap: in the agent's shell `grep` is `ugrep`, which breaks `envsetup.sh` (`breakfast` fails in 4 s). Run builds
   with `env -i … bash --noprofile --norc`.
+- Rebuild done 10:25 (1 h 26 m, `USE_CCACHE` unset as on 10-06; setting it would have forced a full rebuild). Only
+  `FAILED:` is libwfdservice. Zip `lineage-23.2-20261007-UNOFFICIAL-gts4lvwifi.zip`, sha256 `5a8a4830…4211e714`;
+  kernel `-g500658be3c16`; `vendor.img` has `/etc/cgroups.json` with schedtune `Optional` and the 15069-byte
+  platform `task_profiles.json`. Next: boot-3 (sideload, no format needed).
