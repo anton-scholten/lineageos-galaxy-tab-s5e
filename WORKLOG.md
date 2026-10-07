@@ -874,4 +874,16 @@ themselves, not for a plain sideload.
 
 - ⚠️ OMR formatted ext4 from recovery (20 MB). Debug zip sideloaded. Boot completes. No crashes. `/metadata` on OMR works,
   lmkd runs, and **NetBpfLoad loads all networking BPF programs** (the eBPF backport works). Details: [analysis/port/boot-5.md](analysis/port/boot-5.md).
-- Device `port/dt-3` @ `b26a9d6` (3 fixes on `lineage-23.2`) is the booting tree. Next: owner testing, then a release build.
+- Device `lineage-23.2` = `b26a9d6` (boot-proven). `port/dt-3` @ `3557101` adds uclamp (untested). Next: owner testing, then a release build.
+
+## 2026-10-07: post-boot work (owner: mic, camera, speakers, Wi-Fi, hotspot and per-app data usage all work)
+
+- Docs branch `claude/vigilant-turing-jho5ul` deleted (merged into main). The other leftover branches were already gone.
+- Device `port/dt-3` @ `3557101`: schedtune setup in `init.qcom.power.rc` replaced with uclamp. The cpuctl `cpu.uclamp.*`
+  files were `root:root 0644`, so the platform task profiles couldn't boost anything. Modelled on krazey `385c2db`.
+  **Not yet booted.**
+- Device `lineage-23.2` fast-forwarded `d154fb4384fb` → `b26a9d6` (the three boot-proven fixes).
+- `scripts/device-checks.sh` check 3 now uses `service list` + `dumpsys connectivity` BPF status: 5 PASS / 1 SKIP.
+- Release build (no `WITH_ADB_INSECURE`) running: `~/work/rom-build7.log`.
+- Known: the QTI perf HAL's `commonresourceconfigs.xml` (vendor blob) still targets `/dev/stune/*` nodes. Those boost
+  opcodes fail silently; the cpufreq boosts still work. Possible follow-up: remap them to `cpu.uclamp.*`.
