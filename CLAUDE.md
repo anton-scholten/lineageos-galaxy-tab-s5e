@@ -10,7 +10,9 @@ local manifests and device-tree patches. It is not an Android source tree.
 - Main docs: `README.md` (users), `PORTING-LINEAGE-23.2.md`, `KERNEL-BACKPORT-PLAN.md`,
   `ESTIMATE.md`, `PRIOR-WORK.md`, `REPO-SETUP.md`, `AGENT-TASKS.md` (work for helper agents; their entry point is `AGENTS.md`).
 - Code lives in the forks, branch `lineage-23.2`: `anton-scholten/android_device_samsung_gts4lv-common`
-  (= LineageOS `d1b339b` + patches 0001–0004 + audio XML + P6 AntHalService fix, `d154fb4384fb`) and `anton-scholten/android_kernel_samsung_sdm670` (= the ported ExyHyperBrick series + SELinux avtab fix, `500658be3c16`; boots to recovery).
+  (= LineageOS `d1b339b` + patches 0001–0004 + audio XML + P6 AntHalService fix + boot fixes cgroups/lmkd/OMR-as-/metadata, `b26a9d6`; **boots**; `port/dt-3` adds uclamp + WFD shim),
+  `anton-scholten/android_kernel_samsung_sdm670` (= the ported ExyHyperBrick series + SELinux avtab fix, `500658be3c16`), and
+  `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (= TheMuppets `lineage-22.2` + patched `libwfdservice.so`, `bceca6f`).
   `patches/` is only a record of 0001–0004. New device-tree changes go into the fork as commits, not as new patch files.
 - Backup forks (read-only snapshots, never sync): `anton-scholten/android_kernel_samsung_exynos9810`,
   `anton-scholten/android_device_samsung_exynos9810-common`.
