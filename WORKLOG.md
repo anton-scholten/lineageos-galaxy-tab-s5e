@@ -861,4 +861,4 @@ themselves, not for a plain sideload.
 - Cgroup fix confirmed on the device. New loop: system_server dies about every 11 s ([analysis/port/boot-3.md](analysis/port/boot-3.md)).
 - lmkd exits right after every start: `ro.lmk.use_minfree_levels=true` needs memcg v1, and Android 16 has only v2. Fix: device `port/dt-3` @ `4f4a15c` (PSI).
 - The system_server cause isn't in pstore. Building with `WITH_ADB_INSECURE=true` (debug only, `~/work/rom-build5.log`) to get logcat during the loop.
-- pstore's `pmsg-ramoops-0` is a binary logcat ring. A decoder lives in this session's notes (struct: `'l' len uid pid | id tid sec nsec | prio tag\0 msg\0`).
+- pstore's `pmsg-ramoops-0` is a binary logcat ring. Decode it with `scripts/pmsg-decode.py`.
