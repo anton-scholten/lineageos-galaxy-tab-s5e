@@ -901,4 +901,4 @@ themselves, not for a plain sideload.
   no `FAILED: …libwfdservice.so.check_elf_file`. On the device: cast to a Miracast receiver (e.g. the Windows "Wireless Display" app).
 - build8 **completed successfully** (1 h 32 m): the first build with **no `FAILED:`**. `libwfdservice.so` DT_NEEDs `libshim_wfdservice`;
   kernel `-g500658be3c16`; `ro.adb.secure=1`, `ro.debuggable=0`. Zip `lineage-23.2-20261007-UNOFFICIAL-gts4lvwifi.zip`
-  sha256 `237e7104575b3f55…`, also hard-linked as `~/work/lineage-23.2-20261007-release-p8.zip`. `-k 0` is no longer needed.
+  sha256 `237e7104575b3f55…`, kept as `out/keep/lineage-23.2-20261007-release-p8.zip` (hard link on the build drive). `-k 0` is no longer needed.
