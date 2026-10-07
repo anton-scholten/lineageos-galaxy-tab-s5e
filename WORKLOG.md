@@ -862,3 +862,10 @@ themselves, not for a plain sideload.
 - lmkd exits right after every start: `ro.lmk.use_minfree_levels=true` needs memcg v1, and Android 16 has only v2. Fix: device `port/dt-3` @ `4f4a15c` (PSI).
 - The system_server cause isn't in pstore. Building with `WITH_ADB_INSECURE=true` (debug only, `~/work/rom-build5.log`) to get logcat during the loop.
 - pstore's `pmsg-ramoops-0` is a binary logcat ring. Decode it with `scripts/pmsg-decode.py`.
+
+## 2026-10-07: boot-4 (debug build) → system_server: no /metadata for aconfig; OMR as /metadata
+
+- `logcat -b crash`: `Missing permission definition for permission "android.permission.RANGING" associated with app op 151`.
+  Flag storage is unreadable because the tablet has no `/metadata`. Details: [analysis/port/boot-4.md](analysis/port/boot-4.md).
+- Fix: device `port/dt-3` @ `b26a9d6` uses OMR as `/metadata` (same as official exynos9820-common `b6a153f`). ⚠️ Format OMR once from recovery.
+- Rebuilding (debug, `~/work/rom-build6.log`).

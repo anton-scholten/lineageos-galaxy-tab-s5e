@@ -20,6 +20,14 @@ java.lang.IllegalStateException: Missing permission definition for permission "a
 ## lmkd
 Couldn't check: the loop happens before boot completes. Check it on the next boot.
 
-## Decision needed (owner)
-gts4lvwifi has no ODM partition. Options: repurpose a spare Samsung partition (`hidden`, `omr`, `fota`/`bota`, or `cache`) as
-`/metadata`, or test first with a tmpfs `/metadata` (not persistent). Partition sizes still need reading in recovery (root).
+## Decision (2026-10-07): OMR as /metadata
+Official precedent: LineageOS `exynos9820-common` `b6a153f` ("Use omr as /metadata", Tim Zimmermann, 2022). That's an
+official 23.2 tree for Pie-launched Samsung devices. On gts4lv nothing uses OMR: the stock-imported label
+`omr_block_device` has no rules, and no vendor blob references it.
+Device `port/dt-3` @ `b26a9d6`: `BOARD_USES_METADATA_PARTITION := true`; fstab
+`/dev/block/by-name/omr /metadata ext4 … wait,first_stage_mount,formattable,check`; label → `metadata_block_device`.
+First-stage init skips a formattable partition that won't mount (`first_stage_mount.cpp:639`), and the 23.2 zip doesn't
+flash recovery. So ⚠️ OMR must be formatted once from recovery (`mke2fs -t ext4 /dev/block/by-name/omr`) before
+sideloading. Later, flash the matching recovery so *Format data* also wipes `/metadata` (`wipe_data.cpp`).
+Sources: <https://github.com/LineageOS/android_device_samsung_exynos9820-common/commit/b6a153f436c88d8ef73a24d711a8db5cd7500b4e>,
+krazey `exynos9810-common` `e10756f` (ODM as /metadata), konstakang RPi4 23.2 changelog ("add metadata partition for new aconfig storage").
