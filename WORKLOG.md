@@ -887,3 +887,15 @@ themselves, not for a plain sideload.
 - Release build (no `WITH_ADB_INSECURE`) running: `~/work/rom-build7.log`.
 - Known: the QTI perf HAL's `commonresourceconfigs.xml` (vendor blob) still targets `/dev/stune/*` nodes. Those boost
   opcodes fail silently; the cpufreq boosts still work. Possible follow-up: remap them to `cpu.uclamp.*`.
+
+## 2026-10-07: P8 (Wi-Fi Display) fix
+
+- Cause: `libwfdservice.so` (32-bit) was built against Android 15 QPR2 and references the 3-arg
+  `AudioSystem::setDeviceConnectionState(state, AudioPort, format)`. Android 16 added `deviceSwitch`. LineageOS's
+  `libwfdservice_shim` (hardware/lineage/compat) only covers pre-15-QPR2 blobs.
+- Fix: device `port/dt-3` @ `e38c0de` adds `shims/libwfdservice` (`libshim_wfdservice`, which provides the old symbol and forwards with
+  `deviceSwitch=false`) plus the blob fixup `.add_needed('libshim_wfdservice.so')`. The patched blob lives on the new vendor fork
+  `anton-scholten/proprietary_vendor_samsung_gts4lv-common` `lineage-23.2` @ `bceca6f` (forked from TheMuppets `lineage-22.2` @ `b04a4ee`).
+  `local_manifests/gts4lv-common.xml` now points vendor at that fork.
+- Release + P8 build: `~/work/rom-build8.log` (the release-only build7 was stopped in favour of this one). Pass criterion:
+  no `FAILED: …libwfdservice.so.check_elf_file`. On the device: cast to a Miracast receiver (e.g. the Windows "Wireless Display" app).

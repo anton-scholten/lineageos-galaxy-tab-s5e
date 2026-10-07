@@ -31,5 +31,5 @@
 
   <project path="vendor/samsung/gts4lv-common"
            name="proprietary_vendor_samsung_gts4lv-common"
-           remote="muppets" revision="lineage-22.2" />
+           remote="anton" revision="lineage-23.2" />
 </manifest>
