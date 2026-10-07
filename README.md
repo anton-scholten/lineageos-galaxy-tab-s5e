@@ -4,18 +4,21 @@ Work-in-progress, unofficial port of LineageOS 23.2 (Android 16) to the Samsung 
 Tab S5e, both Wi-Fi and LTE models. Officially, LineageOS supports these tablets only up to **22.2**
 (Android 15).
 
-## Status (2026-10-05)
+## Status (2026-10-07)
 
 | Part | State |
 |---|---|
-| Kernel backport | **Done.** 2,458 commits of the ExyHyperBrick 4.9 eBPF series ported onto the Tab S5e kernel (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, …). Reviewed, and it builds `Image.gz-dtb` for both models. Fork: [android_kernel_samsung_sdm670 `lineage-23.2`](https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2) |
-| Device tree | **Done for the build.** 6 commits on [android_device_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2) |
-| ROM, Wi-Fi (`gts4lvwifi`) | **Built** (`lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`), **not booted yet** |
-| ROM, LTE (`gts4lv`) | Not built yet. Same kernel and common tree, so it should follow the Wi-Fi model |
-| Known gaps | Screen casting (Wi-Fi Display) won't work: an old Samsung library no longer matches Android 16. ANT+ is gone. LTE: no VoLTE/VoWiFi |
+| Kernel backport | **Done and booting.** 2,458 commits of the ExyHyperBrick 4.9 eBPF series ported onto the Tab S5e kernel (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, uclamp, …) + an SELinux fix. Fork: [android_kernel_samsung_sdm670 `lineage-23.2`](https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2) |
+| Device tree | **Booting.** [android_device_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2), blobs from [proprietary_vendor_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common/tree/lineage-23.2) |
+| ROM, Wi-Fi (`gts4lvwifi`) | **Boots and works** on the developer's SM-T720 (2026-10-07): Wi-Fi, hotspot, audio, mic, camera, per-app data usage. Long-term testing in progress |
+| ROM, LTE (`gts4lv`) | Not built yet. Same kernel and common tree; it'll be untested (no LTE tablet available) |
+| Known gaps | Screen casting: fixed in the build, not yet tested on a receiver. ANT+ is gone. LTE: no VoLTE/VoWiFi |
 
-**There is no download yet.** Nobody has booted 23.2 on this tablet. Flashing it now is a test, not an upgrade.
-For daily use, stay on (or install) **official LineageOS 22.2**. Progress: [HANDOVER.md](HANDOVER.md).
+**There is no public download yet.** For daily use, stay on (or install) **official LineageOS 22.2** until a release is announced.
+Progress: [HANDOVER.md](HANDOVER.md).
+
+⚠️ This port uses the tablet's unused Samsung `OMR` partition as `/metadata` (needed by Android 16), the same way official
+LineageOS does on the Galaxy S10. Installing erases data, and OMR has to be formatted once.
 
 ## Prior work this port is built on
 

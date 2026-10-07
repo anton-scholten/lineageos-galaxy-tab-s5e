@@ -902,3 +902,11 @@ themselves, not for a plain sideload.
 - build8 **completed successfully** (1 h 32 m): the first build with **no `FAILED:`**. `libwfdservice.so` DT_NEEDs `libshim_wfdservice`;
   kernel `-g500658be3c16`; `ro.adb.secure=1`, `ro.debuggable=0`. Zip `lineage-23.2-20261007-UNOFFICIAL-gts4lvwifi.zip`
   sha256 `237e7104575b3f55…`, kept as `out/keep/lineage-23.2-20261007-release-p8.zip` (hard link on the build drive). `-k 0` is no longer needed.
+
+## 2026-10-07: release build + matching recovery flashed; branches merged
+
+- Owner flashed `recovery-20261007-release-p8.img` (samloader `RECOVERY`) and sideloaded the release+P8 zip over the debug install. No problems.
+- Device fork `lineage-23.2` fast-forwarded `b26a9d6` → `e38c0de` (uclamp + WFD shim). `port/dt-3` deleted. Local build-tree checkouts:
+  device and vendor on `lineage-23.2`, stale local branches (`port/dt-2`, `port/dt-3`) deleted.
+- Branches now: kernel `lineage-22.2`/`lineage-23.2`; device `lineage-22.2`/`lineage-23.2`; vendor `lineage-22.2`/`lineage-23.2`; docs `main`.
+- HANDOVER, README and STATUS rewritten for the booting state and the next steps.

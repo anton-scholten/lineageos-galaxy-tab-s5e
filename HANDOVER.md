@@ -6,47 +6,31 @@ Read this first, then [WORKLOG.md](WORKLOG.md) for the full history.
 LineageOS 23.2 (Android 16) on the Samsung Galaxy Tab S5e: SM-T720/T720N (`gts4lvwifi`)
 and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 
-## Where things stand (2026-10-05)
+## Where things stand (2026-10-07)
+
+**LineageOS 23.2 boots and runs on the SM-T720.** A release build (no debug adb), with its matching recovery, is flashed on the
+owner's tablet. Owner tests pass: Wi-Fi, hotspot, per-app data usage (eBPF), microphone, speakers, camera.
 
 | Area | State |
 |---|---|
-| Repos | Docs here (`main`). Kernel fork: **`lineage-23.2` @ `500658be3c16`** (the ported kernel, 2,458 commits on top of `a30605a`, + the SELinux avtab fix). Device fork: **`lineage-23.2` = `port/dt-2` @ `d154fb4384fb`** (0001–0004 + the audio XML commit + the P6 `AntHalService` fix). Frozen ExyHyperBrick backups (`REPO-SETUP.md`) |
-| Research | **All done and merged** (rounds 1–3). Findings: [LEAD-SYNTHESIS.md](LEAD-SYNTHESIS.md) |
-| Kernel cherry-pick (P1) | **Done and reviewed.** 2,438 picks, 60 hand-resolved, 0 problems, no review rejections ([review-P1.md](analysis/port/review-P1.md)) |
-| Known fixes (P3) | **Done.** 6 commits, `problems: 0`, `fix commits: 6`. Found a 6th `wakeup_source_register` caller the spec missed |
-| **Build (P4)** | **Done — the kernel builds.** Both `gts4lvwifi_defconfig` and `gts4lv_defconfig` link `Image.gz-dtb`, `EXIT=0`, 14 commits, nothing escalated, `problems: 0`, `fix commits: 20` |
-| Device tree (P5) | **Done.** 1 commit: space-separated lists in the audio policy XML, verified by a byte-for-byte reverse-transform |
-| Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
-| Reviews | **All passed** (P1-R…P6-R, [review-P6.md](analysis/port/review-P6.md)). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
-| ROM built | `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip` (2026-10-05). **Superseded and broken: its kernel predates the SELinux fix. Never flash it.** Rebuild per [B2-HANDOFF.md](analysis/port/B2-HANDOFF.md) |
-| Latent defect | `libwfdservice` (32-bit) won't load: an AOSP signature change. Only Wi-Fi Display (screen casting) is affected, and it is off by default. **P6-R: flash allowed; fix later as P8** ([review-P6.md](analysis/port/review-P6.md)) |
-| Not yet done | **23.2 recovery boots on the tablet** (kernel `500658be3c16`, which includes the SELinux avtab fix). **LineageOS 23.2 boots (2026-10-07, boot-5)**: debug build, device `port/dt-3` @ `b26a9d6` (cgroups, lmkd PSI, OMR as /metadata; ⚠️ OMR formatted once). eBPF/NetBpfLoad works ([boot-5.md](analysis/port/boot-5.md)). Next: testing, review `port/dt-3`, release build |
+| Repos | Docs: `main`. Kernel fork `lineage-23.2` @ **`500658be3c16`** (ExyHyperBrick port + SELinux avtab fix). Device fork `lineage-23.2` @ **`e38c0de`**. Vendor fork (new) `anton-scholten/proprietary_vendor_samsung_gts4lv-common` `lineage-23.2` @ **`bceca6f`** (TheMuppets 22.2 + patched `libwfdservice.so`). Manifest: `local_manifests/` |
+| Device fixes since the first build | cgroups (`a7f1483`), lmkd PSI (`4f4a15c`), OMR as `/metadata` (`b26a9d6`), uclamp power setup (`3557101`), WFD shim (`e38c0de`). Boot logs: [boot-2](analysis/port/boot-2.md) … [boot-5](analysis/port/boot-5.md) |
+| Build | **Clean**: no `FAILED:` since P8 (build8, 1 h 32 m incremental). `-k 0` not needed. Run builds in a clean shell (`env -i … bash --noprofile --norc`) with `USE_CCACHE` **unset** (that's how the tree was built; changing it forces a full rebuild) |
+| ⚠️ Install note | Existing installs must format OMR once (`mke2fs -t ext4 /dev/block/by-name/omr` from recovery). A clean install with the new recovery's *Format data* handles `/metadata` |
+| Checks | `scripts/device-checks.sh`: 5 PASS, 1 SKIP (needs root). NetBpfLoad loads all programs; 14 cgroup BPF programs attached |
+| Known gaps | Casting (P8) is fixed at build level. **On-device cast test pending.** QTI perf HAL boost opcodes still target `/dev/stune` (vendor XML, silently ignored). `process_mrelease` not ported (lmkd works with PSI). LTE model unbuilt |
 
-## Plan of remaining work
-The free model ("Space Bunny Free") does all the work steps; a strong model only reviews and takes escalations.
-**To run it: [RUNBOOK.md](RUNBOOK.md)** (setup, order, prompts, checks). Progress: [analysis/port/STATUS.md](analysis/port/STATUS.md).
-Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
+## Next steps
 
-| # | Step | Who | Expected (wall-clock) |
+| # | Step | Who | Expected |
 |---|---|---|---|
-| ~~1–3~~ | ~~Round 3, P1 cherry-pick, P1-R + P2 review~~ | done | |
-| ~~4~~ | ~~P3 known fixes + defconfig, 6 items~~ **done** | done | |
-| ~~5~~ | ~~P4 build loop until `Image.gz-dtb` links~~ **done, nothing escalated** | done | |
-| ~~6~~ | ~~P5: 1 device-tree commit into `port/dt` + skip log~~ **done** | done | |
-| ~~6.5~~ | ~~P3-R, P4-R and P5-R~~ **passed** ([review-P4.md](analysis/port/review-P4.md)); reviewer rebuilt the kernel independently | done | |
-| ~~7~~ | ~~Fast-forward both forks' `lineage-23.2`~~ **done** (kernel `801f3f20e54a`, device `e3ccc923bcf2`) | done | |
-| ~~8~~ | ~~ROM build `gts4lvwifi`, P6 errors, P6-R~~ **done 2026-10-05**; device `lineage-23.2` → `d154fb4384fb` | done | |
-| 8.5 | `brunch gts4lv` (LTE), after the Wi-Fi model boots | owner's machine | ½ day |
-| ~~8.9~~ | ~~Recovery boot blocker~~ **solved 2026-10-06**: SELinux avtab fix, kernel `500658be3c16` ([FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md)) | done | |
-| 9 | **B2 (current): full ROM build, install, first boot.** Local agent + owner, brief: [B2-HANDOFF.md](analysis/port/B2-HANDOFF.md). ⚠️ The install erases data | local agent + owner + tablet | 2–7 days |
-| 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
-| 11 | Later: **P8** restore WFD (review-P6.md); `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
-
-**Owner to-do now (step 9, task B2):**
-1. Start a local agent with RUNBOOK §8c's B2 prompt. Its brief is [analysis/port/B2-HANDOFF.md](analysis/port/B2-HANDOFF.md).
-2. Rebuild the zip with the fixed kernel (`mka bacon -k 0`). **Never flash the 20261005 zip.**
-3. In the 23.2 recovery: ⚠️ *Format data* (erases all data), sideload the zip, sideload MindTheGapps, reboot.
-4. If it fails, read `/proc/last_kmsg` from the 23.2 recovery **before guessing** (B2-HANDOFF §4).
+| 1 | Cast test (Miracast receiver, e.g. Windows "Wireless Display"); 24 h soak; heavy multitasking (lmkd); Bluetooth audio, USB file transfer, SD card, overnight battery | owner + tablet | 1–2 days |
+| 2 | **LTE build** `brunch gts4lv`: add the LTE repos to the build tree, build an untested zip for testers. Check `omr` exists on LTE models first | agent on owner's machine | 4–8 h build |
+| 3 | BPF verifier selftests (krazey's corpus), needs root (Lineage root via a debug build, or `adb root` on userdebug) | agent + owner | ½ day |
+| 4 | Independent review of the 5 device commits + the vendor-fork commit (RUNBOOK prompt R) | strong model | ½ day |
+| 5 | Publish: contact krazey (kernel author) first, then an unofficial release (XDA thread, GitHub release with zip + recovery, install guide incl. ⚠️ OMR format) | owner | |
+| 6 | Upstream: email devrel@lineageos.org / the gts4lv maintainer with results; small device fixes to Gerrit; the SELinux avtab fix as a standalone kernel change | owner | |
+| 7 | Optional: remap the QTI perf HAL's schedtune opcodes to uclamp; `process_mrelease` port if lmkd misbehaves | strong model | |
 
 ## Rebuilding the working environment (cloud container)
 ```bash
