@@ -839,3 +839,15 @@ themselves, not for a plain sideload.
 - The old `…-20261005-…zip` name is now a hardlink to the **same inode** as the new zip (and `lineage_gts4lvwifi-ota.zip`), so the
   broken 20261005 build no longer exists on disk. To avoid confusion, sideload the 20261006 name.
 - Next: ⚠️ format data, sideload, MindTheGapps, first boot (B2-HANDOFF §3).
+
+## 2026-10-07: boot-2, first full-ROM boot → Download mode; cgroup fix
+
+- Old build files deleted (20261005 zip name, `~/work/{boot-nobtf,recovery,recovery-nobtf}.img`). The owner deletes the
+  merged/superseded branches (`port/no-btf`, `test/base-config`, `port/selinux-avtab`, `lead/2026-10-05b`) over SSH.
+- Owner flashed the 20261006 zip + MindTheGapps. Result: Download mode. `last_kmsg` from the 23.2 recovery shows
+  `reboot,bootloader,bootstrap-apexd-failed` at 3.1 s. Cause: `first_api_level=28` loads `cgroups_28.json`, where
+  `schedtune` is mandatory, but the uclamp kernel has no schedtune. Details: [analysis/port/boot-2.md](analysis/port/boot-2.md).
+- Fix: device fork `port/dt-3` @ `a7f1483` ships `cgroups_30.json` + platform `task_profiles.json` on vendor (same
+  approach as krazey's exynos9810 `385c2db`). Rebuilding to `~/work/rom-build4.log`.
+- Build trap: in the agent's shell `grep` is `ugrep`, which breaks `envsetup.sh` (`breakfast` fails in 4 s). Run builds
+  with `env -i … bash --noprofile --norc`.
