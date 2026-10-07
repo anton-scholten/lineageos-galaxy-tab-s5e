@@ -828,3 +828,14 @@ themselves, not for a plain sideload.
   and owner to-do), STATUS (row 9), analysis/port/README.md (index) and TESTING.md (new §2a on `last_kmsg`).
 - Fix branches for new work: `port/k-<n>` (kernel) and `port/dt-3` (device), both from `lineage-23.2`. `port/pick` is gone.
 - HANDOVER marks the 20261005 zip as broken (pre-fix kernel).
+
+## 2026-10-07: B2 build result — succeeded (expected failure only)
+
+- `mka bacon -k 0` finished 08:17 after 16 h 31 m with `ninja failed with: exit status 1`. `zgrep "^FAILED:" out/verbose.log.gz`
+  lists exactly one: `libwfdservice.so.check_elf_file` (the known P8 WFD blob break). Nothing else failed.
+- Zip: `lineage-23.2-20261006-UNOFFICIAL-gts4lvwifi.zip`, sha256 `691512f32e27801342c454e249a25821c92e5aca8ccfb28040a1a376473d029f`.
+  The `boot.img` inside it (gzip kernel, so plain `strings` finds nothing) decompresses to `Linux version 4.9.337-g500658be3c16`.
+  `KERNEL_OBJ/.../kernel.release` agrees.
+- The old `…-20261005-…zip` name is now a hardlink to the **same inode** as the new zip (and `lineage_gts4lvwifi-ota.zip`), so the
+  broken 20261005 build no longer exists on disk. To avoid confusion, sideload the 20261006 name.
+- Next: ⚠️ format data, sideload, MindTheGapps, first boot (B2-HANDOFF §3).
