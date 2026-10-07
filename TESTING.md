@@ -83,6 +83,21 @@ adb logcat -b all -d > logcat.txt
 - If the device has rebooted, `-b all` only holds what was logged **since that boot**. It says
   nothing about the previous boot; that is §2's job.
 
+### 2a. When the tablet falls into Download mode: `/proc/last_kmsg` from recovery
+
+On this tablet a failed boot usually ends in **Download mode**. Often that is Android's own
+`reboot bootloader` (init gave up), not a bootloader reject. The system never comes up, so the
+commands below that need `adb` to the system won't work. Read the previous boot's kernel log from recovery instead:
+
+1. USB unplugged: *Vol Down + Power* until black, then *Vol Up + Power* → recovery (23.2, or 22.2 if testing).
+2. `adb shell cat /proc/last_kmsg > last_kmsg.txt`. This is Samsung `sec_log` (`CONFIG_SEC_LOG_LAST_KMSG=y`). It holds the
+   **previous** boot from its first printk line, and recovery's adbd runs as root.
+3. Then `grep -n -E "Linux version|InitFatalReboot|Kernel panic|SELinux:|avc: denied|reboot:" last_kmsg.txt`.
+   The lines before `reboot: Restarting system with command 'bootloader'` are the cause.
+
+This is how the SELinux blocker was found ([analysis/port/FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md) ruling 7). The file
+contains the device serial and MACs, so commit excerpts only.
+
 ### 2. pstore (the kernel log from the crash itself)
 
 **What pstore is, in one line:** pstore copies the last kernel messages into a reserved block of

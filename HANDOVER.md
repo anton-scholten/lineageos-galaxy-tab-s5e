@@ -18,7 +18,7 @@ and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2.
 | Device tree (P5) | **Done.** 1 commit: space-separated lists in the audio policy XML, verified by a byte-for-byte reverse-transform |
 | Deferred | `process_mrelease` (lmkd should fall back; **check `logcat -s lmkd` on first boot**); `target-level` stays 5 |
 | Reviews | **All passed** (P1-R…P6-R, [review-P6.md](analysis/port/review-P6.md)). The reviewer independently rebuilt the kernel: `Image.gz-dtb`, 0 errors ([review-P4.md](analysis/port/review-P4.md)) |
-| **ROM built** | **`lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip`, 1.06 GB, on the removable drive under `out/target/product/gts4lvwifi/`. sha256 `cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea`. Built via `mka bacon -k 0`, not a clean `brunch`.** |
+| ROM built | `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip` (2026-10-05). **Superseded and broken: its kernel predates the SELinux fix. Never flash it.** Rebuild per [B2-HANDOFF.md](analysis/port/B2-HANDOFF.md) |
 | Latent defect | `libwfdservice` (32-bit) won't load: an AOSP signature change. Only Wi-Fi Display (screen casting) is affected, and it is off by default. **P6-R: flash allowed; fix later as P8** ([review-P6.md](analysis/port/review-P6.md)) |
 | Not yet done | **23.2 recovery boots on the tablet** (kernel `500658be3c16`, which includes the SELinux avtab fix). The full ROM hasn't booted yet. Next: `mka bacon -k 0`, ⚠️ *Format data*, sideload the zip and MindTheGapps, first boot, then P7 logs |
 
@@ -37,15 +37,16 @@ Task specs: [AGENT-TASKS.md](AGENT-TASKS.md) §6c.
 | ~~7~~ | ~~Fast-forward both forks' `lineage-23.2`~~ **done** (kernel `801f3f20e54a`, device `e3ccc923bcf2`) | done | |
 | ~~8~~ | ~~ROM build `gts4lvwifi`, P6 errors, P6-R~~ **done 2026-10-05**; device `lineage-23.2` → `d154fb4384fb` | done | |
 | 8.5 | `brunch gts4lv` (LTE), after the Wi-Fi model boots | owner's machine | ½ day |
-| 9 | **First boot and debugging**: flash per README (⚠️ erases data), logs per `TESTING.md`; strong model reads logs | owner + tablet | 7 days (3–15) |
+| ~~8.9~~ | ~~Recovery boot blocker~~ **solved 2026-10-06**: SELinux avtab fix, kernel `500658be3c16` ([FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md)) | done | |
+| 9 | **B2 (current): full ROM build, install, first boot.** Local agent + owner, brief: [B2-HANDOFF.md](analysis/port/B2-HANDOFF.md). ⚠️ The install erases data | local agent + owner + tablet | 2–7 days |
 | 10 | **Testing**: `scripts/device-checks.sh`, BPF selftests, networking, 24 h soak, LTE model; check lmkd without `process_mrelease` | owner + tablet | 4 days |
 | 11 | Later: **P8** restore WFD (review-P6.md); `process_mrelease` port if lmkd needs it; `target-level` 6 if wanted; contact krazey before publishing; upstream to LineageOS Gerrit | owner | |
 
-**Owner to-do now (step 9):**
-1. Flash `lineage-23.2-20261005-UNOFFICIAL-gts4lvwifi.zip` per README path A (from stock) or B (from 22.2). ⚠️ **Both erase all data.** Back up first.
-2. After every boot attempt, a free agent collects the logs (**P7**, RUNBOOK §8c) for the strong model.
-   Check bpfloader/netd, audio and `logcat -s lmkd` early ([review-P4.md](analysis/port/review-P4.md)).
-3. Once it boots: `brunch gts4lv` for the LTE model.
+**Owner to-do now (step 9, task B2):**
+1. Start a local agent with RUNBOOK §8c's B2 prompt. Its brief is [analysis/port/B2-HANDOFF.md](analysis/port/B2-HANDOFF.md).
+2. Rebuild the zip with the fixed kernel (`mka bacon -k 0`). **Never flash the 20261005 zip.**
+3. In the 23.2 recovery: ⚠️ *Format data* (erases all data), sideload the zip, sideload MindTheGapps, reboot.
+4. If it fails, read `/proc/last_kmsg` from the 23.2 recovery **before guessing** (B2-HANDOFF §4).
 
 ## Rebuilding the working environment (cloud container)
 ```bash

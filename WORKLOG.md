@@ -812,3 +812,19 @@ themselves, not for a plain sideload.
   the manifest comment, HANDOVER, AGENT-TASKS and BUILD-HANDOFF. README marks the 20261005 zip as broken.
 - Next: rebuild the zip with the fixed kernel (`mka bacon -k 0`), ⚠️ format data, sideload, first boot.
 - The owner can delete these kernel branches: `port/no-btf`, `test/base-config`, `port/selinux-avtab` (now equal to `lineage-23.2`).
+
+## 2026-10-07: handoff to a local agent for the full ROM (task B2)
+
+- New **[analysis/port/B2-HANDOFF.md](analysis/port/B2-HANDOFF.md)**: a self-contained brief for a local agent. It covers:
+  - the current commits (kernel `500658be3c16`, device `d154fb4384fb`);
+  - the build (`mka bacon -k 0`) and its expected noise;
+  - checking the kernel inside images;
+  - the ⚠️ install steps the owner runs;
+  - reading `/proc/last_kmsg` from the 23.2 recovery on failure;
+  - the likely next failures;
+  - the agent rules;
+  - a current/future work table (B2, P7, P8, testing, LTE, process_mrelease, upstream/krazey/devrel, branch cleanup).
+- Linked from AGENTS.md (open tasks B2 + P7), AGENT-TASKS §6c (B2 spec), RUNBOOK §8c (B2 prompt), HANDOVER (plan
+  and owner to-do), STATUS (row 9), analysis/port/README.md (index) and TESTING.md (new §2a on `last_kmsg`).
+- Fix branches for new work: `port/k-<n>` (kernel) and `port/dt-3` (device), both from `lineage-23.2`. `port/pick` is gone.
+- HANDOVER marks the 20261005 zip as broken (pre-fix kernel).

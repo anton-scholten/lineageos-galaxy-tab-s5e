@@ -10,7 +10,11 @@ Specs: [AGENT-TASKS.md](../../AGENT-TASKS.md) §2.3 and §6c. Scripts: [`scripts
 | `dropped.tsv` | P1 agent (and `pick-series.sh` for empty picks) | Every series commit deliberately not picked, with the reason. `pick-series.sh` never retries these |
 | `P1-log.md`, `P4-log.md`, `P5-log.md` | free-model agents | One line per stop or fix, plus `## Blocked` / `## Escalated` |
 | `automerge-triage-<n>.tsv` | P2 agents | BENIGN/SUSPECT verdict per "auto-merged but different" commit |
-| `review-P1.md`, `review-P4.md`, `review-P5.md` | strong model | What was checked, what was rejected, what was fixed |
+| `review-P1.md`, `review-P4.md`, `review-P6.md` | strong model | What was checked, what was rejected, what was fixed |
+| **`B2-HANDOFF.md`** | lead | **Current task: full ROM build, install, first boot. The entry point for a local agent** |
+| `FLASH-BLOCKER.md` | lead + reviewer | How the "Download mode" boot failure was traced to SELinux (rulings 1–7, newest first) |
+| `flash-logs/`, `boot-<n>.md` | owner / P7 agent | Log **excerpts** from boot attempts (full logs stay local: they hold serials) |
+| `BUILD-HANDOFF.md`, `B1-log.md`, `P6-log.md` | agents | ROM build recipe, first build, build-error loop |
 
 ## Tested on 2026-10-03
 Both scripts were run on a real clone of the kernel fork, with the full series, on a throwaway branch.

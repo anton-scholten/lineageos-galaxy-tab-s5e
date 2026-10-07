@@ -785,18 +785,24 @@ Runs when B1's build fails (RUNBOOK §8b). Work in `device/samsung/gts4lv-common
 
 Log one line per fix in `analysis/port/P6-log.md` on `agent/P6`.
 
+### B2: full ROM build, install and first-boot troubleshooting (local agent + owner)
+**The spec is [analysis/port/B2-HANDOFF.md](analysis/port/B2-HANDOFF.md).** It is self-contained: current commits, the build
+command (`mka bacon -k 0`), the expected build noise, the ⚠️ install steps the owner runs, how to read `last_kmsg` when the tablet
+falls into Download mode, the likely next failures, and the rules (branches `port/k-<n>` / `port/dt-3`, never flash or wipe yourself).
+
 ### P7: boot-log triage (free model, 1 agent, with the owner and the tablet)
 After each flash that doesn't fully work. The free model collects and sorts the logs; the strong model diagnoses.
 1. Collect, read-only, exactly as [TESTING.md](TESTING.md) says: `adb logcat -b all -d`, `adb shell dmesg`, `pstore`/`console-ramoops*` (copy it
    **before** another reboot; only the newest panic is kept), tombstones, and `scripts/device-checks.sh` if the tablet boots.
    Never run anything that flashes, wipes or formats; that's the owner's call (⚠️ in README).
 2. Write `analysis/port/boot-<n>.md` (n = attempt number) on `agent/P7`:
-   - build and commit IDs (kernel `port/pick`, device tree);
+   - build and commit IDs (kernel `lineage-23.2` or `port/k-<n>`, device tree);
    - how far it got (no logo / bootloop / boots to UI);
    - the first 20 lines around the **first** error of each kind (kernel panic, `FATAL EXCEPTION`, `avc: denied`, `netbpfload`/`bpfloader`, `lmkd`, `AudioPolicy`), with timestamps;
    - your best guess, marked `confidence: low|medium|high`.
 3. Put the raw logs in `analysis/port/boot-<n>/` (gzip anything over 1 MB). Then hand over to the strong model (RUNBOOK prompt R, "boot debugging").
-   Kernel fixes then go through P4's rules on `port/pick`, device fixes through P6's rules on `port/dt-2`.
+   Kernel fixes then go through P4's rules on `port/k-<n>`, device fixes through P6's rules on `port/dt-3` (both from `lineage-23.2`).
+   **When the tablet falls into Download mode**, there is no adb to the system. Read `/proc/last_kmsg` from the 23.2 recovery instead ([B2-HANDOFF.md](analysis/port/B2-HANDOFF.md) §4).
 
 ### Strong-model review (P1-R, P2-R, P4-R, P5-R, P6-R)
 1. Run `python3 scripts/check-pick.py <kernel> pick-review`. It must say `problems: 0`.

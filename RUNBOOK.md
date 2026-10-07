@@ -166,6 +166,16 @@ A kernel error in the ROM build goes back to P4's rules on `port/pick`. 🔍 P6-
 Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way as step 7. **Done 2026-10-05** (`d154fb4384fb`, [review-P6.md](analysis/port/review-P6.md)). For new errors, use `mka bacon -k 0` to list them all in one pass.
 
 ### 8c. Flash and first boot (you + tablet), with P7 log triage
+> **2026-10-07 status:** the 23.2 recovery boots (kernel `500658be3c16`). **Do step 8c with a local agent on task B2.**
+> Its whole brief is [analysis/port/B2-HANDOFF.md](analysis/port/B2-HANDOFF.md). Worktree:
+> `git -C ~/work/docs fetch origin && git -C ~/work/docs worktree add ~/work/wt/B2 -b agent/B2 origin/main`. Prompt:
+> ```text
+> You are a local helper agent doing task B2. Docs repo: ~/work/wt/B2 (branch agent/B2). Android tree: ~/android/lineage.
+> Read AGENTS.md, then analysis/port/B2-HANDOFF.md completely, and follow it: verify the commits, build with mka bacon -k 0,
+> check the kernel inside the images, then guide me through the install. I run every flash and wipe myself. If it does not
+> boot, read /proc/last_kmsg from the 23.2 recovery as section 4 says and write analysis/port/boot-<n>.md (excerpts only).
+> Fix only what section 6 allows, on port/k-<n> or port/dt-3. Escalate the rest. Update STATUS.md and WORKLOG.md, push agent/B2, stop.
+> ```
 1. ⚠️ **Unlocking the bootloader and installing erase all data on the tablet.** Back up first ([README.md](README.md) "Back up first").
 2. Flash: [README.md](README.md) path A (from stock) or B (from 22.2), using the zip, `recovery.img` and `vbmeta.img` from
    `out/target/product/gts4lvwifi/`. ⚠️ Path B from official 22.2 to this unofficial build also needs a data wipe (different signing keys).
@@ -177,7 +187,7 @@ Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way 
    Never flash, wipe, format or reboot into download mode.
    ```
 4. Give `boot-<n>.md` to the strong model (prompt R, task "boot debugging: analysis/port/boot-<n>.md"). Its fixes go to a free agent:
-   kernel fixes with P4's rules on `port/pick`, device fixes with P6's rules on `port/dt-2`. Then rebuild (8a step 4 only) and flash again.
+   kernel fixes with P4's rules on `port/k-<n>`, device fixes with P6's rules on `port/dt-3` (both from `lineage-23.2`). Then rebuild (`mka bacon -k 0`) and flash again.
 5. Early checks once it boots: Wi-Fi, audio playback and the mic (P5's change), `adb logcat -d | grep -iE 'lmkd|AudioPolicy|netbpfload|bpfloader'`.
 
 ### 8d. Test and finish

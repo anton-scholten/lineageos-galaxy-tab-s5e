@@ -27,6 +27,7 @@ Updated by the owner or the reviewing lead after each step, **not** by working a
 | 8b 🔍 P6-R | ✅ | [review-P6.md](review-P6.md) | Passed. Device `lineage-23.2` fast-forwarded `e3ccc92`→`d154fb4384fb`. WFD: flash allowed, fix later as P8. |
 | 8 ROM build | ✅ | zip on the removable drive | Built 2026-10-05. Use `brunch gts4lvwifi`, **not** a bare `m`. ⚠️ Built via `mka bacon -k 0`, not a clean `brunch`. |
 | 8 Flash SM-T720 to 23.2 | ◐ | [`FLASH-BLOCKER.md`](FLASH-BLOCKER.md) | **23.2 recovery boots** (2026-10-06) with kernel `500658be3c16`; the fix was the SELinux avtab change. Kernel `lineage-23.2` fast-forwarded. Next: rebuild the zip, format data, sideload, first boot. |
+| 9 B2 full ROM build + install + first boot | ◐ | [B2-HANDOFF.md](B2-HANDOFF.md), `agent/B2` | **Current.** Local agent + owner. Rebuild with kernel `500658be3c16` (`mka bacon -k 0`), ⚠️ format data, sideload. Read `last_kmsg` on failure. |
 | 8c P7 boot-log triage | ☐ | `agent/P7`, `boot-<n>.md` | Free agent collects and sorts logs per flash; strong model diagnoses. |
 | 8 First boot | ☐ | | Collect logs after **every** crash — pstore keeps only the newest. |
 | 8 Tests + 24 h soak | ☐ | | Then the LTE model. |
