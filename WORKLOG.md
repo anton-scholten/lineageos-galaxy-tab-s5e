@@ -949,3 +949,8 @@ themselves, not for a plain sideload.
 - Launch boost: the power HAL gets LAUNCH (`setMode 5`) and the perf HAL applies the cpufreq part (min 1747/1516 MHz, matching config
   0x1081), but **top-app `cpu.uclamp.min` stays 0.00**. No denial. The perf lib has no schedtune-specific code, so the cause is
   unknown and needs perf HAL debug logs (root). Harmless; open item.
+- build10 on device: runtime wakeup sources fixed; the 6 battery wakeup nodes were still denied, because `fc_sort` ranks by stem
+  length and the battery `power_supply` rule beat the generic one. Device `lineage-23.2` @ efd222f + next commit: a battery-specific
+  wakeup rule (sorted after the battery rule in the installed `vendor_file_contexts`, lines 1011/1012) and thermal HAL read rules.
+  Approach matches Pixel redbull (genfs) and Linaro dragonboard (file_contexts). Wi-Fi build11 OK: `out/keep/lineage-23.2-20261008c-UNOFFICIAL-gts4lvwifi.zip`
+  (sha256 `532399f1b16ec5ae…`). **Not yet flashed. LTE not rebuilt with build10/11 fixes.**
