@@ -935,3 +935,17 @@ themselves, not for a plain sideload.
 - LTE build with the same fixes: `~/work/rom-build-lte2.log`.
 - LTE build with the same fixes: **success**, 2 h 28 m, no `FAILED:`. Zip `…-20261008-…-gts4lv.zip` sha256 `3d3cfff0af48b236…`.
   `out/keep/` = the 20261008 Wi-Fi and LTE zips + their recoveries (real copies, verified with `cmp`).
+
+## 2026-10-08: on-device check of build9 (Wi-Fi)
+
+- SELinux denials 1,275 → **97**. Gone: hal_usb_qti, hal_audio efs, hal_gnss/hal_audio `csc_prop`, wcnss kmsg, and the
+  `sysfs_battery_supply`/most `sysfs` wakeup reads.
+- Still denied: system_suspend reading `wakeup53–58` (battery power_supply) and `wakeup99`/`wakeup102` (Android-only, not visible
+  from recovery). Cause: ueventd restorecons sysfs paths recursively on every uevent (`system/core/init/devices.cpp:378`), and
+  vendor `file_contexts:187` (`…/soc:battery/power_supply(/.*)? -- sysfs_batteryinfo`) relabels the files inside the wakeup
+  folders on each battery change event. The genfs label only survives on the folder. Fix (device, not yet committed): a generic
+  `/sys/devices/.*/wakeup[0-9]+(/.*)? sysfs_wakeup` at the end of vendor `file_contexts` (the last match wins). Wi-Fi build10 running.
+- One crash: DeskClock widget NPE (`WidgetModel.mPrefs`), app-level, once. Not port-related.
+- Launch boost: the power HAL gets LAUNCH (`setMode 5`) and the perf HAL applies the cpufreq part (min 1747/1516 MHz, matching config
+  0x1081), but **top-app `cpu.uclamp.min` stays 0.00**. No denial. The perf lib has no schedtune-specific code, so the cause is
+  unknown and needs perf HAL debug logs (root). Harmless; open item.
