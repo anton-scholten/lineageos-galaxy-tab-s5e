@@ -954,3 +954,17 @@ themselves, not for a plain sideload.
   wakeup rule (sorted after the battery rule in the installed `vendor_file_contexts`, lines 1011/1012) and thermal HAL read rules.
   Approach matches Pixel redbull (genfs) and Linaro dragonboard (file_contexts). Wi-Fi build11 OK: `out/keep/lineage-23.2-20261008c-UNOFFICIAL-gts4lvwifi.zip`
   (sha256 `532399f1b16ec5ae…`). **Not yet flashed. LTE not rebuilt with build10/11 fixes.**
+
+## 2026-10-08: build11 on-device check (1 h 49 m uptime)
+
+- **system_suspend: 0 denials, 0 "Permission denied"** (the wakeup labelling is complete). The 40 suspend-service "No such device"
+  errors are wakeup sources unregistered while being read, a harmless race.
+- 271 denials, nearly all app domains (`untrusted_app*` probing `isolated_app`, `shell_test_data_file`, netlink, rootfs;
+  `isolated_app` → content_capture; GMS → `adbd_prop`). Normal on any Android build; not device policy. Left alone.
+- Crashes: Syncthing-Android `ForegroundServiceDidNotStartInTimeException` (app bug under Android 14+ FGS rules; the original
+  app is discontinued, Syncthing-Fork fixes it). Not ROM-related. No lowmemorykiller kills; MemAvailable 3.2 GB.
+- uclamp decision: governor is schedutil (WALT kernel). The platform `task_profiles.json` only *defines* `UClampMin`; no profile
+  sets it. So the only writer would be the perf HAL's 2 s launch boost, whose cpufreq part already works (min 1747/1516 MHz).
+  Extra benefit from the uclamp part: big-core placement during launch, marginal. **Not worth root/debug builds.** The vendor
+  remap stays (harmless, documented).
+- Still to do: rebuild LTE with the build10/11 sepolicy fixes (device `1188e2b`).
