@@ -968,3 +968,13 @@ themselves, not for a plain sideload.
   Extra benefit from the uclamp part: big-core placement during launch, marginal. **Not worth root/debug builds.** The vendor
   remap stays (harmless, documented).
 - Still to do: rebuild LTE with the build10/11 sepolicy fixes (device `1188e2b`).
+
+## 2026-10-08: LTE build3 + GitHub release (draft)
+
+- LTE with all sepolicy fixes: **success**, 2 h 18 m, no `FAILED:`. Recovery kernel `-g500658be3c16`.
+- Draft release `v23.2-20261008` on this repo (needs `gh`, now set up): per model the ROM zip, `recovery-20261008-<codename>.img`,
+  `vbmeta-20261008-<codename>.img`, plus `SHA256SUMS` (wifi zip `532399f1…`, lte zip `1be0f6a7…`). Local copies:
+  `out/keep/release-20261008/`. Notes: `release/NOTES-20261008.md`. **Unpublished**: the owner publishes after contacting krazey.
+- `release/XDA-POST.txt` download section now points at the release tag.
+- Official LineageOS: no GitHub PRs (Gerrit only). Path: krazey → devrel@lineageos.org / gts4lv maintainer → Gerrit if accepted.
+  The vendor fork never goes upstream (blob changes are `extract-files.py` fixups, as the charter requires).

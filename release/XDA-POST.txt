@@ -1,7 +1,7 @@
 TITLE:
 [ROM][UNOFFICIAL][16][gts4lvwifi][gts4lv] LineageOS 23.2 + 4.9 eBPF kernel backport for Galaxy Tab S5e (SM-T720/T725/T727)
 
-BODY (XDA BBCode, paste as-is; replace the [DOWNLOAD …] placeholders before posting):
+BODY (XDA BBCode, paste as-is; the download link points to the GitHub release; publish it first):
 
 [CENTER][SIZE=6][B]LineageOS 23.2 (Android 16)[/B][/SIZE]
 [SIZE=4]Unofficial build for the Samsung Galaxy Tab S5e[/SIZE]
@@ -89,8 +89,7 @@ Please include your model, the build date, what you did, and logs ([I]adb logcat
 
 [SIZE=5][B]Downloads[/B][/SIZE]
 [LIST]
-[*]Wi-Fi (gts4lvwifi): [DOWNLOAD LINK: zip + recovery.img + sha256]
-[*]LTE (gts4lv, untested): [DOWNLOAD LINK: zip + recovery.img + sha256]
+[*]Wi-Fi (gts4lvwifi) and LTE (gts4lv, untested): [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/tag/v23.2-20261008[/URL] (zip, recovery.img, vbmeta.img, SHA256SUMS)
 [*]MindTheGapps (optional): [URL]https://github.com/MindTheGapps/16.0.0-arm64/releases/latest[/URL]
 [*]Stock firmware: [URL]https://github.com/luk1337/gts4lv-fw/releases[/URL]
 [/LIST]
