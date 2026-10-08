@@ -42,7 +42,7 @@ inet_twsk_free
 insns
 insnsi
 items
-#K5astep1.Scope:`git-C/home/anton/work/k670diffd54533f1546bbaa585f67e0e`over
+#K5astep1.Scope:`git-C~/work/k670diffd54533f1546bbaa585f67e0e`over
 len
 linear_payload_sz
 #ListsonlyCHANGEDorREMOVEDprototypes/structfields/macros.PureadditionsareNOTlisted.

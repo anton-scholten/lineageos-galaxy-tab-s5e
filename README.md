@@ -1,15 +1,16 @@
 # Unofficial LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
 
-> This README is AI text so there may be errors.  
+> I used AI to make this happen. The tablet I have works well, no bugs so far.  
 > Human TL;DR:  
 > If your tablet has LineageOS 22.2 then follow the official LineageOS installation steps but use the provided Recovery and ROM in the latest release of this repo.
 > 1. Backup the data on your tablet and remove your Google account from it.
 > 2. Boot into Download mode
 > 3. Flash the correct 23.2 recovery for your tablet
 > 4. Boot into recovery, check it says 23.2.
-> 5. Select on the tablet "Apply update", "Apply from ADB", and sideload the correct ROM for your tablet using your PC.
-> 6. Flash MindTheGapps at this time if you want them.
-> 7. Reboot and you should be good.
+> 5. ⚠️ "Factory reset"/"Format data" the tablet (make sure you have a backup!).
+> 6. Select on the tablet "Apply update", "Apply from ADB", and sideload the correct ROM for your tablet using your PC.
+> 7. Flash MindTheGapps at this time if you want them.
+> 8. Reboot and you should be good.
 
 Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
 This port has two parts: a **kernel backport** (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a **full ROM** (device tree, blobs and fixes for Android 16).
@@ -64,25 +65,27 @@ Licences: kernel GPL-2.0 (full source in the kernel fork), device trees Apache-2
 
 **You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for your device (wifi or LTE).
 
-Follow the official LineageOS install guide for your model, with these changes:
-[Wi-Fi (`gts4lvwifi`)](https://wiki.lineageos.org/devices/gts4lvwifi/install/) ·
-[LTE (`gts4lv`)](https://wiki.lineageos.org/devices/gts4lv/install/).
+Follow the official LineageOS install guide for your model but with the changes listed in the table below.  
+[Wi-Fi (`gts4lvwifi`) guide](https://wiki.lineageos.org/devices/gts4lvwifi/install/)  
+[LTE (`gts4lv`) guide](https://wiki.lineageos.org/devices/gts4lv/install/)
 
 | Step in the official guide | Do this instead |
 |---|---|
 | Download files | Take the ROM zip, `recovery-*.img` and `vbmeta-*.img` for **your codename** from the [latest release](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/latest). Never mix Wi-Fi and LTE files |
-| Flash recovery | Flash **our 23.2 recovery**. The 22.2 recovery can't install 23.2. Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest) (`samloader flash --partition RECOVERY recovery-*.img --no-reboot`) all work |
+| Flash recovery | Flash **the 23.2 recovery**. The 22.2 recovery can't install 23.2. Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest) (`samloader flash --partition RECOVERY recovery-*.img --no-reboot`) all work |
 | Factory reset | **Required**, also when coming from official 22.2 (different signing keys). ⚠️ Erases all data. It also formats `/metadata` (the OMR partition), which Android 16 needs |
 | Install Google Apps | Use [MindTheGapps **16.0.0** arm64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest), sideloaded before the first boot |
 | Sideload | *"Signature verification failed"* is expected: answer *Yes*. Stopping at 47% with `adb: failed to read command: Success` is normal |
 
-Coming from Samsung stock: do the official guide's unlock and `vbmeta` steps first (with our `vbmeta-*.img`). Coming from
-LineageOS 22.2: skip them. First boot can take up to 15 minutes.
+Coming from Samsung stock: do the official guide's unlock and `vbmeta` steps first (with our `vbmeta-*.img`).  
+Coming from LineageOS 22.2: skip the unlock and `vbmeta` steps.  
+First boot can take up to 15 minutes.
 
-**Stuck in Download mode?** Unplug USB, hold *Vol Down + Power* until the screen goes black, then immediately hold
-*Vol Up + Power* to enter recovery. With USB plugged in, the buttons land you in Download mode again.
+**Stuck in Download mode?**  
+Unplug USB, hold *Vol Down + Power* until the screen goes black, then immediately hold *Vol Up + Power* to enter recovery. If you keep USB plugged in you will get back into Download mode again.
 
-**Boot loop?** Get logs from recovery first (`adb shell cat /proc/last_kmsg`, see [TESTING.md](TESTING.md)) and report them.
+**Boot loop?**  
+Get logs from recovery first (`adb shell cat /proc/last_kmsg`, see [TESTING.md](TESTING.md)) and report them.
 Then ⚠️ *Format data* and sideload again, or go back to 22.2 by flashing its recovery and zip (always erases data).
 
 ---

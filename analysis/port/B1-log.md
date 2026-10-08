@@ -6,7 +6,7 @@ B1 agent; this entry records what the lead did directly, and why.
 
 ## Host
 
-`anton@DellXPS`, Debian GNU/Linux 13 (trixie), x86-64, 12 cpus.
+The owner's laptop, Debian GNU/Linux 13 (trixie), x86-64, 12 cpus.
 
 | | measured | B1 spec minimum | |
 |---|---|---|---|

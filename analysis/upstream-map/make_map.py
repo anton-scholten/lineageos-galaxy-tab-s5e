@@ -13,7 +13,7 @@ For every commit of the series BASE..HEAD (2599 commits) this script records:
   sdm670_commit  12-char SHA of the matching sdm670 commit, or "-"
 
 HOW TO RUN
-    python3 make_map.py /home/anton/work/k670
+    python3 make_map.py ~/work/k670
     python3 make_map.py /path/to/k670 --out analysis/upstream-map/upstream-map.tsv
 
 The kernel path is argument 1. Optional flags:
@@ -141,7 +141,7 @@ def tsv_field(text):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="K1 upstream-origin map")
-    ap.add_argument("kernel", help="path to the read-only kernel repo, e.g. /home/anton/work/k670")
+    ap.add_argument("kernel", help="path to the read-only kernel repo, e.g. ~/work/k670")
     ap.add_argument("--base", default=DEFAULT_BASE)
     ap.add_argument("--head", default=DEFAULT_HEAD)
     ap.add_argument("--sdm", default=DEFAULT_SDM)

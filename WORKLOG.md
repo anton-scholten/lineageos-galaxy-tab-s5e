@@ -692,7 +692,7 @@ first.
   Upstream `hardware/lineage/compat` @ `8a4285c` shims `broadcastWifiDisplayAudioIntent`, but our `libwfdservice.so` doesn't link the shim.
   Fix later as P8: re-extract with an `add_needed` fixup, which needs a vendor fork, or drop WFD.
 - **Device fork `lineage-23.2` fast-forwarded `e3ccc92` → `d154fb4384fb`.** Pins updated in CLAUDE, REPO-SETUP, AGENT-TASKS, BUILD-HANDOFF and the manifest comment.
-- Merged `lead/2026-10-04-drive`, `agent/P6` and `lead/2026-10-05`. Fixed a broken STATUS row, and changed `/home/anton/` to `~/`.
+- Merged `lead/2026-10-04-drive`, `agent/P6` and `lead/2026-10-05`. Fixed a broken STATUS row, and replaced absolute home paths with `~/`.
 - **README rewritten:**
   - current status (kernel ported and building, Wi-Fi ROM built, not booted);
   - a prior-work credits table;
