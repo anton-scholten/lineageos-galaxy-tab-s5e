@@ -1,21 +1,29 @@
-# LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
+# Unofficial LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
 
-Unofficial port of LineageOS 23.2 (Android 16) to the Samsung Galaxy Tab S5e. Officially, LineageOS supports these
-tablets only up to **22.2** (Android 15). Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern
-eBPF), so this port is two things: a **kernel backport** (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits)
-and a **full ROM** (device tree, blobs and fixes for Android 16).
+> This README is AI text so there may be errors.  
+> Human TL;DR:  
+> If your tablet has LineageOS 22.2 then follow the official LineageOS installation steps but use the provided Recovery and ROM in the latest release of this repo.
+> 1. Backup the data on your tablet and remove your Google account from it.
+> 2. Boot into Download mode
+> 3. Flash the correct 23.2 recovery for your tablet
+> 4. Boot into recovery, check it says 23.2.
+> 5. Select on the tablet "Apply update", "Apply from ADB", and sideload the correct ROM for your tablet using your PC.
+> 6. Flash MindTheGapps at this time if you want them.
+> 7. Reboot and you should be good.
 
-## Status (2026-10-07)
+Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
+This port has two parts: a **kernel backport** (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a **full ROM** (device tree, blobs and fixes for Android 16).
+
+## Status (2026-10-08)
 
 | Model | State |
 |---|---|
-| **SM-T720 / T720N** (Wi-Fi, `gts4lvwifi`) | ✅ **Works.** Daily-driver testing on the developer's SM-T720 |
-| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | 🔨 **Built (2026-10-07), untested** — no LTE tablet available. Testers wanted |
+| **SM-T720 / T720N** (Wi-Fi, `gts4lvwifi`) | ✅ **Works.** |
+| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | 🔨 **Built (2026-10-08), untested** (I don't have an LTE tablet) |
 
-**Tested working on SM-T720:** boot, Wi-Fi, Wi-Fi hotspot/tethering, per-app data usage (eBPF), audio, microphone,
-camera, Google Apps (MindTheGapps), low-memory killer (PSI).
-**Fixed in the build, not yet tested:** screen casting (Miracast).
-**Not available:** ANT+. LTE builds: no VoLTE/VoWiFi (calls fall back to 2G/3G).
+**Works on SM-T720:** pretty much everything.  
+**No tested:** screen casting (Miracast).  
+**Not working:** ANT+. LTE builds: no VoLTE/VoWiFi (calls fall back to 2G/3G).
 
 | Part | Source |
 |---|---|
@@ -23,7 +31,7 @@ camera, Google Apps (MindTheGapps), low-memory killer (PSI).
 | Device tree | [android_device_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2) |
 | Blobs | [proprietary_vendor_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common/tree/lineage-23.2) (TheMuppets' 22.2 blobs + one patched Wi-Fi Display library) |
 
-**There is no public download yet.** Until a release is announced, use official LineageOS 22.2 for daily use.
+**There is no official public download yet.** Until a release is announced, use official LineageOS 22.2 for daily use (unless you really want Android 16, then use this repo).
 Progress: [HANDOVER.md](HANDOVER.md).
 
 > ⚠️ **`/metadata` on OMR.** Android 16 needs a `/metadata` partition, which this tablet doesn't have. Like official
@@ -31,198 +39,51 @@ Progress: [HANDOVER.md](HANDOVER.md).
 > The 23.2 recovery's *Format data* formats it for you, so follow the install steps exactly.
 > Going back to stock firmware with Odin/samloader restores OMR.
 
-## Prior work this port is built on
+## Prior work used
 
-None of this would be possible without these projects. Full survey: [PRIOR-WORK.md](PRIOR-WORK.md).
+Big thanks to all the following:
 
 | Project | Author | What we used |
 |---|---|---|
-| [ExyHyperBrick/android_kernel_samsung_exynos9810](https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810) | Mathias Gluszczynski (krazey) | **The kernel backport.** Its `lineage-22.2..lineage-23.2` series (Galaxy S9, also Linux 4.9.337) was cherry-picked with `-x`, keeping every original author. Backup: [our fork](https://github.com/anton-scholten/android_kernel_samsung_exynos9810) |
+| [ExyHyperBrick/android_kernel_samsung_exynos9810](https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810) | Mathias Gluszczynski (krazey) | **The kernel backport.** Its `lineage-22.2..lineage-23.2` series (for Galaxy S9 on Linux 4.9.337) was cherry-picked with `-x`, keeping every original author. [(fork as backup)](https://github.com/anton-scholten/android_kernel_samsung_exynos9810) |
 | [ExyHyperBrick/android_device_samsung_exynos9810-common](https://github.com/ExyHyperBrick/android_device_samsung_exynos9810-common) | krazey | Reference for the 4.9-specific 23.2 device changes, e.g. `ro.bpf.kver_override=5.15.178` |
-| [LineageOS gts4lv trees](https://github.com/LineageOS/android_device_samsung_gts4lv-common) (`gts4lv-common`, `gts4lv`, `gts4lvwifi`) and [kernel](https://github.com/LineageOS/android_kernel_samsung_sdm670) | LineageOS maintainers | The 22.2 base that our forks start from |
-| [LineageOS sm7125-common](https://github.com/LineageOS/android_device_samsung_sm7125-common) and [sm7125 kernel](https://github.com/LineageOS/android_kernel_samsung_sm7125) | LineageOS (basamaryan and others) | Reference for the official Samsung Qualcomm 22.2 → 23.2 changes |
+| [LineageOS gts4lv trees](https://github.com/LineageOS/android_device_samsung_gts4lv-common) (`gts4lv-common`, `gts4lv`, `gts4lvwifi`) and [kernel](https://github.com/LineageOS/android_kernel_samsung_sdm670) | LineageOS maintainers | The 22.2 base |
+| [LineageOS sm7125-common](https://github.com/LineageOS/android_device_samsung_sm7125-common) and [sm7125 kernel](https://github.com/LineageOS/android_kernel_samsung_sm7125) | LineageOS (basamaryan and others) | Reference for official Samsung Qualcomm 22.2 to 23.2 changes |
 | [LineageOS hardware/samsung](https://github.com/LineageOS/android_hardware_samsung) | LineageOS | Samsung HALs (used as-is, `lineage-23.2`) |
 | [TheMuppets vendor blobs](https://github.com/TheMuppets/proprietary_vendor_samsung_gts4lv-common) | TheMuppets | Proprietary Samsung/Qualcomm files. Forked; one library (`libwfdservice.so`) patched to load our shim |
-| [LineageOS exynos9820-common](https://github.com/LineageOS/android_device_samsung_exynos9820-common/commit/b6a153f436c88d8ef73a24d711a8db5cd7500b4e) | Tim Zimmermann (Linux4) | Precedent for using Samsung's OMR partition as `/metadata` |
+| [LineageOS exynos9820-common](https://github.com/LineageOS/android_device_samsung_exynos9820-common/commit/b6a153f436c88d8ef73a24d711a8db5cd7500b4e) | Tim Zimmermann (Linux4) | Idea to use Samsung's OMR partition as `/metadata` |
 | [LineageOS hardware/lineage/compat](https://github.com/LineageOS/android_hardware_lineage_compat) | LineageOS | The existing `libwfdservice_shim`; ours covers the newer blob |
-| [luk1337/gts4lv-fw](https://github.com/luk1337/gts4lv-fw/releases) | luk1337 | Stock Android 11 firmware images for the install steps |
+| [luk1337/gts4lv-fw](https://github.com/luk1337/gts4lv-fw/releases) | luk1337 | Stock Android 11 firmware images for the install steps (and big thanks for keeping the tablet updated all these years to 22.2 !) |
 | [Doze-off/fuck-bpf](https://github.com/Doze-off/fuck-bpf), [duckyduckG 4.19 kernel](https://github.com/duckyduckG/android_kernel_xiaomi_sdm845_419) | | Studied as alternatives; not used |
 
 Licences: kernel GPL-2.0 (full source in the kernel fork), device trees Apache-2.0.
-
-## Which models?
-
-All models share the SDM670 chip and one kernel. Find your model number on the back, or under *Settings → About tablet*.
-
-| Model | Type | Codename | Latest stock firmware (Android 11) |
-|---|---|---|---|
-| SM-T720 | Wi-Fi (global/US) | `gts4lvwifi` | T720XXS3DWA1 |
-| SM-T720N | Wi-Fi (Korea) | `gts4lvwifi` | latest Android 11 for T720N |
-| SM-T725 | LTE (global) | `gts4lv` | T725XXS3DWA1 |
-| SM-T725C | LTE (China) | `gts4lv` | T725CZCS3DWA1 |
-| SM-T725N | LTE (Korea) | `gts4lv` | T725NKOS3DWA1 |
-| SM-T727 | LTE (T727 / U / V / R4) | `gts4lv` | T727JXS3DWA1 / T727UUES4DVI1 / T727VVRS4DVI3 / T727R4TYS4DVI2 |
-
-> ⚠️ **US carrier models (SM-T727U/V/R4/A)** often have no *OEM unlock* switch. If *Developer options* has none,
-> LineageOS can't be installed. For the SM-T727V there is an unchecked
-> [XDA conversion guide](https://xdaforums.com/t/guide-convert-sm-t727v-to-sm-t725-unlock-bootloader-install-lineageos-22-2.4760328/post-90293075). It is risky.
-
-**Wi-Fi vs LTE: the only differences**
-
-| | Wi-Fi (`gts4lvwifi`) | LTE (`gts4lv`) |
-|---|---|---|
-| Status | ✅ Works | 🔨 Built, untested |
-| Files | `…-gts4lvwifi.zip`, its `recovery.img`, `vbmeta.img` | `…-gts4lv.zip`, its `recovery.img`, `vbmeta.img`. ⚠️ **Never mix codenames**: the wrong recovery may not boot |
-| Stock firmware update (only if needed) | `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5` | Add the modem: `… --CP CP_*.tar.md5`. Use **your exact model's** firmware: CP is region-specific |
-| Google Apps (only if you had them) | [MindTheGapps 16.0.0 **ARM64**](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) — sideloaded **in recovery, before the first reboot** | Same file. These 23.2 builds are arm64 |
-| After install | | Data and SMS work. Calls fall back to 2G/3G (no VoLTE), which may fail where those networks are off |
-
-Firmware: <https://github.com/luk1337/gts4lv-fw/releases> (T720, T725, T725C, T725N, T727). Other models: take the stock OTA before unlocking.
 
 ---
 
 ## Install / upgrade
 
-> ⚠️ Flashing can brick the tablet and voids the warranty. Unlocking trips Knox for good: Samsung Pay, Secure Folder
-> and Samsung Health stop working, even back on stock.
+**You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for your device (wifi or LTE).
 
-**Pick your path:**
+Follow the official LineageOS install guide for your model, with these changes:
+[Wi-Fi (`gts4lvwifi`)](https://wiki.lineageos.org/devices/gts4lvwifi/install/) ·
+[LTE (`gts4lv`)](https://wiki.lineageos.org/devices/gts4lv/install/).
 
-| You are on | Go to | Data |
-|---|---|---|
-| Samsung stock (One UI) | **Path A** | ⚠️ **Always erased** |
-| Official LineageOS 22.2 | **Path B** | ⚠️ **Erased** (23.2 builds here are unofficial, signed with other keys) |
-| Your own 22.2 build, same signing keys as your 23.2 build | **Path B**, keep-data option | Kept (back up anyway) |
-| LineageOS 22.2 **with Google Apps** | **Path B**, incl. the MindTheGapps step | ⚠️ **Erased**, and you must reinstall GApps |
+| Step in the official guide | Do this instead |
+|---|---|
+| Download files | Take the ROM zip, `recovery-*.img` and `vbmeta-*.img` for **your codename** from the [latest release](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/latest). Never mix Wi-Fi and LTE files |
+| Flash recovery | Flash **our 23.2 recovery**. The 22.2 recovery can't install 23.2. Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest) (`samloader flash --partition RECOVERY recovery-*.img --no-reboot`) all work |
+| Factory reset | **Required**, also when coming from official 22.2 (different signing keys). ⚠️ Erases all data. It also formats `/metadata` (the OMR partition), which Android 16 needs |
+| Install Google Apps | Use [MindTheGapps **16.0.0** arm64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest), sideloaded before the first boot |
+| Sideload | *"Signature verification failed"* is expected: answer *Yes*. Stopping at 47% with `adb: failed to read command: Success` is normal |
 
-**You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for **your codename**
-(see the table above).
+Coming from Samsung stock: do the official guide's unlock and `vbmeta` steps first (with our `vbmeta-*.img`). Coming from
+LineageOS 22.2: skip them. First boot can take up to 15 minutes.
 
-### Install the tools
+**Stuck in Download mode?** Unplug USB, hold *Vol Down + Power* until the screen goes black, then immediately hold
+*Vol Up + Power* to enter recovery. With USB plugged in, the buttons land you in Download mode again.
 
-**Debian / Ubuntu:**
-
-```bash
-sudo apt install -y adb fastboot usbutils
-```
-
-`samloader` is **only needed if a path below tells you to flash the recovery or vbmeta yourself** — not for a plain
-sideload. It is a standalone Rust binary, **not** a pip or apt package. Download and unpack it:
-
-```bash
-mkdir -p ~/bin && cd ~/bin
-curl -LO https://github.com/topjohnwu/samloader-rs/releases/download/2.2.0/samloader-v2.2.0-linux-x86_64.zip
-unzip -o samloader-v2.2.0-linux-x86_64.zip && chmod +x samloader
-export PATH="$HOME/bin:$PATH"      # so you can just type "samloader"
-```
-
-Grab the `linux-x86_64` build (3.4 MB) on an ordinary PC; there are also `linux-aarch64`, `macos-universal`,
-`windows-x86_64` and `windows-aarch64` builds. Newer versions are listed on the
-[releases page](https://github.com/topjohnwu/samloader-rs/releases/latest).
-
-**Heimdroid is not an alternative** — it is not in Debian and also needs Java installed. **Odin is Windows-only.**
-And `fastboot` from the `fastboot` package **does not work on Samsung**: the bootloader speaks Samsung's own
-Download Mode protocol, which is the entire reason samloader, heimdroid and Odin exist.
-
-**Buttons:** Download mode = power off, plug in USB, hold *Vol Up + Vol Down + Power*. Recovery = power off, hold *Vol Up + Power*.
-
-### Back up first (all paths)
-
-1. Files: `adb pull /sdcard/ ./tablet-backup/`, or copy them over USB.
-2. Apps: Smart Switch or Google backup on stock; *Settings → System → Backup* (Seedvault) on LineageOS.
-3. Have your Google password and 2FA codes ready.
-4. ⚠️ **Remove all Google accounts from the tablet first** (or be ready to enter them during setup). After a
-   factory reset, Factory Reset Protection locks the setup wizard behind the previous account's credentials.
-   This is in the official install guide's basic requirements and it is the most common cause of a stuck setup.
-
-### Path A: from Samsung stock
-
-> **Recommended:** do Path A with the **official 22.2** files (links at the end of this section), check that 22.2
-> works, then do Path B. That way you know the unlock and the firmware are fine before trying an unofficial build.
-
-1. **Update stock to the latest Android 11:** *Settings → Software update*. Data kept.
-   LTE: this also updates the modem (CP) firmware, which LTE needs.
-2. **Unlock the bootloader.** ⚠️ **Erases all data.**
-   1. Connect to Wi-Fi. Tap *Settings → About tablet → Software information → Build number* 7×.
-   2. *Developer options → OEM unlock*: on.
-   3. Boot to Download mode, choose *Device unlock mode*, confirm. The tablet wipes itself.
-   4. Set it up again, re-enable Developer options, check *OEM unlock* is still on.
-3. **Disable verified boot.** ⚠️ **Forces another factory reset.**
-   In Download mode: `samloader flash --partition VBMETA vbmeta.img`, then accept the reset.
-4. **Flash the 23.2 recovery** (the `recovery.img` released **with** the zip you install). In Download mode:
-   `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   When the transfer finishes, the screen keeps saying *Downloading…*. That is normal.
-   **Unplug USB**, hold *Vol Down + Power* until the screen goes black, release, then go **straight** to recovery with
-   *Vol Up + Power*. If stock boots first, it overwrites the recovery: repeat this step.
-5. **Install.** ⚠️ **Erases all data.**
-   1. Recovery: *Factory reset → Format data / factory reset*. This also formats `/metadata` (OMR).
-   2. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`. Answer *Yes* if it says
-      *"Signature verification failed"*.
-   3. Optional: *Apply update → Apply from ADB* again and sideload
-      [MindTheGapps 16.0.0 ARM64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) now, before the first boot.
-      Adding them later needs another wipe.
-6. *Reboot system now*. First boot can take up to 15 min. Restore your backup.
-
-To install official 22.2 instead, use the same steps with the files from
-<https://download.lineageos.org/devices/gts4lvwifi> (Wi-Fi) or <https://download.lineageos.org/devices/gts4lv> (LTE).
-
-### Path B: from LineageOS 22.2
-
-The built-in Updater can't do a major upgrade, so you sideload. The Samsung firmware is already right; don't touch it.
-
-⚠️ **Coming from official 22.2, your data will be erased.** Official builds use LineageOS's keys and these builds don't.
-Android won't boot the old data. Keeping data is only possible between builds signed with the same keys, **and** with
-the same GApps state (had GApps → sideload Android 16 GApps; had none → add none).
-
-1. Update 22.2 to its last build (*Settings → System → Updater*) and back up.
-2. Enable *Developer options → USB debugging*, then run `adb -d reboot download`.
-3. **Flash the 23.2 recovery. This is required:** the 22.2 recovery **can't** install 23.2. Android 16's installer needs a
-   kernel feature (`MADV_WIPEONFORK`) that 22.2's kernel lacks, so it aborts with *"killed by signal 6"*.
-   Take the `recovery.img` released **with** the zip, then `samloader flash --partition RECOVERY recovery.img --no-reboot`.
-   **Unplug USB**, hold *Vol Down + Power* until black, release, then *Vol Up + Power*. Check it says **version 23.2**.
-   - `vbmeta` was already done when you unlocked for 22.2. Don't flash it again.
-4. **Wipe.** ⚠️ **Erases all data.** *Factory reset → Format data / factory reset*. This also formats `/metadata`
-   (the OMR partition), which 23.2 needs.
-   - Same-keys, same-GApps case only (data kept): skip the wipe, but format OMR **once** instead, from recovery with
-     *Advanced → Enable ADB*, then `adb shell mke2fs -t ext4 /dev/block/by-name/omr`. Without `/metadata`, Android 16
-     loops on the boot animation.
-5. *Apply update → Apply from ADB*, then `adb -d sideload lineage-23.2-*.zip`.
-6. **If you had Google Apps, reinstall them — in recovery, before the first reboot.**
-   Still in recovery after step 5, *Apply update → Apply from ADB*:
-   [MindTheGapps for LineageOS 23 / Android 16, ARM64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest).
-   *"Signature verification failed"* is normal here: choose *Yes*.
-
-   ⚠️ **Do not reboot into the new LineageOS before the GApps are in.** The LineageOS wiki is explicit: reboot
-   first and you must factory reset and install them again, otherwise expect crashes.
-
-   If you had **no** Google Apps before, skip this and add none later — the two states have to match.
-7. *Reboot system now*. The official guide allows up to **15 minutes** for the first boot. If it takes longer, something is wrong. Collect logs ([TESTING.md](TESTING.md)).
-   ⚠️ `adb sideload` stopping at **47%** with `adb: failed to read command: Success` is **normal** and still
-   succeeds — that is a known quirk, not a failure.
-
-**Bootloop or boot-animation loop?** Collect logs first ([TESTING.md](TESTING.md): `/proc/last_kmsg` from recovery). Then boot
-to recovery, ⚠️ *Factory reset → Format data* (**erases all data**), and sideload the zip again.
-
-**Back to 22.2?** Path A, steps 4–6 with the 22.2 files. ⚠️ Downgrading always erases data.
-
-### Stuck in Download mode?
-
-Download mode shows a blue/cyan screen with *"Downloading… Do not turn off target"*. It's harmless: nothing is being written unless a PC tool is flashing.
-
-1. **Unplug the USB cable.** Download mode is *Vol Up + Vol Down + Power* **with USB plugged in**. When you slide from
-   *Vol Down* to *Vol Up* with the cable still in, you are briefly holding all three buttons, so you land straight back in Download mode.
-2. Hold *Vol Down + Power* for 8–10 s until the screen goes black. **Release immediately.**
-3. Then either:
-   - do nothing, and the tablet boots the installed system; or
-   - press *Vol Up + Power* right away (only those two, USB still unplugged) to boot recovery.
-     Release when the logo appears.
-4. If it keeps coming back to Download mode on its own, read the small text at the top-left and any **red** text
-   (for example *"SECURE CHECK FAIL: recovery"*). Report it. Also tell whether the screen says **"Upload mode"** or
-   **"RAMDUMP"** rather than *Downloading*: that means a kernel crash, not a flashing problem.
-   To get back to a working state, flash the **22.2** `recovery.img` from
-   <https://download.lineageos.org/devices/gts4lvwifi> (LTE: `gts4lv`) with
-   `samloader flash --partition RECOVERY recovery.img --no-reboot`. Then repeat steps 1–3.
-
+**Boot loop?** Get logs from recovery first (`adb shell cat /proc/last_kmsg`, see [TESTING.md](TESTING.md)) and report them.
+Then ⚠️ *Format data* and sideload again, or go back to 22.2 by flashing its recovery and zip (always erases data).
 
 ---
 
