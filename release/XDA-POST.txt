@@ -1,127 +1,131 @@
-TITLE:
-[ROM][UNOFFICIAL][16][gts4lvwifi][gts4lv] LineageOS 23.2 + 4.9 eBPF kernel backport for Galaxy Tab S5e (SM-T720/T725/T727)
+[SIZE=4]Unofficial LineageOS 23.2 (Android 16) build for the Samsung Galaxy Tab S5e[/SIZE]
 
-BODY (XDA BBCode, paste as-is; the download link points to the GitHub release; publish it first):
+[SIZE=3]SM-T720 / T720N (gts4lvwifi) · SM-T725 / T725C / T725N / T727* (gts4lv)[/SIZE]
 
-[CENTER][SIZE=6][B]LineageOS 23.2 (Android 16)[/B][/SIZE]
-[SIZE=4]Unofficial build for the Samsung Galaxy Tab S5e[/SIZE]
-[SIZE=3]SM-T720 / T720N (gts4lvwifi) · SM-T725 / T725C / T725N / T727* (gts4lv)[/SIZE][/CENTER]
 
-[CODE]
-/*
- * Your warranty is now void. Unlocking trips Knox permanently.
- *
- * I am not responsible for bricked devices, dead SD cards,
- * thermonuclear war, or you getting fired because the alarm app failed.
- * Please do some research if you have any concerns about features
- * included in this ROM before flashing it! YOU are choosing to make
- * these modifications, and if you point the finger at me for messing
- * up your device, I will laugh at you.
- */
-[/CODE]
+Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
 
-[SIZE=5][B]What is this?[/B][/SIZE]
-Official LineageOS support for the Tab S5e ends at 22.2 (Android 15). Android 16 needs kernel features that the tablet's Linux 4.9 kernel doesn't have, above all a modern eBPF stack: netd and the network stack won't start without it.
+This port has two parts: a [B]kernel backport[/B] (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a [B]full ROM[/B] (device tree, blobs and fixes for Android 16).
 
-This project is two things:
-[LIST]
-[*][B]A kernel backport.[/B] The ExyHyperBrick 4.9 eBPF series by krazey (built for the Galaxy S9) is ported onto the Tab S5e (SDM670) kernel: about 2,450 commits, cherry-picked with every original author kept. It brings eBPF up to the Linux 5.15 level, plus close_range, epoll_pwait2, FUSE-BPF, userfaultfd, uclamp and PSI. It also adds one fix of our own: SELinux policy loading for msm-4.9 kernels running Android 16 policy.
-[*][B]A full ROM.[/B] The LineageOS 23.2 device tree adapted for Android 16: cgroup setup for a uclamp kernel, lmkd on PSI, Samsung's unused OMR partition as /metadata (needed for Android 16's feature-flag storage, the same approach official LineageOS uses on the Galaxy S10), uclamp power hints, and a shim that brings back screen casting.
-[/LIST]
-This is an [B]unofficial[/B] build. It is not supported by the LineageOS team, so please don't report its bugs to them.
+This is an [B]unofficial[/B] build made with AI to speed up the process.
+
+It is not supported by the LineageOS team, so please don't report its bugs to them.
+
 
 [SIZE=5][B]Status[/B][/SIZE]
+
 [LIST]
-[*][B]SM-T720 (Wi-Fi):[/B] ✅ Works. In daily use on my own tablet.
-[*][B]SM-T725 / T727 (LTE):[/B] 🔨 Built, but [B]untested[/B]. I don't own an LTE tablet. [B]Testers wanted[/B] (see below).
+
+[*][B]SM-T720 (Wi-Fi):[/B] ✅ Works on my own tablet, no bugs so far.
+
+[*][B]SM-T725 / T727 (LTE):[/B] 🔨 Built, but [B]untested[/B]. I don't have an LTE tablet. Let me know if you have bugs.
+
 [/LIST]
 
-[SIZE=5][B]What works (SM-T720)[/B][/SIZE]
-[LIST]
-[*]Boot, Wi-Fi, Wi-Fi hotspot / tethering
-[*]Per-app data usage and app network restrictions (eBPF)
-[*]Audio, speakers, microphone
-[*]Cameras
-[*]Google Apps (MindTheGapps)
-[*]Low-memory killer (lmkd with PSI)
-[/LIST]
 
 [SIZE=5][B]Known issues[/B][/SIZE]
+
 [LIST]
+
 [*]Screen casting (Miracast): fixed in the build, not yet confirmed on a receiver.
+
 [*]ANT+ is not available.
+
 [*]LTE models: no VoLTE / VoWiFi. Calls fall back to 2G/3G.
-[*]Battery-usage wakelock statistics are incomplete (an SELinux label is still missing). Sleep itself works.
-[*]You tell me!
+
+[*]Battery-usage wakelock statistics are incomplete (an SELinux label is still missing) and sleep works.
+
 [/LIST]
 
-[SIZE=5][B]Requirements[/B][/SIZE]
-[LIST]
-[*]Unlocked bootloader (OEM unlock). Most US carrier models (T727U/V/R4/A) can't be unlocked.
-[*]Latest stock Android 11 firmware flashed at least once (LTE: including the modem/CP).
-[*]A PC with adb, and [URL='https://github.com/topjohnwu/samloader-rs/releases/latest']samloader[/URL] (or Odin) to flash the recovery.
-[/LIST]
 
 [SIZE=5][B]Installation[/B][/SIZE]
+
 ⚠️ [B]A clean install is required. This erases all data on the tablet.[/B] Back up first, and remove your Google account from the tablet (Factory Reset Protection).
+
 [LIST=1]
+
 [*]Coming from Samsung stock: unlock the bootloader and flash vbmeta first, exactly as in the [URL='https://wiki.lineageos.org/devices/gts4lvwifi/install/']official install guide[/URL]. Coming from LineageOS 22.2: just continue below.
-[*]Boot into Download mode and flash the [B]23.2 recovery from this release[/B]:
+
+[*]Boot into Download mode and flash the [B]23.2 recovery from this release[/B] because 22.2 recovery can't install the 23.2 ROM:
+
 [CODE]samloader flash --partition RECOVERY recovery.img --no-reboot[/CODE]
-The 22.2 recovery can't install 23.2.
+
 [*]Unplug USB, hold Vol Down + Power until the screen goes black, then immediately hold Vol Up + Power to boot into recovery. Check that it says 23.2.
+
 [*][B]Factory reset → Format data / factory reset.[/B] This also formats /metadata (OMR). Don't skip it.
+
 [*]Apply update → Apply from ADB:
+
 [CODE]adb -d sideload lineage-23.2-XXXXXXXX-UNOFFICIAL-gts4lvwifi.zip[/CODE]
+
 Answer "Yes" if it says signature verification failed. Stopping at 47% with "adb: failed to read command: Success" is normal.
+
 [*]Optional, Google Apps: Apply update → Apply from ADB again, then sideload [URL='https://github.com/MindTheGapps/16.0.0-arm64/releases/latest']MindTheGapps 16.0.0 arm64[/URL] [B]before the first boot[/B].
+
 [*]Reboot system now. The first boot can take up to 15 minutes.
+
 [/LIST]
+
 [B]Never mix codenames:[/B] gts4lvwifi files are for SM-T720/T720N only, gts4lv files for the LTE models only.
 
-[SIZE=5][B]LTE testers wanted[/B][/SIZE]
-If you have an SM-T725/T727 and are willing to test, please first boot into any LineageOS recovery and run:
-[CODE]adb shell ls -l /dev/block/by-name/omr[/CODE]
-Post the output here. If the partition exists, the gts4lv build should install the same way. Report calls, SMS and mobile data. Logs help a lot: [I]adb logcat -b all -d[/I], and from recovery [I]adb shell cat /proc/last_kmsg[/I].
-
-[SIZE=5][B]Reporting bugs[/B][/SIZE]
-Please include your model, the build date, what you did, and logs ([I]adb logcat -b all -d[/I]; for boot problems, [I]/proc/last_kmsg[/I] read from recovery). Reports without logs are hard to act on.
 
 [SIZE=5][B]Downloads[/B][/SIZE]
+
 [LIST]
+
 [*]Wi-Fi (gts4lvwifi) and LTE (gts4lv, untested): [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/tag/v23.2-20261008[/URL] (zip, recovery.img, vbmeta.img, SHA256SUMS)
+
 [*]MindTheGapps (optional): [URL]https://github.com/MindTheGapps/16.0.0-arm64/releases/latest[/URL]
+
 [*]Stock firmware: [URL]https://github.com/luk1337/gts4lv-fw/releases[/URL]
+
 [/LIST]
+
 
 [SIZE=5][B]Sources[/B][/SIZE]
+
 [LIST]
+
 [*]Kernel (GPL-2.0): [URL]https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2[/URL]
+
 [*]Device tree: [URL]https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2[/URL]
+
 [*]Vendor blobs: [URL]https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common/tree/lineage-23.2[/URL]
+
 [*]Project notes, build manifests and install guide: [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e[/URL]
+
 [/LIST]
 
-[SIZE=5][B]Special thanks[/B][/SIZE]
+
+[SIZE=5][B]Big thanks to all the following[/B][/SIZE]
+
 [LIST]
+
 [*][B]Mathias Gluszczynski (krazey)[/B] and the [URL='https://github.com/ExyHyperBrick']ExyHyperBrick[/URL] project. The 4.9 eBPF backport this kernel is built on is their work. Without it there would be no Android 16 on this tablet.
+
 [*][B]The LineageOS team[/B] and the [B]gts4lv / gts4lvwifi maintainers[/B], for the 22.2 device trees and kernel this port starts from, and for LineageOS itself.
+
 [*][B]Tim Zimmermann (Linux4)[/B], for the OMR-as-/metadata approach on the Galaxy S10 trees.
+
 [*][B]basamaryan[/B] and the LineageOS Samsung/Qualcomm developers, for the sm7125 23.2 work and the libwfdservice shim this port extends.
+
 [*][B]TheMuppets[/B], for the proprietary blobs.
-[*][B]luk1337[/B], for the stock firmware archive.
+
+[*][B]luk1337[/B], for the stock firmware archive and maintaining 22.2.
+
 [*][B]topjohnwu[/B], for samloader-rs.
+
 [*][B]MindTheGapps[/B], for the Google Apps package.
-[*]Everyone who tests and sends logs.
+
 [/LIST]
+
 
 [SIZE=5][B]ROM information[/B][/SIZE]
-[B]Contributors:[/B] anton-scholten
+
 [B]Source code:[/B] [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e[/URL]
+
 [B]ROM OS version:[/B] Android 16
+
 [B]ROM kernel:[/B] Linux 4.9.337 (with ExyHyperBrick eBPF backport)
+
 [B]Based on:[/B] LineageOS 23.2
-[B]Version information:[/B]
-Status: Beta (Wi-Fi) / Testing (LTE)
-Created: 2026-10-07
-Last updated: 2026-10-07
