@@ -25,7 +25,7 @@ owner's tablet. Owner tests pass: Wi-Fi, hotspot, per-app data usage (eBPF), mic
 | # | Step | Who | Expected |
 |---|---|---|---|
 | 1 | Cast test (Miracast receiver, e.g. Windows "Wireless Display"); 24 h soak; heavy multitasking (lmkd); Bluetooth audio, USB file transfer, SD card, overnight battery | owner + tablet | 1–2 days |
-| 2 | **LTE build** `brunch gts4lv`: add the LTE repos to the build tree, build an untested zip for testers. Check `omr` exists on LTE models first | agent on owner's machine | 4–8 h build |
+| ~~2~~ | ~~**LTE build**~~ **done 2026-10-07** (2 h 51 m, no errors): `out/keep/lineage-23.2-20261007-UNOFFICIAL-gts4lv.zip` + `recovery-20261007-gts4lv.img`. Untested; testers must confirm `omr` exists first | done | |
 | 3 | BPF verifier selftests (krazey's corpus), needs root (Lineage root via a debug build, or `adb root` on userdebug) | agent + owner | ½ day |
 | 4 | Independent review of the 5 device commits + the vendor-fork commit (RUNBOOK prompt R) | strong model | ½ day |
 | 5 | Publish: contact krazey (kernel author) first, then an unofficial release (XDA thread, GitHub release with zip + recovery, install guide incl. ⚠️ OMR format) | owner | |

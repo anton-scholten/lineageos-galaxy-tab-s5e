@@ -10,7 +10,7 @@ and a **full ROM** (device tree, blobs and fixes for Android 16).
 | Model | State |
 |---|---|
 | **SM-T720 / T720N** (Wi-Fi, `gts4lvwifi`) | ✅ **Works.** Daily-driver testing on the developer's SM-T720 |
-| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | 🔨 **Next: first build in progress. Untested** — no LTE tablet available. Testers wanted |
+| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | 🔨 **Built (2026-10-07), untested** — no LTE tablet available. Testers wanted |
 
 **Tested working on SM-T720:** boot, Wi-Fi, Wi-Fi hotspot/tethering, per-app data usage (eBPF), audio, microphone,
 camera, Google Apps (MindTheGapps), low-memory killer (PSI).
@@ -71,7 +71,7 @@ All models share the SDM670 chip and one kernel. Find your model number on the b
 
 | | Wi-Fi (`gts4lvwifi`) | LTE (`gts4lv`) |
 |---|---|---|
-| Status | ✅ Works | 🔨 Untested (first build in progress) |
+| Status | ✅ Works | 🔨 Built, untested |
 | Files | `…-gts4lvwifi.zip`, its `recovery.img`, `vbmeta.img` | `…-gts4lv.zip`, its `recovery.img`, `vbmeta.img`. ⚠️ **Never mix codenames**: the wrong recovery may not boot |
 | Stock firmware update (only if needed) | `samloader flash --AP AP_*.tar.md5 --BL BL_*.tar.md5` | Add the modem: `… --CP CP_*.tar.md5`. Use **your exact model's** firmware: CP is region-specific |
 | Google Apps (only if you had them) | [MindTheGapps 16.0.0 **ARM64**](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) — sideloaded **in recovery, before the first reboot** | Same file. These 23.2 builds are arm64 |

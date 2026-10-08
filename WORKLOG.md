@@ -910,3 +910,15 @@ themselves, not for a plain sideload.
   device and vendor on `lineage-23.2`, stale local branches (`port/dt-2`, `port/dt-3`) deleted.
 - Branches now: kernel `lineage-22.2`/`lineage-23.2`; device `lineage-22.2`/`lineage-23.2`; vendor `lineage-22.2`/`lineage-23.2`; docs `main`.
 - HANDOVER, README and STATUS rewritten for the booting state and the next steps.
+
+## 2026-10-07: crash-log check, LTE build, README, XDA draft
+
+- Release build, 17 min uptime: crash buffer empty. Dropbox: 669 `system_server_crash`, all 09:00–12:17 (the
+  pre-/metadata boot loops), none since. ~1,000 SELinux denials, mostly `system_suspend` → `/sys/class/wakeup/*`
+  (labelled `sysfs`, should be `sysfs_wakeup`): only the wakelock stats are lost. Follow-up: genfs labels in the device sepolicy.
+- LTE: `local_manifests/gts4lv.xml` added to the build tree (official `gts4lv` device + TheMuppets blobs, `lineage-22.2`).
+  `brunch gts4lv` **completed successfully** in 2 h 51 m, no `FAILED:`. Kernel `-g500658be3c16` from `gts4lv_defconfig`;
+  `libsec-ril`, qcril init and `android.hardware.radio` are in vendor; fstab has OMR. Zip sha256 `7f582ea168c69f8c…`.
+  Kept in `out/keep/` with its recovery. **Untested** (no LTE hardware).
+- README: per-model status, `/metadata`-on-OMR install notes (the 23.2 recovery's *Format data* formats it, `wipe_data.cpp:151`),
+  credits. `release/XDA-POST.txt`: XDA thread draft.

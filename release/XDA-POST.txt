@@ -33,7 +33,7 @@ This is an [B]unofficial[/B] build. It is not supported by the LineageOS team, s
 [SIZE=5][B]Status[/B][/SIZE]
 [LIST]
 [*][B]SM-T720 (Wi-Fi):[/B] ✅ Works. In daily use on my own tablet.
-[*][B]SM-T725 / T727 (LTE):[/B] 🔨 Builds, but [B]untested[/B]. I don't own an LTE tablet. [B]Testers wanted[/B] (see below).
+[*][B]SM-T725 / T727 (LTE):[/B] 🔨 Built, but [B]untested[/B]. I don't own an LTE tablet. [B]Testers wanted[/B] (see below).
 [/LIST]
 
 [SIZE=5][B]What works (SM-T720)[/B][/SIZE]
