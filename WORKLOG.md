@@ -922,3 +922,14 @@ themselves, not for a plain sideload.
   Kept in `out/keep/` with its recovery. **Untested** (no LTE hardware).
 - README: per-model status, `/metadata`-on-OMR install notes (the 23.2 recovery's *Format data* formats it, `wipe_data.cpp:151`),
   credits. `release/XDA-POST.txt`: XDA thread draft.
+
+## 2026-10-08: SELinux + perf HAL fixes
+
+- Wakeup source paths read as root in recovery (70 sources, 33 parents). Device `lineage-23.2` @ `e7652fc`: 32 `sysfs_wakeup`
+  genfs labels; allow rules for hal_usb_qti (backlight), hal_audio_default (`/efs` search, `csc_prop`), hal_gnss_qti (`csc_prop`),
+  wcnss_service (kmsg), hal_perf_default (cgroup write). Vendor fork `lineage-23.2` @ `51de1d4`: perf HAL opcodes 0x1C/0x18/0x37
+  remapped from schedtune to `cpu.uclamp.min` / `latency_sensitive`, recorded as a blob fixup.
+- Wi-Fi build9 (no `-k 0`, so neverallow checks passed): **success**, 2 h 24 m. Zip `…-20261008-…-gts4lvwifi.zip` sha256 `6494c150ddc516c3…`.
+- ⚠️ Lesson: hard links in `out/keep/` don't protect build outputs, because the build rewrites zips in place. The kept
+  `release-p8.zip` was silently replaced by build9. `out/keep/` now holds real copies (`cp`). The superseded build isn't needed.
+- LTE build with the same fixes: `~/work/rom-build-lte2.log`.
