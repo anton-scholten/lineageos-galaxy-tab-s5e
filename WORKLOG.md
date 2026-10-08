@@ -933,3 +933,5 @@ themselves, not for a plain sideload.
 - ⚠️ Lesson: hard links in `out/keep/` don't protect build outputs, because the build rewrites zips in place. The kept
   `release-p8.zip` was silently replaced by build9. `out/keep/` now holds real copies (`cp`). The superseded build isn't needed.
 - LTE build with the same fixes: `~/work/rom-build-lte2.log`.
+- LTE build with the same fixes: **success**, 2 h 28 m, no `FAILED:`. Zip `…-20261008-…-gts4lv.zip` sha256 `3d3cfff0af48b236…`.
+  `out/keep/` = the 20261008 Wi-Fi and LTE zips + their recoveries (real copies, verified with `cmp`).
