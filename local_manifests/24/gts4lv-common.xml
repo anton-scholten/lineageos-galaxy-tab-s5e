@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Shared repos for every Galaxy Tab S5e variant (LineageOS 24.0 / Android 17).
+
+  Cut by task L5 on 2026-10-09 from local_manifests/gts4lv-common.xml (23.2).
+  Copy this file to the new tree's .repo/local_manifests/ along with gts4lvwifi.xml (Wi-Fi)
+  and/or gts4lv.xml (LTE), then run `repo sync`.
+
+  The three anton-scholten forks have a lineage-24.0 branch created by L5, each pointing at
+  the exact same commit as its lineage-23.2 (device 1188e2b, kernel 500658be, vendor 51de1d4).
+  Nothing 24-specific is on them yet: the port commits land on port/l24-dt-1 (device tree, L6).
+  The kernel is expected to need no 24.0 commits at all, see analysis/l24/review-L1-L3.md section 1.
+
+  hardware/samsung DOES have an official lineage-24.0 branch, so it moves from 23.2.
+  Warning (L1): that branch is 30 ahead / 30 behind 23.2 and 28 of those 30 commits are a rebase
+  artifact (same Change-Ids, already on 23.2). It contributes no device-tree work for us.
+-->
+<manifest>
+  <remote name="muppets" fetch="https://github.com/TheMuppets" />
+  <remote name="anton" fetch="https://github.com/anton-scholten" />
+
+  <project path="device/samsung/gts4lv-common"
+           name="android_device_samsung_gts4lv-common"
+           remote="anton" revision="lineage-24.0" />
+
+  <!-- Kernel shared by all variants. Our kver_override is 5.15.178, which already satisfies
+       every netbpfload gate on 24.0 including REQUIRE(5,15,136) (review-L1-L3.md section 1). -->
+  <project path="kernel/samsung/sdm670"
+           name="android_kernel_samsung_sdm670"
+           remote="anton" revision="lineage-24.0" />
+
+  <!-- hardware/samsung has a real lineage-24.0 branch @ 4c4e16f32a19 -->
+  <project path="hardware/samsung"
+           name="LineageOS/android_hardware_samsung"
+           remote="github" revision="lineage-24.0" />
+
+  <project path="vendor/samsung/gts4lv-common"
+           name="proprietary_vendor_samsung_gts4lv-common"
+           remote="anton" revision="lineage-24.0" />
+</manifest>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Galaxy Tab S5e LTE (SM-T725, SM-T725C, SM-T725N, SM-T727*): device-specific repos (gts4lv).
+  Use together with gts4lv-common.xml.
+
+  L5 note: LineageOS has NO lineage-24.0 branch for android_device_samsung_gts4lv
+  (nor for TheMuppets' proprietary_vendor_samsung_gts4lv), so both stay on lineage-22.2,
+  exactly as on 23.2. The 22.2 -> 24.0 delta is carried by the 23.2 device tree.
+
+  KNOWN 24.0 RISK (review-L1-L3.md section 5): this variant declares android.hardware.radio@1.4
+  (device/samsung/gts4lv/manifest.xml) and libril.so hard-depends on radio@1.4.so. FCM 7 allows
+  only 1.2 (ISap) and 1.5-6 (IRadio). No device-tree fix exists -> task L9 (strong model).
+  The Wi-Fi variant has no telephony and is unaffected.
+-->
+<manifest>
+  <project path="device/samsung/gts4lv"
+           name="LineageOS/android_device_samsung_gts4lv"
+           remote="github" revision="lineage-22.2" />
+  <project path="vendor/samsung/gts4lv"
+           name="proprietary_vendor_samsung_gts4lv"
+           remote="muppets" revision="lineage-22.2" />
+</manifest>

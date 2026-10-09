@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Galaxy Tab S5e Wi-Fi (SM-T720, SM-T720N): device-specific repos (gts4lvwifi).
+  Use together with gts4lv-common.xml.
+
+  L5 note: LineageOS has NO lineage-24.0 branch for android_device_samsung_gts4lvwifi
+  (nor for TheMuppets' proprietary_vendor_samsung_gts4lvwifi), so both stay on lineage-22.2,
+  exactly as on 23.2. The 22.2 -> 24.0 delta is carried by the 23.2 device tree.
+-->
+<manifest>
+  <project path="device/samsung/gts4lvwifi"
+           name="LineageOS/android_device_samsung_gts4lvwifi"
+           remote="github" revision="lineage-22.2" />
+  <project path="vendor/samsung/gts4lvwifi"
+           name="proprietary_vendor_samsung_gts4lvwifi"
+           remote="muppets" revision="lineage-22.2" />
+</manifest>
