@@ -978,3 +978,8 @@ themselves, not for a plain sideload.
 - `release/XDA-POST.txt` download section now points at the release tag.
 - Official LineageOS: no GitHub PRs (Gerrit only). Path: krazey → devrel@lineageos.org / gts4lv maintainer → Gerrit if accepted.
   The vendor fork never goes upstream (blob changes are `extract-files.py` fixups, as the charter requires).
+
+## 2026-10-09: LineageOS 24 feasibility study
+
+- [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md): feasible. The kernel is already ahead of what LineageOS 24.0 legacy devices
+  needed (BPF 5.15 vs 5.10); the new work is FCM 5→7, legacy libion, and Android 17 boot surprises. Wi-Fi ≈4–12 days; LTE radio 1.4 is the open risk.
