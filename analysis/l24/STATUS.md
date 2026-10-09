@@ -5,15 +5,15 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 
 | Task | State | Branch / output | Notes |
 |---|---|---|---|
-| L0 owner decision (start date, tree location) | ⬜ | HANDOVER.md | Wait for official LineageOS 24 builds |
-| L1 reference-tree changes | ⬜ | `agent/L1` → `L1.md`, `L1-changes.tsv` | |
-| L2 FCM 7 audit | ⬜ | `agent/L2` → `L2.md` | Preview 2026-10-09: gnss@1.1, soundtrigger@2.2, LTE radio@1.4 |
-| L3 Android 17 legacy-device facts | ⬜ | `agent/L3` → `L3.md` | |
-| review L1–L3 (strong) | ⬜ | `review-L1-L3.md` | Decides what L6 applies |
-| L5 branches + manifests | ⬜ | `lineage-24.0` on 3 forks, `local_manifests/24/` | |
-| L6 device-tree port | ⬜ | `port/l24-dt-1` | |
-| L4 source tree | ⬜ | `L4.md` | |
-| L7 build loop | ⬜ | `port/l24-dt-<n>` | |
+| L0 owner decision (start date, tree location) | ✅ | HANDOVER.md | Decided 2026-10-09: start now on branch tips; tree alongside 23.2 on the drive |
+| L1 reference-tree changes | ✅ | `agent/L1` @ `36ffe11` | 96 rows: 6 yes, 9 unsure, 81 no. Kernel change: no |
+| L2 FCM 7 audit | ✅ | `agent/L2` @ `4ff92c2` | 3 findings, **none break the build** (checkvintf COMPATIBLE) |
+| L3 Android 17 legacy-device facts | ✅ | `agent/L3` @ `4ed0735` | No new L6 work; watch-list for L7/L8 |
+| review L1–L3 (strong) | ✅ | `review-L1-L3.md` | L6 = 4 commits, not 7. VINTF drops withdrawn |
+| L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
+| L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
+| L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
+| L7 build loop | ⬜ | `port/l24-dt-<n>` | Blocked on L4 sync |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⬜ | | |
 | L10 testing | ⬜ | `L10.md` | |
