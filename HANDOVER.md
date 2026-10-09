@@ -20,6 +20,17 @@ owner's tablet. Owner tests pass: Wi-Fi, hotspot, per-app data usage (eBPF), mic
 | Checks | `scripts/device-checks.sh`: 5 PASS, 1 SKIP (needs root). NetBpfLoad loads all programs; 14 cgroup BPF programs attached |
 | Known gaps | Casting (P8) is fixed at build level. **On-device cast test pending.** QTI perf HAL boost opcodes still target `/dev/stune` (vendor XML, silently ignored). `process_mrelease` not ported (lmkd works with PSI). LTE model unbuilt |
 
+### Build machine layout (owner's laptop, since 2026-10-09)
+The whole 23.2 build tree is on the external USB drive (`/dev/sda`, ext4, label-less, mounted by hand at `/mnt/build`):
+`/mnt/build/lineage` = source + `.repo` + `out/` (incl. `out/keep/release-20261008/`). It appears at the usual path through a
+bind mount, so the build never sees a path change:
+```bash
+sudo mount /dev/sda /mnt/build
+sudo mount --bind /mnt/build/lineage ~/android/lineage
+```
+Neither mount is in `/etc/fstab`; redo both after every reboot. The internal disk only holds tools (`~/bin/repo`,
+`~/Downloads/samloader`) and `~/work` (logs, kernel clones). An incremental build after the move: ~54 min, only packaging steps.
+
 ## Next steps
 
 | # | Step | Who | Expected |

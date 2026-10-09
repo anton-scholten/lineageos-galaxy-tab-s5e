@@ -985,3 +985,9 @@ themselves, not for a plain sideload.
   needed (BPF 5.15 vs 5.10); the new work is FCM 5→7, legacy libion, and Android 17 boot surprises. Wi-Fi ≈4–12 days; LTE radio 1.4 is the open risk.
 - [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md): the 24 port split into tasks L0–L11 for helper agents, marked weak-OK / strong-review / strong-only / owner.
   New `scripts/fcm-check.py`: audits built HAL versions against an FCM level (23.2 builds vs level 7: gnss@1.1, soundtrigger@2.2, LTE radio@1.4).
+
+## 2026-10-09: build tree moved to the external drive
+
+- `~/android/lineage` is now a bind mount of `/mnt/build/lineage` (refreshed with `rsync -aH`, timestamps kept). `out/` moved inside it.
+  Test build (gts4lv): success, 98 packaging steps, no ninja regeneration. Dry-run rsync: 0 differences before deleting the internal copy.
+  Internal copy and the 44 GB `out.old` deleted: internal disk 96% → 42% used. Mount commands: HANDOVER "Build machine layout".
