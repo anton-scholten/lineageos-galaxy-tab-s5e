@@ -983,3 +983,5 @@ themselves, not for a plain sideload.
 
 - [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md): feasible. The kernel is already ahead of what LineageOS 24.0 legacy devices
   needed (BPF 5.15 vs 5.10); the new work is FCM 5→7, legacy libion, and Android 17 boot surprises. Wi-Fi ≈4–12 days; LTE radio 1.4 is the open risk.
+- [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md): the 24 port split into tasks L0–L11 for helper agents, marked weak-OK / strong-review / strong-only / owner.
+  New `scripts/fcm-check.py`: audits built HAL versions against an FCM level (23.2 builds vs level 7: gnss@1.1, soundtrigger@2.2, LTE radio@1.4).

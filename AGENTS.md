@@ -9,6 +9,7 @@ This repo holds **docs, analysis, reports and scripts**, not Android source code
 The owner runs the project from [RUNBOOK.md](RUNBOOK.md). That's where your prompt came from.
 
 ## Your first 5 minutes
+0. **LineageOS 24 port tasks (L0–L11)** have their own self-contained spec: [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md). If your task ID starts with `L`, read that file instead of the 23.2 sections below.
 1. **Get your task ID.** Your prompt should name it. Open tasks: **`B2`** (full ROM build, install, first-boot troubleshooting: start with [analysis/port/B2-HANDOFF.md](analysis/port/B2-HANDOFF.md)) and `P7` (boot-log triage, AGENT-TASKS.md §6c). If your prompt doesn't name one, **stop and ask**.
    Don't pick one yourself, because another agent may be doing it.
 2. Read [`AGENT-TASKS.md`](AGENT-TASKS.md):
