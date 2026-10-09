@@ -1,0 +1,169 @@
+change	date	project	subject
+LineageOS%2Fandroid_kernel_xiaomi_earth~507169	2026-10-09	LineageOS/android_kernel_xiaomi_earth	Merge remote-tracking branch 'lineage-23.2' into lineage-24.0
+LineageOS%2Fandroid_kernel_xiaomi_mt6785~507010	2026-10-08	LineageOS/android_kernel_xiaomi_mt6785	Merge remote-tracking branch 'lineage-23.2' into lineage-24.0
+LineageOS%2Fandroid_kernel_xiaomi_mt6768~507005	2026-10-08	LineageOS/android_kernel_xiaomi_mt6768	Merge remote-tracking branch 'lineage-23.2' into lineage-24.0
+LineageOS%2Fandroid_kernel_samsung_sm7325~503814	2026-10-07	LineageOS/android_kernel_samsung_sm7325	Merge remote-tracking branch 'android_kernel_qcom_sm8350/lineage-20' into lineage-24.0
+LineageOS%2Fandroid_device_samsung_sm7325-common~503771	2026-10-07	LineageOS/android_device_samsung_sm7325-common	sm7325-common: Use legacy libion implementation
+LineageOS%2Fandroid_packages_apps_Settings~506515	2026-10-07	LineageOS/android_packages_apps_Settings	Settings: Fall back to legacy network query when scan is unsupported
+LineageOS%2Fandroid_kernel_oneplus_sm8850-devicetrees~505639	2026-10-06	LineageOS/android_kernel_oneplus_sm8850-devicetrees	Merge remote-tracking branch 'sm8850-devicetrees/lineage-24.0' into HEAD
+LineageOS%2Fandroid_kernel_oneplus_sm8850-modules~505640	2026-10-06	LineageOS/android_kernel_oneplus_sm8850-modules	Merge remote-tracking branch 'sm8850-modules/lineage-24.0' into HEAD
+LineageOS%2Fandroid_kernel_qcom_sm8850-devicetrees~505628	2026-10-06	LineageOS/android_kernel_qcom_sm8850-devicetrees	Merge tag 'KERNEL.PLATFORM.5.0.r1-19800-kernel.0' of https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/devicetree into HEAD
+LineageOS%2Fandroid_kernel_qcom_sm8850-modules~505611	2026-10-06	LineageOS/android_kernel_qcom_sm8850-modules	Merge tag 'WLAN.LA.2.0.r3-10800-kaanapali.0' of https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/wlan/qcacld-3.0 into HEAD
+LineageOS%2Fandroid_kernel_samsung_sm6115~505516	2026-10-05	LineageOS/android_kernel_samsung_sm6115	Merge android_kernel_qcom_sm8250 into lineage-24.0
+LineageOS%2Fandroid_frameworks_base~505788	2026-10-05	LineageOS/android_frameworks_base	CharacterPickerDialog: Use DeviceDefault dialog style
+LineageOS%2Fandroid_device_oneplus_billie~502888	2026-10-05	LineageOS/android_device_oneplus_billie	billie: Use legacy libion implementation
+LineageOS%2Fandroid_device_samsung_sm7125-common~503782	2026-10-04	LineageOS/android_device_samsung_sm7125-common	sm7125-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_samsung_gta4l-common~503871	2026-09-29	LineageOS/android_device_samsung_gta4l-common	gta4l-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_oneplus_dre~496948	2026-09-29	LineageOS/android_device_oneplus_dre	dre: Use legacy libion implementation
+LineageOS%2Fandroid_packages_apps_Settings~505283	2026-09-28	LineageOS/android_packages_apps_Settings	Settings: Replace face enroll particle animation with progress ring
+LineageOS%2Fandroid_kernel_sony_sm8550~502795	2026-09-27	LineageOS/android_kernel_sony_sm8550	Merge remote-tracking branch 'qcom/lineage-21' into lineage-24.0
+LineageOS%2Fandroid_device_sony_sm8350-common~492980	2026-09-27	LineageOS/android_device_sony_sm8350-common	sm8350-common: Use legacy libion implementation
+LineageOS%2Fandroid_hardware_mainline_common~504807	2026-09-26	LineageOS/android_hardware_mainline_common	mainline/common: Document framework interaction paths in AGENTS.md
+LineageOS%2Fandroid_hardware_mainline_common~504505	2026-09-26	LineageOS/android_hardware_mainline_common	mainline/common: Add root AGENTS.md and shared docs/ conventions
+LineageOS%2Fandroid_device_xiaomi_gauguin~503535	2026-09-25	LineageOS/android_device_xiaomi_gauguin	gauguin: Use legacy libion implementation
+LineageOS%2Fandroid_device_xiaomi_sm8250-common~500188	2026-09-25	LineageOS/android_device_xiaomi_sm8250-common	sm8250-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_xiaomi_earth~504509	2026-09-23	LineageOS/android_device_xiaomi_earth	earth: Use legacy libion implementation
+LineageOS%2Fandroid_device_samsung_a21s-common~503252	2026-09-23	LineageOS/android_device_samsung_a21s-common	a21s-common: Switch to a shim to null SMSC
+LineageOS%2Fandroid_hardware_mainline_common~504503	2026-09-23	LineageOS/android_hardware_mainline_common	mainline/common: Update Assisted-by trailer syntax in AGENTS.md
+LineageOS%2Fandroid_device_amlogic_ne-common~504212	2026-09-21	LineageOS/android_device_amlogic_ne-common	ne: Drop legacy LMK files
+LineageOS%2Fandroid_device_xiaomi_rosemary~503122	2026-09-21	LineageOS/android_device_xiaomi_rosemary	rosemary: Use legacy libion implementation
+LineageOS%2Fandroid_system_fs_fs_mgr~496864	2026-09-20	LineageOS/android_system_fs_fs_mgr	libsnapshot: Restore dm-snapshot support
+LineageOS%2Fandroid_packages_providers_DownloadProvider~503348	2026-09-19	LineageOS/android_packages_providers_DownloadProvider	RESTRICT AUTOMERGE Fix DownloadProvider completed download security bypass
+LineageOS%2Fandroid_device_xiaomi_sm6125-common~502588	2026-09-17	LineageOS/android_device_xiaomi_sm6125-common	sm6125-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_xiaomi_sm6125-common~502587	2026-09-17	LineageOS/android_device_xiaomi_sm6125-common	sm6125-common: Set legacy gralloc flag
+LineageOS%2Fandroid_device_nothing_Spacewar~497797	2026-09-17	LineageOS/android_device_nothing_Spacewar	Spacewar: Use legacy libion implementation
+LineageOS%2Fandroid_kernel_motorola_sm8475~503077	2026-09-17	LineageOS/android_kernel_motorola_sm8475	Merge remote-tracking branch 'qcom/lineage-20' into lineage-24.0
+LineageOS%2Fandroid_device_oneplus_sm6375-common~498220	2026-09-17	LineageOS/android_device_oneplus_sm6375-common	sm6375-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_xiaomi_mt6768-common~502685	2026-09-16	LineageOS/android_device_xiaomi_mt6768-common	mt6768-common: Use legacy libion implementation
+LineageOS%2Fandroid_kernel_asus_sdm660~503049	2026-09-16	LineageOS/android_kernel_asus_sdm660	Merge branch 'lineage-20' of github.com:LineageOS/android_kernel_qcom_sdm660 into lineage-24.0
+LineageOS%2Fandroid_device_lenovo_sm8150-common~497016	2026-09-16	LineageOS/android_device_lenovo_sm8150-common	sm8150-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_asus_sdm660-common~502266	2026-09-15	LineageOS/android_device_asus_sdm660-common	sdm660-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_asus_sdm660-common~502261	2026-09-15	LineageOS/android_device_asus_sdm660-common	sdm660-common: Retrofit dynamic partitions
+LineageOS%2Fandroid_device_asus_sdm660-common~502217	2026-09-15	LineageOS/android_device_asus_sdm660-common	sdm660-common: Drop legacy ANT remnants
+LineageOS%2Fandroid_device_realme_sm6375-common~502294	2026-09-15	LineageOS/android_device_realme_sm6375-common	sm6375-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_oneplus_sm8150-common~500178	2026-09-15	LineageOS/android_device_oneplus_sm8150-common	sm8150-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_sony_sm6375-common~493329	2026-09-15	LineageOS/android_device_sony_sm6375-common	sm6375-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_sony_nile-common~499983	2026-09-14	LineageOS/android_device_sony_nile-common	nile-common: Use legacy libion implementation
+LineageOS%2Fandroid_kernel_sony_sm8450~502540	2026-09-13	LineageOS/android_kernel_sony_sm8450	Merge remote-tracking branch 'lineage/lineage-20' into lineage-23.2
+LineageOS%2Fandroid_device_asus_sake~493693	2026-09-12	LineageOS/android_device_asus_sake	sake: Use legacy libion implementation
+LineageOS%2Fandroid_build~490385	2026-09-11	LineageOS/android_build	Reland: build: Enable super image build rules depending on single super block device
+LineageOS%2Fandroid_build~490384	2026-09-11	LineageOS/android_build	Revert "Remove PRODUCT_RETROFIT_DYNAMIC_PARTITIONS."
+LineageOS%2Fandroid_build~490383	2026-09-11	LineageOS/android_build	Revert "Remove Virtual A/B Retrofit support."
+LineageOS%2Fandroid_build~490382	2026-09-11	LineageOS/android_build	Revert "Remove retrofit dynamic partition support from otatools."
+LineageOS%2Fandroid_build~490381	2026-09-11	LineageOS/android_build	Revert "remove is_retrofit_dynamic_partitions option"
+LineageOS%2Fandroid_frameworks_opt_telephony~490678	2026-09-11	LineageOS/android_frameworks_opt_telephony	EuiccCardController: Avoid NPE for legacy euicc devices
+LineageOS%2Fandroid_kernel_asus_sdm660~502050	2026-09-11	LineageOS/android_kernel_asus_sdm660	Merge branch 'lineage-20' of github.com:LineageOS/android_kernel_qcom_sdm660 into lineage-24.0
+LineageOS%2Fandroid_packages_modules_Bluetooth~497543	2026-09-10	LineageOS/android_packages_modules_Bluetooth	Treat encrypted non-SC link as downgrade if SC was previously supported.
+LineageOS%2Fandroid_frameworks_base~496008	2026-09-10	LineageOS/android_frameworks_base	SystemUI: Fix battery icon not hiding from the status bar
+LineageOS%2Fandroid_frameworks_base~491391	2026-09-10	LineageOS/android_frameworks_base	Fix external storage access with system user locked
+LineageOS%2Fandroid_frameworks_base~491377	2026-09-10	LineageOS/android_frameworks_base	UdfpsHelper: Track brightness mirror to hide/show dim layer
+LineageOS%2Fandroid_frameworks_base~491358	2026-09-10	LineageOS/android_frameworks_base	SystemUI: fix Keyguard slice
+LineageOS%2Fandroid_vendor_lineage~500253	2026-09-10	LineageOS/android_vendor_lineage	kernel: Add AOSP build-tools to inline kernel PATH
+LineageOS%2Fandroid_frameworks_base~491293	2026-09-09	LineageOS/android_frameworks_base	DozeSensors: only use proximity sensor if supported
+LineageOS%2Fandroid_device_virt_virtio-common~501449	2026-09-07	LineageOS/android_device_virt_virtio-common	virtio-common: Remove support for ranchu Audio HAL
+LineageOS%2Fandroid_hardware_mainline_common~501398	2026-09-07	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/sensors/mainline: Add the input backend
+LineageOS%2Fandroid_hardware_mainline_common~501396	2026-09-07	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/sensors/mainline: Add backend interface and shared utility libraries
+LineageOS%2Fandroid_device_mainline_qcom-common~501430	2026-09-07	LineageOS/android_device_mainline_qcom-common	mainline/qcom-common: sensors-hal_mainline: Enable composite device orientation sensor for legacy SoCs
+LineageOS%2Fandroid_device_samsung_universal9830-common~492973	2026-09-07	LineageOS/android_device_samsung_universal9830-common	universal9830: Set legacy gralloc flag
+LineageOS%2Fandroid_device_samsung_universal9830-common~492972	2026-09-07	LineageOS/android_device_samsung_universal9830-common	universal9830: Use legacy libion implementation
+LineageOS%2Fandroid_device_sony_sm8250-common~492983	2026-09-07	LineageOS/android_device_sony_sm8250-common	sm8250-common: Use legacy libion implementation
+LineageOS%2Fandroid_hardware_mainline_common~501367	2026-09-06	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/mainline: Make the bundled effect HAL opt-in
+LineageOS%2Fandroid_hardware_mainline_common~501224	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/mainline: Fix the engine configuration crash on STRATEGY_CALL_ASSISTANT
+LineageOS%2Fandroid_hardware_mainline_common~501222	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/effect/legacy: Lock in LegacyFactory::effect_count()
+LineageOS%2Fandroid_hardware_mainline_common~501221	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/effect/legacy: Spell out the vector type for Range::set
+LineageOS%2Fandroid_hardware_mainline_common~501220	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/effect/legacy: Fix reversed memcpy in LegacyParam::GetValue
+LineageOS%2Fandroid_hardware_mainline_common~501219	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/effect/legacy: Fix ScopedAStatus copy on early return
+LineageOS%2Fandroid_hardware_mainline_common~501218	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/effect/legacy: Add an AIDL wrapper for legacy effect libraries
+LineageOS%2Fandroid_hardware_mainline_common~501215	2026-09-05	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/audio/mainline: Make the bundled effect HAL optional
+LineageOS%2Fandroid_hardware_mainline_common~501021	2026-09-02	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/hwc/drmfb: Add display brightness control
+LineageOS%2Fandroid_hardware_mainline_common~500351	2026-09-02	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/hwc/drmfb: Add legacy-compatible Composer3 capabilities
+LineageOS%2Fandroid_hardware_mainline_common~500345	2026-09-02	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/hwc/drmfb: Improve drmfb compatibility
+LineageOS%2Fandroid_device_amlogic_common~500307	2026-08-30	LineageOS/android_device_amlogic_common	aml: Drop custom dtbimage and dtboimage legacy makefiles
+LineageOS%2Fandroid_frameworks_opt_telephony~490675	2026-08-30	LineageOS/android_frameworks_opt_telephony	PhoneSwitcher: Fallback to HAL_COMMAND_ALLOW_DATA when DDS switch fails
+LineageOS%2Fandroid_device_amlogic_common~500240	2026-08-30	LineageOS/android_device_amlogic_common	aml: Unset redundant TARGET_NEEDS_DTBOIMAGE flag
+LineageOS%2Fandroid_system_memory_libdmabufheap~492619	2026-08-30	LineageOS/android_system_memory_libdmabufheap	libdmabufheap: Restore ION support behind a soong config
+LineageOS%2Fandroid_device_google_redbull~499808	2026-08-30	LineageOS/android_device_google_redbull	redbull: Use legacy libion implementation
+LineageOS%2Fandroid_vendor_lineage~499713	2026-08-29	LineageOS/android_vendor_lineage	release: Update default Clang version from 22.0.1 to 22.0.2
+LineageOS%2Fandroid_device_mainline_qcom-common~497884	2026-08-29	LineageOS/android_device_mainline_qcom-common	mainline/qcom-common: Build `msm_drm_quirks` if SoC family is legacy
+LineageOS%2Fandroid_hardware_mainline_common~499557	2026-08-29	LineageOS/android_hardware_mainline_common	mainline/common: interfaces/sensors/mainline: Fix compilation issues by AI
+LineageOS%2Fandroid_device_google_sunfish~499763	2026-08-29	LineageOS/android_device_google_sunfish	sunfish: Use legacy libion implementation
+LineageOS%2Fandroid_frameworks_opt_telephony~490677	2026-08-27	LineageOS/android_frameworks_opt_telephony	Conditionally revert "Block Binder thread until incoming call process completes"
+LineageOS%2Fandroid_frameworks_opt_telephony~490674	2026-08-27	LineageOS/android_frameworks_opt_telephony	RadioMessagingProxy: Fix sending CDMA IMS SMS
+LineageOS%2Fandroid_frameworks_opt_telephony~490673	2026-08-27	LineageOS/android_frameworks_opt_telephony	Update external card state based on current app
+LineageOS%2Fandroid_packages_modules_Connectivity~490800	2026-08-27	LineageOS/android_packages_modules_Connectivity	bpf: Allow overriding kernel version
+LineageOS%2Fandroid_frameworks_native~490651	2026-08-27	LineageOS/android_frameworks_native	libui: Allow extension of valid gralloc 1.0 buffer usage bits
+LineageOS%2Fandroid_system_fs_fs_mgr~490890	2026-08-27	LineageOS/android_system_fs_fs_mgr	Revert "fs_mgr: Remove blatant references to retrofit dynamic partitions."
+LineageOS%2Fandroid_system_fs_fs_mgr~490889	2026-08-27	LineageOS/android_system_fs_fs_mgr	Revert "liblp: Remove auto slot suffixing support."
+LineageOS%2Fandroid_system_fs_fs_mgr~490888	2026-08-27	LineageOS/android_system_fs_fs_mgr	Revert "Remove Virtual A/B retrofit support."
+LineageOS%2Fandroid_system_fs_fs_mgr~490887	2026-08-27	LineageOS/android_system_fs_fs_mgr	Restore support for separate A and B super partitions.
+LineageOS%2Fandroid_system_extras~490893	2026-08-27	LineageOS/android_system_extras	Revert "lpmake: Remove --auto-slot-suffixing support."
+LineageOS%2Fandroid_system_core~490873	2026-08-27	LineageOS/android_system_core	Restore support for separate A and B super partitions.
+LineageOS%2Fandroid_system_sepolicy~490920	2026-08-27	LineageOS/android_system_sepolicy	Revert "Remove Virtual A/B Retrofit property."
+LineageOS%2Fandroid_system_update_engine~490933	2026-08-27	LineageOS/android_system_update_engine	Revert "Remove Virtual A/B retrofit support."
+LineageOS%2Fandroid_system_update_engine~490932	2026-08-27	LineageOS/android_system_update_engine	Revert "Remove references to retrofit dynamic partitions."
+LineageOS%2Fandroid_system_update_engine~490931	2026-08-27	LineageOS/android_system_update_engine	Revert "update_engine: remove is_retrofit logic"
+LineageOS%2Fandroid_system_update_engine~490930	2026-08-27	LineageOS/android_system_update_engine	Revert "Remove support for separate A and B super partitions."
+LineageOS%2Fandroid_system_core~490853	2026-08-27	LineageOS/android_system_core	reboot: Enable fastbootd by default & allow opting-out
+LineageOS%2Fandroid_system_vold~490936	2026-08-27	LineageOS/android_system_vold	vold: Enable legacy support for wrapped key
+LineageOS%2Fandroid_hardware_interfaces~492479	2026-08-27	LineageOS/android_hardware_interfaces	compatibility_matrices: Add kernel_config_t_4.14
+LineageOS%2Fandroid_hardware_interfaces~490701	2026-08-27	LineageOS/android_hardware_interfaces	cec: Don't spam "Machine is not on the network"
+LineageOS%2Fandroid_hardware_interfaces~490700	2026-08-27	LineageOS/android_hardware_interfaces	bluetooth: do not fatally error on unknown packet types
+LineageOS%2Fandroid_hardware_interfaces~490697	2026-08-27	LineageOS/android_hardware_interfaces	Camera: Remap camera IDs by property if it is defined
+LineageOS%2Fandroid_hardware_interfaces~490696	2026-08-27	LineageOS/android_hardware_interfaces	Camera: Maintain set of non-external cameras
+LineageOS%2Fandroid_packages_modules_Bluetooth~490789	2026-08-27	LineageOS/android_packages_modules_Bluetooth	Add property to disable APCF extended features
+LineageOS%2Fandroid_packages_modules_Bluetooth~490788	2026-08-27	LineageOS/android_packages_modules_Bluetooth	legacy: Split header for hci legacy definitions
+LineageOS%2Fandroid_external_dng_sdk~490572	2026-08-27	LineageOS/android_external_dng_sdk	dng_area_task: Provide backwards compatibility with legacy blobs
+LineageOS%2Fandroid_hardware_qcom_wlan~490717	2026-08-27	LineageOS/android_hardware_qcom_wlan	legacy: Build wpa_supplicant.conf from make to soong
+LineageOS%2Fandroid_hardware_qcom_wlan~490716	2026-08-27	LineageOS/android_hardware_qcom_wlan	wlan: Guard with soong namespace
+LineageOS%2Fandroid_hardware_qcom_wlan~490715	2026-08-27	LineageOS/android_hardware_qcom_wlan	Convert lib_driver_cmd_qcwcn for legacy to soong
+LineageOS%2Fandroid_hardware_qcom_wlan~490714	2026-08-27	LineageOS/android_hardware_qcom_wlan	Resolve compilation error for fib_rule_port_range with fib_rules.h
+LineageOS%2Fandroid_bionic~490428	2026-08-27	LineageOS/android_bionic	libc: libstdc++: Introduce libstdc++_vendor
+LineageOS%2Fandroid_kernel_ayn_kernel-ack~497842	2026-08-21	LineageOS/android_kernel_ayn_kernel-ack	ANDROID: ufs: Added vendor hook to control ufs threaded IRQ
+LineageOS%2Fandroid_device_google_coral~492627	2026-08-19	LineageOS/android_device_google_coral	floral: Use legacy libion implementation
+LineageOS%2Fandroid_device_xiaomi_mithorium-common~497043	2026-08-16	LineageOS/android_device_xiaomi_mithorium-common	mithorium-common: sepolicy: Kang some policies from newer qcom sepolicy dirs
+LineageOS%2Fandroid_device_xiaomi_mithorium-common~497011	2026-08-16	LineageOS/android_device_xiaomi_mithorium-common	mithorium-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_virt_vboxware~496529	2026-08-15	LineageOS/android_device_virt_vboxware	vboxware: Set legacy gralloc flag
+LineageOS%2Fandroid_external_minigbm-upstream~496322	2026-08-15	LineageOS/android_external_minigbm-upstream	minigbm-upstream: gbm_mesa: Make libgbm_mesa_wrapper available for host
+LineageOS%2Fandroid_device_mainline_generic~496741	2026-08-14	LineageOS/android_device_mainline_generic	mainline/generic: Set legacy gralloc flag
+LineageOS%2Fandroid_device_mainline_common~496373	2026-08-14	LineageOS/android_device_mainline_common	mainline/common: graphics-allocator-hal_default-hidl-2.0: Set legacy gralloc flag
+LineageOS%2Fandroid_device_samsung_sm8250-common~492777	2026-08-08	LineageOS/android_device_samsung_sm8250-common	sm8250-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_amlogic_common~495533	2026-08-06	LineageOS/android_device_amlogic_common	aml: Use legacy libion implementation
+LineageOS%2Fandroid_device_motorola_sm6225-common~493938	2026-08-06	LineageOS/android_device_motorola_sm6225-common	sm6225-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_motorola_sm6375-common~493950	2026-08-06	LineageOS/android_device_motorola_sm6375-common	sm6375-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_shift_otter~494522	2026-08-06	LineageOS/android_device_shift_otter	otter: Use legacy libion implementation
+LineageOS%2Fandroid_device_fairphone_FP5~494517	2026-08-06	LineageOS/android_device_fairphone_FP5	FP5: Use legacy libion implementation
+LineageOS%2Fandroid_device_fairphone_FP4~494513	2026-08-06	LineageOS/android_device_fairphone_FP4	FP4: Use legacy libion implementation
+LineageOS%2Fandroid_device_oneplus_sm8350-common~492781	2026-08-06	LineageOS/android_device_oneplus_sm8350-common	sm8350-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_oneplus_sm8250-common~493931	2026-08-06	LineageOS/android_device_oneplus_sm8250-common	sm8250-common: Use legacy libion implementation
+LineageOS%2Fandroid_vendor_lineage~492180	2026-08-03	LineageOS/android_vendor_lineage	lineage: config: common: Build fastbootd by default
+LineageOS%2Fandroid_device_samsung_a21s-common~494465	2026-08-01	LineageOS/android_device_samsung_a21s-common	a21s-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_samsung_a21s-common~494463	2026-08-01	LineageOS/android_device_samsung_a21s-common	a21s-common: Set legacy gralloc flag
+LineageOS%2Fandroid_device_mediatek_sepolicy_vndr~494853	2026-07-30	LineageOS/android_device_mediatek_sepolicy_vndr	base: vendor: Label additionnal mali GPU sysfs nodes
+LineageOS%2Fandroid_system_update_engine~490922	2026-07-27	LineageOS/android_system_update_engine	update_engine: Add performance mode
+LineageOS%2Fandroid_bootable_recovery~490532	2026-07-27	LineageOS/android_bootable_recovery	Program required properties for 4 layer mixer
+LineageOS%2Fandroid_bootable_recovery~490472	2026-07-27	LineageOS/android_bootable_recovery	recovery: Add runtime checks for A/B vs traditional updates
+LineageOS%2Fandroid_device_motorola_exynos9610-common~493051	2026-07-26	LineageOS/android_device_motorola_exynos9610-common	exynos9610: Use legacy libion implementation
+LineageOS%2Fandroid_device_motorola_exynos9610-common~493050	2026-07-26	LineageOS/android_device_motorola_exynos9610-common	exynos9610: Set legacy gralloc flag
+LineageOS%2Fandroid_device_nubia_TP1803~492624	2026-07-26	LineageOS/android_device_nubia_TP1803	TP1803: Use legacy libion implementation
+LineageOS%2Fandroid_device_fxtec_pro1x~492623	2026-07-26	LineageOS/android_device_fxtec_pro1x	pro1x: Use legacy libion implementation
+LineageOS%2Fandroid_device_motorola_sm8250-common~492622	2026-07-26	LineageOS/android_device_motorola_sm8250-common	sm8250-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_motorola_sm7325-common~492621	2026-07-26	LineageOS/android_device_motorola_sm7325-common	sm7325-common: Use legacy libion implementation
+LineageOS%2Fandroid_device_razer_nicole~492625	2026-07-26	LineageOS/android_device_razer_nicole	nicole: Use legacy libion implementation
+LineageOS%2Fandroid_device_osom_pyrite~492626	2026-07-26	LineageOS/android_device_osom_pyrite	pyrite: Use legacy libion implementation
+LineageOS%2Fandroid_device_osom_ingot~494153	2026-07-26	LineageOS/android_device_osom_ingot	ingot: Use legacy libion implementation
+LineageOS%2Fandroid_hardware_lineage_compat~494280	2026-07-22	LineageOS/android_hardware_lineage_compat	libgui: Shim legacy createSurface taking LayerMetadata by value
+LineageOS%2Fandroid_hardware_lineage_compat~492476	2026-07-22	LineageOS/android_hardware_lineage_compat	libaudioclient: Shim legacy AudioTrack ctor lacking opPackageName
+LineageOS%2Fandroid_hardware_lineage_compat~492195	2026-07-22	LineageOS/android_hardware_lineage_compat	libgui_shim: Add legacy createVirtualDisplay overload
+LineageOS%2Fandroid_external_e2fsprogs~490590	2026-07-13	LineageOS/android_external_e2fsprogs	e2fsck: Loosen fscrypt_policy struct size check
+LineageOS%2Fandroid~491431	2026-07-12	LineageOS/android	manifest: Remove legacy repositories
+LineageOS%2Fandroid_device_lineage_sepolicy~492606	2026-07-12	LineageOS/android_device_lineage_sepolicy	Import legacy libion policy
+LineageOS%2Fandroid_kernel_configs~492481	2026-07-11	LineageOS/android_kernel_configs	Align t/android-4.14 with t/android-4.19
+LineageOS%2Fandroid_kernel_configs~492480	2026-07-11	LineageOS/android_kernel_configs	Copy s/android-4.14 to t/android-4.14
+LineageOS%2Fandroid_vendor_qcom_opensource_display-commonsys~492676	2026-07-08	LineageOS/android_vendor_qcom_opensource_display-commonsys	display-commonsys: Define a soong namespace
+LineageOS%2Fandroid_vendor_qcom_opensource_display-commonsys-intf~492670	2026-07-08	LineageOS/android_vendor_qcom_opensource_display-commonsys-intf	display-commonsys-intf: Define a soong namespace
+LineageOS%2Fandroid_vendor_codeaurora_telephony~492663	2026-07-05	LineageOS/android_vendor_codeaurora_telephony	Add legacy {get,set}AutoReject methods for backwards compat
+LineageOS%2Fandroid_system_memory_libion~492616	2026-07-02	LineageOS/android_system_memory_libion	libion: Restore the ION implementation behind a soong config
+LineageOS%2Fandroid~491976	2026-07-02	LineageOS/android	manifest: Fork libion for legacy devices
+LineageOS%2Fandroid_device_google_atv~490566	2026-06-29	LineageOS/android_device_google_atv	products: sdk*: Enforce EPPE
+LineageOS%2Fandroid_hardware_google_pixel~491923	2026-06-29	LineageOS/android_hardware_google_pixel	pixel: Drop unused legacy bootctrl impl
+LineageOS%2Fandroid_system_bpf~490847	2026-06-29	LineageOS/android_system_bpf	bpfloader: Allow overriding kernel version
