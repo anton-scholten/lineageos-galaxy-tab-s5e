@@ -109,8 +109,10 @@ Collect facts only. The strong model decides what they mean.
 
 ### L4: source tree setup (🟢 prepares, 👤 runs)
 Prepare, but don't run, the exact commands for a `lineage-24.0` tree in `L4.md`:
-- Location decided in L0. ⚠️ The internal disk has ~19 GB free, so the new tree goes on the external drive or replaces the 23.2 tree.
-  If it replaces it, first copy `out/keep/` and the 23.2 release files elsewhere.
+- Location decided in L0. Since 2026-10-09 the 23.2 tree (source + `out/`, ~350 GB) lives on the external drive `/mnt/build/lineage`,
+  bind-mounted at `~/android/lineage` (HANDOVER.md, "Build machine layout"). The drive has ~525 GB free and the internal disk ~245 GB.
+  A 24 tree needs ~150 GB source + ~300 GB `out/`: put it at `/mnt/build/lineage-24` (bind-mount at `~/android/lineage-24`), or replace the
+  23.2 tree after copying `out/keep/release-20261008/` elsewhere. Never mix the two trees' `out/` folders.
 - `repo init -u https://github.com/LineageOS/android.git -b lineage-24.0 --git-lfs --no-clone-bundle`, copy `local_manifests/24/*.xml` (from L5), `repo sync -c -j4`.
 - `git-lfs` installed before syncing. Expected size: ~150 GB of source plus ~300 GB of `out/`.
 
@@ -127,7 +129,8 @@ Prepare, but don't run, the exact commands for a `lineage-24.0` tree in `L4.md`:
 **Self-check:** `git ls-remote` shows each new branch at the intended SHA; `xmllint --noout local_manifests/24/*.xml` passes.
 
 ### L6: device-tree port commits (🟢, 🔍 every commit)
-Branch `port/l24-dt-1` from the device fork's `lineage-24.0`. One commit per item, in this order:
+Branch `port/l24-dt-1` from the device fork's `lineage-24.0`. Apply **only** what the strong model approved in
+`analysis/l24/review-L1-L3.md`. One commit per item, in this order:
 1. `manifest.xml`: `target-level="5"` → `"7"`.
 2. Each L2 finding marked "drop" or "override" (`gnss@1.1`: remove that `fqname` via an override manifest fragment in the device tree, never by editing the blob's XML;
    `soundtrigger@2.2`: remove the block and its `PRODUCT_PACKAGES` entry. Note in the message that the hardware hotword path is lost).

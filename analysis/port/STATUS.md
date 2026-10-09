@@ -198,7 +198,7 @@ sha256  cc2c82e796e7fa3678bf8169f8c6ba7ffdedfe2e79e3e0b697b55790927a39ea
 ```
 
 All of `out/` (119 GB including this zip) is on the **removable drive** — a single bind mount of `/dev/sda[/out]`
-with no nested mounts. `out.old` (46 GB) remains on the NVMe and can be reclaimed once the ROM is confirmed good.
+with no nested mounts. `out.old` was deleted on 2026-10-09, when the whole tree moved to the drive (HANDOVER.md, "Build machine layout").
 
 ⚠️ **The zip came from `mka bacon -k 0`, not a clean `brunch`.** Ninja packaged past a failure and then exited 1.
 Contents are complete and it should flash, but it is not a from-scratch verified artifact. `confidence: medium`.

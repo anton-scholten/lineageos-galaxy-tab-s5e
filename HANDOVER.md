@@ -33,10 +33,15 @@ Neither mount is in `/etc/fstab`; redo both after every reboot. The internal dis
 
 ## Next steps
 
+**LineageOS 24:** [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md) → tasks [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md),
+run from [RUNBOOK.md](RUNBOOK.md) §9, tracked in [analysis/l24/STATUS.md](analysis/l24/STATUS.md). First step is the owner's L0.
+
+**23.2 leftovers:**
+
 | # | Step | Who | Expected |
 |---|---|---|---|
 | 1 | Cast test (Miracast receiver, e.g. Windows "Wireless Display"); 24 h soak; heavy multitasking (lmkd); Bluetooth audio, USB file transfer, SD card, overnight battery | owner + tablet | 1–2 days |
-| ~~2~~ | ~~**LTE build**~~ **done 2026-10-07** (2 h 51 m, no errors): `out/keep/lineage-23.2-20261007-UNOFFICIAL-gts4lv.zip` + `recovery-20261007-gts4lv.img`. Untested; testers must confirm `omr` exists first | done | |
+| ~~2~~ | ~~**LTE build**~~ **done 2026-10-07** (2 h 51 m, no errors): superseded by the 20261008 release files in `out/keep/release-20261008/`. Untested; testers must confirm `omr` exists first | done | |
 | 3 | BPF verifier selftests (krazey's corpus), needs root (Lineage root via a debug build, or `adb root` on userdebug) | agent + owner | ½ day |
 | 4 | Independent review of the 5 device commits + the vendor-fork commit (RUNBOOK prompt R) | strong model | ½ day |
 | 5 | Publish: contact krazey (kernel author) first, then an unofficial release (XDA thread, GitHub release with zip + recovery, install guide incl. ⚠️ OMR format) | owner | |

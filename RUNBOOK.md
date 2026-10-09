@@ -138,7 +138,7 @@ cd ~/work/dt   && git fetch origin && git push origin origin/port/dt:refs/heads/
 ```
 If GitHub refuses ("non-fast-forward"), stop and ask the strong model. Never force-push.
 
-## 8. ROM build, flash, test (you + tablet, ≈2–3 weeks)
+## 8. ✅ ROM build, flash, test (done 2026-10-08: release v23.2-20261008; kept for reference)
 ### 8a. B1: sync and first build (1 free agent on your machine: ≥300 GB disk, ≥16 GB RAM, ≈½–1 day unattended)
 Needs step 7. Worktree: `git -C ~/work/docs fetch origin && git -C ~/work/docs worktree add ~/work/wt/B1 -b agent/B1 origin/main`.
 ```text
@@ -195,6 +195,37 @@ Then fast-forward the device fork's `lineage-23.2` to `port/dt-2`, the same way 
 2. Contact krazey (ExyHyperBrick) before publishing the kernel.
 
 ---
+
+## 9. LineageOS 24 (Android 17): run the L tasks
+Spec for every task: [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md). Background: [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md).
+Progress: [analysis/l24/STATUS.md](analysis/l24/STATUS.md). Start only after **L0** (you): LineageOS 24 has official builds for a few devices, and you've
+decided where the 24 tree lives (TASKS-L24 §L4).
+
+**Worktree per task** (docs repo; one folder per agent):
+```bash
+DOCS=~/Downloads/Github_codes/lineageos-galaxy-tab-s5e
+git -C $DOCS fetch origin && git -C $DOCS worktree add ~/work/wt/<ID> -b agent/<ID> origin/main
+```
+**Prompt template for a weak agent** (replace `<ID>`; add the extra line from the table):
+```text
+You are a helper agent doing task <ID> of the LineageOS 24 port. Docs repo: ~/work/wt/<ID> (branch agent/<ID>).
+Read AGENTS.md, then analysis/l24/TASKS-L24.md section 0 and the spec for <ID>, and follow them exactly.
+Write analysis/l24/<ID>.md in the hand-in format, run the task's self-check, commit and push agent/<ID>, and stop.
+Never push to main, lineage-23.2 or lineage-24.0, never flash or wipe, never disable a check. Escalate instead.
+```
+
+| Order | Task | Extra line for the prompt | Then |
+|---|---|---|---|
+| 1 | L1, L2, L3 (3 agents in parallel) | L2: `The 23.2 outputs are in ~/android/lineage/out/target/product/.` | 🔍 prompt R: "review L1–L3, decide what applies" |
+| 2 | L5 | `Ask me before every git push and show the SHA.` | You approve each push |
+| 3 | L6 | `Use only the items prompt R approved in analysis/l24/review-L1-L3.md.` | 🔍 prompt R reviews every commit |
+| 4 | L4 | `Only write the commands; I run them.` | You run the sync (½–1 day) |
+| 5 | L7 | `Build tree: <path from L4>. Escalate every check_elf_file, kernel or neverallow error.` | 🔍 prompt R per round; 🔴 escalations go to the strong model |
+| 6 | L8 (per flash) | `Flash attempt <n>. The tablet is on USB.` | 🔴 prompt R "boot debugging: analysis/l24/boot-24-<n>.md"; back to L7 for fixes |
+| — | L9 | strong model only | — |
+| 7 | L10, then L11 | L11: `Create the release as a draft only.` | 🔍 prompt R checks the claims; you publish |
+
+`scripts/check-pins.sh` at the start of each session: a `MOVED` on the ExyHyperBrick `lineage-24.0` row means krazey started 24-specific kernel work. Tell the strong model.
 
 ## Prompt O: free-model orchestrator (optional)
 If you'd rather not run the steps yourself, a free-model session can run them, the way the round-1–3 lead did:

@@ -112,7 +112,10 @@ Needs ~300 GB disk and 16 GB+ RAM (32 GB recommended). Install `git-lfs` **befor
 
 | Path | What |
 |---|---|
-| `HANDOVER.md` | **Start here when picking the project up:** state, plan of remaining work, environment setup |
+| `HANDOVER.md` | **Start here when picking the project up:** state, plan of remaining work, build machine layout |
+| `FEASIBILITY-LINEAGE-24.md` | Feasibility study for LineageOS 24 (Android 17): reuse, new work, estimate, sources |
+| `analysis/l24/` | LineageOS 24 port: task specs for helper agents (`TASKS-L24.md`) and status |
+| `release/` | Release notes and the XDA thread post |
 | `RUNBOOK.md` | Owner's step-by-step for finishing the port with the free model: setup, order, copy-paste prompts, checks |
 | `LEAD-SYNTHESIS.md` | Findings from the helper-agent research (must-fix items, risks), reviewed |
 | `TESTING.md` | How to collect crash logs from the tablet |
@@ -132,7 +135,7 @@ Needs ~300 GB disk and 16 GB+ RAM (32 GB recommended). Install `git-lfs` **befor
 | `analysis/conflicts/` | One brief per conflicting series commit, with a proposed resolution |
 | `analysis/upstream-map/`, `api-audit/`, `defconfig/`, `rom/`, `build-test/errors/` | Helper research: upstream origin of each commit, driver API audit, defconfig fragment, ROM-side audits, first build errors |
 | `analysis/tools/` | Stacked-replay scripts for inspecting a conflict the way an in-order cherry-pick sees it |
-| `scripts/` | `check-agent-output.sh` (report format), `check-pins.sh` (pinned commits), `device-checks.sh` (on-device checks) |
+| `scripts/` | `device-checks.sh` (on-device checks), `fcm-check.py` (HAL versions vs an FCM level), `pmsg-decode.py` (pstore Android log), `check-pins.sh` (pinned commits), `check-agent-output.sh` (report format), `check-pick.py` / `pick-series.sh` (kernel cherry-pick tooling) |
 | `local_manifests/gts4lv-common.xml` + `gts4lvwifi.xml` / `gts4lv.xml` | Repos to add to a `lineage-23.2` source tree (they point at our kernel, device and vendor forks) |
 | `patches/` | Record of the device-tree changes. They're already committed to the fork's `lineage-23.2` branch, so you don't need to apply them |
 

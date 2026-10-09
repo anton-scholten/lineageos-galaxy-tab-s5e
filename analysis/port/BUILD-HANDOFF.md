@@ -79,6 +79,11 @@ Copy `gts4lv.xml` too and run `breakfast gts4lv` if you also want the LTE model.
 
 ### Option B — copy the existing tree to another machine
 
+> **Current layout (2026-10-09):** the tree already lives on the external drive (`/mnt/build/lineage`, source and `out/`),
+> bind-mounted at `~/android/lineage`. See HANDOVER.md, "Build machine layout". To build on another machine, plug the drive in,
+> mount it and bind-mount `/mnt/build/lineage` at the **same path** there; no copy is needed.
+> The copy steps below are the original 2026-10-04 procedure.
+
 **Check the tree is relocatable first** (verified 2026-10-04): the project `.git` entries are real directories, not
 path-bound gitfiles, and there are **0 absolute `gitdir:` entries**. So the tree moves cleanly.
 
@@ -100,7 +105,7 @@ sudo mkdir -p /mnt/build && sudo mount /dev/sdX /mnt/build
 rsync -aH --info=progress2 /mnt/build/lineage/ ~/android/lineage/
 cd ~/android/lineage
 git -C kernel/samsung/sdm670 rev-parse --short HEAD         # must be 500658be3c16 (or later)
-git -C device/samsung/gts4lv-common rev-parse --short HEAD  # must be d154fb4384fb (or newer)
+git -C device/samsung/gts4lv-common rev-parse --short HEAD  # must be 1188e2b (or newer)
 ```
 
 `~/work/prep-build-drive.sh` (on the original machine) does the copy, checks there is enough space, verifies both

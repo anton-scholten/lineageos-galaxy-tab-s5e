@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-pins.sh -- are the 8 commits this project quotes still where we said they are?
+# check-pins.sh -- are the 10 commits this project quotes still where we said they are?
 #
 # WHAT THIS IS FOR
 #   Every commit SHA in this project's docs is a *pin*: a promise that a given
@@ -16,7 +16,7 @@
 #   read-only and touches no repo but github.com.
 #
 # USAGE
-#   bash scripts/check-pins.sh                            # 8 lines, exit 1 on drift
+#   bash scripts/check-pins.sh                            # 10 lines, exit 1 on drift
 #   CHECK_PINS_VERBOSE=1 bash scripts/check-pins.sh        # + a counts summary
 #   GIT_TIMEOUT=120 bash scripts/check-pins.sh            # per-row network timeout
 #
@@ -29,7 +29,7 @@
 #      moved, its branch is gone, or the row could not be checked at all
 #   2  this script is broken (e.g. the pin table lost a row) -- fix the script
 #
-# The two rows marked info below are NOT errors and cannot change the exit code:
+# The rows marked info below are NOT errors and cannot change the exit code:
 #   * our own fork's lineage-23.2 branches are *meant* to move as the eBPF
 #     backport and the device patches land;
 #   * ExyHyperBrick's S9 kernel is a live upstream tree -- a move there just
@@ -46,7 +46,7 @@ set -uo pipefail
 export GIT_TERMINAL_PROMPT=0
 
 GIT_TIMEOUT=${GIT_TIMEOUT:-60}
-EXPECTED_ROWS=8
+EXPECTED_ROWS=10
 
 usage() {
 	cat <<EOF
@@ -85,12 +85,14 @@ while IFS='|' read -r class repo url branch want note; do
 done <<'PINS'
 pin|LineageOS/android_kernel_samsung_sdm670|https://github.com/LineageOS/android_kernel_samsung_sdm670|lineage-22.2|a30605a54f3b|LineageOS dropped the device after 22.2; this is the base commit of the sdm670 tree.
 pin|LineageOS/android_device_samsung_gts4lv-common|https://github.com/LineageOS/android_device_samsung_gts4lv-common|lineage-22.2|d1b339be7abe|LineageOS device tree; the base our device fork is built on.
-info|anton-scholten/android_kernel_samsung_sdm670|https://github.com/anton-scholten/android_kernel_samsung_sdm670|lineage-23.2|a30605a54f3b|OUR FORK, meant to move as the eBPF backport lands. Still equal to LineageOS.
-info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anton-scholten/android_device_samsung_gts4lv-common|lineage-23.2|2e50286|OUR FORK, meant to move as device patches land. Equals LineageOS d1b339be7abe + patches 0001-0004.
+info|anton-scholten/android_kernel_samsung_sdm670|https://github.com/anton-scholten/android_kernel_samsung_sdm670|lineage-23.2|500658be3c16|OUR FORK: the released 23.2 kernel (ExyHyperBrick port + SELinux avtab fix). A move means a new kernel fix landed.
+info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anton-scholten/android_device_samsung_gts4lv-common|lineage-23.2|1188e2b14a5a|OUR FORK: the released 23.2 device tree (release v23.2-20261008). A move means a new device fix landed.
+info|anton-scholten/proprietary_vendor_samsung_gts4lv-common|https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common|lineage-23.2|51de1d4fa3f7|OUR FORK: TheMuppets 22.2 blobs + patched libwfdservice + perf XML remap (release v23.2-20261008).
 pin|anton-scholten/android_kernel_samsung_exynos9810|https://github.com/anton-scholten/android_kernel_samsung_exynos9810|lineage-22.2|d54533f1546b|FROZEN BACKUP of the S9 kernel: series start d54533f1546b (exy/l222).
 pin|anton-scholten/android_kernel_samsung_exynos9810|https://github.com/anton-scholten/android_kernel_samsung_exynos9810|lineage-23.2|baa585f67e0e|FROZEN BACKUP of the S9 kernel: series end baa585f67e0e (exy/l232). All series counts depend on this.
 pin|anton-scholten/android_device_samsung_exynos9810-common|https://github.com/anton-scholten/android_device_samsung_exynos9810-common|lineage-23.2|ced977559b13|FROZEN BACKUP of the S9 device tree (used by R7).
 info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-23.2|baa585f67e0e|UPSTREAM S9 kernel, a live tree. A move means ExyHyperBrick pushed more work: consider re-running K1-K6.
+info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-24.0|baa585f67e0e|UPSTREAM S9 kernel for LineageOS 24 (equal to 23.2 on 2026-10-09). A move means krazey started 24-specific kernel work: tell the lead (FEASIBILITY-LINEAGE-24.md).
 PINS
 
 row_count=${#rows[@]}

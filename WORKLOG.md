@@ -991,3 +991,12 @@ themselves, not for a plain sideload.
 - `~/android/lineage` is now a bind mount of `/mnt/build/lineage` (refreshed with `rsync -aH`, timestamps kept). `out/` moved inside it.
   Test build (gts4lv): success, 98 packaging steps, no ninja regeneration. Dry-run rsync: 0 differences before deleting the internal copy.
   Internal copy and the 44 GB `out.old` deleted: internal disk 96% → 42% used. Mount commands: HANDOVER "Build machine layout".
+
+## 2026-10-09: paths after the move, clean-up, LineageOS 24 handover
+
+- Docs updated for the external-drive layout (BUILD-HANDOFF, STATUS, HANDOVER, TASKS-L24). `scripts/check-pins.sh`: 10 rows (current fork pins,
+  vendor fork, ExyHyperBrick `lineage-24.0` watch row), all OK.
+- Clean-up (local `~/work`, 28 GB → 2.6 GB): standalone kernel build outputs, duplicate kernel clone `k670-p1`, research clones `clone-R*`, a superseded
+  recovery image, 63 merged agent worktrees (their local branches are kept). ⚠️ `clone-R4` and `clone-R7` showed local changes but were deleted in the
+  same command. Read-only research clones whose findings are in the merged R4/R7 reports. The repo itself had no unused files.
+- Handover for the weak model: RUNBOOK §9 (worktrees, prompt template, order, review points), `analysis/l24/STATUS.md`, AGENTS/CLAUDE/HANDOVER/README point to the L tasks.
