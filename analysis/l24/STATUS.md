@@ -13,7 +13,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
-| L7 build loop | ◐ | `agent/L7` → `L7.md` | Round 1 blocked at Soong bootstrap (CAF/sdm845). Fixed via manifest; round 2 pending |
+| L7 build loop | ⛔ | `agent/L7` → `L7.md` | R1 CAF/sdm845 fixed + verified. R2 blocked on `libheif`, decision needed. 2 build rounds, no device code compiled yet |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
@@ -29,13 +29,17 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
   `prebuilts/sdk` and `prebuilts/rust-toolchain/linux-x86` needed manual `git checkout -f` after the copy
   was interrupted; both clean now.
 - **Device tree**: local branch `l24` @ `5af53f1` in the tree (= `port/l24-dt-1`). Carries FCM 7.
-- **Next: L7 round 2.** Round 1 ran 2m09s and died at Soong bootstrap, not a compile error: LineageOS dropped all
-  CAF support for SDM845 in `android @ a462d457ca85`, and the vendor blobs import the now-missing
-  `hardware/qcom-caf/sdm845` namespace. Fixed with `local_manifests/24/caf-sdm845.xml` (pins the three CAF repos at
-  their newest upstream revision, `lineage-23.2-caf-sdm845`; **no 24.0 CAF branch for this SoC exists**).
-  Synced and verified against the 23.2 tree. Details and the known 23.2-CAF-on-24.0-platform risk: [L7.md](L7.md).
-- ⚠️ **`review-L1-L3.md`'s "the work is device tree only" is incomplete.** L1 compared device trees; nobody compared
-  the CAF manifest snippet, which is where the platform dropped SDM845. Do not rely on that sentence.
+- **L7 is blocked on a decision, not on work.** Round 1 (CAF/sdm845) is fixed and verified. Round 2 fails on
+  `libheif`, which 24.0 removed from `frameworks/av/media/`. Our 22.2-era blob `libwfdcommonutils.so` has
+  `libheif.so` in `DT_NEEDED`, so it cannot simply be dropped from the dependency list. Two options, both
+  judgement calls: re-add the 56 KB module as a local project, or ship the already-built 23.2 `libheif.so`.
+  Details: [L7.md](L7.md) §7. **Needs the owner or a strong model.**
+- ⚠️ **The dominant risk in this port is the blob/platform age gap (22.2 blobs vs 24.0 platform), not FCM 7.**
+  Two consecutive rounds died the same way: Android 17 deleted platform code the blobs still link against. Expect
+  more. `review-L1-L3.md`'s "the work is device tree only" does not account for this at all.
+- ✅ Round 1 fix verified: `local_manifests/24/caf-sdm845.xml` pins the three SDM845 CAF repos at
+  `lineage-23.2-caf-sdm845` (**no 24.0 CAF branch exists**), synced and matching the 23.2 tree exactly.
+  `hardware/qcom-caf/sdm845` now resolves — confirmed in round 2's `PRODUCT_SOONG_NAMESPACES`.
 - **Disk:** ~314 GB free of the ~300 GB `out/` needs, on a spinning disk (6.3 MB/s). Tight. The internal disk is a
   SATA 860 EVO with only 22 GB free, so `out/` cannot be moved there as previously suggested.
 - **L9 is blocked**, not merely unstarted: `libril.so` hard-depends on `radio@1.4.so`, which FCM 7 does not
