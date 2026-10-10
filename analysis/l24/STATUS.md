@@ -13,7 +13,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
-| L7 build loop | ⛔ | `agent/L7` → `L7.md` | R1 CAF/sdm845 fixed + verified. R2 blocked on `libheif`, decision needed. 2 build rounds, no device code compiled yet |
+| L7 build loop | ◐ | `agent/L7` → `L7.md`, `port/l24-dt-2` | 3 blockers fixed (CAF/sdm845, libheif, AIDL V4→V5). Round 4 compiling for real |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
@@ -29,11 +29,14 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
   `prebuilts/sdk` and `prebuilts/rust-toolchain/linux-x86` needed manual `git checkout -f` after the copy
   was interrupted; both clean now.
 - **Device tree**: local branch `l24` @ `5af53f1` in the tree (= `port/l24-dt-1`). Carries FCM 7.
-- **L7 is blocked on a decision, not on work.** Round 1 (CAF/sdm845) is fixed and verified. Round 2 fails on
-  `libheif`, which 24.0 removed from `frameworks/av/media/`. Our 22.2-era blob `libwfdcommonutils.so` has
-  `libheif.so` in `DT_NEEDED`, so it cannot simply be dropped from the dependency list. Two options, both
-  judgement calls: re-add the 56 KB module as a local project, or ship the already-built 23.2 `libheif.so`.
-  Details: [L7.md](L7.md) §7. **Needs the owner or a strong model.**
+- **L7 is moving: three Soong-bootstrap blockers found and fixed.** Each round died in ~1–2 min at bootstrap
+  before compiling device code. Round 4 is past bootstrap and compiling.
+  - R1 `hardware/qcom-caf/sdm845` namespace — fixed by `local_manifests/24/caf-sdm845.xml`.
+  - R2 `libheif` — removed from `frameworks/av` in 24.0, but in `libwfdcommonutils.so`'s `DT_NEEDED`.
+    Owner chose to re-add the 56 KB module rather than ship a stale `.so`. Restored as `device/samsung/
+    gts4lv-common/libheif` on `port/l24-dt-2` @ `495967f`, sources verbatim from 23.2.
+  - R3 `libshim_wfdservice` pulled AIDL `types` V4 while `libmedia_headers` now gives V5. Bumped to V5 @
+    `0c5823a`; `AudioPort.aidl` (the only type the shim names) is byte-identical between the two versions.
 - ⚠️ **The dominant risk in this port is the blob/platform age gap (22.2 blobs vs 24.0 platform), not FCM 7.**
   Two consecutive rounds died the same way: Android 17 deleted platform code the blobs still link against. Expect
   more. `review-L1-L3.md`'s "the work is device tree only" does not account for this at all.
