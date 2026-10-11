@@ -13,7 +13,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
-| L7 build loop | ◐ | `agent/L7` → `L7.md` | 13 rounds. 7 blockers fixed; **the kernel now configures and compiles**. host-tool OpenSSL fixed in `fe8e363` (§7k: 24.0 removed 23.2's host-openssl flags); round 14 pending |
+| L7 build loop | ⛔ | `agent/L7` → `L7.md` | 14 rounds. 8 blockers fixed; host tools clear. 🔴 blocked on clang 22's new default `-Wimplicit-enum-enum-cast` in `qcacld` (§7l) |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
@@ -40,16 +40,15 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 - ⚠️ **The dominant risk in this port is the blob/platform age gap (22.2 blobs vs 24.0 platform), not FCM 7.**
   Two consecutive rounds died the same way: Android 17 deleted platform code the blobs still link against. Expect
   more. `review-L1-L3.md`'s "the work is device tree only" does not account for this at all.
-- 🔴 **L7 is blocked in the kernel's host tools.** Rounds 12 and 13 cleared the arm32 toolchain
-  (`CROSS_COMPILE_ARM32` now lands from `BoardConfigCommon.mk:104` plus `local_manifests/24/gcc-arm32.xml`, device
-  fork `6c8ea99`), and **the kernel now configures and compiles**. It fails building `scripts/extract-cert.c` and
-  `scripts/sign-file.c`: the OpenSSL ENGINE API (`ENGINE_by_id`, `ENGINE_init`, ...) is undeclared. The kernel
-  correctly includes `<openssl/engine.h>`, but `vendor/lineage`'s `HOSTCFLAGS` puts the tree's bundled
-  `prebuilts/kernel-build-tools/linux-x86/include` first, and that header declares only `ENGINE_new`. The host's
-  OpenSSL 3.5.7 would work - it is merely shadowed. Every relevant file is identical in both trees, yet 23.2 produced
-  these binaries and the 23.2 build log is gone, so the remaining difference is not yet established. Per TASKS-L24
-  §2b lesson 1, diff `prebuilts/` between the trees before blaming the environment again.
-  Full evidence: [L7.md](L7.md) §7j.
+- 🔴 **L7 is blocked on a clang 22 default warning in the WiFi driver.** Round 14 confirms the §7k fix — `extract-cert`
+  and `sign-file` now build. It then fails on `qcacld-3.0/.../ce_main.c:2135`: `-Wimplicit-enum-enum-cast` is promoted
+  to fatal by the kernel's `-Wall` (`Makefile:413`) + `-Werror` (`Makefile:762`). **Confirmed by A/B, not inferred:** one
+  identical command line, md5-identical source, only the compiler swapped — `clang-r563880c` (v21) exits 0,
+  `clang-r596125` (v22) exits 1 with the exact error. clang 22 enables that warning by default. 11+ `.c` files in
+  `qcacld-3.0` return `A_STATUS` from `QDF_STATUS` functions, so round 14 stopped at the first of many; per-site patches
+  are not a realistic shape. Cheapest route is `KCFLAGS="-Wno-error=implicit-enum-enum-cast"` in our device fork — a
+  build-flag change, no kernel patch. Kernel compile error, so escalated per §L7.3. Full evidence, including a
+  reproduction trap worth reading first: [L7.md](L7.md) §7l.
 
 - ✅ The `hardware/lineage/compat` fork works — `libwfdservice_shim` links. Our whole contribution is **one line**,
   and upstream is only 2 commits ahead (both additive), so retiring the fork later is a two-command job.
