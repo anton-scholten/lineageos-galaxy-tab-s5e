@@ -24,13 +24,14 @@
   flag means the dependency has to be named directly.
 
   NOT OUR REGRESSION. Checked upstream lineage-24.0 tip 07768b889b53: still
-  broken there. We are among the few devices still building 24.0, so we hit it
-  first. libwfdservice_shim is the only module in that tree that references
+  broken there. Neoteric-OS carries the same one-line fix in their fork. We are
+  among the few devices still building 24.0, so we hit it first.
+  libwfdservice_shim is the only module in that tree that references
   AudioSystem, so one line is the whole fix.
 
   Branch port/l24-compat-1 is cut from f1d606ca0973, the revision the tree was
-  already on, so this changes nothing else in the build. Upstream tip is
-  07768b889b53; merging it in later is a separate, deliberate step.
+  already on, so nothing else in the build changes. Our entire diff against that
+  base is one added line in Android.bp.
 
   The same defect existed in our own copy of this shim, in
   device/samsung/gts4lv-common/shims/libwfdservice, fixed on port/l24-dt-4.
@@ -39,11 +40,37 @@
   WiFiDisplaySession::broadcastWifiDisplayAudioIntent; ours provides
   AudioSystem::setDeviceConnectionState. extract-files.py references both.
 
-  TO DO: a Gerrit change against LineageOS/android_hardware_lineage_compat should
-  be sent for the same one-line fix, so this fork can be dropped once it lands.
+  WHY remove-project, and why the name has no LineageOS/ prefix
+  This project already exists in the upstream manifest (snippets/lineage.xml:28),
+  and repo keeps one shared path table across the main manifest and every file in
+  .repo/local_manifests/. Re-declaring the same path is rejected outright:
+
+    error: duplicate path hardware/lineage/compat in .repo/manifest.xml
+
+  so the upstream entry has to be removed before ours is added.
+
+  The name is "android_hardware_lineage_compat", not
+  "LineageOS/android_hardware_lineage_compat". repo composes the fetch URL as
+  <remote fetch>/<project name>, and the anton remote fetches
+  https://github.com/anton-scholten, so keeping the org prefix would ask for
+  anton-scholten/LineageOS/android_hardware_lineage_compat, which does not exist:
+
+    fatal: remote error: anton-scholten/LineageOS/android_hardware_lineage_compat
+    is not a valid repository name
+
+  This is the same reason gts4lv-common.xml names its projects without an org
+  prefix. The global insteadOf rule rewrites the https URL to ssh, so the fetch
+  authenticates with the key that already pushes to our other forks.
+
+  TO DO: send a Gerrit change to LineageOS/android_hardware_lineage_compat for
+  the same one-line fix. Once it lands, delete this file, run
+  `repo sync -c hardware/lineage/compat`, and the project goes back to tracking
+  upstream automatically - the upstream entry carries no revision pin.
 -->
 <manifest>
+  <remove-project name="LineageOS/android_hardware_lineage_compat" />
+
   <project path="hardware/lineage/compat"
-           name="LineageOS/android_hardware_lineage_compat"
+           name="android_hardware_lineage_compat"
            remote="anton" revision="port/l24-compat-1" />
 </manifest>
