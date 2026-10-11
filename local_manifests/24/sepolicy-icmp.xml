@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_device_qcom_sepolicy_vndr, for one fix.
+  Only the legacy-um path is overridden; the sm8450/sm8550/sm8650/sm8750 paths
+  belong to other devices and keep tracking upstream.
+
+  WHY
+  Building lineage-24.0 fails in precompiled_sepolicy:
+
+    neverallow check failed at plat_sepolicy.cil:55562
+      from system/sepolicy/private/pcc_component.te:366
+      (neverallow pcc_component pcc_component
+         (icmp_socket (ioctl read write create getattr setattr lock append map
+         bind connect getopt setopt shutdown)))
+      <root>
+      allow at vendor_sepolicy.cil:12561
+        from .../legacy/vendor/common/net.te:28
+        (allow netdomain self:icmp_socket (...)))
+
+  pcc_component is new in Android 17 - system/sepolicy/private/pcc_component.te
+  does not exist in the 23.2 tree - and it calls net_domain(pcc_component) at
+  line 10, so it carries the netdomain attribute and the legacy-um allow
+  reached it. The offending allow is unchanged from 23.2; it was legal then,
+  because the restriction did not exist.
+
+  The fix narrows the rule rather than weakening policy. It keeps the permission
+  for the other 51 netdomain domains and drops it only for the one domain the
+  platform forbids. No exception is granted, no check is relaxed:
+
+    allow { netdomain -pcc_component } self:icmp_socket create_socket_perms;
+
+  Attribute subtraction in an allow source set is stock AOSP; see
+  system/sepolicy/private/adbd_common.te:27.
+
+  Nothing here needs the dropped grant: of 681 vendor blobs only libllvm-qcom.so
+  and libllvm-glnext.so contain the string icmp at all and neither imports a
+  socket, ping or icmp symbol, and the tree never instantiates pcc_component.
+
+  NOT OUR REGRESSION. Upstream lineage-24.0-legacy-um at 33df3b661808 carries the
+  same unfixed rule, so there is nothing to pull instead. secilc reports every
+  neverallow violation in one pass and this was the only one in the tree.
+
+  WHY remove-project, and why the name has no LineageOS/ prefix
+  This project already exists in the upstream manifest at
+  snippets/lineage.xml:83, and repo keeps one shared path table across the main
+  manifest and every file in .repo/local_manifests/, so re-declaring the same
+  path is rejected with "duplicate path". remove-project frees it first.
+
+  The name omits the LineageOS/ prefix because repo composes the fetch URL as
+  <remote fetch>/<project name>; keeping the prefix would ask for
+  anton-scholten/LineageOS/android_device_qcom_sepolicy_vndr, which does not
+  exist. The global insteadOf rule then rewrites https to ssh.
+
+  TO DO: send a Gerrit change to LineageOS/android_device_qcom_sepolicy_vndr for
+  the same one-liner. Once it lands, delete this file, run
+  `repo sync -c device/qcom/sepolicy_vndr/legacy-um`, and the path goes back to
+  tracking upstream on its own.
+-->
+<manifest>
+  <remove-project name="LineageOS/android_device_qcom_sepolicy_vndr"
+                  path="device/qcom/sepolicy_vndr/legacy-um" />
+
+  <project path="device/qcom/sepolicy_vndr/legacy-um"
+           name="android_device_qcom_sepolicy_vndr"
+           remote="anton" revision="port/l24-sepolicy-1" />
+</manifest>
