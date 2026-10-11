@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_hardware_lineage_compat, for one fix.
+
+  WHY
+  lineage-24.0 does not build libwfdservice_shim. The module calls
+  AudioSystem::setDeviceConnectionState (libwfdservice_shim.cpp:36), and
+  AudioSystem moved library between the two platform versions:
+
+    23.2  frameworks/av/media/libaudioclient/Android.bp:116
+            AudioSystem.cpp is a src of libaudioclient
+    24.0  frameworks/av/media/libaudioclient/Android.bp:157
+            AudioSystem.cpp is a src of libaudiobase
+
+  The symbol is no longer exported from libaudioclient, so the link fails:
+
+    ld.lld: error: undefined symbol:
+    _ZN7android11AudioSystem24setDeviceConnectionStateE..._audio_format_tb
+    >>> referenced by libwfdservice_shim.cpp:36
+
+  Verified against the 24.0 build: exported from libaudiobase.so, absent from
+  libaudioclient.so, libaudiofoundation.so and libmedia.so. libaudioclient.so
+  does carry DT_NEEDED libaudiobase.so, but the Wl "no undefined symbols" link
+  flag means the dependency has to be named directly.
+
+  NOT OUR REGRESSION. Checked upstream lineage-24.0 tip 07768b889b53: still
+  broken there. We are among the few devices still building 24.0, so we hit it
+  first. libwfdservice_shim is the only module in that tree that references
+  AudioSystem, so one line is the whole fix.
+
+  Branch port/l24-compat-1 is cut from f1d606ca0973, the revision the tree was
+  already on, so this changes nothing else in the build. Upstream tip is
+  07768b889b53; merging it in later is a separate, deliberate step.
+
+  The same defect existed in our own copy of this shim, in
+  device/samsung/gts4lv-common/shims/libwfdservice, fixed on port/l24-dt-4.
+
+  Both shims are needed and are not duplicates. This one provides
+  WiFiDisplaySession::broadcastWifiDisplayAudioIntent; ours provides
+  AudioSystem::setDeviceConnectionState. extract-files.py references both.
+
+  TO DO: a Gerrit change against LineageOS/android_hardware_lineage_compat should
+  be sent for the same one-line fix, so this fork can be dropped once it lands.
+-->
+<manifest>
+  <project path="hardware/lineage/compat"
+           name="LineageOS/android_hardware_lineage_compat"
+           remote="anton" revision="port/l24-compat-1" />
+</manifest>
