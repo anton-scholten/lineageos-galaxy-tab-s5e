@@ -124,19 +124,41 @@ preflight() {
     if [ "$have" = "$2" ]; then c_pass "$3 @ $2"
     else c_fail "$3 @ $2" "have $have"; fi
   }
-  # The device tree may legitimately be on either the unported lineage-24.0 tip
-  # or the L6 port branch, so it gets its own check accepting both.
+
+  # For repos we port onto our own branches, the exact tip moves every round, so
+  # pinning one SHA reports FAIL for every legitimate new commit. Instead accept
+  # ANY descendant of the known-good upstream base: that still catches the thing
+  # that actually matters (tree diverged from upstream, or lost work), without
+  # needing this script edited each round.
+  #   == base       -> unported, warn
+  #   descendant    -> pass, naming the branch it is on
+  #   anything else -> fail
+  check_pin_ported() { # path base-sha description
+    local d="$TREE/$1" base="$2" desc="$3"
+    [ -d "$d/.git" ] || { c_skip "$desc" "$1 not present"; return; }
+    local have br short
+    have=$(git -C "$d" rev-parse HEAD 2>/dev/null)
+    short=$(git -C "$d" rev-parse --short=12 HEAD 2>/dev/null)
+    br=$(git -C "$d" branch --show-current 2>/dev/null)
+    [ -n "$br" ] || br="detached HEAD"
+    if [ "$short" = "$base" ]; then
+      c_warn "$desc @ $base (unported)" "on $br; the port lives on a port/l24-* branch"
+    elif git -C "$d" merge-base --is-ancestor "$base" "$have" 2>/dev/null; then
+      local ahead; ahead=$(git -C "$d" rev-list --count "$base".."$have" 2>/dev/null)
+      c_pass "$desc @ $short on $br" "$ahead commit(s) ahead of upstream $base"
+    else
+      c_fail "$desc" "have $short on $br, which is NOT a descendant of upstream $base (diverged?)"
+    fi
+  }
+
   check_device_tree() {
-    local base=1188e2b14a5a port=5af53f12e9eb have
+    local base=1188e2b14a5a
     [ -d "$TREE/device/samsung/gts4lv-common/.git" ] || { c_skip "device tree" "not present"; return; }
-    have=$(git -C "$TREE/device/samsung/gts4lv-common" rev-parse --short=12 HEAD 2>/dev/null)
-    if [ "$have" = "$port" ]; then c_pass "device tree @ $port (L6 port branch, expected before a build)"
-    elif [ "$have" = "$base" ]; then c_warn "device tree @ $base (unported)" "L6 lives on port/l24-dt-1; check that out before building"
-    else c_fail "device tree" "have $have, expected $base (lineage-24.0) or $port (port/l24-dt-1)"; fi
+    check_pin_ported device/samsung/gts4lv-common "$base" "device tree"
   }
   check_device_tree
   check_pin kernel/samsung/sdm670        500658be3c16 "kernel"
-  check_pin vendor/samsung/gts4lv-common 51de1d4fa3f7 "vendor blobs"
+  check_pin_ported vendor/samsung/gts4lv-common 51de1d4fa3f7 "vendor blobs"
 
   if [ -d "$TREE/device/samsung/gts4lv-common/.git" ]; then
     local fcm; fcm=$(grep -o 'target-level="[0-9]*"' "$TREE/device/samsung/gts4lv-common/manifest.xml" 2>/dev/null | head -1)
