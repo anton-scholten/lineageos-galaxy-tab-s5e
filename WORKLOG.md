@@ -1005,3 +1005,4 @@ themselves, not for a plain sideload.
   `vendor/lineage` `BoardConfigKernel.mk:207-208` + the `arm-linux-androideabi-4.9` prebuilt; 24.0 dropped both. Fixed with
   `local_manifests/24/gcc-arm32.xml` (synced) and device fork `port/l24-dt-4` `6c8ea99`. Build round 13 not run yet. SELinux fix (delete stale
   `net.te` rule) re-checked against `system/sepolicy/private/net.te:30`: sound.
+- 2026-10-11: added TASKS-L24 §2b (lessons from the L7 loop) and an AGENTS.md pointer, so later agents don't repeat the round 11/12 mistakes.

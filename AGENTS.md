@@ -36,6 +36,8 @@ Background, if you need it:
 | [`analysis/reference-trees/README.md`](analysis/reference-trees/README.md) | Other device trees that already did 23.2 |
 | `CLAUDE.md` | Notes for the reviewing lead. Not for you |
 
+**Debugging a 24.0 build error?** Read [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md) §2b first (lessons from the L7 loop, incl. a wrong diagnosis that cost a round).
+
 ## Hard rules (full list in AGENT-TASKS.md §0.4)
 - Write **only** what your task names. In this repo, commit to `agent/<task-id>` only. Never push to `main`.
 - Kernel and device repos are read-only, **except** round-4 tasks, which push only to a `port/*` branch: `port/k-<n>` (kernel fork) or `port/dt-3` (device fork), always cut from `lineage-23.2`.

@@ -177,6 +177,28 @@ Before release, scan the repo for personal data (home paths, host names, serials
 
 ---
 
+## 2b. Lessons from the L7 loop (read before diagnosing a build error)
+
+1. **"23.2 built, 24.0 doesn't, trees look identical" means diff `vendor/lineage` and the manifest first, not the shell environment.**
+   Lineage 24.0 removed things the 23.2 build got for free from the tree. Compare `vendor/lineage/config/BoardConfigKernel.mk`,
+   `vendor/lineage/build/tasks/kernel.mk`, `.repo/manifests/snippets/lineage.xml` and `prebuilts/` between `/mnt/build/lineage` and
+   `/mnt/build/lineage-24`. Round 12 blamed an unset env var; the real cause was `CROSS_COMPILE_ARM32` (and the gcc-arm prebuilt) dropped
+   from `vendor/lineage` ([L7.md](L7.md) §7i). "Environmental" is a last resort; prove it by reading the code that sets the variable in the working tree.
+2. **Before proposing a fix, check it is legal where it compiles.** Round 11's sepolicy edit named `pcc_component` from vendor policy, where the
+   type is not visible. Read the platform source that already does the job (`system/sepolicy/private/net.te:30`) before writing a new rule.
+3. **Local manifests: no duplicate paths, no `<remote>` redeclare.** Use `<remove-project>` first to override an upstream path; omit `<remote>` to
+   inherit `github` from `default.xml`; `<linkfile>` only works inside a `<project>`. Examples: `local_manifests/24/*.xml`.
+4. **Blob dependency renames need the ELF patched too**, not just `Android.bp` (L7.md §7c). Same-length strings only, one occurrence, keep a backup outside the tree.
+5. **Cost of a round:** any `Android.bp` change forces ~1 h of Soong analysis; a sepolicy-only change is ~15 min. Batch `Android.bp` fixes.
+6. **Build tree edits must also land in this repo.** A local manifest synced into `.repo/local_manifests/` is copied from `local_manifests/24/`;
+   a device-tree edit is a commit on a `port/l24-dt-<n>` branch of the fork. Record both SHAs in `L7.md`.
+7. **Record corrections, don't rewrite history.** When an earlier diagnosis proves wrong, add a dated CORRECTION block above it (as in §7i) and fix
+   the status line; the wrong reasoning stays visible so nobody re-derives it.
+8. **Already rejected, don't retry:** host `/usr/bin/arm-linux-gnueabi-ld.bfd` as the 32-bit toolchain, changing `CLANG_TARGET_ARM32`, editing `build/soong`,
+   disabling `CONFIG_COMPAT` or dropping `vdso32` (P6-log.md "four shapes"). The in-tree `arm-linux-androidkernel-` prefix is the accepted one.
+
+---
+
 ## 3. Where a strong model is required (summary)
 
 | Item | Why |
