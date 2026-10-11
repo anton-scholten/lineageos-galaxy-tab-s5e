@@ -108,6 +108,44 @@ no errors.
 
 Needs ~300 GB disk and 16 GB+ RAM (32 GB recommended). Install `git-lfs` **before** `repo sync`. Full recipe: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md).
 
+### LineageOS 24 (Android 17) — status: in progress
+
+23.2 (Android 16) is done and released; 24.0 is a work in progress, see
+[analysis/l24/STATUS.md](analysis/l24/STATUS.md) and [analysis/l24/L7.md](analysis/l24/L7.md).
+Use the manifests in `local_manifests/24/` instead of the ones above, and build from a tree that already has
+`lineage-24.0` synced.
+
+**Four forks are needed**, all pinned by `local_manifests/24/`:
+
+| Project | Fork | Why |
+|---|---|---|
+| `device/samsung/gts4lv-common` | `anton-scholten/android_device_samsung_gts4lv-common` | FCM 5→7, legacy libion, legacy gralloc |
+| `kernel/samsung/sdm670` | `anton-scholten/android_kernel_samsung_sdm670` | no 24.0-specific commits needed |
+| `vendor/samsung/gts4lv-common` | `anton-scholten/proprietary_vendor_samsung_gts4lv-common` | blob fixups |
+| `hardware/lineage/compat` | `anton-scholten/android_hardware_lineage_compat` | **new fork, one fix — see below** |
+
+The first three are long-standing forks of this port. The fourth is new and exists **only** to carry one
+upstream fix:
+
+```c
+ld.lld: error: undefined symbol:
+_ZN7android11AudioSystem24setDeviceConnectionStateE…_audio_format_tb
+>>> referenced by libwfdservice_shim.cpp:36
+```
+
+`AudioSystem` moved library between the two platform versions — from `libaudioclient` in 23.2 to `libaudiobase` in
+24.0 (`frameworks/av/media/libaudioclient/Android.bp:116` → `:157`) — so `libwfdservice_shim` no longer links.
+Adding `"libaudiobase"` to that module's `shared_libs` is the entire fix.
+
+This is **a defect in upstream `lineage-24.0`**, still present at `07768b889b53`, not in this port; NeotericOS
+carries the same one-line fix in their fork. The same defect was in our own copy of the shim
+(`device/samsung/gts4lv-common/shims/libwfdservice`) and is fixed on `port/l24-dt-4`. A Gerrit change should be sent
+so this fork can be dropped once it lands.
+
+**Building 24.0 needs ≥55 GB of RAM or swap.** Soong loads the entire module graph into one process and reaches
+~53 GiB before compiling anything, which is why `-j` does not help and neither does `USE_CCACHE` tuning. Full
+write-up with sources: [analysis/l24/L7.md](analysis/l24/L7.md) §10a.
+
 ## Repo contents
 
 | Path | What |
