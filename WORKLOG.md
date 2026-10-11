@@ -1006,3 +1006,4 @@ themselves, not for a plain sideload.
   `local_manifests/24/gcc-arm32.xml` (synced) and device fork `port/l24-dt-4` `6c8ea99`. Build round 13 not run yet. SELinux fix (delete stale
   `net.te` rule) re-checked against `system/sepolicy/private/net.te:30`: sound.
 - 2026-10-11: added TASKS-L24 §2b (lessons from the L7 loop) and an AGENTS.md pointer, so later agents don't repeat the round 11/12 mistakes.
+- 2026-10-11 L7 round 13: kernel host tools failed on partial bundled openssl headers. Cause: 24.0 removed 23.2's GCC-era host-OpenSSL flags (`21fb2c0c`). Fixed in device fork `fe8e363` (no kernel patch); L7.md §7k. Round 14 pending.
