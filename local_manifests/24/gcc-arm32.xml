@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The 32-bit GCC toolchain the kernel needs for its compat vDSO.
+
+  WHY
+  The sdm670 kernel has CONFIG_COMPAT_VDSO=y, and arch/arm64/Makefile:53-66 stops the build with
+  "CROSS_COMPILE_ARM32 not defined or empty" unless a 32-bit prefix is passed. In 23.2 that prefix came from
+  vendor/lineage/config/BoardConfigKernel.mk:207-208, which pointed at
+  prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 (snippets/lineage.xml:85, revision lineage-19.1).
+  Lineage 24.0 dropped both: BoardConfigKernel.mk now only passes LLVM=1, and the manifest no longer carries the
+  project. So the earlier "23.2 had it set in the launching shell" explanation was wrong; the tree supplied it.
+
+  The device tree passes the prefix (BoardConfigCommon.mk); this file brings back the checkout. Same project and
+  branch as 23.2, so the toolchain is byte-for-byte what built the 23.2 vDSO.
+  No <remote>: inherit "github" from default.xml (see caf-sdm845.xml).
+-->
+<manifest>
+  <project path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
+           name="LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9"
+           groups="pdk,linux,arm" clone-depth="1" revision="lineage-19.1" />
+</manifest>

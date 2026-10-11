@@ -1000,3 +1000,8 @@ themselves, not for a plain sideload.
   recovery image, 63 merged agent worktrees (their local branches are kept). ⚠️ `clone-R4` and `clone-R7` showed local changes but were deleted in the
   same command. Read-only research clones whose findings are in the merged R4/R7 reports. The repo itself had no unused files.
 - Handover for the weak model: RUNBOOK §9 (worktrees, prompt template, order, review points), `analysis/l24/STATUS.md`, AGENTS/CLAUDE/HANDOVER/README point to the L tasks.
+
+- 2026-10-11 L24 L7 review: round 12's kernel diagnosis ("23.2 had CROSS_COMPILE_ARM32 in the launching shell") was wrong. 23.2 got it from
+  `vendor/lineage` `BoardConfigKernel.mk:207-208` + the `arm-linux-androideabi-4.9` prebuilt; 24.0 dropped both. Fixed with
+  `local_manifests/24/gcc-arm32.xml` (synced) and device fork `port/l24-dt-4` `6c8ea99`. Build round 13 not run yet. SELinux fix (delete stale
+  `net.te` rule) re-checked against `system/sepolicy/private/net.te:30`: sound.
