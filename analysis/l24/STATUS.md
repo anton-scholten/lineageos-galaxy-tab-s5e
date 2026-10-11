@@ -13,7 +13,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
-| L7 build loop | ⛔ | `agent/L7` → `L7.md` | 10 rounds. 5 blockers fixed. Now 🔴 blocked on a SELinux `neverallow` (§7g). Reached real compilation; 3471 edges + precompiled_sepolicy |
+| L7 build loop | ⛔ | `agent/L7` → `L7.md` | 12 rounds. 6 blockers fixed, **SELinux cleared**. Now 🔴 blocked in the kernel (`CROSS_COMPILE_ARM32`, §7i) |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
@@ -40,13 +40,19 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 - ⚠️ **The dominant risk in this port is the blob/platform age gap (22.2 blobs vs 24.0 platform), not FCM 7.**
   Two consecutive rounds died the same way: Android 17 deleted platform code the blobs still link against. Expect
   more. `review-L1-L3.md`'s "the work is device tree only" does not account for this at all.
-- **🔴 L7 is blocked on a SELinux `neverallow` and needs a strong model or the owner.** `pcc_component` is new in
-  Android 17 (`system/sepolicy/private/pcc_component.te` does not exist in 23.2) and carries `net_domain()`; the
-  unchanged 23.2-era allow `netdomain self:icmp_socket` in
-  `device/qcom/sepolicy_vndr/legacy-um/legacy/vendor/common/net.te:28` now reaches it and trips
-  `pcc_component.te:366`. `secilc` reports all violations at once and there is exactly **one**, so this is the whole
-  class of conflict. Every mechanical fix weakens policy, which is why it is escalated rather than patched. Facts and
-  reasoning: [L7.md](L7.md) §7g.
+- **🔴 L7 is blocked in the kernel now, not in sepolicy.** Round 12 passed `precompiled_sepolicy`, so the
+  `pcc_component` neverallow is resolved. It now fails building `Image.gz-dtb`:
+  `arch/arm64/Makefile:66: CROSS_COMPILE_ARM32 not defined or empty, the compat vDSO will not be built`.
+  Kernel (`500658be3c16`), config and build system are identical between the 23.2 and 24.0 trees, and 23.2 genuinely
+  built `arch/arm64/kernel/vdso32/vdso.so`, so the difference is environmental — 23.2 ran with `CROSS_COMPILE_ARM32`
+  set in the launching shell, this build is launched with `env -i`.
+  ⚠️ `WORKLOG.md:645` records P6 **already rejected** the obvious fix (pointing it at the host
+  `arm-linux-gnueabi-ld.bfd`) as non-hermetic, and `analysis/port/P6-log.md:93` marks disabling `CONFIG_COMPAT` or
+  dropping `vdso32` as rejected as well. Full diagnosis: [L7.md](L7.md) §7i.
+- ✅ The SELinux `neverallow` is fixed. The legacy-um `icmp_socket` allow was a stale duplicate of
+  `system/sepolicy/private/net.te:30`, which already excludes `pcc_component`; deleting the vendor line loses nothing.
+  Note the first attempt — narrowing it to `{ netdomain -pcc_component }` — does not compile, because
+  `pcc_component` is not exported to vendor policy ([L7.md](L7.md) §7h).
 - ✅ The `hardware/lineage/compat` fork works — `libwfdservice_shim` links. Our whole contribution is **one line**,
   and upstream is only 2 commits ahead (both additive), so retiring the fork later is a two-command job.
 - **Disk:** ~314 GB free of the ~300 GB `out/` needs, on a spinning disk (6.3 MB/s). Tight. The internal disk is a
