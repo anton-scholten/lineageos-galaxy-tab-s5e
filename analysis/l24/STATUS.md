@@ -13,7 +13,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
-| L7 build loop | ✅ | `agent/L7` → `L7.md` | **16 rounds. ROM BUILT** — 1.1 GB OTA zip, `unzip -t` clean (§7n). Next: B2 flash/boot |
+| L7 build loop | ✅ DONE | `agent/L7` → `L7.md` | **ROM BUILT** — 16 rounds, 1.1 GB OTA zip, `unzip -t` clean (§7n). Next: B2 flash/boot |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
