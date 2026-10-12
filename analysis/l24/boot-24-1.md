@@ -175,3 +175,23 @@ impossible all along.
 I deleted the first copy of this log with a stray `rm -rf flash-logs/2*` while cleaning up test fixtures.
 Nothing was lost — the tablet still held all 5529 lines and they were re-pulled — but it is exactly the
 failure the tooling warns about, and it is why `boot-log.sh` refuses to touch existing directories.
+## Strong-model review (2026-10-12): the proposed fstab fix is wrong; real cause found
+
+**Do not apply the `forceencrypt` fstab change.** Reading the 24.0 sources it cannot do what it claims:
+- `system/fs/fs_mgr/libfstab/fstab.cpp:243` only accepts `forceencrypt=<keyloc>`, so the bare flag in the proposal is not that flag.
+- `fs_mgr.cpp:1157-1165` has no "needs block encryption" mount result any more, only file, metadata, or not-encryptable. So dropping `fileencryption=ice`
+  gives an **unencrypted `/data`**, not the dm-crypt path the proposal describes. It would only prove the diagnosis, and ship worse security.
+
+**Why 23.2 booted with an identical fstab, kernel and `.config`:** not the state of `/data`. It is **vold**. LineageOS carries a revert in 23.x:
+`LineageOS/android_system_vold` `5cbee14` (Michael Bestas, 2024-06-14), *Revert "vold: remove session keyring workaround for old kernels"* —
+"Still needed for <4.14 devices". With it, `installKey()` checks `isFsKeyringSupported()` and, on this 4.9 kernel (no `FS_IOC_ADD_ENCRYPTION_KEY`),
+falls back to the legacy session keyring. The 24.0 vold branch (`11d8982`, a stale branch tip) lacks that revert (AOSP removed the fallback in `0e87a83`,
+2023-11-22), so it calls the missing ioctl unconditionally: `KeyUtil.cpp:330` → ENOTTY → `enablefilecrypto_failed`.
+The earlier "kernel has no fscrypt ioctl" finding is right but it was never a problem on 23.2 because vold did not need it. Format data is irrelevant.
+
+**Fix (prepared, not applied):** [vold-keyring-fallback.patch](vold-keyring-fallback.patch), the same revert rebased onto the 24.0 vold (one header conflict in
+`KeyUtil.h`, resolved by keeping both declarations). The revert's `libkeyutils` dependency needs one extra change: **`system/core/libkeyutils` no longer
+exists in this tree**, so the patch adds a copy of the 23.2 module under `system/vold/libkeyutils/` (BSD, test target dropped). Keeps `fileencryption=ice`, so `/data`
+stays encrypted exactly as on 23.2.
+It needs a fork of `LineageOS/android_system_vold` (`lineage-24.0`) plus a local-manifest `remove-project`/`project` pair, like `sepolicy-icmp.xml`.
+Touches an `Android.bp`, so a ~1 h Soong re-analysis. **Unbuilt**; the patch applies cleanly but it has not been compiled.
