@@ -29,12 +29,12 @@
   libwfdservice_shim is the only module in that tree that references
   AudioSystem, so one line is the whole fix.
 
-  Branch port/l24-compat-1 is cut from f1d606ca0973, the revision the tree was
+  Branch lineage-24.0 (was port/l24-compat-1) is cut from f1d606ca0973 and merged with upstream 07768b889b53, the revision the tree was
   already on, so nothing else in the build changes. Our entire diff against that
   base is one added line in Android.bp.
 
   The same defect existed in our own copy of this shim, in
-  device/samsung/gts4lv-common/shims/libwfdservice, fixed on port/l24-dt-4.
+  device/samsung/gts4lv-common/shims/libwfdservice, fixed on lineage-24.0 (was port/l24-dt-4).
 
   Both shims are needed and are not duplicates. This one provides
   WiFiDisplaySession::broadcastWifiDisplayAudioIntent; ours provides
@@ -72,5 +72,5 @@
 
   <project path="hardware/lineage/compat"
            name="android_hardware_lineage_compat"
-           remote="anton" revision="port/l24-compat-1" />
+           remote="anton" revision="lineage-24.0" />
 </manifest>

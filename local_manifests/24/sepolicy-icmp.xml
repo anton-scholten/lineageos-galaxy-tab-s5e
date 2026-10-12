@@ -62,5 +62,5 @@
 
   <project path="device/qcom/sepolicy_vndr/legacy-um"
            name="android_device_qcom_sepolicy_vndr"
-           remote="anton" revision="port/l24-sepolicy-1" />
+           remote="anton" revision="lineage-24.0" />
 </manifest>

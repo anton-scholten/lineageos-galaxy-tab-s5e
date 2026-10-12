@@ -142,7 +142,7 @@ preflight() {
     br=$(git -C "$d" branch --show-current 2>/dev/null)
     [ -n "$br" ] || br="detached HEAD"
     if [ "$short" = "$base" ]; then
-      c_warn "$desc @ $base (unported)" "on $br; the port lives on a port/l24-* branch"
+      c_warn "$desc @ $base (unported)" "on $br; the port lives on lineage-24.0"
     elif git -C "$d" merge-base --is-ancestor "$base" "$have" 2>/dev/null; then
       local ahead; ahead=$(git -C "$d" rev-list --count "$base".."$have" 2>/dev/null)
       c_pass "$desc @ $short on $br" "$ahead commit(s) ahead of upstream $base"
@@ -166,7 +166,7 @@ preflight() {
       c_pass "device tree carries the L6 port (FCM 7)"
     elif [ "$fcm" = 'target-level="5"' ]; then
       c_warn "device tree is the unported 23.2 one (FCM 5)" \
-        "expected on lineage-24.0. L6 lives on branch port/l24-dt-1; check it out before building."
+        "expected on lineage-24.0. check out lineage-24.0 of the device fork before building."
     else
       c_warn "device tree FCM" "could not read target-level from manifest.xml"
     fi

@@ -8,7 +8,7 @@
 
   The three anton-scholten forks have a lineage-24.0 branch created by L5, each pointing at
   the exact same commit as its lineage-23.2 (device 1188e2b, kernel 500658be, vendor 51de1d4).
-  Nothing 24-specific is on them yet: the port commits land on port/l24-dt-1 (device tree, L6).
+  Nothing 24-specific is on them yet: the port commits (L6 and the L7 build fixes) are now merged into them.
   The kernel is expected to need no 24.0 commits at all, see analysis/l24/review-L1-L3.md section 1.
 
   hardware/samsung DOES have an official lineage-24.0 branch, so it moves from 23.2.

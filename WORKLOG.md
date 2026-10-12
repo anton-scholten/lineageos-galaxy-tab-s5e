@@ -1007,3 +1007,10 @@ themselves, not for a plain sideload.
   `net.te` rule) re-checked against `system/sepolicy/private/net.te:30`: sound.
 - 2026-10-11: added TASKS-L24 §2b (lessons from the L7 loop) and an AGENTS.md pointer, so later agents don't repeat the round 11/12 mistakes.
 - 2026-10-11 L7 round 13: kernel host tools failed on partial bundled openssl headers. Cause: 24.0 removed 23.2's GCC-era host-OpenSSL flags (`21fb2c0c`). Fixed in device fork `fe8e363` (no kernel patch); L7.md §7k. Round 14 pending.
+
+- 2026-10-12 Branch clean-up. Rule: one branch per Android release in every fork, `lineage-23.2` and `lineage-24.0` (`lineage-22.2` stays as the base the 23.2 port was cut from).
+  Fast-forwarded `lineage-24.0` to the built port tips: device `c2fe044` (was `port/l24-dt-4`), vendor `1e0cce7` (`port/l24-vendor-1`), sepolicy_vndr `d4fc898`
+  (new branch, `port/l24-sepolicy-1`), compat `eaf8275` (= `port/l24-compat-1` `b3b52a8` merged with upstream `07768b889b53`: 2 additive commits, **not build-tested**).
+  Kernel fork needed nothing: `lineage-24.0` already equals `lineage-23.2` (`500658be3c16`; 24 uses it unchanged). Then deleted the `port/l24-*` branches on the forks
+  and `agent/L1,L2,L3,L7` + `lead/2026-10-09-l24-review` here (all merged into `main`; old tips: L1 `36ffe11`, L2 `4ff92c2`, L3 `4ed0735`, L7 `d10db7e`, lead `2fce93c`).
+  `local_manifests/24/*` now point at `lineage-24.0`. Backup forks untouched. New `lineage-23.2` branch here = tag `v23.2-20261008`.
