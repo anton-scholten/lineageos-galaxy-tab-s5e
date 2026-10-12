@@ -174,23 +174,23 @@ LOG="$OUT/last_kmsg.txt"
 
 if [ -s "$LOG" ]; then
   # Which kernel is this? Everything else depends on it being the right one.
-  if grep -q "$EXPECTED_KERNEL_TAG" "$LOG"; then
+  if grep -aq "$EXPECTED_KERNEL_TAG" "$LOG"; then
     printf '    %sOK%s   right kernel (%s)\n' "$c_grn" "$c_off" "$EXPECTED_KERNEL_TAG"
   else
     printf '    %sWARN%s  no "%s" in the log - the WRONG kernel booted.\n' \
            "$c_yel" "$c_off" "$EXPECTED_KERNEL_TAG"
   fi
-  grep -m1 "Linux version" "$LOG" | sed 's/^/          /' || true
+  grep -am1 "Linux version" "$LOG" | sed 's/^/          /' || true
 
   # The fatal patterns, in the order B2-HANDOFF lists them.
   PAT='InitFatalReboot|Kernel panic|Unable to handle|avc: *denied|SELinux:|init: .*(fail|abort|FATAL)|reboot:'
-  HITS=$(grep -cE "$PAT" "$LOG" 2>/dev/null || echo 0)
+  HITS=$(grep -acE "$PAT" "$LOG" 2>/dev/null || echo 0)
   if [ "$HITS" -gt 0 ]; then
     printf '    %sHITS%s  %s fatal-looking line(s):\n' "$c_red" "$c_off" "$HITS"
-    grep -nE "$PAT" "$LOG" | head -12 | sed 's/^/          /'
+    grep -anE "$PAT" "$LOG" | head -12 | sed 's/^/          /'
     say ""
     info "the last 40 lines before any 'reboot: Restarting system' are the cause:"
-    LAST=$(grep -n "reboot: Restarting system" "$LOG" | tail -1 | cut -d: -f1)
+    LAST=$(grep -an "reboot: Restarting system" "$LOG" | tail -1 | cut -d: -f1)
     if [ -n "${LAST:-}" ]; then
       # Show the 40 lines before the marker, or the whole file if it is shorter.
       FROM=$(( LAST > 40 ? LAST - 40 : 1 ))
