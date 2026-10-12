@@ -1,43 +1,53 @@
-# Unofficial LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
+# Unofficial LineageOS 24 and 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
 
-> I used AI to make this happen. The tablet I have works well, no bugs so far.  
-> Human TL;DR:  
-> If your tablet has LineageOS 22.2 then follow the official LineageOS installation steps but use the provided Recovery and ROM in the latest release of this repo.
+> I used AI to make this happen. The tablet I have works well on 23.2, no bugs so far.  
+> Human TL;DR (same steps for both versions, only the files differ):
 > 1. Backup the data on your tablet and remove your Google account from it.
 > 2. Boot into Download mode
-> 3. Flash the correct 23.2 recovery for your tablet
-> 4. Boot into recovery, check it says 23.2.
+> 3. Flash the correct recovery for your tablet (23.2 or 24, see the table below)
+> 4. Boot into recovery, check its version.
 > 5. ⚠️ "Factory reset"/"Format data" the tablet (make sure you have a backup!).
 > 6. Select on the tablet "Apply update", "Apply from ADB", and sideload the correct ROM for your tablet using your PC.
-> 7. Flash MindTheGapps at this time if you want them.
+> 7. **Optional, only if you want Google apps:** right after the ROM, and before the first boot, select "Apply update", "Apply from ADB" again and sideload the matching MindTheGapps zip (see [Google apps](#google-apps-optional)).
 > 8. Reboot and you should be good.
+
+## Which version?
+
+| Branch / version | Android | State |
+|---|---|---|
+| **`lineage-23.2`** (this repo's branch of the same name, tag `v23.2-20261008`, same branch name in every fork) | 16 | ✅ **Released and working** on SM-T720. Use this one. |
+| **`lineage-24.0`** (forks) / `main` (this repo, carries the 24 work and docs) | 17 | 🔨 **ROM builds (2026-10-12), not yet booted on a tablet.** No release yet. |
+
+`lineage-22.2` in the forks is only the upstream base both ports were cut from.
+Everything below applies to both unless a row says otherwise.
 
 Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
 This port has two parts: a **kernel backport** (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a **full ROM** (device tree, blobs and fixes for Android 16).
 
-## Status (2026-10-08)
+## Status (2026-10-12)
 
 | Model | State |
 |---|---|
-| **SM-T720 / T720N** (Wi-Fi, `gts4lvwifi`) | ✅ **Works.** |
-| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | 🔨 **Built (2026-10-08), untested** (I don't have an LTE tablet) |
+| **SM-T720 / T720N** (Wi-Fi, `gts4lvwifi`) | 23.2: ✅ **Works.** 24: 🔨 ROM and kernel build, **not booted yet** |
+| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | 23.2: 🔨 Built (2026-10-08), untested (I don't have an LTE tablet). 24: ⬜ not built yet |
 
-**Works on SM-T720:** pretty much everything.  
-**No tested:** screen casting (Miracast).  
+**Works on SM-T720 (23.2):** pretty much everything.  
+**Not tested:** screen casting (Miracast).  
 **Not working:** ANT+. LTE builds: no VoLTE/VoWiFi (calls fall back to 2G/3G).
 
 | Part | Source |
 |---|---|
-| Kernel | [android_kernel_samsung_sdm670 `lineage-23.2`](https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2): the ExyHyperBrick series (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, FUSE-BPF, userfaultfd, uclamp, PSI) ported onto the Tab S5e kernel, plus an SELinux policy-loading fix |
-| Device tree | [android_device_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2) |
-| Blobs | [proprietary_vendor_samsung_gts4lv-common `lineage-23.2`](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common/tree/lineage-23.2) (TheMuppets' 22.2 blobs + one patched Wi-Fi Display library) |
+| Kernel (23.2 and 24 use the same one) | [android_kernel_samsung_sdm670 `lineage-23.2`](https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2): the ExyHyperBrick series (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, FUSE-BPF, userfaultfd, uclamp, PSI) ported onto the Tab S5e kernel, plus an SELinux policy-loading fix |
+| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common): `lineage-23.2` / `lineage-24.0` |
+| Blobs | [proprietary_vendor_samsung_gts4lv-common](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common): `lineage-23.2` / `lineage-24.0` (TheMuppets' 22.2 blobs + patched Wi-Fi Display library; 24 also relinks two blobs to the newer audio libraries) |
+| Extra forks, 24 only | [android_hardware_lineage_compat](https://github.com/anton-scholten/android_hardware_lineage_compat) and [android_device_qcom_sepolicy_vndr](https://github.com/anton-scholten/android_device_qcom_sepolicy_vndr), both `lineage-24.0`: one-line fixes for defects in upstream `lineage-24.0` |
 
-**There is no official public download yet.** Until a release is announced, use official LineageOS 22.2 for daily use (unless you really want Android 16, then use this repo).
+**There is no official public download yet** for 24. For 23.2 see the [latest release](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/latest) once published. Until then, use official LineageOS 22.2 for daily use (unless you really want Android 16/17, then use this repo).
 Progress: [HANDOVER.md](HANDOVER.md).
 
 > ⚠️ **`/metadata` on OMR.** Android 16 needs a `/metadata` partition, which this tablet doesn't have. Like official
 > LineageOS on the Galaxy S10, this port uses Samsung's unused **OMR** partition (20 MB) as `/metadata`.
-> The 23.2 recovery's *Format data* formats it for you, so follow the install steps exactly.
+> The 23.2/24 recovery's *Format data* formats it for you, so follow the install steps exactly.
 > Going back to stock firmware with Odin/samloader restores OMR.
 
 ## Prior work used
@@ -72,21 +82,42 @@ Follow the official LineageOS install guide for your model but with the changes 
 | Step in the official guide | Do this instead |
 |---|---|
 | Download files | Take the ROM zip, `recovery-*.img` and `vbmeta-*.img` for **your codename** from the [latest release](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/latest). Never mix Wi-Fi and LTE files |
-| Flash recovery | Flash **the 23.2 recovery**. The 22.2 recovery can't install 23.2. Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest) (`samloader flash --partition RECOVERY recovery-*.img --no-reboot`) all work |
+| Flash recovery | Flash **the recovery of the version you install**. The 22.2 recovery can't install 23.2 or 24. Coming from 23.2 to 24, the 23.2 recovery should be able to sideload the 24 zip (the zip carries its own installer and writes boot, dtbo and vbmeta itself); this is read from the zip, **not tested**, so flash the 24 recovery if sideload fails. Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest) (`samloader flash --partition RECOVERY recovery-*.img --no-reboot`) all work |
 | Factory reset | **Required**, also when coming from official 22.2 (different signing keys). ⚠️ Erases all data. It also formats `/metadata` (the OMR partition), which Android 16 needs |
-| Install Google Apps | Use [MindTheGapps **16.0.0** arm64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest), sideloaded before the first boot |
+| Install Google Apps | **Optional**, see [Google apps](#google-apps-optional) below: MindTheGapps **16.0.0** arm64 for 23.2, **17.0.0** arm64 for 24 |
 | Sideload | *"Signature verification failed"* is expected: answer *Yes*. Stopping at 47% with `adb: failed to read command: Success` is normal |
 
 Coming from Samsung stock: do the official guide's unlock and `vbmeta` steps first (with our `vbmeta-*.img`).  
-Coming from LineageOS 22.2: skip the unlock and `vbmeta` steps.  
+Coming from LineageOS 22.2 or 23.2: skip the unlock and `vbmeta` steps. 23.2 → 24 also needs the factory reset (clean install).  
 First boot can take up to 15 minutes.
+
+### Google apps (optional)
+
+Skip this if you don't want Google apps. They can only be added **now**: after the first boot you must factory reset to add them.
+Use the MindTheGapps build that matches your Android version, **arm64** (not arm):
+
+| ROM | MindTheGapps |
+|---|---|
+| 23.2 (Android 16) | [16.0.0-arm64 releases](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) |
+| 24 (Android 17) | [17.0.0-arm64 releases](https://github.com/MindTheGapps/17.0.0-arm64/releases/latest) (checked to exist 2026-10-12, **not tested** on this tablet) |
+
+```bash
+# 1. ROM first (recovery: Apply update > Apply from ADB)
+adb sideload lineage-*-UNOFFICIAL-gts4lvwifi.zip        # LTE: gts4lv
+# 2. Then, WITHOUT rebooting: Apply update > Apply from ADB again
+adb sideload MindTheGapps-*-arm64-*.zip
+# 3. Reboot system
+```
+
+"Signature verification failed" is expected here too: answer *Yes*. Don't reboot between the two zips.
+Check the `.sha256sum` file next to the zip on the release page before flashing.
 
 **Stuck in Download mode?**  
 Unplug USB, hold *Vol Down + Power* until the screen goes black, then immediately hold *Vol Up + Power* to enter recovery. If you keep USB plugged in you will get back into Download mode again.
 
 **Boot loop?**  
 Get logs from recovery first (`adb shell cat /proc/last_kmsg`, see [TESTING.md](TESTING.md)) and report them.
-Then ⚠️ *Format data* and sideload again, or go back to 22.2 by flashing its recovery and zip (always erases data).
+Then ⚠️ *Format data* and sideload again, or go back to 22.2 (or 23.2) by flashing its recovery and zip (always erases data).
 
 ---
 
@@ -108,24 +139,23 @@ no errors.
 
 Needs ~300 GB disk and 16 GB+ RAM (32 GB recommended). Install `git-lfs` **before** `repo sync`. Full recipe: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md).
 
-### LineageOS 24 (Android 17) — status: in progress
+### LineageOS 24 (Android 17) — status: ROM builds, not booted yet
 
-23.2 (Android 16) is done and released; 24.0 is a work in progress, see
+23.2 (Android 16) is done and released. For 24.0 the ROM zip builds (2026-10-12) but has not been booted on a tablet; see
 [analysis/l24/STATUS.md](analysis/l24/STATUS.md) and [analysis/l24/L7.md](analysis/l24/L7.md).
-Use the manifests in `local_manifests/24/` instead of the ones above, and build from a tree that already has
-`lineage-24.0` synced.
+Use the manifests in `local_manifests/24/` instead of the ones above (they follow `lineage-24.0` in every fork, no `port/*` branches any more).
 
-**Four forks are needed**, all pinned by `local_manifests/24/`:
+**Five forks are needed**, all in `local_manifests/24/`:
 
 | Project | Fork | Why |
 |---|---|---|
 | `device/samsung/gts4lv-common` | `anton-scholten/android_device_samsung_gts4lv-common` | FCM 5→7, legacy libion, legacy gralloc |
-| `kernel/samsung/sdm670` | `anton-scholten/android_kernel_samsung_sdm670` | no 24.0-specific commits needed |
+| `kernel/samsung/sdm670` | `anton-scholten/android_kernel_samsung_sdm670` | no 24.0-specific commits needed (`lineage-24.0` = `lineage-23.2`) |
 | `vendor/samsung/gts4lv-common` | `anton-scholten/proprietary_vendor_samsung_gts4lv-common` | blob fixups |
+| `device/qcom/sepolicy_vndr/legacy-um` | `anton-scholten/android_device_qcom_sepolicy_vndr` | deletes one stale rule that violates a new Android 17 `neverallow` |
 | `hardware/lineage/compat` | `anton-scholten/android_hardware_lineage_compat` | **new fork, one fix — see below** |
 
-The first three are long-standing forks of this port. The fourth is new and exists **only** to carry one
-upstream fix:
+The first three are long-standing forks of this port. The last two exist **only** to carry one upstream fix each. The compat one:
 
 ```c
 ld.lld: error: undefined symbol:
@@ -139,8 +169,10 @@ Adding `"libaudiobase"` to that module's `shared_libs` is the entire fix.
 
 This is **a defect in upstream `lineage-24.0`**, still present at `07768b889b53`, not in this port; NeotericOS
 carries the same one-line fix in their fork. The same defect was in our own copy of the shim
-(`device/samsung/gts4lv-common/shims/libwfdservice`) and is fixed on `port/l24-dt-4`. A Gerrit change should be sent
+(`device/samsung/gts4lv-common/shims/libwfdservice`) and is fixed on the device fork's `lineage-24.0`. A Gerrit change should be sent
 so this fork can be dropped once it lands.
+
+The kernel needs `libssl-dev` on the build host (Android 17's kernel tooling no longer picks up the host OpenSSL by itself; the device tree passes the flags). Its 32-bit vDSO toolchain comes from `local_manifests/24/gcc-arm32.xml`.
 
 **Building 24.0 needs ≥55 GB of RAM or swap.** Soong loads the entire module graph into one process and reaches
 ~53 GiB before compiling anything, which is why `-j` does not help and neither does `USE_CCACHE` tuning. Full
