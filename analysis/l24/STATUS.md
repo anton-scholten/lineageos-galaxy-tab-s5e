@@ -13,7 +13,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L5 branches + manifests | ✅ | `lineage-24.0` on 3 forks, `local_manifests/24/` | Pushed, owner approved. All at the 23.2 SHA |
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
-| L7 build loop | ◐ | `agent/L7` → `L7.md` | 15 rounds. 9 blockers fixed; **the kernel now compiles** (`ce_main.o` built). Round 15 running past 25%%, no failures |
+| L7 build loop | ◐ | `agent/L7` → `L7.md` | 15 rounds. 9 blockers fixed; **kernel builds** (`Image.gz-dtb`, 4.9.337-g500658be3c16). 🔴 at 90% on a WFD blob's `AudioSystem` symbols (§7m); fix `1e0cce7` in, round 16 not started |
 | L8 boot attempts | ⬜ | `boot-24-<n>.md` | |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
@@ -40,12 +40,20 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 - ⚠️ **The dominant risk in this port is the blob/platform age gap (22.2 blobs vs 24.0 platform), not FCM 7.**
   Two consecutive rounds died the same way: Android 17 deleted platform code the blobs still link against. Expect
   more. `review-L1-L3.md`'s "the work is device tree only" does not account for this at all.
-- ◐ **L7: the kernel now compiles.** Round 15 is running past 25% with no failures. The §7l blocker — clang 22
-  (r596125) enabling `-Wimplicit-enum-enum-cast` by default, fatal under the kernel's `-Wall` + `-Werror` — is fixed by
-  device fork `port/l24-dt-4` `c2fe044`, which appends
-  `KCFLAGS="-Wno-error=implicit-enum-enum-cast"` (not `-Wno-`, so every other warning stays fatal). Verified: `ce_main.o`,
-  the file that killed round 14, built at 20:27. Still outstanding: the other 10 `A_STATUS` sites in `qcacld-3.0`, then
-  modules, images and packaging, none of which this port has exercised yet. Full evidence: [L7.md](L7.md) §7l.
+- ◐ **L7: the kernel builds; blocked at 90% on a vendor blob.** Round 15 produced a real bootable kernel -
+  `Image.gz-dtb`, 18.7 MB, `Linux version 4.9.337-g500658be3c16`. The §7l `KCFLAGS` fix holds: all three
+  `implicit-enum-enum-cast` hits are `warning:`, none fatal.
+
+  It then failed `check_elf_file` on `libwfdmmsrc_system.so`: four unresolved `android::AudioSystem` symbols. The API
+  did not vanish - `AudioSystem.h:162-176` still declares them - but Android 17 compiles `AudioSystem.cpp` into a
+  **different** library, `libaudiobase` (`libaudioclient/Android.bp:135`), not `libaudioclient`. `nm -D` on the built
+  `libaudioclient.so` confirms it exports none of the four, and a scan of 1,500 built `.so` files found no other
+  provider. Same relocation we already handled for the WFD shim.
+
+  **Fixed** in vendor fork `port/l24-vendor-1` `1e0cce7` - added `libaudiobase` to `libwfdmmsrc_system`'s
+  `shared_libs`. Scoped by measurement: only this blob of the three declaring `libaudioclient` actually references
+  AudioSystem. **Not yet verified by a build** - round 16 has not been started on the owner's instruction.
+  Full evidence: [L7.md](L7.md) §7m.
 
 - ✅ The `hardware/lineage/compat` fork works — `libwfdservice_shim` links. Our whole contribution is **one line**,
   and upstream is only 2 commits ahead (both additive), so retiring the fork later is a two-command job.
