@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_system_vold, lineage-24.0, for one fix.
+
+  WHY
+  The first 24.0 boot died at post-fs-data with "enablefilecrypto_failed":
+    vold: Failed to install fscrypt key to /data: Inappropriate ioctl for device   (KeyUtil.cpp:330)
+  The Tab S5e kernel (4.9) has no FS_IOC_ADD_ENCRYPTION_KEY. 23.2 booted because LineageOS's 23.x vold carries
+  5cbee14 "Revert 'vold: remove session keyring workaround for old kernels'" (still needed for <4.14 devices),
+  which falls back to the legacy session keyring. The lineage-24.0 vold branch (11d8982) does not have it.
+  The fork's lineage-24.0 = 11d8982 + that revert + a copy of libkeyutils (system/core/libkeyutils is gone in
+  Android 17). Details: analysis/l24/boot-24-1.md "Strong-model review".
+
+  TO DO: propose the same to LineageOS on Gerrit, then drop this file.
+  Same remove-project/no-LineageOS-prefix pattern as sepolicy-icmp.xml.
+-->
+<manifest>
+  <remove-project name="LineageOS/android_system_vold" />
+
+  <project path="system/vold" name="android_system_vold"
+           remote="anton" revision="lineage-24.0" groups="pdk" />
+</manifest>

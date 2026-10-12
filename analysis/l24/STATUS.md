@@ -14,10 +14,28 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
 | L7 build loop | ✅ DONE | `agent/L7` → `L7.md` | **ROM BUILT** — 16 rounds, 1.1 GB OTA zip, `unzip -t` clean (§7n). Next: B2 flash/boot |
-| L8 boot attempts | 🔴 | `boot-24-1.md` | **boot-24-1 failed**: `enablefilecrypto_failed`. Kernel has no `FS_IOC_ADD_ENCRYPTION_KEY`; fstab fix proposed, not applied |
+| L8 boot attempts | 🔴 | `boot-24-1.md`, `boot-24-2.md` | **boot-24-2 failed**: `enablefilecrypto_failed`, new errno. The vold fork `f8c406dbd981` works (old ENOTTY gone), but AOSP's removal had a **second half in `system/core`** (`5d7c35ce205f`, `6dce39d61cf75`) that is not restored: nobody creates the `"fscrypt"` keyring → `Unable to find device keyring: Required key not available`. Fix identified, **not applied** — needs the strong model |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
 | L11 release | ⬜ | draft release | |
+
+### 2026-10-12 (evening): build 17 with the vold fix, and boot-24-2
+
+- ✅ **Build 17 succeeded**: `mka bacon -k 0` with `WITH_ADB_INSECURE=true`, **1 h 29 m 36 s**, 314 steps, 0 `FAILED:`.
+  Zip `lineage-24.0-20261012-UNOFFICIAL-gts4lvwifi.zip`, 1,162,216,299 B, sha256 `1b1eb16a43bf91d782500cc343cdca893b5dd48a58c9e323d35b5a534a8dd1d3`,
+  `unzip -t` clean. Kernel `4.9.337-g500658be3c16`. `/data` keeps `fileencryption=ice`; `/metadata` still OMR.
+  vold's fallback string and `libkeyutils.so` are both in the image.
+- ❌ **boot-24-2 still fails at `post-fs-data`, 15.34 s, but with a new error**: `Unable to find device keyring: Required key not
+  available`. The old `Inappropriate ioctl for device` (ENOTTY) is **gone**, so the vold revert does what it was meant to.
+- 🔴 **Root cause found.** AOSP removed the old-kernel session-keyring workaround in **three commits in two repos**; only one is
+  restored. `5d7c35ce205f` ("init: remove session keyring workaround for old kernels", `system/core`) and `6dce39d61cf75`
+  ("Remove libkeyutils", `system/core/libkeyutils`) are still in place, so **nothing creates the `"fscrypt"` keyring** that vold's
+  `KeyUtil.cpp:291` searches for. Neither "Keyring created" nor "Keyring is already created" appears in the log, confirming it.
+  Details, evidence and the (unapplied) fix: [boot-24-2.md](boot-24-2.md).
+- ✅ **The 23.2 recovery installs 24 zips — proven twice.** README's "not tested" caveat is now wrong.
+- ⚠️ `boot-log.sh`'s kernel-tag check false-alarms on a 524,288-byte `/proc/last_kmsg` cap; the script was not changed.
+- Open for the strong model: where `libkeyutils` should live (the vold fork carries a private copy under `system/vold/libkeyutils/`).
+  Restoring it needs a `system/core` fork and build 18 (~2–3 h, not the 1 h 30 m of build 17).
 
 ### 2026-10-10: state of the world
 
