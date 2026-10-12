@@ -1,2 +1,9 @@
 __pycache__/
 *.pyc
+
+# Raw boot logs pulled off the tablet by scripts/boot-log.sh.
+# They contain the device serial and the Wi-Fi/BT MAC addresses, so they stay
+# local. Commit short redacted excerpts instead, e.g.
+#   flash-logs/boot-1-last_kmsg-excerpt.md
+# The timestamped directories this script writes are ignored wholesale.
+flash-logs/[0-9]*/
