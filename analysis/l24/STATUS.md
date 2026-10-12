@@ -40,15 +40,12 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 - ⚠️ **The dominant risk in this port is the blob/platform age gap (22.2 blobs vs 24.0 platform), not FCM 7.**
   Two consecutive rounds died the same way: Android 17 deleted platform code the blobs still link against. Expect
   more. `review-L1-L3.md`'s "the work is device tree only" does not account for this at all.
-- 🔴 **L7 is blocked on a clang 22 default warning in the WiFi driver.** Round 14 confirms the §7k fix — `extract-cert`
-  and `sign-file` now build. It then fails on `qcacld-3.0/.../ce_main.c:2135`: `-Wimplicit-enum-enum-cast` is promoted
-  to fatal by the kernel's `-Wall` (`Makefile:413`) + `-Werror` (`Makefile:762`). **Confirmed by A/B, not inferred:** one
-  identical command line, md5-identical source, only the compiler swapped — `clang-r563880c` (v21) exits 0,
-  `clang-r596125` (v22) exits 1 with the exact error. clang 22 enables that warning by default. 11+ `.c` files in
-  `qcacld-3.0` return `A_STATUS` from `QDF_STATUS` functions, so round 14 stopped at the first of many; per-site patches
-  are not a realistic shape. Cheapest route is `KCFLAGS="-Wno-error=implicit-enum-enum-cast"` in our device fork — a
-  build-flag change, no kernel patch. Kernel compile error, so escalated per §L7.3. Full evidence, including a
-  reproduction trap worth reading first: [L7.md](L7.md) §7l.
+- ◐ **L7: the kernel now compiles.** Round 15 is running past 25% with no failures. The §7l blocker — clang 22
+  (r596125) enabling `-Wimplicit-enum-enum-cast` by default, fatal under the kernel's `-Wall` + `-Werror` — is fixed by
+  device fork `port/l24-dt-4` `c2fe044`, which appends
+  `KCFLAGS="-Wno-error=implicit-enum-enum-cast"` (not `-Wno-`, so every other warning stays fatal). Verified: `ce_main.o`,
+  the file that killed round 14, built at 20:27. Still outstanding: the other 10 `A_STATUS` sites in `qcacld-3.0`, then
+  modules, images and packaging, none of which this port has exercised yet. Full evidence: [L7.md](L7.md) §7l.
 
 - ✅ The `hardware/lineage/compat` fork works — `libwfdservice_shim` links. Our whole contribution is **one line**,
   and upstream is only 2 commits ahead (both additive), so retiring the fork later is a two-command job.
