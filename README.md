@@ -1,4 +1,4 @@
-# Unofficial LineageOS 23.2 for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
+# Unofficial LineageOS 23.2 (branch `lineage-23.2`, frozen at the release; 24 work is on `main`) for Galaxy Tab S5e (SM-T720 `gts4lvwifi`, SM-T725/T727 `gts4lv`)
 
 > I used AI to make this happen. The tablet I have works well, no bugs so far.  
 > Human TL;DR:  
@@ -9,7 +9,7 @@
 > 4. Boot into recovery, check it says 23.2.
 > 5. ⚠️ "Factory reset"/"Format data" the tablet (make sure you have a backup!).
 > 6. Select on the tablet "Apply update", "Apply from ADB", and sideload the correct ROM for your tablet using your PC.
-> 7. Flash MindTheGapps at this time if you want them.
+> 7. **Optional, only if you want Google apps:** right after the ROM and before the first boot, "Apply update", "Apply from ADB" again and sideload [MindTheGapps 16.0.0 arm64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) (see [Google apps](#google-apps-optional)).
 > 8. Reboot and you should be good.
 
 Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
@@ -74,12 +74,28 @@ Follow the official LineageOS install guide for your model but with the changes 
 | Download files | Take the ROM zip, `recovery-*.img` and `vbmeta-*.img` for **your codename** from the [latest release](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/latest). Never mix Wi-Fi and LTE files |
 | Flash recovery | Flash **the 23.2 recovery**. The 22.2 recovery can't install 23.2. Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest) (`samloader flash --partition RECOVERY recovery-*.img --no-reboot`) all work |
 | Factory reset | **Required**, also when coming from official 22.2 (different signing keys). ⚠️ Erases all data. It also formats `/metadata` (the OMR partition), which Android 16 needs |
-| Install Google Apps | Use [MindTheGapps **16.0.0** arm64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest), sideloaded before the first boot |
+| Install Google Apps | **Optional**, see [Google apps](#google-apps-optional) below |
 | Sideload | *"Signature verification failed"* is expected: answer *Yes*. Stopping at 47% with `adb: failed to read command: Success` is normal |
 
 Coming from Samsung stock: do the official guide's unlock and `vbmeta` steps first (with our `vbmeta-*.img`).  
 Coming from LineageOS 22.2: skip the unlock and `vbmeta` steps.  
 First boot can take up to 15 minutes.
+
+### Google apps (optional)
+
+Skip this if you don't want Google apps. They can only be added **now**: after the first boot you must factory reset to add them.
+Use [MindTheGapps **16.0.0** arm64](https://github.com/MindTheGapps/16.0.0-arm64/releases/latest) (arm64, not arm; 23.2 is Android 16).
+
+```bash
+# 1. ROM first (recovery: Apply update > Apply from ADB)
+adb sideload lineage-23.2-*-UNOFFICIAL-gts4lvwifi.zip   # LTE: gts4lv
+# 2. Then, WITHOUT rebooting: Apply update > Apply from ADB again
+adb sideload MindTheGapps-16.0.0-arm64-*.zip
+# 3. Reboot system
+```
+
+"Signature verification failed" is expected here too: answer *Yes*. Don't reboot between the two zips.
+Check the `.sha256sum` file next to the zip on the release page before flashing.
 
 **Stuck in Download mode?**  
 Unplug USB, hold *Vol Down + Power* until the screen goes black, then immediately hold *Vol Up + Power* to enter recovery. If you keep USB plugged in you will get back into Download mode again.
