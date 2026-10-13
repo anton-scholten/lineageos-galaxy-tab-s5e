@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_system_core, lineage-24.0, for the second half of the old-kernel keyring fix.
+  Pairs with vold-keyring.xml. See analysis/l24/boot-24-2.md.
+
+  WHY
+  boot-24-2 (with the vold fix) died one step later: "vold: Unable to find device keyring: Required key not
+  available". AOSP removed the 4.9-kernel session-keyring workaround in two repos (0e87a83 vold, 5d7c35ce205f init).
+  The vold half is in vold-keyring.xml. This fork's lineage-24.0 = upstream tip 7c3f32fe8 + a revert of 5d7c35ce205f:
+  init creates the shared session keyring (init.cpp) and the "fscrypt" keyring (FscryptInstallKeyring in builtins.cpp
+  for the file-encrypted mount result). libkeyutils is NOT restored here: system/core/libkeyutils is gone (6dce39d61cf75)
+  and the vold fork carries system/vold/libkeyutils, which init links by module name.
+
+  TO DO: propose both reverts to LineageOS on Gerrit, then drop this file and vold-keyring.xml.
+-->
+<manifest>
+  <remove-project name="LineageOS/android_system_core" />
+
+  <project path="system/core" name="android_system_core"
+           remote="anton" revision="lineage-24.0" groups="pdk" />
+</manifest>

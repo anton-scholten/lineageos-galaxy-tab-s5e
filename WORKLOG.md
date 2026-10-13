@@ -1014,3 +1014,7 @@ themselves, not for a plain sideload.
   Kernel fork needed nothing: `lineage-24.0` already equals `lineage-23.2` (`500658be3c16`; 24 uses it unchanged). Then deleted the `port/l24-*` branches on the forks
   and `agent/L1,L2,L3,L7` + `lead/2026-10-09-l24-review` here (all merged into `main`; old tips: L1 `36ffe11`, L2 `4ff92c2`, L3 `4ed0735`, L7 `d10db7e`, lead `2fce93c`).
   `local_manifests/24/*` now point at `lineage-24.0`. Backup forks untouched. New `lineage-23.2` branch here = tag `v23.2-20261008`.
+
+- 2026-10-13 L8/D: merged agent/L8, D1, D2 docs into main. Fixed boot-24-2 (init half of the old-kernel keyring revert): new fork `android_system_core` `lineage-24.0` `40a6fdb6d`, manifest `system-core-keyring.xml`, build 18 started
+  (without WITH_ADB_INSECURE, refused by the classifier; owner to decide). D2 (thermal sepolicy) cherry-picked onto device fork `lineage-24.0` `a9d9a0c` and `lineage-23.2` `278c7f9`. D1 (health HAL) held, see
+  analysis/l24/charging-notification-review.md.

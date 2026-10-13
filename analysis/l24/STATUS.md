@@ -14,7 +14,7 @@ Legend: ⬜ not started · ◐ in progress · ✅ done · 🔍 waiting for revie
 | L6 device-tree port | ✅ | `port/l24-dt-1` @ `5af53f1` | 4 commits, +10/−5 |
 | L4 source tree | ✅ | `L4.md` | Commands written, **sync not started** |
 | L7 build loop | ✅ DONE | `agent/L7` → `L7.md` | **ROM BUILT** — 16 rounds, 1.1 GB OTA zip, `unzip -t` clean (§7n). Next: B2 flash/boot |
-| L8 boot attempts | 🔴 | `boot-24-1.md`, `boot-24-2.md` | **boot-24-2 failed**: `enablefilecrypto_failed`, new errno. The vold fork `f8c406dbd981` works (old ENOTTY gone), but AOSP's removal had a **second half in `system/core`** (`5d7c35ce205f`, `6dce39d61cf75`) that is not restored: nobody creates the `"fscrypt"` keyring → `Unable to find device keyring: Required key not available`. Fix identified, **not applied** — needs the strong model |
+| L8 boot attempts | ◐ | `boot-24-1.md`, `boot-24-2.md` | boot-24-2: vold half works, init half missing. Fixed in `android_system_core` `40a6fdb6d` (+ D2 sepolicy); **build 18 running** (no WITH_ADB_INSECURE), then boot-24-3 |
 | L9 LTE radio (strong only) | ⛔ | | Blocked on decision: radio@1.4 vs FCM 7, no device-tree fix |
 | L10 testing | ⬜ | `L10.md` | |
 | L11 release | ⬜ | draft release | |

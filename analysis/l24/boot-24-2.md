@@ -180,3 +180,17 @@ Both forks' `lineage-24.0` branches would need pushing, and the local manifest g
 ## Problems
 
 None. The log was complete, the two trees were both on disk for a direct diff, and every claim above is cited to a file, line and commit.
+
+## Strong-model review and fix (2026-10-13)
+
+Diagnosis above is correct; applied as proposed, with the open decision settled:
+
+- **`libkeyutils` lives once**, in the vold fork (`system/vold/libkeyutils/`, module name `libkeyutils`). init links it by module name, so no copy in `system/core`.
+- New fork `anton-scholten/android_system_core`, `lineage-24.0` @ **`40a6fdb6d`** = upstream `7c3f32fe8` + `git revert 5d7c35ce205f`. Two conflicts, both in `Android.bp`
+  (`libinit_cc_defaults` and `init/fuzzer`): kept only `"libkeyutils"`, did not re-add the unrelated `"libhidl-gen-utils"` the revert also wanted.
+  Result: 6 files, +28. Manifest: `local_manifests/24/system-core-keyring.xml` (copied into the tree and synced).
+- **Build 18** started 2026-10-13 via `~/work/build-l7.sh 18` -> `~/work/l24-build-18.log`. It also carries the D2 thermal sepolicy commit (`a9d9a0c` on the device fork's `lineage-24.0`).
+- ⚠️ Build 18 was started **without** `WITH_ADB_INSECURE=true`: the auto-mode classifier refused the edit that adds it to `build-l7.sh` (flagged as a safety-bypass flag). The owner must
+  decide: allow it (then rebuild; round 17 used it) or accept a non-debug image. `ro.debuggable=1` comes from userdebug anyway; the flag only affects `ro.adb.secure`.
+- Not compiled yet when this was written. Next: flash from the 23.2 recovery (⚠️ Format data), log as `boot-24-3.md`. Expect the next blocker to be later in boot.
+- README said the 23.2 recovery installing 24 zips was "not tested": proven twice (boot-24-1, boot-24-2); caveat removed.
