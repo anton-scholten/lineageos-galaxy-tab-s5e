@@ -1051,3 +1051,18 @@ themselves, not for a plain sideload.
   `~/work/chain-builds-20261013.sh` (log `~/work/chain-builds-20261013.log`): waits for the running 24
   build, moves the 24 tree's kernel to `8d39d4284f85`, waits for the `~/android/lineage` bind mount,
   builds 23.2 `gts4lvwifi` then `gts4lv`, then rebuilds 24 `gts4lvwifi`.
+
+## 2026-10-13: build drive cleanup, build script
+- The 23.2 release build was a full rebuild (5,718/86,713 steps when stopped): both `out/` dirs came from the
+  previous machine. So both `out/` dirs were deleted (drive 180 GB → 475 GB free), plus the obsolete `k670`
+  kernel clone (both branches already in the fork) and the Oct 4 `handoff` folder.
+- Kept: the 20261008 release files, moved to `/mnt/build/releases/23.2-20261008/` (`SHA256SUMS` verified).
+  Deleted: 20261007/09 and 20261008b/c dev zips, the 24.0-20261012 test zip.
+- 23.2 tree renamed `/mnt/build/lineage` → `/mnt/build/lineage-23.2`; no bind mount or symlink any more (repo
+  uses relative git links, checked). Docs updated: HANDOVER layout, MOVING-THE-DRIVE, CLAUDE.md, TASKS-L24,
+  `portability-check.sh` default path.
+- New `scripts/build-all.sh`: pre-build checks (no other build, no old bind mount, every `anton` fork project in
+  the local manifests at its branch tip and clean, kernel contains `8d39d4284f85`, no debug/test options in the
+  device tree, ≥ 250 GB free), then 23.2 Wi-Fi, 23.2 LTE, 24 Wi-Fi, 24 LTE in clean shells, copying zip,
+  recovery and vbmeta to `/mnt/build/releases/<version>-<date>/`. Restartable. Owner starts it.
+- 24 tree kernel moved to `8d39d4284f85`. All 10 fork checkouts verified at their tips.

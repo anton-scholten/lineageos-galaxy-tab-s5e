@@ -15,7 +15,7 @@ local manifests and device-tree patches. It is not an Android source tree.
   (= LineageOS `d1b339b` + patches 0001–0004 + audio XML + P6 AntHalService fix + boot fixes, uclamp, WFD shim, SELinux; in the 20261008 release, `1188e2b`),
   `anton-scholten/android_kernel_samsung_sdm670` (= the ported ExyHyperBrick series + SELinux avtab fix + BPF ld_abs R2 fix, `8d39d4284f85`; 20261008 release had `500658be3c16`), and
   `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (= TheMuppets `lineage-22.2` + patched `libwfdservice.so` + perf XML remap, `51de1d4`). `scripts/check-pins.sh` checks all pins.
-- Build tree: external drive `/mnt/build/lineage`, bind-mounted at `~/android/lineage` (HANDOVER "Build machine layout").
+- Build trees: external drive, real paths `/mnt/build/lineage-23.2` and `/mnt/build/lineage-24` (no bind mount or symlink); release files in `/mnt/build/releases/<version>-<date>/`. Build with `scripts/build-all.sh` (HANDOVER "Build machine layout").
   `patches/` is only a record of 0001–0004. New device-tree changes go into the fork as commits, not as new patch files.
 - Backup forks (read-only snapshots, never sync): `anton-scholten/android_kernel_samsung_exynos9810`,
   `anton-scholten/android_device_samsung_exynos9810-common`.

@@ -10,10 +10,12 @@ things that matter live on the machine's internal disk, and one of them breaks t
 
 | Path | What | Portable |
 |---|---|---|
-| `/mnt/build/lineage` | LineageOS 23.2 tree, `.repo`, `out/` (incl. `out/keep/release-20261008/`) | source yes, `out/` **no** |
-| `/mnt/build/lineage-24` | LineageOS 24.0 tree, synced, device tree on `l24` @ `5af53f1` | yes |
-| `/mnt/build/k670` | ExyHyperBrick kernel clone | yes |
-| `/mnt/build/handoff` | misc | yes |
+| `/mnt/build/lineage-23.2` | LineageOS 23.2 tree, `.repo`, `out/` | source yes, `out/` **no** |
+| `/mnt/build/lineage-24` | LineageOS 24.0 tree, `.repo`, `out/` | source yes, `out/` **no** |
+| `/mnt/build/releases/` | Release files, one folder per build date (`23.2-20261008/`, …), each with `SHA256SUMS` | yes |
+
+Layout since 2026-10-13: both trees are used at their real paths. No bind mount, no symlink.
+`scripts/build-all.sh` builds from them and fills `releases/`.
 
 ## What does NOT travel
 
@@ -86,27 +88,22 @@ it depends on plug order, and `/dev/sda` here is a different physical disk.
 
 ```bash
 sudo mount /dev/sdb /mnt/build
-sudo mount --bind /mnt/build/lineage ~/android/lineage
 ```
 
-That is the whole sequence. The bind mount is what puts the 23.2 tree at the path the 23.2-era notes and
-`out/` expect.
-
-The 24.0 tree needs **no** bind mount. `/mnt/build` is `anton`-owned and writable, so
-`/mnt/build/lineage-24` is used directly. That is deliberate: it needs no `sudo`, and it removes a class of
-"bind mount missing, build writes somewhere else" failure. The cost is longer paths in build logs, which
-nothing cares about.
+That is the whole sequence. Both trees are used directly under `/mnt/build` (`anton`-owned and writable):
+no `sudo` beyond the mount, and no "bind mount missing, build writes somewhere else" failure. Until
+2026-10-13 the 23.2 tree was bind-mounted at `~/android/lineage`; that is gone, so older notes that say
+`~/android/lineage` mean `/mnt/build/lineage-23.2`.
 
 ### Make it survive a reboot
 
-Neither mount was in `/etc/fstab`, which is why they must be redone manually. To fix that:
+The mount is not in `/etc/fstab`, which is why it must be redone manually. To fix that:
 
 ```bash
 echo '/dev/sdb /mnt/build ext4 defaults,nofail 0 2' | sudo tee -a /etc/fstab
 ```
 
-`nofail` lets the machine boot with the drive unplugged instead of dropping to an emergency shell. The bind
-mount is not an `fstab` line; it needs a `mount --bind` after each boot, or a systemd unit.
+`nofail` lets the machine boot with the drive unplugged instead of dropping to an emergency shell.
 
 Then verify:
 
@@ -118,7 +115,6 @@ Expected, and only these:
 
 ```
 /mnt/build                     /dev/sdb  ext4
-/home/anton/android/lineage    /dev/sdb  ext4
 ```
 
 ### Paths are baked in

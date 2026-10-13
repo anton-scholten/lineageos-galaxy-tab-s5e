@@ -46,7 +46,7 @@ set -uo pipefail
 MODE="${1:---preflight}"
 VERBOSE="${VERBOSE:-0}"
 TREE="${TREE:-/mnt/build/lineage-24}"
-TREE232="${TREE232:-/mnt/build/lineage}"
+TREE232="${TREE232:-/mnt/build/lineage-23.2}"
 
 PASS=0; FAIL=0; WARN=0; SKIP=0
 declare -a FAILED=() WARNS=()

@@ -109,10 +109,8 @@ Collect facts only. The strong model decides what they mean.
 
 ### L4: source tree setup (🟢 prepares, 👤 runs)
 Prepare, but don't run, the exact commands for a `lineage-24.0` tree in `L4.md`:
-- Location decided in L0. Since 2026-10-09 the 23.2 tree (source + `out/`, ~350 GB) lives on the external drive `/mnt/build/lineage`,
-  bind-mounted at `~/android/lineage` (HANDOVER.md, "Build machine layout"). The drive has ~525 GB free and the internal disk ~245 GB.
-  A 24 tree needs ~150 GB source + ~300 GB `out/`: put it at `/mnt/build/lineage-24` (bind-mount at `~/android/lineage-24`), or replace the
-  23.2 tree after copying `out/keep/release-20261008/` elsewhere. Never mix the two trees' `out/` folders.
+- Location (since 2026-10-13): `/mnt/build/lineage-23.2` and `/mnt/build/lineage-24` on the external drive, real paths, no
+  bind mount. Release files in `/mnt/build/releases/`. Never mix the two trees' `out/` folders. See HANDOVER "Build machine layout".
 - `repo init -u https://github.com/LineageOS/android.git -b lineage-24.0 --git-lfs --no-clone-bundle`, copy `local_manifests/24/*.xml` (from L5), `repo sync -c -j4`.
 - `git-lfs` installed before syncing. Expected size: ~150 GB of source plus ~300 GB of `out/`.
 

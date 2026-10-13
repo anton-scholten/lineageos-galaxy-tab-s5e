@@ -20,16 +20,19 @@ owner's tablet. Owner tests pass: Wi-Fi, hotspot, per-app data usage (eBPF), mic
 | Checks | `scripts/device-checks.sh`: 5 PASS, 1 SKIP (needs root). NetBpfLoad loads all programs; 14 cgroup BPF programs attached |
 | Known gaps | Casting (P8) is fixed at build level. **On-device cast test pending.** QTI perf HAL boost opcodes still target `/dev/stune` (vendor XML, silently ignored). `process_mrelease` not ported (lmkd works with PSI). LTE model unbuilt |
 
-### Build machine layout (owner's laptop, since 2026-10-09)
-The whole 23.2 build tree is on the external USB drive (`/dev/sda`, ext4, label-less, mounted by hand at `/mnt/build`):
-`/mnt/build/lineage` = source + `.repo` + `out/` (incl. `out/keep/release-20261008/`). It appears at the usual path through a
-bind mount, so the build never sees a path change:
-```bash
-sudo mount /dev/sda /mnt/build
-sudo mount --bind /mnt/build/lineage ~/android/lineage
-```
-Neither mount is in `/etc/fstab`; redo both after every reboot. The internal disk only holds tools (`~/bin/repo`,
-`~/Downloads/samloader`) and `~/work` (logs, kernel clones). An incremental build after the move: ~54 min, only packaging steps.
+### Build machine layout (since 2026-10-13)
+External drive (ext4, mounted by hand: `sudo mount /dev/sdX /mnt/build`; check the letter, it changes with plug order).
+Both trees are used at their real paths, **no bind mount, no symlink**:
+
+| Path | What |
+|---|---|
+| `/mnt/build/lineage-23.2` | 23.2 tree (renamed from `/mnt/build/lineage`; older notes saying `~/android/lineage` mean this) |
+| `/mnt/build/lineage-24` | 24.0 tree |
+| `/mnt/build/releases/<version>-<date>/` | release zips, recoveries, vbmetas, `SHA256SUMS` (real copies). `23.2-20261008/` = the drafted GitHub release |
+
+Both `out/` dirs were deleted on 2026-10-13 (they came from the previous machine, so every build was a full rebuild
+anyway). Build everything with `scripts/build-all.sh` (checks first; `--check` = checks only); it is restartable.
+The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/work` (logs, `boot-backup/`).
 
 ## Next steps
 
