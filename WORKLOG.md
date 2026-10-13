@@ -1047,3 +1047,7 @@ themselves, not for a plain sideload.
   kernels have the same bug (to be reported to krazey).
 - The 24 build running at the time was already compiling the old kernel and was left alone. A stray
   `m bootimage` on the 23.2 tree (from an incompletely stopped background build) was killed.
+- 23.2 tree's device repo moved to the fork tip `278c7f9` (D2) for the next release. Build chain
+  `~/work/chain-builds-20261013.sh` (log `~/work/chain-builds-20261013.log`): waits for the running 24
+  build, moves the 24 tree's kernel to `8d39d4284f85`, waits for the `~/android/lineage` bind mount,
+  builds 23.2 `gts4lvwifi` then `gts4lv`, then rebuilds 24 `gts4lvwifi`.
