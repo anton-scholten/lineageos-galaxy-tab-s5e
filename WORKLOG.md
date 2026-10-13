@@ -1041,3 +1041,9 @@ themselves, not for a plain sideload.
   unplug reach the HAL in 0.15-0.23 s, owner confirms the icon and sound are immediate.
 - Built the kernel outside Soong because the 24 build was using all the RAM; a temporary
   `~/android/lineage` symlink made the logged kernel command's paths resolve (removed afterwards).
+- Pushed `8d39d4284f85` to the kernel fork (`lineage-23.2` and `lineage-24.0`); bumped the pins in
+  `check-pins.sh`, `portability-check.sh`, `boot-log.sh`, `REPO-SETUP.md`, `CLAUDE.md`, `HANDOVER.md`.
+  It matches upstream `e6a18d36118b` (v5.9), which the ExyHyperBrick series lacks; their 23.2 and 24.0
+  kernels have the same bug (to be reported to krazey).
+- The 24 build running at the time was already compiling the old kernel and was left alone. A stray
+  `m bootimage` on the 23.2 tree (from an incompletely stopped background build) was killed.

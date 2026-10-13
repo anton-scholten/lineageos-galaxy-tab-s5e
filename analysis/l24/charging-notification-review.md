@@ -110,3 +110,15 @@ No device-tree or libhealthloop change needed. D1 stays rejected. Probe tool sou
 
 Any other `LD_ABS`/`LD_IND` program using R1 as the index register was equally broken on this kernel, so
 the fix may also help other mainline BPF programs that use packet loads.
+
+### Upstream reference and other trees (2026-10-13)
+
+- Upstream had the same bug from `e0cea7ce988c` (4.18) and fixed it in **`e6a18d36118b` "bpf: Fix
+  clobbering of r2 in bpf_gen_ld_abs"** (Daniel Borkmann, v5.9; Fixes: `e0cea7ce988c`). Our
+  `8d39d4284f85` is the same change. The ExyHyperBrick "5.15 level" BPF series missed it, so other 5.9-5.15
+  `kernel/bpf` / `net/core/filter.c` fixes may be missing too; worth an audit against the 5.15 tree.
+- **ExyHyperBrick** `android_kernel_samsung_exynos9810` `lineage-23.2` and `lineage-24.0`: same wrong order
+  in `bpf_gen_ld_abs()`. Their `exynos9810-common` `common.mk` ships the same
+  `android.hardware.health-service.samsung` and sets the same kver override, so the S9/S9+/Note9 builds
+  should show the same late charging icon and sound. Owner to report it to krazey (cite `e6a18d36118b`).
+- Pushed: kernel fork `lineage-23.2` and `lineage-24.0` → `8d39d4284f85` (fast-forward from `500658be3c16`).
