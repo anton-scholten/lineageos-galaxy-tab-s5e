@@ -62,3 +62,18 @@ plug/unplug and check the `healthd: battery` line follows within ~1 s. Reboot re
 on this device. Options: a `hardware/interfaces` (or `hardware/samsung` health) patch that skips
 `AttachFilter` when the real kernel is < 5.10, or a 4.9 kernel fix for whatever makes the
 program drop the packet. The HAL patch is smaller and needs no kernel work.
+
+### Live test result (2026-10-13): confirmed
+
+Unpinned the filter (`rm /sys/fs/bpf/vendor/prog_filterPowerSupplyEvents_skfilter_power_supply`) and
+restarted `vendor.health-samsung`; the HAL logged the expected "failed to load BPF program" warning.
+- Steady charging: the HAL now updates 2–4 ms after every `sec_bat_monitor_work` (was 3 updates in
+  340 s with the filter).
+- Four unplug/plug edges (USB and AC): `sec_bat_cable_work: End` → `healthd: battery` in
+  **0.1–0.2 s** every time (was 8.7–223 s).
+
+**The filter drops `power_supply` uevents on this kernel.** Root cause is in the 4.9 BPF backport
+(the program is correct on real ≥ 5.10 kernels). Owner's call: fix the kernel, not libhealthloop.
+Next: run the pinned program through `BPF_PROG_TEST_RUN` with a captured battery uevent, dump its
+xlated instructions, and bisect interpreter vs JIT and the `LD_ABS`/`LD_IND` → `bpf_skb_load_helper_*_no_cache`
+rewrite (`net/core/filter.c:8252`).

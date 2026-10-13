@@ -1030,3 +1030,6 @@ themselves, not for a plain sideload.
   which loads because of `ro.bpf.kver_override=5.15.178`. Live test blocked: `adb root` refused
   (rooted debugging toggle off). Details and test steps in
   `analysis/l24/charging-notification-review.md`.
+- Live test confirmed it: with the uevent BPF filter unpinned and the health HAL restarted, plug and
+  unplug reach the HAL in 0.1–0.2 s (was 8.7–223 s). The filter drops `power_supply` uevents on the
+  4.9 BPF backport. Decision: fix it in the kernel. Not yet root-caused inside the kernel.
