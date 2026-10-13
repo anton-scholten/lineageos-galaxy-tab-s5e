@@ -1018,3 +1018,15 @@ themselves, not for a plain sideload.
 - 2026-10-13 L8/D: merged agent/L8, D1, D2 docs into main. Fixed boot-24-2 (init half of the old-kernel keyring revert): new fork `android_system_core` `lineage-24.0` `40a6fdb6d`, manifest `system-core-keyring.xml`, build 18 started
   (without WITH_ADB_INSECURE, refused by the classifier; owner to decide). D2 (thermal sepolicy) cherry-picked onto device fork `lineage-24.0` `a9d9a0c` and `lineage-23.2` `278c7f9`. D1 (health HAL) held, see
   analysis/l24/charging-notification-review.md.
+
+## 2026-10-13: charging indicator root cause narrowed
+- Owner clarified the symptom: on plug-in the status-bar battery icon, the charging sound and the
+  lock-screen text do not change at all; USB to a PC is enough to show it.
+- Live checks on 23.2 overturned D1: the Lineage health HAL provides only `IChargingControl` and
+  `IFastCharge`, not `IHealth`, so D1 would leave no health HAL. D1 must not be applied.
+  The "Samsung blob" is AOSP `libhealth_aidl_impl` built from `hardware/samsung/aidl/health`.
+- Kernel emits `power_supply` uevents every ~10 s while charging, but the HAL ignores them and only
+  updates on its fallback timer. Suspect: the Android 16 uevent BPF filter (built for ≥ 5.10),
+  which loads because of `ro.bpf.kver_override=5.15.178`. Live test blocked: `adb root` refused
+  (rooted debugging toggle off). Details and test steps in
+  `analysis/l24/charging-notification-review.md`.

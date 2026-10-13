@@ -24,3 +24,41 @@ Source packet: [charging-notification.md](charging-notification.md). Reviewed 20
   Confirm what the owner actually expects to see before chasing "never posted"; the 8.7-223 s `BatteryService` lag would already delay all of those.
 - Cheapest next experiment, no flashing of 24: on 23.2, run the packet's probes after D1 only (A/B of the lag, packet section 10). Only then decide.
 - Questions left open from the packet section 12: 1 (D1), 5 (notification triage), 6 (accept the blob's lag?), 7 (A/B). Question 4 (backport) is answered: D2 yes, D1 no.
+
+## 2026-10-13 follow-up: D1 is wrong; new lead is the uevent BPF filter
+
+Checked live on the tablet (23.2, fresh boot, USB cable to a PC only).
+
+**D1 would remove the only `IHealth` provider.** `vendor.lineage.health-service.default` registers
+only `vendor.lineage.health.IChargingControl/default` and `IFastCharge/default` (its VINTF fragment
+and `service list` agree). It has never tried to own `IHealth/default`. Charging control is not dead
+either: both interfaces are registered. Dropping `android.hardware.health-service.samsung` would
+leave `BatteryService` without a health HAL, and also remove `vendor.charger` (off-mode charging).
+**Do not apply D1.**
+
+**The "Samsung blob" is source**, `hardware/samsung/aidl/health/Health.cpp` (79 lines): a stock
+AOSP `libhealth_aidl_impl` + `HalHealthLoop`, no Samsung-specific polling policy. The packet's
+"prebuilt with an alarm policy" model is wrong.
+
+**Measured:** kernel calls `power_supply_changed()` (→ `kobject_uevent`) every ~10 s while charging
+(`sec_bat_monitor_work`, `sec_battery.c:3556`). The HAL logs `healthd: battery` on every update. On
+this boot: kernel `Status(Charging) Cable(USB)` from ≤99 s, HAL updates only at 17, 23 and 124 s,
+then none to 344 s. Uevents are not reaching the HAL; it only updates on its fallback timer
+(600 s on battery) or when something else asks. That explains the 8.7–223 s spread and why the icon,
+charging sound and lock-screen text all stay unchanged.
+
+**Suspect:** `HealthLoop: Successfully attached the BPF filter to the uevent socket`. The filter
+(`hardware/interfaces/health/utils/libhealthloop/filterPowerSupplyEvents.c`) is built for kernels
+≥ 5.10 only. It loads here because patch 0004 sets `ro.bpf.kver_override=5.15.178`
+(netbpfload logs `kver:50f00b2`). On the backported 4.9 BPF it very likely drops the
+`power_supply` uevents.
+
+**Live test (needs Developer options → rooted debugging, wireless adb so the port is free):**
+`adb root`; `rm /sys/fs/bpf/vendor/prog_filterPowerSupplyEvents_skfilter_power_supply`;
+`setprop ctl.restart vendor.health-samsung` (expect the "failed to load BPF program" warning);
+plug/unplug and check the `healthd: battery` line follows within ~1 s. Reboot restores everything.
+
+**Fix if confirmed (confidence medium-high until tested):** keep the HAL from attaching the filter
+on this device. Options: a `hardware/interfaces` (or `hardware/samsung` health) patch that skips
+`AttachFilter` when the real kernel is < 5.10, or a 4.9 kernel fix for whatever makes the
+program drop the packet. The HAL patch is smaller and needs no kernel work.
