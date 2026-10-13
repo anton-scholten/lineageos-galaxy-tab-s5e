@@ -5,7 +5,7 @@ Source packet: [charging-notification.md](charging-notification.md). Reviewed 20
 | Item | Decision | State |
 |---|---|---|
 | **D2** thermal HAL reads `sec-*-thermistor` (sepolicy, +3 lines, `a8b5d8e`) | **Accepted.** Additive, narrow, same pattern as `1188e2b`. | Cherry-picked clean onto both device-fork branches and pushed: `lineage-24.0` `a9d9a0c`, `lineage-23.2` `278c7f9`. 24 is in build 18. 23.2 needs a rebuild to ship (no Format data needed, signing keys are identical). |
-| **D1** ship only the Lineage AIDL health HAL (`647daf4`, `gts4lv.mk`) | **Held. Not merged. Elevate.** | Local only, branch `port/l24-dt-5` in `~/work/wt/fork-D1`. |
+| **D1** ship only the Lineage AIDL health HAL (`647daf4`, `gts4lv.mk`) | **Held. Not merged. Elevate.** | Not pushed. Saved as [D1-health-hal.patch](D1-health-hal.patch) (applies to the device fork, cut from `c2fe044`). |
 
 ## Why D1 is held (I am not confident, so I did not ship it)
 
