@@ -1033,3 +1033,11 @@ themselves, not for a plain sideload.
 - Live test confirmed it: with the uevent BPF filter unpinned and the health HAL restarted, plug and
   unplug reach the HAL in 0.1–0.2 s (was 8.7–223 s). The filter drops `power_supply` uevents on the
   4.9 BPF backport. Decision: fix it in the kernel. Not yet root-caused inside the kernel.
+- **Root cause found and fixed in the kernel.** `bpf_gen_ld_abs()` in the ld_abs/ld_ind backport
+  (`4113f8c5e4ec`) set `R1 = ctx` before copying the `LD_IND` source register to `R2`, so loads indexed
+  by R1 used the ctx pointer as offset and the program returned 0. Fix `8d39d4284f85` (upstream
+  order), local branch `fix-ld-ind-r1`, not pushed yet. Verified on the tablet with a repacked boot
+  image written by `dd` (originals in `~/work/boot-backup/`): filter keeps battery uevents, plug and
+  unplug reach the HAL in 0.15-0.23 s, owner confirms the icon and sound are immediate.
+- Built the kernel outside Soong because the 24 build was using all the RAM; a temporary
+  `~/android/lineage` symlink made the logged kernel command's paths resolve (removed afterwards).

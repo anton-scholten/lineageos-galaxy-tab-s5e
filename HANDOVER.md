@@ -47,6 +47,7 @@ run from [RUNBOOK.md](RUNBOOK.md) §9, tracked in [analysis/l24/STATUS.md](analy
 | 5 | Publish: contact krazey (kernel author) first, then an unofficial release (XDA thread, GitHub release with zip + recovery, install guide incl. ⚠️ OMR format) | owner | |
 | 6 | Upstream: email devrel@lineageos.org / the gts4lv maintainer with results; small device fixes to Gerrit; the SELinux avtab fix as a standalone kernel change | owner | |
 | 7 | Optional: remap the QTI perf HAL's schedtune opcodes to uclamp; `process_mrelease` port if lmkd misbehaves | strong model | |
+| 8 | **Charging indicator fix (2026-10-13), kernel `8d39d4284f85`** (local branch `fix-ld-ind-r1` in `/mnt/build/lineage/kernel/samsung/sdm670`, not pushed): BPF `LD_IND` with source R1 was broken by the ld_abs backport, so healthd's uevent filter dropped every `power_supply` event (charging icon/sound 8.7-223 s late). Verified on the owner's tablet (boot image flashed by `dd`, backups in `~/work/boot-backup/`). To do: push to the kernel fork `lineage-23.2` and `lineage-24.0`, bump `scripts/check-pins.sh`, rebuild 23.2 (no Format data). Probably also in ExyHyperBrick's kernel: report to krazey. Details: [charging-notification-review.md](analysis/l24/charging-notification-review.md) | owner + agent | |
 
 ## Rebuilding the working environment (cloud container)
 ```bash

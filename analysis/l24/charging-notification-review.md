@@ -77,3 +77,36 @@ restarted `vendor.health-samsung`; the HAL logged the expected "failed to load B
 Next: run the pinned program through `BPF_PROG_TEST_RUN` with a captured battery uevent, dump its
 xlated instructions, and bisect interpreter vs JIT and the `LD_ABS`/`LD_IND` → `bpf_skb_load_helper_*_no_cache`
 rewrite (`net/core/filter.c:8252`).
+
+### Root cause and fix (2026-10-13): kernel, verified on device
+
+`BPF_PROG_TEST_RUN` with a captured battery uevent (769 bytes, `SUBSYSTEM=` at offset 139) returned
+**0 (DROP)**; a live `NETLINK_KOBJECT_UEVENT` socket with the pinned filter attached received 0 of 1
+battery uevents. The verifier's xlated program showed why:
+
+```
+r1 = r7; r1 += -13      ; LD_IND offset computed in r1
+r1 = r6                 ; ctx overwrites it
+r2 = r1                 ; offset := ctx pointer
+call bpf_skb_load_helper_*_no_cache   -> -EFAULT -> program returns 0
+```
+
+`bpf_gen_ld_abs()` (`net/core/filter.c`) in the backport `4113f8c5e4ec` ("BACKPORT: bpf: implement
+ld_abs/ld_ind in native bpf") sets `R1 = ctx` **before** copying the `BPF_IND` source register into
+`R2`. Upstream 5.15 emits the `R2` setup first. clang allocates R1 as the source register in this
+program, so every packet load got a garbage offset.
+
+**Fix:** kernel `8d39d4284f85` "bpf: filter: set R2 before R1 in bpf_gen_ld_abs()" (2-line reorder,
+matches upstream). Built incrementally against the 23.2 tree (same clang r563880c), repacked into the
+tablet's own boot image (header and ramdisk unchanged, unsigned AVB hash footer re-added; `vbmeta`
+flags 3), written with `dd`. Results on `4.9.337-g8d39d4284f85`:
+- `BPF_PROG_TEST_RUN`: retval 769 (keep); live socket with filter: 1 of 1 delivered.
+- Six plug/unplug edges, including plug-in after 60 s idle with the screen off: HAL update
+  **0.15-0.23 s** after `sec_bat_cable_work`. Owner: icon and charging sound immediate, screen wakes
+  on plug-in.
+
+No device-tree or libhealthloop change needed. D1 stays rejected. Probe tool source: `psfilt.c`
+(session scratch, not kept; rebuild from the description above if needed).
+
+Any other `LD_ABS`/`LD_IND` program using R1 as the index register was equally broken on this kernel, so
+the fix may also help other mainline BPF programs that use packet loads.
