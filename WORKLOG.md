@@ -1066,3 +1066,14 @@ themselves, not for a plain sideload.
   device tree, ≥ 250 GB free), then 23.2 Wi-Fi, 23.2 LTE, 24 Wi-Fi, 24 LTE in clean shells, copying zip,
   recovery and vbmeta to `/mnt/build/releases/<version>-<date>/`. Restartable. Owner starts it.
 - 24 tree kernel moved to `8d39d4284f85`. All 10 fork checkouts verified at their tips.
+
+## 2026-10-14/15: release builds with the charging fix
+- `scripts/build-all.sh` ran from scratch on both trees, no `FAILED:`, all `ro.debuggable=0`:
+  23.2 Wi-Fi 9 h 06 m, 23.2 LTE 2 h 01 m, 24 Wi-Fi 12 h 56 m, 24 LTE 3 h 23 m (started 2026-10-14 07:04, done 10-15 10:30).
+- Results: `/mnt/build/releases/23.2-20261014/` and `/mnt/build/releases/24.0-20261015/`, `SHA256SUMS` verified.
+  The 24 run crossed midnight, so its zips are `24.0-20261014` (Wi-Fi) and `24.0-20261015` (LTE): the zip name is
+  the ROM's `ro.lineage.version` and is never renamed. The 24 folder was renamed to its finish date and the LTE
+  recovery/vbmeta to `20261015` to match their zip.
+- Script fixed for that: recovery/vbmeta take their zip's date; each version builds into
+  `releases/<version>-<start>.partial/`, renamed to `<version>-<finish date>` once all its devices are in.
+- Free on `/mnt/build`: 140 GB.

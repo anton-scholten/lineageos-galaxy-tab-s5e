@@ -1,21 +1,25 @@
 #!/bin/bash
 # Release builds for the Tab S5e: LineageOS 23.2 and 24, Wi-Fi and LTE, one after another.
 #
-#   scripts/build-all.sh            check, then build everything not yet built today
+#   scripts/build-all.sh            check, then build everything
 #   scripts/build-all.sh --check    only run the pre-build checks
 #   ONLY="23.2:gts4lvwifi" scripts/build-all.sh    build a subset
 #
 # Trees live on the build drive at their real paths (no bind mounts, no symlinks):
 #   /mnt/build/lineage-23.2   /mnt/build/lineage-24
 # Results are copied (real copies, never hard links: the build rewrites outputs in place) to
-#   /mnt/build/releases/<version>-<date>/  with a SHA256SUMS file.
-# Logs: ~/work/build-<version>-<date>-<device>.log, summary in ~/work/build-all-<date>.log.
+#   /mnt/build/releases/<version>-<run start date>.partial/  while the run is going, then the folder is
+#   renamed to <version>-<date the last build of that version finished> once all its devices are in.
+# File names: the zip keeps its build name (= ro.lineage.version, so never rename it); its recovery and
+# vbmeta get the zip's date: recovery-<zip date>-<device>.img. A run that crosses midnight can therefore
+# hold zips with two dates (the build date is fixed when each build starts).
+# Logs: ~/work/build-<version>-<run start date>-<device>.log, summary in ~/work/build-all-<run start date>.log.
 #
-# Restarting: re-run the script. A build that was interrupted resumes where ninja stopped
-# (same path, same environment); a build whose zip is already in releases/ is skipped.
+# Restarting: re-run the script on the same day. A build that was interrupted resumes where ninja stopped
+# (same path, same environment); a device whose zip is already in the .partial folder is skipped.
 set -u
 
-DATE=$(date +%Y%m%d)
+DATE=$(date +%Y%m%d) # run start date: names the logs and the .partial folders
 REL=/mnt/build/releases
 SUMMARY=$HOME/work/build-all-$DATE.log
 BUILDS=(
@@ -81,8 +85,8 @@ for f in sys.argv[1:]:
 }
 
 build_one() { # ver tree dev
-	local ver=$1 tree=$2 dev=$3 out dest zip
-	dest=$REL/$ver-$DATE
+	local ver=$1 tree=$2 dev=$3 out dest zip zdate
+	dest=$REL/$ver-$DATE.partial
 	if ls "$dest"/lineage-$ver-*-UNOFFICIAL-$dev.zip >/dev/null 2>&1; then
 		log "skip $ver $dev: already in $dest"
 		return 0
@@ -99,10 +103,11 @@ build_one() { # ver tree dev
 		log "FAILED $ver $dev (exit $rc), see ~/work/build-$ver-$DATE-$dev.log"
 		return 1
 	fi
+	zdate=$(basename "$zip" | sed -E "s/^lineage-$ver-([0-9]{8})-.*/\1/")
 	mkdir -p "$dest"
 	cp "$zip" "$dest/"
-	cp "$out/recovery.img" "$dest/recovery-$DATE-$dev.img"
-	cp "$out/vbmeta.img" "$dest/vbmeta-$DATE-$dev.img"
+	cp "$out/recovery.img" "$dest/recovery-$zdate-$dev.img"
+	cp "$out/vbmeta.img" "$dest/vbmeta-$zdate-$dev.img"
 	(cd "$dest" && sha256sum lineage-*.zip recovery-*.img vbmeta-*.img >SHA256SUMS)
 	log "done  $ver $dev: $dest/$(basename "$zip") ($(grep -m1 -E '^ro\.debuggable=' "$out/system/build.prop" 2>/dev/null))"
 }
@@ -114,5 +119,28 @@ for b in "${BUILDS[@]}"; do
 	IFS='|' read -r ver tree branch dev <<<"$b"
 	[ -n "${ONLY:-}" ] && [[ " $ONLY " != *" $ver:$dev "* ]] && continue
 	build_one "$ver" "$tree" "$dev"
+done
+
+# Finish: a version whose selected devices are all in its .partial folder gets its final name.
+for ver in $(printf '%s\n' "${BUILDS[@]}" | cut -d'|' -f1 | sort -u); do
+	part=$REL/$ver-$DATE.partial
+	[ -d "$part" ] || continue
+	complete=1
+	for b in "${BUILDS[@]}"; do
+		IFS='|' read -r v tree branch dev <<<"$b"
+		[ "$v" = "$ver" ] || continue
+		[ -n "${ONLY:-}" ] && [[ " $ONLY " != *" $v:$dev "* ]] && continue
+		ls "$part"/lineage-$ver-*-UNOFFICIAL-$dev.zip >/dev/null 2>&1 || complete=0
+	done
+	if [ $complete = 1 ]; then
+		final=$REL/$ver-$(date -r "$part/SHA256SUMS" +%Y%m%d)
+		if [ -e "$final" ]; then
+			log "not renaming $part: $final already exists"
+		else
+			mv "$part" "$final" && log "release folder: $final"
+		fi
+	else
+		log "incomplete: $part (re-run to finish)"
+	fi
 done
 log "all done"
