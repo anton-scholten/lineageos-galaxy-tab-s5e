@@ -1080,3 +1080,12 @@ themselves, not for a plain sideload.
 - Simplified on the owner's request: the release folder is `<version>-<date the script started>`, no
   `.partial` folder and no renaming, so a run's Wi-Fi and LTE builds always share one folder. The 24 folder is
   back to `/mnt/build/releases/24.0-20261014/` (Wi-Fi zip `20261014`, LTE zip/recovery/vbmeta `20261015`).
+
+## 2026-10-15: 23.2-20261014 on the tablet, draft release
+- Owner flashed recovery + zip of 23.2-20261014 Wi-Fi over 20261008 (Heimdall + sideload, no Format data).
+  Checked: `23.2-20261014-UNOFFICIAL-gts4lvwifi`, kernel `-g8d39d4284f85`, `userdebug`, `ro.debuggable=0`,
+  `ro.adb.secure=1`, Enforcing. Charging: 9 edges, 0.002-0.23 s from cable event to health HAL; owner confirms
+  icon, sound, screen wake and the idle plug-in case.
+- Draft GitHub release `v23.2-20261014` with the 7 files from `/mnt/build/releases/23.2-20261014/`; notes in
+  `release/NOTES-20261014.md` (what's new: charging fix, thermistor sepolicy; updating from an earlier build of
+  this unofficial release needs no data wipe, even with the new recovery). Not published.
