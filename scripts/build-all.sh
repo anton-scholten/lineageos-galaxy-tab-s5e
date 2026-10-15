@@ -76,9 +76,15 @@ for f in sys.argv[1:]:
 			bad "$tree device tree has a debug/test option"
 		fi
 	done
-	local free
+	# A from-scratch build needs ~250 GB per tree; an incremental one (out/ exists) far less.
+	local free want=50
+	for b in "${BUILDS[@]}"; do
+		IFS='|' read -r ver tree branch dev <<<"$b"
+		[ -n "${ONLY:-}" ] && [[ " $ONLY " != *" $ver:$dev "* ]] && continue
+		[ -e "$tree/out" ] || want=250
+	done
 	free=$(df --output=avail -BG /mnt/build | tail -1 | tr -dc 0-9)
-	[ "$free" -ge 250 ] || bad "only ${free} GB free on /mnt/build (want >= 250)"
+	[ "$free" -ge $want ] || bad "only ${free} GB free on /mnt/build (want >= $want)"
 	log "free on /mnt/build: ${free} GB"
 	return $fail
 }

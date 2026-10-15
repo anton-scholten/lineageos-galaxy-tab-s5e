@@ -16,13 +16,17 @@
 | Branch / version | Android | State |
 |---|---|---|
 | **`lineage-23.2`** (this repo's branch of the same name, tag `v23.2-20261008`, same branch name in every fork) | 16 | ✅ **Released and working** on SM-T720. Use this one. |
-| **`lineage-24.0`** (forks) / `main` (this repo, carries the 24 work and docs) | 17 | 🔨 **ROM builds (2026-10-12), not yet booted on a tablet.** No release yet. |
+| **`lineage-24.0`** (forks) / `main` (this repo, carries the 24 work and docs) | 17 | 🔨 **Boots and runs on SM-T720 (2026-10-15)**, in testing. No release yet. |
 
 `lineage-22.2` in the forks is only the upstream base both ports were cut from.
 Everything below applies to both unless a row says otherwise.
 
 Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
 This port has two parts: a **kernel backport** (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a **full ROM** (device tree, blobs and fixes for Android 16).
+
+
+**Fixes in this port that should go to LineageOS (Gerrit) or the kernel author:** see [UPSTREAM.md](UPSTREAM.md)
+(Bluetooth pairing crash, frozen always-on display, charging-status delay, tablet defaults, Android 17 old-kernel fixes).
 
 ## Status (2026-10-12)
 

@@ -36,6 +36,8 @@ The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/wor
 
 ## Next steps
 
+**User-reported bugs (2026-10-15), fixed in both forks, in a 24 Wi-Fi test build:** Bluetooth pairing crash (`LE_EXTENDED_CREATE_CONNECTION` abort; new Bluetooth fork restores `bluetooth.hci.disabled_commands`), frozen always-on display (DOZE_SUSPEND), plus tablet defaults. Owner tests pairing/file receive/iPhone on the new 24 build, then 23.2 + 24 release builds. Upstream list: [UPSTREAM.md](UPSTREAM.md).
+
 **LineageOS 24 boots** (2026-10-15, [boot-24-3](analysis/l24/boot-24-3.md)): release build `24.0-20261014` runs on the owner's SM-T720, no crashes. Next: owner use/soak, L10 testing, L11 release.
 **LineageOS 24:** [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md) → tasks [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md),
 run from [RUNBOOK.md](RUNBOOK.md) §9, tracked in [analysis/l24/STATUS.md](analysis/l24/STATUS.md). First step is the owner's L0.

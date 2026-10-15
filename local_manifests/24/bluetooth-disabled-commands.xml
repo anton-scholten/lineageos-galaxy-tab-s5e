@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_packages_modules_Bluetooth, lineage-24.0, with one commit:
+  "gd/hci: Honour bluetooth.hci.disabled_commands again".
+
+  WHY
+  gts4lv-common sets bluetooth.hci.disabled_commands=377 (LE Extended Create Connection): the WCN3990 answers
+  that command with a Command Complete instead of a Command Status. LineageOS 22.2's controller.cc honoured the
+  property; the 23.x rewrite (controller_impl.cc) dropped it, so the stack uses the command and aborts with
+  "LE_EXTENDED_CREATE_CONNECTION(0x2043) was not expecting complete event" whenever an LE connection is made:
+  pairing with phones fails and Bluetooth restarts (iPhone/CarPlay). See UPSTREAM.md.
+
+  TO DO: propose the commit to LineageOS on Gerrit, then drop this file.
+-->
+<manifest>
+  <remove-project name="LineageOS/android_packages_modules_Bluetooth" />
+
+  <project path="packages/modules/Bluetooth" name="android_packages_modules_Bluetooth"
+           remote="anton" revision="lineage-24.0" groups="pdk" />
+</manifest>

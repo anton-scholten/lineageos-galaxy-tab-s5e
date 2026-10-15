@@ -1096,3 +1096,21 @@ themselves, not for a plain sideload.
   `device-checks.sh` 5 PASS / 0 FAIL / 1 SKIP, Wi-Fi/BT/sensors/audio/camera/keymaster/BPF up, charging fix active.
   Watch list (non-blocking SELinux denials for `tee`→gatekeeper and `macloader`, PA thermistor -20 °C): `analysis/l24/boot-24-3.md`.
 - The tablet was first invisible on USB: a bad cable, not a 24 issue.
+
+## 2026-10-15: user-reported bugs — Bluetooth pairing, frozen AOD; tablet defaults
+- **AOD** did not update (clock, charging, notifications). The overlay declared `doze_suspend_display_state_supported=true`,
+  so SystemUI parks DOZE_AOD in DOZE_SUSPEND, where this panel takes no updates. A/B on SM-T720 (24) with a runtime
+  fabricated overlay: DOZE_SUSPEND froze clock and charging line, DOZE updated both (owner-confirmed). Fix: `false`.
+  Device `lineage-23.2` `a0a2df4`, `lineage-24.0` `488b4b0`. Runtime test overlay disabled afterwards.
+- **Defaults** (owner-approved, matching gta4xl/gta4l/gts7lwifi/gts7xlwifi): auto-rotate, auto-brightness, device name
+  "Galaxy Tab S5e" (new SettingsProvider overlay). Device `lineage-23.2` `62c3868` `82ca61a`, `lineage-24.0` `2aa2d28` `9ea5dd9`.
+- **Bluetooth**: pairing with a phone failed ("pairing rejected"), user's iPhone/CarPlay saw Bluetooth restart. Tombstone:
+  `hci_layer.cc:283 handle_command_response: LE_EXTENDED_CREATE_CONNECTION(0x2043) was not expecting complete event`.
+  The device tree already sets `bluetooth.hci.disabled_commands=377` (= that command) for this WCN3990 quirk, but the 23.x
+  Bluetooth stack (controller.cc → controller_impl.cc rewrite) no longer reads the property; 22.2 did. New fork
+  `anton-scholten/android_packages_modules_Bluetooth` restores it (validated parsing, no new deps): `lineage-23.2`
+  `8c6d706e11` (on the tree's `03cb8e33c1`, i.e. what 20261014 shipped), `lineage-24.0` `11434c8f8a`. Manifests
+  `local_manifests/bluetooth-disabled-commands.xml` and `24/`; both trees force-synced to the fork.
+- `build-all.sh`: free-space check wants 50 GB for incremental builds, 250 GB only when `out/` is missing.
+- New `UPSTREAM.md`: every fix owed to LineageOS Gerrit or krazey, linked from the README.
+- 24 Wi-Fi test build started 16:18 (`ONLY="24.0:gts4lvwifi"`, estimate 1.5-2.5 h).
