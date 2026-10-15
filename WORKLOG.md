@@ -1077,3 +1077,6 @@ themselves, not for a plain sideload.
 - Script fixed for that: recovery/vbmeta take their zip's date; each version builds into
   `releases/<version>-<start>.partial/`, renamed to `<version>-<finish date>` once all its devices are in.
 - Free on `/mnt/build`: 140 GB.
+- Simplified on the owner's request: the release folder is `<version>-<date the script started>`, no
+  `.partial` folder and no renaming, so a run's Wi-Fi and LTE builds always share one folder. The 24 folder is
+  back to `/mnt/build/releases/24.0-20261014/` (Wi-Fi zip `20261014`, LTE zip/recovery/vbmeta `20261015`).

@@ -8,18 +8,17 @@
 # Trees live on the build drive at their real paths (no bind mounts, no symlinks):
 #   /mnt/build/lineage-23.2   /mnt/build/lineage-24
 # Results are copied (real copies, never hard links: the build rewrites outputs in place) to
-#   /mnt/build/releases/<version>-<run start date>.partial/  while the run is going, then the folder is
-#   renamed to <version>-<date the last build of that version finished> once all its devices are in.
+#   /mnt/build/releases/<version>-<date the script started>/  with a SHA256SUMS file.
 # File names: the zip keeps its build name (= ro.lineage.version, so never rename it); its recovery and
 # vbmeta get the zip's date: recovery-<zip date>-<device>.img. A run that crosses midnight can therefore
-# hold zips with two dates (the build date is fixed when each build starts).
-# Logs: ~/work/build-<version>-<run start date>-<device>.log, summary in ~/work/build-all-<run start date>.log.
+# hold zips with two dates in one folder (the build date is fixed when each build starts).
+# Logs: ~/work/build-<version>-<start date>-<device>.log, summary in ~/work/build-all-<start date>.log.
 #
 # Restarting: re-run the script on the same day. A build that was interrupted resumes where ninja stopped
-# (same path, same environment); a device whose zip is already in the .partial folder is skipped.
+# (same path, same environment); a device whose zip is already in the folder is skipped.
 set -u
 
-DATE=$(date +%Y%m%d) # run start date: names the logs and the .partial folders
+DATE=$(date +%Y%m%d) # script start date: names the logs and the release folders
 REL=/mnt/build/releases
 SUMMARY=$HOME/work/build-all-$DATE.log
 BUILDS=(
@@ -86,7 +85,7 @@ for f in sys.argv[1:]:
 
 build_one() { # ver tree dev
 	local ver=$1 tree=$2 dev=$3 out dest zip zdate
-	dest=$REL/$ver-$DATE.partial
+	dest=$REL/$ver-$DATE
 	if ls "$dest"/lineage-$ver-*-UNOFFICIAL-$dev.zip >/dev/null 2>&1; then
 		log "skip $ver $dev: already in $dest"
 		return 0
@@ -121,26 +120,4 @@ for b in "${BUILDS[@]}"; do
 	build_one "$ver" "$tree" "$dev"
 done
 
-# Finish: a version whose selected devices are all in its .partial folder gets its final name.
-for ver in $(printf '%s\n' "${BUILDS[@]}" | cut -d'|' -f1 | sort -u); do
-	part=$REL/$ver-$DATE.partial
-	[ -d "$part" ] || continue
-	complete=1
-	for b in "${BUILDS[@]}"; do
-		IFS='|' read -r v tree branch dev <<<"$b"
-		[ "$v" = "$ver" ] || continue
-		[ -n "${ONLY:-}" ] && [[ " $ONLY " != *" $v:$dev "* ]] && continue
-		ls "$part"/lineage-$ver-*-UNOFFICIAL-$dev.zip >/dev/null 2>&1 || complete=0
-	done
-	if [ $complete = 1 ]; then
-		final=$REL/$ver-$(date -r "$part/SHA256SUMS" +%Y%m%d)
-		if [ -e "$final" ]; then
-			log "not renaming $part: $final already exists"
-		else
-			mv "$part" "$final" && log "release folder: $final"
-		fi
-	else
-		log "incomplete: $part (re-run to finish)"
-	fi
-done
 log "all done"
