@@ -1114,3 +1114,8 @@ themselves, not for a plain sideload.
 - `build-all.sh`: free-space check wants 50 GB for incremental builds, 250 GB only when `out/` is missing.
 - New `UPSTREAM.md`: every fix owed to LineageOS Gerrit or krazey, linked from the README.
 - 24 Wi-Fi test build started 16:18 (`ONLY="24.0:gts4lvwifi"`, estimate 1.5-2.5 h).
+- 24 Wi-Fi test build done 19:56 (3 h 18 m, 0 `FAILED:`), `LINEAGE_VERSION=24.0-20261015`. The script copied it under the
+  stale name `…20261014…`: in `out/` the old zip name is a hard link to the same OTA file the build rewrites, and
+  `ls -t` picked it. Renamed in `/mnt/build/releases/24.0-20261015/` (sums regenerated; content verified identical
+  to the 20261015 zip). `build-all.sh` now removes stale zip names before building and takes the name from the
+  build log's `LINEAGE_VERSION`.

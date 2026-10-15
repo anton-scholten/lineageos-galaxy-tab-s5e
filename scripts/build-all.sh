@@ -97,13 +97,20 @@ build_one() { # ver tree dev
 		return 0
 	fi
 	log "start $ver $dev ($tree)"
+	# Drop stale zip names from earlier builds (hard links to the OTA zip; see below).
+	rm -f "$tree/out/target/product/$dev"/lineage-$ver-*-UNOFFICIAL-$dev.zip
 	env -i HOME="$HOME" USER="$USER" PATH=/usr/local/bin:/usr/bin:/bin LANG=C.UTF-8 \
 		bash --noprofile --norc -c \
 		"cd '$tree' && source build/envsetup.sh && breakfast $dev && mka bacon" \
 		>"$HOME/work/build-$ver-$DATE-$dev.log" 2>&1
 	local rc=$?
 	out=$tree/out/target/product/$dev
-	zip=$(ls -t "$out"/lineage-$ver-*-UNOFFICIAL-$dev.zip 2>/dev/null | head -1)
+	# Take the name from this build's own LINEAGE_VERSION: out/ can hold older zip names that are hard
+	# links to the same OTA file the build rewrites in place, so "newest file" picks the wrong name.
+	local lver
+	lver=$(grep -m1 -oE "^LINEAGE_VERSION=[^ ]+" "$HOME/work/build-$ver-$DATE-$dev.log" | cut -d= -f2)
+	zip=$out/lineage-$lver.zip
+	[ -n "$lver" ] && [ -f "$zip" ] || zip=
 	if [ $rc -ne 0 ] || [ -z "$zip" ]; then
 		log "FAILED $ver $dev (exit $rc), see ~/work/build-$ver-$DATE-$dev.log"
 		return 1
