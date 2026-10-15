@@ -36,6 +36,7 @@ The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/wor
 
 ## Next steps
 
+**LineageOS 24 boots** (2026-10-15, [boot-24-3](analysis/l24/boot-24-3.md)): release build `24.0-20261014` runs on the owner's SM-T720, no crashes. Next: owner use/soak, L10 testing, L11 release.
 **LineageOS 24:** [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md) → tasks [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md),
 run from [RUNBOOK.md](RUNBOOK.md) §9, tracked in [analysis/l24/STATUS.md](analysis/l24/STATUS.md). First step is the owner's L0.
 

@@ -1089,3 +1089,10 @@ themselves, not for a plain sideload.
 - Draft GitHub release `v23.2-20261014` with the 7 files from `/mnt/build/releases/23.2-20261014/`; notes in
   `release/NOTES-20261014.md` (what's new: charging fix, thermistor sepolicy; updating from an earlier build of
   this unofficial release needs no data wipe, even with the new recovery). Not published.
+
+## 2026-10-15: LineageOS 24 boots (boot-24-3)
+- Owner installed `24.0-20261014` Wi-Fi (24 recovery via Heimdall, ⚠️ Format data, sideload). It boots to the home
+  screen. Logs reviewed over adb (root via Rooted debugging): no tombstones, ANRs or crashes, no kernel warnings,
+  `device-checks.sh` 5 PASS / 0 FAIL / 1 SKIP, Wi-Fi/BT/sensors/audio/camera/keymaster/BPF up, charging fix active.
+  Watch list (non-blocking SELinux denials for `tee`→gatekeeper and `macloader`, PA thermistor -20 °C): `analysis/l24/boot-24-3.md`.
+- The tablet was first invisible on USB: a bad cable, not a 24 issue.
