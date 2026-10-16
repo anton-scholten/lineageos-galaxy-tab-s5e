@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Project: LineageOS 23.2 (Android 16) on the Samsung Galaxy Tab S5e is **done**; GitHub releases v23.2-20261008 and v23.2-20261014 are published; v23.2-20261016 (Bluetooth/AOD fixes, tablet defaults) is drafted; 24 is not released yet (GApps setup hang);
+Project: LineageOS 23.2 (Android 16) on the Samsung Galaxy Tab S5e is **done**; GitHub releases v23.2-20261008 and v23.2-20261014 are published; v23.2-20261016 (Bluetooth/AOD fixes, tablet defaults) and v24.0-20261016 (first 24 release) are drafted;
 next is LineageOS 24 ([FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md), tasks [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md), RUNBOOK §9). The device is the Samsung Galaxy Tab S5e
 (`gts4lvwifi` SM-T720, `gts4lv` SM-T725/T727). This repo holds documentation, analysis,
 local manifests and device-tree patches. It is not an Android source tree.

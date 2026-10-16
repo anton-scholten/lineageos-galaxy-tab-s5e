@@ -1198,3 +1198,11 @@ themselves, not for a plain sideload.
   `libbluetooth_jni.so`; SystemUI `doze_suspend…=false`; SettingsProvider RRO defaults; gatekeeper `tee` rules.
   Note: same version string `24.0-20261016` as the earlier (pre-EROFS) build in `releases/24.0-20261015/`; only the
   new folder is current. Owner to do the end-to-end fresh install with MindTheGapps 17.
+- 24 LTE release build done 16:40 (2 h 35 m, 0 `FAILED:`, release props verified); Wi-Fi was skipped (today's verified
+  build reused). LTE images checked like Wi-Fi (kernel `-g230ccf8e8e63` + EROFS in boot and recovery, AOD, defaults,
+  gatekeeper; fingerprint = stock SM-T725 `T725XXS3DWA1`).
+- Draft GitHub release `v24.0-20261016` ("2026-10-16 - LineageOS 24 (unofficial)"), 7 files from
+  `/mnt/build/releases/24.0-20261016/`, all sizes match; notes `release/NOTES-24.0-20261016.md`. Not published.
+- Open: Smart Switch appears after Google setup. Likely Google's Play Auto Install for the stock Samsung fingerprint
+  (`ro.build.fingerprint` = stock SM-T720/T725, as in LineageOS trees); to be confirmed on the tablet (installer of the
+  package). Changing the fingerprint is not recommended (certification). Plan: document "untick/uninstall".
