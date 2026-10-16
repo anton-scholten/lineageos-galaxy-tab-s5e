@@ -1186,3 +1186,10 @@ themselves, not for a plain sideload.
   original alongside); owner flashed it with Heimdall. Result: `erofs` in `/proc/filesystems`, the gmssystem APEX mounts,
   `com.google.android.gms` 26.11.36 installed, 3 GMS processes, 0 crashes. Pending: owner's sign-in/Play Store and
   fresh-install setup tests, then push to both kernel branches.
+- Owner: with the test kernel, a fresh install (Format data, 24.0-20261016 + MindTheGapps 17, test boot via Heimdall)
+  completes Google setup. (Download mode was not detected on one USB port; another port worked.)
+- Pushed kernel `230ccf8e8e63` (8d39d4284f85 + 9 commits: 9266d5193fbc backport, 6 EROFS import commits, defconfig, 4.9
+  compat) to fork `lineage-23.2` and `lineage-24.0` (fast-forward). Both build trees moved to it; test worktree and
+  outputs removed. `build-all.sh` KERNEL_FIX → `230ccf8e8e63`; pins bumped (check-pins, portability-check, boot-log,
+  CLAUDE.md, REPO-SETUP); UPSTREAM.md #4b.
+- 24 Wi-Fi release build (recovery + ROM) started 10:27 (`ONLY="24.0:gts4lvwifi"`), for an end-to-end check.

@@ -49,7 +49,7 @@ ADB="${ADB:-adb}"
 
 # The kernel this port builds. If last_kmsg does not contain this, the wrong
 # kernel booted and every conclusion drawn from the log is about the wrong OS.
-EXPECTED_KERNEL_TAG="g8d39d4284f85"
+EXPECTED_KERNEL_TAG="g230ccf8e8e63"
 
 WAIT=0
 LISTONLY=0

@@ -85,7 +85,7 @@ while IFS='|' read -r class repo url branch want note; do
 done <<'PINS'
 pin|LineageOS/android_kernel_samsung_sdm670|https://github.com/LineageOS/android_kernel_samsung_sdm670|lineage-22.2|a30605a54f3b|LineageOS dropped the device after 22.2; this is the base commit of the sdm670 tree.
 pin|LineageOS/android_device_samsung_gts4lv-common|https://github.com/LineageOS/android_device_samsung_gts4lv-common|lineage-22.2|d1b339be7abe|LineageOS device tree; the base our device fork is built on.
-info|anton-scholten/android_kernel_samsung_sdm670|https://github.com/anton-scholten/android_kernel_samsung_sdm670|lineage-23.2|8d39d4284f85|OUR FORK: the 23.2 kernel (ExyHyperBrick port + SELinux avtab fix + BPF ld_abs R2 fix; lineage-24.0 is the same commit). A move means a new kernel fix landed.
+info|anton-scholten/android_kernel_samsung_sdm670|https://github.com/anton-scholten/android_kernel_samsung_sdm670|lineage-23.2|230ccf8e8e63|OUR FORK: the kernel (ExyHyperBrick port + SELinux avtab fix + BPF ld_abs R2 fix + EROFS; lineage-24.0 is the same commit). A move means a new kernel fix landed.
 info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anton-scholten/android_device_samsung_gts4lv-common|lineage-23.2|82ca61adf4f0|OUR FORK: the 23.2 device tree (20261014 build had 278c7f9; + AOD DOZE fix and tablet defaults).
 info|anton-scholten/android_packages_modules_Bluetooth|https://github.com/anton-scholten/android_packages_modules_Bluetooth|lineage-23.2|8c6d706e114f|OUR FORK: LineageOS Bluetooth + bluetooth.hci.disabled_commands restored (UPSTREAM.md #1).
 info|anton-scholten/android_packages_modules_Bluetooth|https://github.com/anton-scholten/android_packages_modules_Bluetooth|lineage-24.0|11434c8f8a07|OUR FORK: same fix on lineage-24.0.
