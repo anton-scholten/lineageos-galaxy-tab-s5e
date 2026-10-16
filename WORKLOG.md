@@ -1206,3 +1206,12 @@ themselves, not for a plain sideload.
 - Open: Smart Switch appears after Google setup. Likely Google's Play Auto Install for the stock Samsung fingerprint
   (`ro.build.fingerprint` = stock SM-T720/T725, as in LineageOS trees); to be confirmed on the tablet (installer of the
   package). Changing the fingerprint is not recommended (certification). Plan: document "untick/uninstall".
+
+## 2026-10-16: README rewritten
+- Owner published v23.2-20261016 and v24.0-20261016 (24 is "Latest"). README rewritten 232 → 148 lines: 24 recommended,
+  23.2 via its branch and releases (no version table); one status table; install changes as one table (fixed: the
+  recovery-row contradiction, `.sha256sum` → `SHA256SUMS`, MindTheGapps 17 now tested, same-version updates need no
+  wipe); troubleshooting incl. Bluetooth re-pairing; one sources table with all forks (kernel incl. BPF fix + EROFS,
+  Bluetooth, the four 24-only forks); build steps for both versions (copy all manifests of the version; 23.2 now also
+  needs `bluetooth-disabled-commands.xml`), `build-all.sh`, RAM/disk; the long compat-fork explanation dropped (in its
+  manifest and UPSTREAM.md). All links checked.
