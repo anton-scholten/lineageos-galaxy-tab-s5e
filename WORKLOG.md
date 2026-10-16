@@ -1171,3 +1171,18 @@ themselves, not for a plain sideload.
 - Owner asked for a 23.2-only release: draft retitled "2026-10-16 - LineageOS 23.2 (unofficial)", tag `v23.2-20261016`,
   24 assets and the combined `SHA256SUMS` removed, 23.2 recovery/vbmeta renamed back to `…-<codename>.img`, 23.2
   `SHA256SUMS` uploaded, notes rewritten 23.2-only (`release/NOTES-20261016.md`). Staging folder removed.
+
+## 2026-10-16: 24 GApps setup hang → missing EROFS
+- With GApps added on top of a set-up 24 (adb still authorized): `com.google.android.gms` was not installed. MindTheGapps
+  17.0.0 (20261006) ships Play services as an APEX, `com.google.android.gmssystem.prodvic.apex`, with an **EROFS** payload
+  (MindTheGapps 16 shipped `GmsCore.apk`). apexd: `Mounting failed for package … gmssystem.prodvic.apex: No such device`;
+  our kernel had no EROFS at all. Google setup waits for Play services → "Getting your tablet ready" → "Slow connection".
+- Kernel test branch in worktree `/mnt/build/ewt` (not pushed), on `8d39d4284f85`: ExyHyperBrick `9266d5193fbc`
+  (smp_cond_load_relaxed/atomic_cond_read_relaxed backport), their 6 `fs/erofs` import commits, `CONFIG_EROFS_FS=y` in
+  `gts4lvwifi_defconfig`/`gts4lv_defconfig`, and a 22-line 4.9 compat patch inside `fs/erofs` (bi_error, bi_bdev, old
+  getattr, local clear_and_wake_up_bit). Head `230ccf8e8e63`. Builds clean with both 24 (clang r596125) and 23.2
+  (clang r563880c) toolchains.
+- Repacked the installed 24.0-20261016 boot image with it (`~/work/boot-backup/boot-24.0-20261016-erofs-test.img`,
+  original alongside); owner flashed it with Heimdall. Result: `erofs` in `/proc/filesystems`, the gmssystem APEX mounts,
+  `com.google.android.gms` 26.11.36 installed, 3 GMS processes, 0 crashes. Pending: owner's sign-in/Play Store and
+  fresh-install setup tests, then push to both kernel branches.
