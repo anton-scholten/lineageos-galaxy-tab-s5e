@@ -1070,7 +1070,7 @@ themselves, not for a plain sideload.
 ## 2026-10-14/15: release builds with the charging fix
 - `scripts/build-all.sh` ran from scratch on both trees, no `FAILED:`, all `ro.debuggable=0`:
   23.2 Wi-Fi 9 h 06 m, 23.2 LTE 2 h 01 m, 24 Wi-Fi 12 h 56 m, 24 LTE 3 h 23 m (started 2026-10-14 07:04, done 10-15 10:30).
-- Results: `/mnt/build/releases/23.2-20261014/` and `/mnt/build/releases/24.0-20261015/`, `SHA256SUMS` verified.
+- Results: `/mnt/build/releases/23.2-20261014/` and `/mnt/build/releases/24.0-20261015-bluetooth-test/`, `SHA256SUMS` verified.
   The 24 run crossed midnight, so its zips are `24.0-20261014` (Wi-Fi) and `24.0-20261015` (LTE): the zip name is
   the ROM's `ro.lineage.version` and is never renamed. The 24 folder was renamed to its finish date and the LTE
   recovery/vbmeta to `20261015` to match their zip.
@@ -1116,7 +1116,7 @@ themselves, not for a plain sideload.
 - 24 Wi-Fi test build started 16:18 (`ONLY="24.0:gts4lvwifi"`, estimate 1.5-2.5 h).
 - 24 Wi-Fi test build done 19:56 (3 h 18 m, 0 `FAILED:`), `LINEAGE_VERSION=24.0-20261015`. The script copied it under the
   stale name `…20261014…`: in `out/` the old zip name is a hard link to the same OTA file the build rewrites, and
-  `ls -t` picked it. Renamed in `/mnt/build/releases/24.0-20261015/` (sums regenerated; content verified identical
+  `ls -t` picked it. Renamed in `/mnt/build/releases/24.0-20261015-bluetooth-test/` (sums regenerated; content verified identical
   to the 20261015 zip). `build-all.sh` now removes stale zip names before building and takes the name from the
   build log's `LINEAGE_VERSION`.
 - 24.0-20261015 installed over 24 (sideload, data kept); Bluetooth fix active at stack start-up
@@ -1140,3 +1140,9 @@ themselves, not for a plain sideload.
 - **AOD**: clock and charging line update on the build itself (no test overlay).
 - **Charging** with the screen on: immediate.
 - Still open: gatekeeper fix (`702e1fd`) needs a build; iPhone/CarPlay test; 23.2 build with the Bluetooth/AOD/defaults fixes.
+- `build-all.sh` reviewed before the release run. Order confirmed (23.2 Wi-Fi, 23.2 LTE, 24 Wi-Fi, 24 LTE). New
+  `verify_release`: after each build, refuses to copy unless `ro.build.type=userdebug`, `ro.debuggable=0`,
+  `ro.secure=1`, `ro.adb.secure=1` (found in `system/system_ext/etc/build.prop`), `ro.force.debuggable`≠1, no
+  `selinux=permissive` in `boot.img`, no insecure/eng variant in the log. Passes on 23.2-20261014 (both) and
+  24.0-20261015, fails on a doctored copy. The Bluetooth test build folder was renamed
+  `/mnt/build/releases/24.0-20261015-bluetooth-test/` so a same-day run cannot mistake it for a finished build.

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Release builds for the Tab S5e: LineageOS 23.2 and 24, Wi-Fi and LTE, one after another.
+# Release builds for the Tab S5e, in this order: 23.2 Wi-Fi, 23.2 LTE, 24 Wi-Fi, 24 LTE.
+# Each finished build is verified as a release build (verify_release) before it is copied.
 #
 #   scripts/build-all.sh            check, then build everything
 #   scripts/build-all.sh --check    only run the pre-build checks
@@ -89,6 +90,23 @@ for f in sys.argv[1:]:
 	return $fail
 }
 
+# A release build must come out exactly like the published 20261008 release: userdebug with
+# ro.debuggable=0, secure adb, no forced debuggability, SELinux not permissive on the kernel command line.
+verify_release() { # out log -> prints problems, returns 1 if any
+	local out=$1 blog=$2 props bad_=0 v
+	# system_ext and product sit inside the system image on this device (system/system_ext/etc/build.prop).
+	props="$out/system/build.prop $out/system/system_ext/etc/build.prop $out/system/product/etc/build.prop $out/system_ext/etc/build.prop $out/product/etc/build.prop $out/vendor/build.prop"
+	getp() { grep -sh "^$1=" $props | head -1 | cut -d= -f2-; }
+	for kv in ro.build.type=userdebug ro.debuggable=0 ro.secure=1 ro.adb.secure=1; do
+		v=$(getp "${kv%%=*}")
+		[ "$v" = "${kv#*=}" ] || { echo "${kv%%=*}=${v:-<unset>} (want ${kv#*=})"; bad_=1; }
+	done
+	[ "$(getp ro.force.debuggable)" = 1 ] && { echo "ro.force.debuggable=1"; bad_=1; }
+	grep -qa "androidboot.selinux=permissive" "$out/boot.img" && { echo "boot.img cmdline has selinux=permissive"; bad_=1; }
+	grep -qE "WITH_ADB_INSECURE=true|TARGET_BUILD_VARIANT=eng" "$blog" && { echo "build log shows an insecure/eng build"; bad_=1; }
+	return $bad_
+}
+
 build_one() { # ver tree dev
 	local ver=$1 tree=$2 dev=$3 out dest zip zdate
 	dest=$REL/$ver-$DATE
@@ -115,13 +133,18 @@ build_one() { # ver tree dev
 		log "FAILED $ver $dev (exit $rc), see ~/work/build-$ver-$DATE-$dev.log"
 		return 1
 	fi
+	local problems
+	if ! problems=$(verify_release "$out" "$HOME/work/build-$ver-$DATE-$dev.log"); then
+		log "FAILED $ver $dev: not a release build, not copied: $(echo $problems)"
+		return 1
+	fi
 	zdate=$(basename "$zip" | sed -E "s/^lineage-$ver-([0-9]{8})-.*/\1/")
 	mkdir -p "$dest"
 	cp "$zip" "$dest/"
 	cp "$out/recovery.img" "$dest/recovery-$zdate-$dev.img"
 	cp "$out/vbmeta.img" "$dest/vbmeta-$zdate-$dev.img"
 	(cd "$dest" && sha256sum lineage-*.zip recovery-*.img vbmeta-*.img >SHA256SUMS)
-	log "done  $ver $dev: $dest/$(basename "$zip") ($(grep -m1 -E '^ro\.debuggable=' "$out/system/build.prop" 2>/dev/null))"
+	log "done  $ver $dev: $dest/$(basename "$zip") (release props verified)"
 }
 
 check || { log "fix the checks above first; nothing built"; exit 1; }
