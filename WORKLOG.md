@@ -1146,3 +1146,14 @@ themselves, not for a plain sideload.
   `selinux=permissive` in `boot.img`, no insecure/eng variant in the log. Passes on 23.2-20261014 (both) and
   24.0-20261015, fails on a doctored copy. The Bluetooth test build folder was renamed
   `/mnt/build/releases/24.0-20261015-bluetooth-test/` so a same-day run cannot mistake it for a finished build.
+
+## 2026-10-16: release builds with all fixes (23.2-20261016, 24.0-20261016)
+- `build-all.sh` 2026-10-15 22:57 → 10-16 07:05, all four `release props verified`, 0 `FAILED:`, `SHA256SUMS` OK:
+  23.2 Wi-Fi 2 h 24 m, 23.2 LTE 1 h 33 m, 24 Wi-Fi 57 m, 24 LTE 2 h 21 m. Files in
+  `/mnt/build/releases/23.2-20261015/` and `/mnt/build/releases/24.0-20261015/` (folder = run start date; zips are
+  `…-20261016-…` because each build started after midnight).
+- Verified in the outputs, not just the source: kernel `4.9.337-g8d39d4284f85` in all four; Bluetooth fix in the linked
+  `libbluetooth_jni.so` of both versions (the `.o` files are ThinLTO bitcode, so plain string search there finds
+  nothing); SystemUI `doze_suspend_display_state_supported=false` in both; SettingsProvider defaults (auto-rotate,
+  auto-brightness, "Galaxy Tab S5e") in the auto-generated vendor RRO `SettingsProvider__lineage_gts4lvwifi__auto_generated_rro_vendor.apk`;
+  24 vendor CIL has `allow tee_202604 gatekeeper_vendor_data_file` (dir + file).
