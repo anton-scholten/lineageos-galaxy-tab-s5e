@@ -1193,3 +1193,8 @@ themselves, not for a plain sideload.
   outputs removed. `build-all.sh` KERNEL_FIX → `230ccf8e8e63`; pins bumped (check-pins, portability-check, boot-log,
   CLAUDE.md, REPO-SETUP); UPSTREAM.md #4b.
 - 24 Wi-Fi release build (recovery + ROM) started 10:27 (`ONLY="24.0:gts4lvwifi"`), for an end-to-end check.
+- 24 Wi-Fi release build done 13:01 (2 h 23 m, 0 `FAILED:`, release props verified): `/mnt/build/releases/24.0-20261016/`.
+  Verified in the images: boot and recovery kernels `4.9.337-g230ccf8e8e63` with EROFS; Bluetooth fix in
+  `libbluetooth_jni.so`; SystemUI `doze_suspend…=false`; SettingsProvider RRO defaults; gatekeeper `tee` rules.
+  Note: same version string `24.0-20261016` as the earlier (pre-EROFS) build in `releases/24.0-20261015/`; only the
+  new folder is current. Owner to do the end-to-end fresh install with MindTheGapps 17.
