@@ -1128,3 +1128,15 @@ themselves, not for a plain sideload.
   not affected. Fix: device `lineage-24.0` `702e1fd` (two `allow tee gatekeeper_vendor_data_file` rules). Not built yet
   (owner: test the other fixes first). To unlock meanwhile the owner runs `setenforce 0` via root adb (reverts on
   reboot); the agent's attempt was blocked by the permission classifier.
+
+## 2026-10-16: fixes verified on 24.0-20261015
+- **Bluetooth**: no crash anymore. First attempts still failed with `HCI_ERR_PAIRING_NOT_ALLOWED`; the HCI snoop log
+  (bug report) showed the *phone* (OnePlus 7 Pro, LineageOS 24) refusing: tablet-initiated pairing got LMP "pairing not
+  allowed" right after our `IO_Capability_Request_Reply` (DisplayYesNo, MITM+dedicated bonding); phone-initiated pairing
+  asked for a stored link key and dropped with 0x05. The phone still held a bond from before the tablet's Format data (the
+  BD address survives reinstalls). After the owner cleared it on the phone: BR/EDR bond, then LE bond via CTKD 0.2 s later
+  (the path that used to abort), OPP file (1.38 MB) received. 0 crashes in the capture.
+  User note for README/FAQ: after reinstalling the tablet, "Forget" it on every phone before pairing again.
+- **AOD**: clock and charging line update on the build itself (no test overlay).
+- **Charging** with the screen on: immediate.
+- Still open: gatekeeper fix (`702e1fd`) needs a build; iPhone/CarPlay test; 23.2 build with the Bluetooth/AOD/defaults fixes.

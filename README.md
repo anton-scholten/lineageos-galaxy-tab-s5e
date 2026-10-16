@@ -25,6 +25,8 @@ Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
 This port has two parts: a **kernel backport** (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a **full ROM** (device tree, blobs and fixes for Android 16).
 
 
+**Bluetooth after reinstalling:** a phone that was paired with the tablet before keeps the old pairing (the tablet's Bluetooth address does not change), and then refuses to pair ("pairing rejected" / "failed to connect"). On the phone, *Forget* the tablet first, then pair again.
+
 **Fixes in this port that should go to LineageOS (Gerrit) or the kernel author:** see [UPSTREAM.md](UPSTREAM.md)
 (Bluetooth pairing crash, frozen always-on display, charging-status delay, tablet defaults, Android 17 old-kernel fixes).
 
