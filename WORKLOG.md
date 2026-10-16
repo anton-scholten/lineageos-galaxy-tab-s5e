@@ -1157,3 +1157,7 @@ themselves, not for a plain sideload.
   nothing); SystemUI `doze_suspend_display_state_supported=false` in both; SettingsProvider defaults (auto-rotate,
   auto-brightness, "Galaxy Tab S5e") in the auto-generated vendor RRO `SettingsProvider__lineage_gts4lvwifi__auto_generated_rro_vendor.apk`;
   24 vendor CIL has `allow tee_202604 gatekeeper_vendor_data_file` (dir + file).
+- Draft GitHub release `v20261016` ("2026-10-16 - LineageOS 23.2 and 24 (unofficial)", the owner's new title style):
+  both versions, 4 zips + recovery/vbmeta per version and model (renamed `…-<codename>-<version>.img`, the plain names
+  collide), one combined `SHA256SUMS`; staged as hard links in `/mnt/build/releases/20261016-github/`. All 13 asset
+  sizes match. Notes: `release/NOTES-20261016.md`. Not published; the 24 PIN fix is still untested on the device.

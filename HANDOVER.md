@@ -36,7 +36,7 @@ The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/wor
 
 ## Next steps
 
-**Release builds with all fixes done (2026-10-16):** `23.2-20261016` and `24.0-20261016`, Wi-Fi + LTE, in `/mnt/build/releases/23.2-20261015/` and `24.0-20261015/` (verified: kernel, Bluetooth, AOD, defaults, 24 gatekeeper). Next: owner installs 24.0-20261016 to test the PIN fix; then replace the 23.2-20261014 draft release with 23.2-20261016. iPhone/CarPlay still untested. Upstream list: [UPSTREAM.md](UPSTREAM.md).
+**Release builds with all fixes done (2026-10-16):** `23.2-20261016` and `24.0-20261016`, Wi-Fi + LTE, in `/mnt/build/releases/23.2-20261015/` and `24.0-20261015/` (verified: kernel, Bluetooth, AOD, defaults, 24 gatekeeper). **Draft GitHub release `v20261016`** holds both versions ([notes](release/NOTES-20261016.md); staged files in `/mnt/build/releases/20261016-github/`). Next: owner tests the 24 PIN fix on 24.0-20261016, then publishes. iPhone/CarPlay still untested. Upstream list: [UPSTREAM.md](UPSTREAM.md).
 
 **LineageOS 24 boots** (2026-10-15, [boot-24-3](analysis/l24/boot-24-3.md)): release build `24.0-20261014` runs on the owner's SM-T720, no crashes. Next: owner use/soak, L10 testing, L11 release.
 **LineageOS 24:** [FEASIBILITY-LINEAGE-24.md](FEASIBILITY-LINEAGE-24.md) → tasks [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md),
