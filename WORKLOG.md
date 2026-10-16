@@ -1161,3 +1161,13 @@ themselves, not for a plain sideload.
   both versions, 4 zips + recovery/vbmeta per version and model (renamed `…-<codename>-<version>.img`, the plain names
   collide), one combined `SHA256SUMS`; staged as hard links in `/mnt/build/releases/20261016-github/`. All 13 asset
   sizes match. Notes: `release/NOTES-20261016.md`. Not published; the 24 PIN fix is still untested on the device.
+
+## 2026-10-16: 24.0-20261016 tested; draft release changed to 23.2 only
+- Owner on 24.0-20261016: **PIN fix works** (PIN accepted after reboot), Bluetooth and AOD work, defaults applied on the
+  fresh install (auto-brightness, auto-rotate).
+- **New 24 bug:** with MindTheGapps installed, Google setup after Wi-Fi shows "Getting your tablet ready…" (data sent to
+  Google), then "Slow connection — try another network", and after *Skip* a blank screen (back button + battery icon only).
+  Without GApps the LineageOS setup completes. Not yet diagnosed.
+- Owner asked for a 23.2-only release: draft retitled "2026-10-16 - LineageOS 23.2 (unofficial)", tag `v23.2-20261016`,
+  24 assets and the combined `SHA256SUMS` removed, 23.2 recovery/vbmeta renamed back to `…-<codename>.img`, 23.2
+  `SHA256SUMS` uploaded, notes rewritten 23.2-only (`release/NOTES-20261016.md`). Staging folder removed.
