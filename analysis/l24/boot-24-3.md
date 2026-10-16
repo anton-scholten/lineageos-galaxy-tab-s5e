@@ -26,7 +26,7 @@
 
 | Item | Evidence | Note |
 |---|---|---|
-| `tee` (qseecomd) denied `read` on `gatekeeper_vendor_data_file` dir ×6 | avc | Gatekeeper HAL runs. **Owner test:** set a PIN, reboot, unlock. If that works, cosmetic |
+| `tee` (qseecomd) denied `read` on `gatekeeper_vendor_data_file` dir ×6 | avc | **Not cosmetic (2026-10-15):** after a reboot a correct PIN is rejected (`nwd_KM_OUTDATA_unpack err -506`). Android 17 dropped `allow tee gatekeeper_vendor_data_file`. Fixed in device `lineage-24.0` `702e1fd`, not yet built |
 | `macloader` denied `write` on `property_socket` ×2; `/sys/wifi/mac_addr` read gives `I/O error` | avc, shell | Only matters with "Use device MAC" (randomization off). Factory MAC is in `/mnt/vendor/efs/wifi/.mac.info`. Check on 23.2 whether the same |
 | PA thermistor reads -20.0 °C (`sec-pa-thermistor` = -200) | `dumpsys thermalservice` | Wi-Fi model has no LTE PA; harmless reading, newly visible since D2 lets the HAL read it |
 | `hal_sensors_default` denied `read` on input device names (`sysfs`) | avc | Sensors all registered and active |

@@ -1119,3 +1119,12 @@ themselves, not for a plain sideload.
   `ls -t` picked it. Renamed in `/mnt/build/releases/24.0-20261015/` (sums regenerated; content verified identical
   to the 20261015 zip). `build-all.sh` now removes stale zip names before building and takes the name from the
   build log's `LINEAGE_VERSION`.
+- 24.0-20261015 installed over 24 (sideload, data kept); Bluetooth fix active at stack start-up
+  (`Disabled HCI command index 377`). Pairing test pending.
+- **PIN rejected after the reboot** (owner thought it had changed). Not changed (spblob from 2026-10-15 17:20): every
+  verify hits `avc: denied { read search } qseecomd → gatekeeper_vendor_data_file` and
+  `keymaster_tee: nwd_gatekeeper.cpp:175 nwd_KM_OUTDATA_unpack err -506`. Android 16 allowed it in
+  `system/sepolicy/private/tee.te`; Android 17 moved the type to `system/sepolicy/vendor/` without the `tee` rule. 23.2 is
+  not affected. Fix: device `lineage-24.0` `702e1fd` (two `allow tee gatekeeper_vendor_data_file` rules). Not built yet
+  (owner: test the other fixes first). To unlock meanwhile the owner runs `setenforce 0` via root adb (reverts on
+  reboot); the agent's attempt was blocked by the permission classifier.
