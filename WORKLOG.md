@@ -1215,3 +1215,14 @@ themselves, not for a plain sideload.
   Bluetooth, the four 24-only forks); build steps for both versions (copy all manifests of the version; 23.2 now also
   needs `bluetooth-disabled-commands.xml`), `build-all.sh`, RAM/disk; the long compat-fork explanation dropped (in its
   manifest and UPSTREAM.md). All links checked.
+
+## 2026-10-17: LineageOS Changelog 32 vs this port
+- Changelog 32 (2026-10-11): LineageOS accepts only 22.2 submissions for 4.4/4.9 devices, even where 23.2/24 ports exist
+  ("rather hacky" platform commits); 23.2/24 kernels need "1:1 eBPF backports, build fully without GCC"; shims are now
+  commonized in `android_hardware_lineage_compat`. Charter exceptions need 3 Project Directors.
+- Measured: kernel = 2,469 commits on LineageOS 22.2, ~2,445 upstream cherry-picks with `-x`, ~23 own glue commits;
+  compiled entirely by clang/LLD (no GCC in `.comment`, no GCC tool in any `.cmd`); GCC arm32 prebuilt only satisfies the
+  arm64 Makefile's `CROSS_COMPILE_ARM32` check for the compat vDSO.
+- Upstream `libwfdservice_shim` (compat `lineage-24.0`) still lacks `libaudiobase`. UPSTREAM.md: policy section added;
+  targets revised (device fixes → official `lineage-22.2`; keyring reverts not submittable; WFD bridge → common compat
+  shim; new #10 GCC-free vDSO build; ld_abs fix to redo as `UPSTREAM:` cherry-pick).
