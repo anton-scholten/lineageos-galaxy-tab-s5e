@@ -1226,3 +1226,19 @@ themselves, not for a plain sideload.
 - Upstream `libwfdservice_shim` (compat `lineage-24.0`) still lacks `libaudiobase`. UPSTREAM.md: policy section added;
   targets revised (device fixes → official `lineage-22.2`; keyring reverts not submittable; WFD bridge → common compat
   shim; new #10 GCC-free vDSO build; ld_abs fix to redo as `UPSTREAM:` cherry-pick).
+
+## 2026-10-18: OTA, security updates, Dolby and storage reports (analysis only)
+- **OTA**: LineageOS Updater reads `lineage.updater.uri` (placeholders `{device}`, `{type}`, `{incr}`), expects a JSON
+  array of `{datetime, type, version, files:[{filename, sha256, size, url, os_patch_level?, os_sdk_level?}]}`, keeps
+  builds newer than `ro.build.date.utc` with `type` = `ro.lineage.releasetype` (UNOFFICIAL) and an SDK not below the
+  current one, then `RecoverySystem.verifyPackage`. Non-A/B: installs via recovery, and 24's Updater updates the recovery
+  partition on the next boot. Our zips are signed with the AOSP **testkey**, trusted by both `system/etc/security/otacerts.zip`
+  and the recovery (which also trusts `lineage.x509.pem`): OTA would verify, but testkey is public.
+- **Dolby (LTE report)**: the tree ships only Samsung's `libswdap.so` effect ("dap", UUID 6ab06da4-…) and
+  `vendor/etc/dolby/dax-default.xml`, `vendor.audio.dolby.ds2.enabled=false`; no Dolby app or service in the build.
+  Same in many LineageOS Samsung trees. The user's Dolby UI must be a third-party app.
+- **Storage (Wi-Fi report)**: our kernel has `CONFIG_SDCARD_FS=y`, no `emulated_storage.mk`, so vold uses sdcardfs
+  (`IsSdcardfsUsed()`: kernel support && `external_storage.sdcardfs.enabled` default true). Seen on 24:
+  `PackageSettings: Couldn't write -1 to /config/sdcardfs/<pkg>/appid`. ExyHyperBrick 23.2/24 instead: no sdcardfs,
+  `CONFIG_UNICODE=y`, ext4/f2fs casefold backports, `emulated_storage.mk` (projid + casefold, sdcardfs off). Our ext4/f2fs
+  have no casefold. Hypothesis, unconfirmed: per-app `Android/data` permissions under sdcardfs on Android 16/17.
