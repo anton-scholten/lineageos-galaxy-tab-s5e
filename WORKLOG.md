@@ -1293,3 +1293,18 @@ themselves, not for a plain sideload.
   klabit87/OTA, R0rt1z2/OTA, ADeadTrousers/LineageOTAstatic on Pages).
 - `build-all.sh`: fails early on non-ro property values over 91 bytes; the "another build is running" check now matches
   only real `soong_ui`/`siso` processes (it had matched a watcher's command line).
+
+## 2026-10-19: release builds 20261019; Updater links
+- All four release builds done (`/mnt/build/releases/23.2-20261019/`, `24.0-20261019/`): `release-keys`, kernel
+  `4.9.337-g7bf5ff571b75`, SHA256SUMS ok. OTA test build (24 Wi-Fi, same date, older timestamp) kept in
+  `24.0-20261019-ota-test/`; owner clean-installed it on SM-T720.
+- Notes `release/NOTES-23.2-20261019.md`, `NOTES-24.0-20261019.md` (⚠️ one clean install: new keys + storage). Drafted
+  GitHub releases `v23.2-20261019` and `v24.0-20261019`; after publishing: `scripts/ota-json.sh` for both, push `ota/`.
+- adb in recovery: a stale second USB entry with the same serial (`usb:3-2`) blocks `adb sideload` ("more than one
+  device"); `adb kill-server` clears it. Plain recovery adb is `unauthorized` on release-key builds after Format data
+  (no stored keys, no prompt); sideload mode needs no authorization.
+- Recovery keeps `lineage.x509.pem` (LineageOS default `PRODUCT_EXTRA_RECOVERY_KEYS`): OTAs are verified by the system
+  against our key only; the extra recovery key only skips the sideload warning for official zips. Kept.
+- Updater links (next build): device overlay `overlay/packages/apps/Updater/app/src/main/res/values/strings.xml`
+  (auto-RRO) sets `menu_changelog_url` → releases, `report_issue_url` → issues, `header_download_url`,
+  `blocked_update_info_url` → README install section. `lineage-23.2` `ff76d0d`, `lineage-24.0` `6c9f41b`.

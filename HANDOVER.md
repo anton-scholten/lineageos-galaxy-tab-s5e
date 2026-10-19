@@ -36,7 +36,9 @@ The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/wor
 
 ## Next steps
 
-**Next release (2026-10-18 on):** signed with our private keys (RELEASING.md), OTA feed property, storage without sdcardfs + kernel `7bf5ff571b75` (fuse-bpf umask fix: Telegram/Wallcraft downloads, Termux). ⚠️ One clean install for all users; after that, updates arrive over the air. Open: Dolby on the LTE model (needs that user's log), key backup.
+**Release 20261019 (2026-10-19):** all four builds done and verified; GitHub releases `v23.2-20261019` and `v24.0-20261019` drafted ([notes](release/NOTES-24.0-20261019.md)). After the owner publishes: `scripts/ota-json.sh` for both folders, push `ota/`, then test the OTA on the SM-T720 (runs the older `24.0-20261019-ota-test` build). Next build: Updater links to our GitHub (device `ff76d0d` / `6c9f41b`), delivered by OTA.
+
+**Previous plan (2026-10-18 on):** signed with our private keys (RELEASING.md), OTA feed property, storage without sdcardfs + kernel `7bf5ff571b75` (fuse-bpf umask fix: Telegram/Wallcraft downloads, Termux). ⚠️ One clean install for all users; after that, updates arrive over the air. Open: Dolby on the LTE model (needs that user's log), key backup.
 
 **Release builds with all fixes done (2026-10-16):** `23.2-20261016` and `24.0-20261016`, Wi-Fi + LTE, in `/mnt/build/releases/23.2-20261015/` and `24.0-20261015/` (verified: kernel, Bluetooth, AOD, defaults, 24 gatekeeper). **Draft GitHub release `v23.2-20261016`** (23.2 only, [notes](release/NOTES-20261016.md)); owner publishes. 24.0-20261016 verified on the tablet (PIN fix, Bluetooth, AOD, defaults). The 24 GApps setup hang was missing EROFS in the kernel (Play services is an EROFS APEX in MindTheGapps 17); fixed in kernel `230ccf8e8e63` (both branches), verified on device. **Draft GitHub release `v24.0-20261016`** (Wi-Fi + LTE, [notes](release/NOTES-24.0-20261016.md)), owner publishes after the fresh-install test. 23.2 picks up the EROFS kernel at its next build. Open: Smart Switch auto-installed by Google setup (to confirm and document). iPhone/CarPlay still untested. Upstream list: [UPSTREAM.md](UPSTREAM.md).
 
