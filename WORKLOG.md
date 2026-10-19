@@ -1275,3 +1275,10 @@ themselves, not for a plain sideload.
   in this kernel, projid only affects storage statistics). Both trees on the new kernel; pins and `KERNEL_FIX` bumped.
 - Next release (both versions) = release-keys + storage fix + OTA feed property: **one clean install** for everyone.
   Existing installs would keep their sdcardfs-era app folders (no ACLs), so a dirty update would not fix them anyway.
+- Dolby: the "Dolby Atmos" settings are LineageOS **SamsungDAP** (`hardware/samsung/packages/Dap`, `org.lineageos.dap`),
+  not AudioFX (24's AudioFX only uses Equalizer/BassBoost/Virtualizer/PresetReverb). It creates the DAP effect (type
+  `46d279d9…`, impl `6ab06da4…`) globally on session 0. On SM-T720 with music playing: track on mixer `AudioOut_15`
+  (speaker, flags 0x000) and the Dolby effect in that thread's chain; toggling/profiles show no effect or HAL errors. No
+  telephony dependency in the app or the (identical) LTE audio configs; the LTE report likely means music on another
+  output (offload/direct, or call/VoIP mode) where a session-0 effect does not apply. Asked for `dumpsys
+  media.audio_flinger` + logcat from that user. Key backup: owner reports done (not in `~`, not checked).
