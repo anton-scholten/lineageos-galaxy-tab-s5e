@@ -37,7 +37,7 @@ bad() { log "CHECK FAILED: $*"; fail=1; }
 
 check() {
 	log "== pre-build checks"
-	if pgrep -f "out/soong_ui --build-mode" >/dev/null || pgrep -x siso >/dev/null; then
+	if pgrep -x soong_ui >/dev/null || pgrep -x siso >/dev/null; then
 		bad "another build is running"
 	fi
 	if mount | grep -q " $HOME/android/lineage "; then
@@ -76,6 +76,11 @@ for f in sys.argv[1:]:
 		done
 		grep -qs "^PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/lineage-priv/keys/releasekey" "$tree/vendor/lineage-priv/keys/keys.mk" ||
 			bad "$tree: vendor/lineage-priv/keys/keys.mk does not select our releasekey"
+		# Non-ro properties are limited to 91 bytes (gen_build_prop fails the build much later otherwise).
+		local longp
+		longp=$(cat "$tree"/device/samsung/gts4lv*/*.prop 2>/dev/null | grep -vE '^\s*(#|$|ro\.)' |
+			awk -F= '{v=substr($0, index($0, "=") + 1); if (length(v) > 91) print $1 " (" length(v) " bytes)"}')
+		[ -z "$longp" ] || bad "$tree: property value over 91 bytes: $longp"
 		git -C "$tree/kernel/samsung/sdm670" merge-base --is-ancestor $KERNEL_FIX HEAD 2>/dev/null ||
 			bad "$tree kernel lacks $KERNEL_FIX"
 		# Release = the 20261008 configuration: userdebug, ro.debuggable=0, no insecure adb, SELinux enforcing.

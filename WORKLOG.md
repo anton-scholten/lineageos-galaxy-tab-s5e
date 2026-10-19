@@ -1282,3 +1282,14 @@ themselves, not for a plain sideload.
   telephony dependency in the app or the (identical) LTE audio configs; the LTE report likely means music on another
   output (offload/direct, or call/VoIP mode) where a session-0 effect does not apply. Asked for `dumpsys
   media.audio_flinger` + logcat from that user. Key backup: owner reports done (not in `~`, not checked).
+
+## 2026-10-19: OTA test build failed on the feed URL length; switched to GitHub Pages
+- The 24 Wi-Fi OTA test build failed after 1 h 35 m: `gen_build_prop: lineage.updater.uri cannot exceed 91 bytes` (the
+  raw.githubusercontent.com URL was 101). The chain correctly did not start the release builds.
+- Enabled GitHub Pages for this repo (`main` /, `.nojekyll`; verified it serves files as-is). Device `lineage-23.2`
+  `3640419`, `lineage-24.0` `be25398`: `lineage.updater.uri=https://anton-scholten.github.io/lineageos-galaxy-tab-s5e/ota/<version>/{device}.json` (80 bytes).
+- `ota-json.sh` now merges: dedupe by sha256, newest first, keep 3 (`OTA_KEEP`); the Updater (v2 parser, keyed by sha256)
+  lists all entries newer than the installed build. Other unofficial ROMs do the same with GitHub-hosted JSON (e.g.
+  klabit87/OTA, R0rt1z2/OTA, ADeadTrousers/LineageOTAstatic on Pages).
+- `build-all.sh`: fails early on non-ro property values over 91 bytes; the "another build is running" check now matches
+  only real `soong_ui`/`siso` processes (it had matched a watcher's command line).

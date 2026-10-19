@@ -4,9 +4,13 @@ How a build gets from the build drive to users, so that the LineageOS **Updater*
 
 ## How OTA works here
 
-- Every build carries `lineage.updater.uri` (device tree `system.prop`), pointing at a feed in this repo:
-  `ota/23.2/{device}.json` or `ota/24.0/{device}.json` (`{device}` = `gts4lvwifi` / `gts4lv`). One feed per version, so
-  a 23.2 tablet is never offered 24 (that move needs a wipe).
+- Every build carries `lineage.updater.uri` (device tree `system.prop`), pointing at a feed in this repo served by
+  **GitHub Pages** (`https://anton-scholten.github.io/lineageos-galaxy-tab-s5e/ota/<version>/{device}.json`, Pages from
+  `main` /, `.nojekyll` so files are served as-is). Non-ro properties are limited to 91 bytes, which rules out the
+  raw.githubusercontent.com URL (101); `build-all.sh` checks the limit. One feed per version, so a 23.2 tablet is never
+  offered 24 (that move needs a wipe). The same pattern (a GitHub-hosted JSON feed) is common among unofficial ROMs.
+- Each feed keeps the **newest 3 builds** (`OTA_KEEP`). The Updater lists every entry newer than the installed build, so
+  users can pick any of them; never newer-to-older (no downgrades). Keep those releases published.
 - The Updater shows a build when its `datetime` is newer than `ro.build.date.utc`, its `type` is `unofficial`
   (= `ro.lineage.releasetype`) and its SDK level is not lower. It downloads the zip from the GitHub release, verifies
   the signature against the keys in the ROM, reboots to recovery and installs; on 24 it then also updates the recovery.
@@ -64,7 +68,7 @@ SSH/GPG keys cannot sign Android builds.
    scripts/ota-json.sh /mnt/build/releases/<version>-<date> v<version>-<zipdate>
    git add ota/ && git commit -m "OTA: <version>-<zipdate>" && git push
    ```
-   Tablets see the update within minutes (raw.githubusercontent.com caching), via Settings → System → Updater.
+   Tablets see the update within minutes (GitHub Pages deploys after each push), via Settings → System → Updater.
 7. **Check** on a tablet on the previous build: Updater → refresh → the new build appears, downloads, installs, boots.
 
 If a release is broken: revert the commit that changed `ota/<version>/<device>.json` (the Updater only offers what the
