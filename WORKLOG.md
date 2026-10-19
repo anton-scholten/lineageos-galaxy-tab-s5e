@@ -1268,3 +1268,10 @@ themselves, not for a plain sideload.
   fuse-bpf applies it only `if (!IS_POSIXACL(backing_inode))`. FUSE-BPF is active here (`ro.fuse.bpf.is_running=true`).
   Fix in kernel test worktree `/mnt/build/ewt` `7bf5ff571b75` (not pushed), being built for an on-device test.
 - Full fix needs both: the kernel fix and running without sdcardfs (vendor prop + project ids), i.e. one Format data.
+- **Storage fix confirmed** on SM-T720 with the test kernel (`7bf5ff571b75`, flashed as a repacked boot image) and sdcardfs
+  off at runtime: Wallcraft download `SUCCESS`, app folders now `drwxrws---` (ACL mask open), Termux sees shared storage.
+- Pushed kernel `7bf5ff571b75` to fork `lineage-23.2` and `lineage-24.0` (fast-forward); device `external_storage.sdcardfs.enabled=0`
+  in `vendor.prop`: `lineage-23.2` `e6329e0`, `lineage-24.0` `24c265b` (project ids / casefold stay off: no ext4 casefold
+  in this kernel, projid only affects storage statistics). Both trees on the new kernel; pins and `KERNEL_FIX` bumped.
+- Next release (both versions) = release-keys + storage fix + OTA feed property: **one clean install** for everyone.
+  Existing installs would keep their sdcardfs-era app folders (no ACLs), so a dirty update would not fix them anyway.

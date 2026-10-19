@@ -157,7 +157,7 @@ preflight() {
     check_pin_ported device/samsung/gts4lv-common "$base" "device tree"
   }
   check_device_tree
-  check_pin kernel/samsung/sdm670        230ccf8e8e63 "kernel"
+  check_pin kernel/samsung/sdm670        7bf5ff571b75 "kernel"
   check_pin_ported vendor/samsung/gts4lv-common 51de1d4fa3f7 "vendor blobs"
 
   if [ -d "$TREE/device/samsung/gts4lv-common/.git" ]; then

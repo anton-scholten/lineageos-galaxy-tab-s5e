@@ -28,7 +28,7 @@ BUILDS=(
 	"24.0|/mnt/build/lineage-24|lineage-24.0|gts4lvwifi"
 	"24.0|/mnt/build/lineage-24|lineage-24.0|gts4lv"
 )
-KERNEL_FIX=230ccf8e8e63 # charging fix (BPF ld_abs R2) + EROFS (Play services APEX); must be in every kernel we ship
+KERNEL_FIX=7bf5ff571b75 # charging fix (BPF ld_abs R2) + EROFS (Play services APEX) + fuse-bpf umask; must be in every kernel we ship
 
 mkdir -p "$HOME/work"
 log() { echo "$(date '+%F %T') $*" | tee -a "$SUMMARY"; }
