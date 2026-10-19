@@ -1309,3 +1309,15 @@ themselves, not for a plain sideload.
   (auto-RRO) sets `menu_changelog_url` → releases, `report_issue_url` → issues, `header_download_url`,
   `blocked_update_info_url` → README install section. `lineage-23.2` `ff76d0d`, `lineage-24.0` `6c9f41b`.
 - Owner published both releases; `ota/23.2` and `ota/24.0` feeds pushed (`5bccbf8`), live on Pages, download URLs return 200.
+
+## 2026-10-19: double tap to wake (23.2 and 24)
+- Report on 24: double tap to wake does nothing (double tap on the status bar to sleep works). Settings and
+  `dumpsys power` show `mDoubleTapWakeEnabled=true`, but the QTI power HAL never logs `setMode: 0`, and the release
+  power HAL binaries of **both** 23.2 and 24 contain no `aot_enable`.
+- Cause: `vendor/qcom/opensource/power` was converted to Android.bp (`756cda2`, 2025-07-12, after 22.2) and dropped
+  `TARGET_POWERHAL_MODE_EXT`; our `BoardConfigCommon.mk` still set it, so `power/power-mode.cpp` was not built and
+  `MODE_EXT` was off.
+- Fix: `cc_library_static libpowermodeext_gts4lv` (device `Android.bp`, namespace-qualified) +
+  `soong_config_set,qtipower,mode_ext_lib`. Power HAL test build on 24 now contains `aot_enable,0/1` and
+  `/sys/class/sec/tsp/cmd`; SELinux already allows `hal_power_default` on `sysfs_tsp`. Device `lineage-23.2`
+  `99c0506`, `lineage-24.0` `40e38d8`. To verify on the tablet with the next (OTA) build.
