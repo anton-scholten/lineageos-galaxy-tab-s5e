@@ -1,0 +1,17 @@
+[
+  {
+    "datetime": 1792410743,
+    "type": "unofficial",
+    "version": "23.2",
+    "files": [
+      {
+        "filename": "lineage-23.2-20261019-UNOFFICIAL-gts4lv.zip",
+        "sha256": "714a964dd98fcaf1d660221d91dd7dd8ab89adabc855a897b0d5c88a635052dc",
+        "size": 1174193268,
+        "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v23.2-20261019/lineage-23.2-20261019-UNOFFICIAL-gts4lv.zip",
+        "os_patch_level": "2026-09-01",
+        "os_sdk_level": 36
+      }
+    ]
+  }
+]
