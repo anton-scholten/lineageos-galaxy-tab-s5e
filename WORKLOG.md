@@ -1308,3 +1308,4 @@ themselves, not for a plain sideload.
 - Updater links (next build): device overlay `overlay/packages/apps/Updater/app/src/main/res/values/strings.xml`
   (auto-RRO) sets `menu_changelog_url` → releases, `report_issue_url` → issues, `header_download_url`,
   `blocked_update_info_url` → README install section. `lineage-23.2` `ff76d0d`, `lineage-24.0` `6c9f41b`.
+- Owner published both releases; `ota/23.2` and `ota/24.0` feeds pushed (`5bccbf8`), live on Pages, download URLs return 200.

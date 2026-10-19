@@ -36,7 +36,7 @@ The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/wor
 
 ## Next steps
 
-**Release 20261019 (2026-10-19):** all four builds done and verified; GitHub releases `v23.2-20261019` and `v24.0-20261019` drafted ([notes](release/NOTES-24.0-20261019.md)). After the owner publishes: `scripts/ota-json.sh` for both folders, push `ota/`, then test the OTA on the SM-T720 (runs the older `24.0-20261019-ota-test` build). Next build: Updater links to our GitHub (device `ff76d0d` / `6c9f41b`), delivered by OTA.
+**Release 20261019 (2026-10-19):** published (`v23.2-20261019`, `v24.0-20261019`); OTA feeds live on GitHub Pages. Next: test the OTA on the SM-T720 (runs the older `24.0-20261019-ota-test` build). Next build: Updater links to our GitHub (device `ff76d0d` / `6c9f41b`), delivered by OTA.
 
 **Previous plan (2026-10-18 on):** signed with our private keys (RELEASING.md), OTA feed property, storage without sdcardfs + kernel `7bf5ff571b75` (fuse-bpf umask fix: Telegram/Wallcraft downloads, Termux). ⚠️ One clean install for all users; after that, updates arrive over the air. Open: Dolby on the LTE model (needs that user's log), key backup.
 
