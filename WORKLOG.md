@@ -1250,3 +1250,21 @@ themselves, not for a plain sideload.
 - `build-all.sh`: requires our keys in `vendor/lineage-priv/keys` (existence only) and `ro.build.tags=release-keys`;
   currently fails by design until the owner generates the keys (RELEASING.md "Private keys").
 - First release-keys build means one more clean install for current users; OTA works from then on.
+
+## 2026-10-18: keys verified; storage bug traced to fuse-bpf umask; Dolby
+- Owner generated the 12 keys (`~/.android-certs`): checked without printing any private data: all present, 2048-bit,
+  unencrypted, each key matches its cert, 12 distinct, none equal to AOSP's public keys, valid to 2054; installed
+  identically in both trees with `keys.mk` → releasekey. `build-all.sh --check` passes. **No encrypted backup yet.**
+- Dolby: the Dolby UI is LineageOS **AudioFX** (`org.lineageos.audiofx`) driving Samsung's `libswdap.so` (DAP, "Dolby
+  Laboratories"); works on the owner's SM-T720. LTE vs Wi-Fi builds: audio_effects, policy, platform info, mixer paths,
+  dax-default.xml and libswdap.so are byte-identical, so the LTE report is runtime (effect not attached, e.g. offload
+  path) and needs a log from that user.
+- **Storage (Wallcraft, Telegram):** DownloadManager `FILE_ERROR: Failed to create parent for …/Android/data/<pkg>/files/…`
+  (with sdcardfs). Runtime test without sdcardfs (`setprop external_storage.sdcardfs.enabled false`, `vdc volume reset`,
+  framework restart): folders get created but writes fail with `Permission denied`. After deleting Wallcraft's
+  `Android/data` (and a reinstall) vold creates the app dirs with default ACLs (vold `SetDefaultAcl` skips ACLs when
+  sdcardfs is used), yet app-created subdirs are `2700` with an **empty ACL mask**. Cause: the 4.9 fuse-bpf backport
+  (`fs/fuse/dir.c`, "Route node creation") strips the umask before the backing `vfs_mkdir/create/mknod`; upstream
+  fuse-bpf applies it only `if (!IS_POSIXACL(backing_inode))`. FUSE-BPF is active here (`ro.fuse.bpf.is_running=true`).
+  Fix in kernel test worktree `/mnt/build/ewt` `7bf5ff571b75` (not pushed), being built for an on-device test.
+- Full fix needs both: the kernel fix and running without sdcardfs (vendor prop + project ids), i.e. one Format data.
