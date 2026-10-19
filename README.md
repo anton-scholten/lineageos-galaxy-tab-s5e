@@ -125,10 +125,11 @@ Big thanks to all the following:
 | `HANDOVER.md` | **Start here when picking the project up:** state, next steps, build machine layout |
 | `WORKLOG.md` | Record of all work, including blocked or failed steps |
 | `UPSTREAM.md` | Fixes owed to LineageOS (Gerrit) and the kernel author |
-| `release/` | Release notes and the XDA thread post |
+| `RELEASING.md` | How to build, sign, publish and push the OTA feed for a release |
+| `release/`, `ota/` | Release notes and the XDA post; the Updater feeds (`ota/<version>/<device>.json`) |
 | `TESTING.md` | How to collect crash logs from the tablet |
 | `local_manifests/` (23.2), `local_manifests/24/` | Repos to add to a LineageOS source tree; each file explains its fork |
-| `scripts/` | `build-all.sh` (release builds), `device-checks.sh` (on-device checks), `check-pins.sh` (pinned commits), `boot-log.sh`, `fcm-check.py`, `pmsg-decode.py`, `portability-check.sh`, kernel cherry-pick tooling |
+| `scripts/` | `build-all.sh` (release builds), `ota-json.sh` (OTA feed), `device-checks.sh` (on-device checks), `check-pins.sh` (pinned commits), `boot-log.sh`, `fcm-check.py`, `pmsg-decode.py`, `portability-check.sh`, kernel cherry-pick tooling |
 | `PORTING-LINEAGE-23.2.md`, `KERNEL-BACKPORT-PLAN.md`, `PRIOR-WORK.md`, `ESTIMATE.md`, `LEAD-SYNTHESIS.md` | 23.2 analysis: kernel blocker, plan, prior work, estimate, research findings |
 | `FEASIBILITY-LINEAGE-24.md`, `analysis/l24/` | 24 feasibility study, task specs, status and boot logs |
 | `analysis/` (other folders) | Kernel trial port and conflict briefs, build tests, reference trees, audits, helper-agent research |

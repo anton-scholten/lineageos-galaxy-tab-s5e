@@ -1242,3 +1242,11 @@ themselves, not for a plain sideload.
   `PackageSettings: Couldn't write -1 to /config/sdcardfs/<pkg>/appid`. ExyHyperBrick 23.2/24 instead: no sdcardfs,
   `CONFIG_UNICODE=y`, ext4/f2fs casefold backports, `emulated_storage.mk` (projid + casefold, sdcardfs off). Our ext4/f2fs
   have no casefold. Hypothesis, unconfirmed: per-app `Android/data` permissions under sdcardfs on Android 16/17.
+
+## 2026-10-18: OTA and private keys set up (keys pending)
+- Device `lineage-23.2` `c965a27`, `lineage-24.0` `cb3062c`: `lineage.updater.uri` → `ota/<version>/{device}.json` in this repo.
+- `scripts/ota-json.sh <folder> <tag>`: writes the Updater feed from each zip's OTA metadata (tested on 24.0-20261016,
+  URL resolves). New `RELEASING.md` (keys, release steps, OTA feed after publishing). `.gitignore` blocks key files.
+- `build-all.sh`: requires our keys in `vendor/lineage-priv/keys` (existence only) and `ro.build.tags=release-keys`;
+  currently fails by design until the owner generates the keys (RELEASING.md "Private keys").
+- First release-keys build means one more clean install for current users; OTA works from then on.

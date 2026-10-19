@@ -17,6 +17,7 @@ local manifests and device-tree patches. It is not an Android source tree.
   `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (= TheMuppets `lineage-22.2` + patched `libwfdservice.so` + perf XML remap, `51de1d4`), and
   `anton-scholten/android_packages_modules_Bluetooth` (= LineageOS + `bluetooth.hci.disabled_commands` restored; 23.2 `8c6d706e11`, 24 `11434c8f8a`). `scripts/check-pins.sh` checks all pins.
 - Fixes owed upstream (LineageOS Gerrit, krazey) are tracked in [UPSTREAM.md](UPSTREAM.md); keep it current.
+- Releases and OTA follow [RELEASING.md](RELEASING.md). Never read, print, commit or send the private signing keys (`*.pk8`, `vendor/lineage-priv/`, `~/.android-certs`).
 - Build trees: external drive, real paths `/mnt/build/lineage-23.2` and `/mnt/build/lineage-24` (no bind mount or symlink); release files in `/mnt/build/releases/<version>-<date>/`. Build with `scripts/build-all.sh` (HANDOVER "Build machine layout").
   `patches/` is only a record of 0001–0004. New device-tree changes go into the fork as commits, not as new patch files.
 - Backup forks (read-only snapshots, never sync): `anton-scholten/android_kernel_samsung_exynos9810`,

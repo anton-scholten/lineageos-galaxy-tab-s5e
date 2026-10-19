@@ -69,6 +69,13 @@ for f in sys.argv[1:]:
     for p in ET.parse(f).getroot().iter("project"):
         if p.get("remote") == "anton":
             print(p.get("path"), p.get("name"), p.get("revision"))' "$tree"/.repo/local_manifests/*.xml)
+		# Our private release keys (RELEASING.md): only their presence is checked, never their content.
+		for k in releasekey platform shared media networkstack bluetooth sdk_sandbox nfc; do
+			[ -f "$tree/vendor/lineage-priv/keys/$k.pk8" ] && [ -f "$tree/vendor/lineage-priv/keys/$k.x509.pem" ] ||
+				{ bad "$tree: private key '$k' missing in vendor/lineage-priv/keys (RELEASING.md)"; break; }
+		done
+		grep -qs "^PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/lineage-priv/keys/releasekey" "$tree/vendor/lineage-priv/keys/keys.mk" ||
+			bad "$tree: vendor/lineage-priv/keys/keys.mk does not select our releasekey"
 		git -C "$tree/kernel/samsung/sdm670" merge-base --is-ancestor $KERNEL_FIX HEAD 2>/dev/null ||
 			bad "$tree kernel lacks $KERNEL_FIX"
 		# Release = the 20261008 configuration: userdebug, ro.debuggable=0, no insecure adb, SELinux enforcing.
@@ -90,14 +97,14 @@ for f in sys.argv[1:]:
 	return $fail
 }
 
-# A release build must come out exactly like the published 20261008 release: userdebug with
-# ro.debuggable=0, secure adb, no forced debuggability, SELinux not permissive on the kernel command line.
+# A release build must be: userdebug with ro.debuggable=0, secure adb, no forced debuggability, SELinux not
+# permissive on the kernel command line, and signed with our private keys (release-keys, RELEASING.md).
 verify_release() { # out log -> prints problems, returns 1 if any
 	local out=$1 blog=$2 props bad_=0 v
 	# system_ext and product sit inside the system image on this device (system/system_ext/etc/build.prop).
 	props="$out/system/build.prop $out/system/system_ext/etc/build.prop $out/system/product/etc/build.prop $out/system_ext/etc/build.prop $out/product/etc/build.prop $out/vendor/build.prop"
 	getp() { grep -sh "^$1=" $props | head -1 | cut -d= -f2-; }
-	for kv in ro.build.type=userdebug ro.debuggable=0 ro.secure=1 ro.adb.secure=1; do
+	for kv in ro.build.type=userdebug ro.debuggable=0 ro.secure=1 ro.adb.secure=1 ro.build.tags=release-keys; do
 		v=$(getp "${kv%%=*}")
 		[ "$v" = "${kv#*=}" ] || { echo "${kv%%=*}=${v:-<unset>} (want ${kv#*=})"; bad_=1; }
 	done

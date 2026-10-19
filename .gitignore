@@ -7,3 +7,14 @@ __pycache__/
 #   flash-logs/boot-1-last_kmsg-excerpt.md
 # The timestamped directories this script writes are ignored wholesale.
 flash-logs/[0-9]*/
+
+# Android signing keys must never be committed (see RELEASING.md). Private keys are *.pk8 / *.pem key
+# files and anything under a lineage-priv or android-certs directory.
+*.pk8
+*.key
+*.p12
+*.jks
+*.keystore
+**/lineage-priv/
+**/android-certs/
+**/.android-certs/
