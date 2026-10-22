@@ -1349,3 +1349,16 @@ themselves, not for a plain sideload.
   `!PageSwapBacked` pages. Not proven yet. Firefox's allocator uses lazy freeing heavily, which would explain why only
   Firefox is hit.
 - Bromite's "Aw, Snap!" (SIGSYS) is a separate, app-side problem (see above).
+- **Root cause and fix (2026-10-22).** The backported `madvise_cold_or_pageout_pte_range()` clears the access flag via
+  `ptep_get_and_clear_full()` + `pte_mkold()` + `set_pte_at()` (pmd: `pmdp_invalidate` + `set_pmd_at`). On 4.9 arm64,
+  `set_pte_at()` sets `PTE_RDONLY` unless the *software* dirty bit is set (`CONFIG_ARM64_HW_AFDBM=y`), so pages dirtied
+  only by the hardware come back clean; 4.9 `shrink_page_list()` then treats a clean anon page newly added to swap as
+  MADV_FREE (`TTU_LZFREE`) and **discards** it. Firefox (mozjemalloc reuses MADV_FREE'd pages → writable-clean ptes →
+  hardware-dirtied) lost memory and crashed on resume. Upstream arm64 stopped touching `PTE_RDONLY` in `set_pte_at()` in v4.14.
+- Fix: `ptep_test_and_clear_young()` / `pmdp_test_and_clear_young()` instead, kernel `72f6ca56842c` on local branch
+  `test-madv-dirty` (24 tree, not pushed). Test boot image `~/work/boot-backup/madv/boot-24.0-20261019-madv-test.img`
+  (release boot with only the kernel swapped; original alongside), flashed with Heimdall.
+- Verified on SM-T720: the freeze + `am compact full` + resume repro, which crashed 2/2 before, passed 2/2 from a fresh
+  start plus 3 consecutive cycles: 0 SIGSEGV, all Firefox processes alive, page draws and scrolls.
+- Same pattern in stock 4.9 `move_ptes()` (`mm/mremap.c`, ART's CMC GC uses MREMAP_DONTUNMAP); not changed, lower risk
+  (pages there are normally software-dirty). Pending: owner soak, then push to both kernel branches and rebuild.
