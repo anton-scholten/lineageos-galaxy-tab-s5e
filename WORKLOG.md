@@ -1321,3 +1321,14 @@ themselves, not for a plain sideload.
   `soong_config_set,qtipower,mode_ext_lib`. Power HAL test build on 24 now contains `aot_enable,0/1` and
   `/sys/class/sec/tsp/cmd`; SELinux already allows `hal_power_default` on `sysfs_tsp`. Device `lineage-23.2`
   `99c0506`, `lineage-24.0` `40e38d8`. To verify on the tablet with the next (OTA) build.
+
+## 2026-10-22: Firefox / Bromite on the SM-T720 (24.0-20261019, 6 GB)
+- Firefox 158: no crashes and no LOW_MEMORY kills. Its background main process was SIGKILLed once (2026-10-21
+  22:18:04, adj 905) by the **Seedvault** full backup (`full_backup_package: org.mozilla.firefox` →
+  `full_backup_agent_failure: transport rejected` → `am_proc_died`); the same backup run killed ~140 other app
+  processes (normal BackupManager tear-down). Candidate for the LTE user's "Firefox dies in the background" if they
+  use Seedvault; ask in the log request.
+- Bromite 108.0.5359.156 (Dec 2022, unmaintained): renderer ("Aw, Snap!") on every page, reproduced with
+  en.wikipedia.org. Exit status 31 = SIGSYS (seccomp), only in Bromite renderers; the system WebView and Firefox
+  sandboxes are fine, so an old Chromium seccomp policy vs Android 17 libc rather than the kernel. Not pursued;
+  users should move to Cromite.
