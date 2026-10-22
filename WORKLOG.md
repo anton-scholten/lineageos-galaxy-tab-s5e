@@ -1362,3 +1362,13 @@ themselves, not for a plain sideload.
   start plus 3 consecutive cycles: 0 SIGSEGV, all Firefox processes alive, page draws and scrolls.
 - Same pattern in stock 4.9 `move_ptes()` (`mm/mremap.c`, ART's CMC GC uses MREMAP_DONTUNMAP); not changed, lower risk
   (pages there are normally software-dirty). Pending: owner soak, then push to both kernel branches and rebuild.
+
+## 2026-10-22: release builds 20261022 (Firefox fix, double tap to wake, Updater links)
+- Soak on the test kernel: no new crashes (only Syncthing's FGS start timeout at boot, also seen on 10-19 with the
+  old kernel). Pushed kernel `72f6ca56842c` to fork `lineage-23.2` and `lineage-24.0` (fast-forward), trees moved,
+  `KERNEL_FIX` and pins bumped, UPSTREAM 4d.
+- `build-all.sh` 11:36-19:57, all four done, release props verified, SHA256SUMS ok. Checked: kernel
+  `4.9.337-g72f6ca56842c` in all boot images, `release-keys`, power HAL with `aot_enable` (23.2 and 24), Updater RRO with
+  our releases/issues URLs. `/mnt/build/releases/23.2-20261022/`, `24.0-20261022/`.
+- Notes `release/NOTES-23.2-20261022.md`, `NOTES-24.0-20261022.md` (owner's style; OTA from 20261019, no wipe); GitHub
+  releases `v23.2-20261022`, `v24.0-20261022` drafted. After publishing: `scripts/ota-json.sh` for both, push `ota/`.
