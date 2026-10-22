@@ -1332,3 +1332,20 @@ themselves, not for a plain sideload.
   en.wikipedia.org. Exit status 31 = SIGSYS (seccomp), only in Bromite renderers; the system WebView and Firefox
   sandboxes are fine, so an old Chromium seccomp policy vs Android 17 libc rather than the kernel. Not pursued;
   users should move to Cromite.
+
+## 2026-10-22: Firefox crashes on resume = app compaction (process_madvise MADV_PAGEOUT) on our kernel
+- Owner's SM-T720 (24.0-20261019): Firefox crashed twice (10:08:53, 10:11:27) the moment it was brought back from the
+  background: tab process SIGSEGV (exit status 11) ~250 ms after `am_unfreeze`, then GPU and main process. Every
+  crashed process had been frozen **and compacted** (`am_compact ... ANON`, 120-200 MB paged out) while in the background.
+  No tombstones (Firefox's own crash handler catches the signal).
+- Reproduced on demand, twice: fresh Firefox → HOME → `am freeze --sticky` + `am compact full` on main/tab/gpu pids →
+  wait 30 s → `am unfreeze` + relaunch → tab SIGSEGV, then main and GPU. Control with `use_compaction=false` and freeze
+  only: no crash. Setting restored afterwards (`device_config delete activity_manager use_compaction`).
+- Only Firefox crashed; 33 other processes were compacted without problems. `process_madvise`/`MADV_PAGEOUT`/`MADV_COLD`
+  come from our ExyHyperBrick port (`8a6d9a3d7644` ff.), not in the 22.2 kernel, where compaction silently did nothing.
+  Matches the LTE user's "Firefox crashes when in the background" (same kernel on 23.2).
+- Suspect: `reclaim_pages()` → 4.9 `shrink_page_list()`, which treats every anon page newly added to swap as a
+  possible MADV_FREE page (`TTU_LZFREE`, discarded when the pte is clean and !PageDirty); upstream 5.x only discards
+  `!PageSwapBacked` pages. Not proven yet. Firefox's allocator uses lazy freeing heavily, which would explain why only
+  Firefox is hit.
+- Bromite's "Aw, Snap!" (SIGSYS) is a separate, app-side problem (see above).
