@@ -1387,3 +1387,12 @@ themselves, not for a plain sideload.
 - README: LTE status ✅ on 23.2 and 24 (mobile data reported working; known issue Dolby Atmos), OTA "Updates" section, wipe also needed from our pre-20261019 builds, troubleshooting (APN protocol, greyed SIM switch = radio HAL 1.4, Bromite → Cromite), kernel/device rows (memory fix, double tap to wake, Updater links). RELEASING step 3: release notes list only changes since the previous build, with a template; the README holds everything else.
 - Deleted the four pre-OTA GitHub releases (v23.2-20261008, -20261014, -20261016, v24.0-20261016; test keys, no OTA) at the owner's request; git tags kept (`lineage-23.2` here = tag v23.2-20261008). README (wipe line, Updates), CLAUDE.md and AGENTS.md headers, HANDOVER history note; `release/XDA-POST.txt` rewritten for 24 + 23.2, LTE working, OTA, links to the releases page.
 - Removed `release/XDA-POST.txt`, the stray kernel compile-command dumps `c232.sh`/`c240.sh` and the notes of the deleted releases; redacted the tablet serial in `analysis/l24/charging-notification.md` (still in history, commit d36f47a); `flash-logs/` (local, untracked, contains the serial) added to .gitignore.
+
+## 2026-10-23: repo cleanup (history docs removed)
+- Owner removed (on request) the port-era working docs: AGENT-TASKS, AGENTS, RUNBOOK, ESTIMATE, KERNEL-BACKPORT-PLAN,
+  PORTING-LINEAGE-23.2, PRIOR-WORK, LEAD-SYNTHESIS, FEASIBILITY-LINEAGE-24, MOVING-THE-DRIVE, `analysis/`, `patches/`
+  and the agent-only scripts `check-agent-output.sh`, `pick-series.sh`, `check-pick.py`. All remain in git history.
+- README build section gained the useful parts of the deleted build handoff (packages, the 24 memory wall, pitfalls).
+- HANDOVER.md and CLAUDE.md rewritten for the current state (released, OTA, current pins, next steps); references in
+  TESTING, UPSTREAM, REPO-SETUP, script comments and manifest comments reworded. Older WORKLOG entries still link to
+  the deleted files; use git history (`git show <commit>:<path>`) for them.

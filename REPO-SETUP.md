@@ -20,15 +20,14 @@ Used as-is, not forked:
 - `LineageOS/android_device_samsung_gts4lv` and `..._gts4lvwifi` (`lineage-22.2`). Fork them only if a 23.2 change has to go there.
 - `LineageOS/android_hardware_samsung` (has a real `lineage-23.2`).
 - TheMuppets vendor repos (`lineage-22.2`).
-- Reference only: `LineageOS/android_device_samsung_sm7125-common` (official 23.2). See [`analysis/reference-trees/`](analysis/reference-trees/README.md).
+- Reference only: `LineageOS/android_device_samsung_sm7125-common` (official 23.2).
 
 Why no repo has `lineage-23.2` for this tablet: LineageOS stopped at 22.2 because of the 4.9 kernel. So our forks carry
 the only `lineage-23.2` branches, and we copy changes in from the reference trees.
 
 ## Rules
 - Kernel work goes on the kernel fork's `lineage-23.2` as `git cherry-pick -x` commits, keeping the original authors.
-- Device-tree work goes on the device fork's `lineage-23.2` as normal commits. `patches/` in this repo is only a record of 0001–0004.
-  Don't add new patch files there.
+- Device-tree work goes on the device fork's `lineage-23.2` / `lineage-24.0` as normal commits.
 - `local_manifests/gts4lv-common.xml` already points at both forks (`remote="anton"`, `lineage-23.2`).
 
 ## Attaching repos to a Claude cloud session
@@ -43,4 +42,3 @@ A session can only push to repos attached to it. Public repos can be read withou
 3. Attached repos are cloned to `/home/user/<repo-name>`. The full kernel is ≈2.3 GB, so it takes 10–30 min.
    A `--depth 1` clone is enough to push a branch.
 
-Helper agents that aren't Claude: see [AGENT-TASKS.md §0.6](AGENT-TASKS.md#06-access-for-agents-that-arent-claude-owner-sets-this-up-once).

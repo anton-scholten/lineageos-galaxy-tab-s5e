@@ -3,8 +3,7 @@
 # portability-check.sh -- can this build tree move to another computer?
 #
 # Written 2026-10-10 by the lead, after the drive move and the interrupted
-# copy to /dev/sdb. Background: HANDOVER.md "Build machine layout",
-# FEASIBILITY-LINEAGE-24.md, analysis/l24/L4.md.
+# copy to /dev/sdb. Background: HANDOVER.md "Build machine layout".
 #
 # WHAT IT DOES
 #   Two modes, both read-only:

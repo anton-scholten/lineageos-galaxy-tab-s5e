@@ -2,9 +2,8 @@
 # ============================================================================
 # boot-log.sh -- read the tablet's boot logs over adb, and triage them
 #
-# Written 2026-10-12, for the B2 first-boot of LineageOS 24. Companion to
-# analysis/port/B2-HANDOFF.md section 4, which says WHAT to look for; this
-# says HOW to get it off the tablet and puts the greps in one place.
+# Written 2026-10-12, for the first boot of LineageOS 24. Gets the boot logs
+# off the tablet and puts the useful greps in one place (see also TESTING.md).
 #
 # WHAT IT DOES
 #   Read-only. Never writes to the tablet, never reboots it, never runs
@@ -213,5 +212,5 @@ if [ -s "$OUT/logcat.txt" ]; then
 fi
 
 say ""
-info "next: write analysis/port/boot-<n>.md from these files, and commit only"
+info "next: summarise these files in WORKLOG.md, and commit only"
 info "short excerpts - the raw logs hold the serial and MAC addresses."

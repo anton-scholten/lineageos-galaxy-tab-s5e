@@ -19,7 +19,7 @@
            name="android_device_samsung_gts4lv-common"
            remote="anton" revision="lineage-23.2" />
 
-  <!-- Kernel shared by all variants (needs the backports in KERNEL-BACKPORT-PLAN.md) -->
+  <!-- Kernel shared by all variants (with the ExyHyperBrick 4.9 eBPF backport) -->
   <project path="kernel/samsung/sdm670"
            name="android_kernel_samsung_sdm670"
            remote="anton" revision="lineage-23.2" />

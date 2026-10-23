@@ -35,7 +35,7 @@
 #   * ExyHyperBrick's S9 kernel is a live upstream tree -- a move there just
 #     means he pushed more work, which is news for the lead, not a problem.
 #
-# Pin table: AGENT-TASKS.md section 3, "M3: pin checker script".
+# Pin table: one row per pinned repo.
 #
 # task: M3 | agent: Space Bunny Free (opencode) | date: 2026-10-03
 
@@ -95,7 +95,7 @@ pin|anton-scholten/android_kernel_samsung_exynos9810|https://github.com/anton-sc
 pin|anton-scholten/android_kernel_samsung_exynos9810|https://github.com/anton-scholten/android_kernel_samsung_exynos9810|lineage-23.2|baa585f67e0e|FROZEN BACKUP of the S9 kernel: series end baa585f67e0e (exy/l232). All series counts depend on this.
 pin|anton-scholten/android_device_samsung_exynos9810-common|https://github.com/anton-scholten/android_device_samsung_exynos9810-common|lineage-23.2|ced977559b13|FROZEN BACKUP of the S9 device tree (used by R7).
 info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-23.2|baa585f67e0e|UPSTREAM S9 kernel, a live tree. A move means ExyHyperBrick pushed more work: consider re-running K1-K6.
-info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-24.0|baa585f67e0e|UPSTREAM S9 kernel for LineageOS 24 (equal to 23.2 on 2026-10-09). A move means krazey started 24-specific kernel work: tell the lead (FEASIBILITY-LINEAGE-24.md).
+info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-24.0|baa585f67e0e|UPSTREAM S9 kernel for LineageOS 24 (equal to 23.2 on 2026-10-09). A move means krazey added 24-specific kernel work: check whether we need it.
 PINS
 
 row_count=${#rows[@]}

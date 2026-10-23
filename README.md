@@ -104,9 +104,19 @@ Outputs `lineage-*-UNOFFICIAL-<codename>.zip`, `recovery.img` and `vbmeta.img` i
 manifests point at all forks above, so no extra patches are needed. Release builds of both versions and models:
 [`scripts/build-all.sh`](scripts/build-all.sh) (checks every fork and the release settings).
 
-Needs ~300 GB of disk and `git-lfs` installed **before** `repo sync`. RAM: 16 GB+ for 23.2; **≥55 GB of RAM or swap for
-24** (Soong peaks at ~53 GiB, [analysis/l24/L7.md](analysis/l24/L7.md) §10a). The 24 kernel needs `libssl-dev` on the
-build host. Full recipe: [analysis/port/BUILD-HANDOFF.md](analysis/port/BUILD-HANDOFF.md).
+Needs ~300 GB of disk and `git-lfs` installed **before** `repo sync`. RAM: 16 GB+ for 23.2; **≥55 GB of RAM plus swap
+for 24** (Soong loads the whole module graph into one process, ~53 GiB, before compiling anything; `-j` doesn't help).
+Packages (Debian/Ubuntu):
+
+```bash
+sudo apt install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git git-lfs gnupg gperf \
+  imagemagick protobuf-compiler python3-protobuf lib32readline-dev lib32z1-dev libdw-dev libelf-dev lz4 \
+  libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip \
+  zlib1g-dev python-is-python3
+```
+
+Pitfalls: a build killed during `Running globs...` / `bootstrap blueprint` is out of memory (add swap); use
+`breakfast gts4lvwifi`, not `lineage_gts4lvwifi`; read the log, not a wrapper's exit status.
 
 ## Prior work used
 
@@ -138,13 +148,8 @@ Big thanks to all the following:
 | `release/`, `ota/` | Release notes; the Updater feeds (`ota/<version>/<device>.json`) |
 | `TESTING.md` | How to collect crash logs from the tablet |
 | `local_manifests/` (23.2), `local_manifests/24/` | Repos to add to a LineageOS source tree; each file explains its fork |
-| `scripts/` | `build-all.sh` (release builds), `ota-json.sh` (OTA feed), `device-checks.sh` (on-device checks), `check-pins.sh` (pinned commits), `boot-log.sh`, `fcm-check.py`, `pmsg-decode.py`, `portability-check.sh`, kernel cherry-pick tooling |
-| `PORTING-LINEAGE-23.2.md`, `KERNEL-BACKPORT-PLAN.md`, `PRIOR-WORK.md`, `ESTIMATE.md`, `LEAD-SYNTHESIS.md` | 23.2 analysis: kernel blocker, plan, prior work, estimate, research findings |
-| `FEASIBILITY-LINEAGE-24.md`, `analysis/l24/` | 24 feasibility study, task specs, status and boot logs |
-| `analysis/` (other folders) | Kernel trial port and conflict briefs, build tests, reference trees, audits, helper-agent research |
-| `RUNBOOK.md`, `AGENTS.md`, `AGENT-TASKS.md`, `CLAUDE.md`, `REPO-SETUP.md` | How the work was run with AI agents, and all repos/branches |
-| `MOVING-THE-DRIVE.md` | Moving the build drive to another machine |
-| `patches/` | Record of the first device-tree changes (already in the fork; don't apply) |
+| `scripts/` | `build-all.sh` (release builds), `ota-json.sh` (OTA feed), `device-checks.sh` (on-device checks), `check-pins.sh` (pinned commits), `boot-log.sh`, `fcm-check.py`, `pmsg-decode.py`, `portability-check.sh` |
+| `CLAUDE.md`, `REPO-SETUP.md` | Instructions for the AI assistant; all repos and branches |
 
 ## License
 

@@ -30,9 +30,8 @@ is in a bootloop.
 ## Collecting crash logs
 
 Scope: what to collect, in what order, after which kind of failure. Nothing here changes the
-device. Phase 5 of [ESTIMATE.md](ESTIMATE.md) ("first boot and debugging: kernel panics,
-netd/bpfloader, HAL crashes") needs `pstore`/`last_kmsg`, and phase 6 (testing) needs the same
-files when something goes wrong during a soak.
+device. Boot problems (kernel panics, netd/bpfloader, HAL crashes) need `pstore`/`last_kmsg`,
+and so does anything that goes wrong during a soak.
 
 ### Prerequisites
 
@@ -95,7 +94,7 @@ commands below that need `adb` to the system won't work. Read the previous boot'
 3. Then `grep -n -E "Linux version|InitFatalReboot|Kernel panic|SELinux:|avc: denied|reboot:" last_kmsg.txt`.
    The lines before `reboot: Restarting system with command 'bootloader'` are the cause.
 
-This is how the SELinux blocker was found ([analysis/port/FLASH-BLOCKER.md](analysis/port/FLASH-BLOCKER.md) ruling 7). The file
+This is how the first-boot SELinux blocker was found. The file
 contains the device serial and MACs, so commit excerpts only.
 
 ### 2. pstore (the kernel log from the crash itself)

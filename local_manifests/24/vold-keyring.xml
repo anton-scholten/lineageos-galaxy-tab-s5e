@@ -9,7 +9,7 @@
   5cbee14 "Revert 'vold: remove session keyring workaround for old kernels'" (still needed for <4.14 devices),
   which falls back to the legacy session keyring. The lineage-24.0 vold branch (11d8982) does not have it.
   The fork's lineage-24.0 = 11d8982 + that revert + a copy of libkeyutils (system/core/libkeyutils is gone in
-  Android 17). Details: analysis/l24/boot-24-1.md "Strong-model review".
+  Android 17). See UPSTREAM.md items 6-7.
 
   TO DO: propose the same to LineageOS on Gerrit, then drop this file.
   Same remove-project/no-LineageOS-prefix pattern as sepolicy-icmp.xml.

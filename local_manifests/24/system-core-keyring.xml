@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Our fork of LineageOS/android_system_core, lineage-24.0, for the second half of the old-kernel keyring fix.
-  Pairs with vold-keyring.xml. See analysis/l24/boot-24-2.md.
+  Pairs with vold-keyring.xml. See UPSTREAM.md items 6-7.
 
   WHY
   boot-24-2 (with the vold fix) died one step later: "vold: Unable to find device keyring: Required key not

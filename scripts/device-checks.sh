@@ -5,7 +5,7 @@
 # device-checks.sh -- read-only health checks for a booted Galaxy Tab S5e
 # (gts4lvwifi = SM-T720, gts4lv = SM-T725/T727) running the LineageOS 23.2
 # port with the ExyHyperBrick eBPF backport.
-# Spec: AGENT-TASKS.md section 6, task T1.
+# On-device checks for the eBPF kernel backport (run with adb).
 #
 # WHAT IT DOES
 #   Runs 6 checks over `adb` against a BOOTED tablet, prints PASS / FAIL / SKIP
@@ -32,14 +32,14 @@
 #
 # THE 6 CHECKS
 #   1  print `uname -r`; ro.bpf.kver_override must be exactly 5.15.178
-#      (device-tree patch 0004, PORTING-LINEAGE-23.2.md)
+#      (device tree, product.prop)
 #   2  `su -c 'ls /sys/fs/bpf'` must be non-empty  (SKIP if there is no su)
 #   3  netd registered (`service list`) and running, and
 #      `dumpsys connectivity` lists attached cgroup BPF programs
 #   4  `logcat -d -b all`: no FATAL and no abort from bpfloader / netbpfload
 #   5  `ping -c 3 8.8.8.8` must report 0% packet loss
 #   6  record `uptime`, and remind to rerun after a 24 h soak
-#      (KERNEL-BACKPORT-PLAN.md, step 4)
+#      (soak test)
 #
 # EXIT CODE
 #   0 = every check PASS or SKIP, 1 = at least one FAIL, or the script could
@@ -335,15 +335,15 @@ check_kernel_and_kver() {
     if [[ -z $kver ]]; then
         report FAIL "$id" "uname -r = $uname_r, but ro.bpf.kver_override is EMPTY"
         note "device-tree patch 0004 sets ro.bpf.kver_override=$EXPECTED_KVER in product.prop"
-        note "(PORTING-LINEAGE-23.2.md). Without it bpfloader and netd refuse to load BPF."
+        note "Without it bpfloader and netd refuse to load BPF."
         note "Do not just add the property: on a kernel that is not yet at 5.15 BPF"
-        note "level it makes the device bootloop (PORTING-LINEAGE-23.2.md, patch 0004)."
+        note "level it makes the device bootloop."
         return
     fi
     if [[ $kver != "$EXPECTED_KVER" ]]; then
         report FAIL "$id" "uname -r = $uname_r, ro.bpf.kver_override = $kver, expected $EXPECTED_KVER"
         note "$EXPECTED_KVER is what the ExyHyperBrick-based kernel that this port copies reports"
-        note "(analysis/exyhyperbrick-trial/README.md). A 5.4.x value belongs to the"
+        note "(ExyHyperBrick series). A 5.4.x value belongs to the"
         note "from-scratch 5.4-parity route, not to this one."
         return
     fi
@@ -502,7 +502,7 @@ check_uptime_soak() {
     report PASS "$id" "uptime recorded (informational): $out"
     note "This check only records. A soak is not done by one run: rerun this script"
     note "after 24 h of uptime and confirm no new FAILs appeared in the meantime"
-    note "(KERNEL-BACKPORT-PLAN.md step 4). Watch for slow log growth too:"
+    note "Watch for slow log growth too:"
     note "'adb shell su -c \"cat /sys/fs/pstore/console-ramoops*\"' after a crash."
 }
 
