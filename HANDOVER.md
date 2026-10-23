@@ -15,7 +15,7 @@ tap to wake, Updater links; OTA, no wipe). The pre-OTA releases (20261008-202610
 
 | Area | State |
 |---|---|
-| Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake works |
+| Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
 | Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `72f6ca56842c` on both branches; device `99c0506` (23.2) / `40e38d8` (24) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
@@ -41,10 +41,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
-1. Owner: confirm the Updater links and Firefox after a day on 24.0-20261022 (double tap to wake confirmed working 2026-10-23).
-2. LTE Dolby Atmos: waiting for that user's logs (steps were sent: logcat + `dumpsys media.audio_flinger` while playing).
-3. Report upstream ([UPSTREAM.md](UPSTREAM.md)), krazey first: BPF `LD_IND` R1, fuse-bpf umask, MADV_PAGEOUT dirty bit.
-4. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
+1. LTE Dolby Atmos: waiting for that user's logs (steps were sent: logcat + `dumpsys media.audio_flinger` while playing).
+2. Report upstream ([UPSTREAM.md](UPSTREAM.md)), krazey first: BPF `LD_IND` R1, fuse-bpf umask, MADV_PAGEOUT dirty bit.
+3. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
    hardware-dirty pattern as the MADV_PAGEOUT bug (not seen in practice).
 
 ## Rules

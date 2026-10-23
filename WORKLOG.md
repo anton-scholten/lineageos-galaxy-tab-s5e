@@ -1397,3 +1397,4 @@ themselves, not for a plain sideload.
   TESTING, UPSTREAM, REPO-SETUP, script comments and manifest comments reworded. Older WORKLOG entries still link to
   the deleted files; use git history (`git show <commit>:<path>`) for them.
 - Owner confirmed double tap to wake works on 24.0-20261022 (SM-T720).
+- Owner confirmed the Updater links (Recent changes → releases, Report issues → issues) and Firefox (no crashes after a day) on 24.0-20261022. All 20261022 changes verified on the SM-T720.
