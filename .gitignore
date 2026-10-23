@@ -18,3 +18,4 @@ flash-logs/[0-9]*/
 **/lineage-priv/
 **/android-certs/
 **/.android-certs/
+flash-logs/

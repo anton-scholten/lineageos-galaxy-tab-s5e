@@ -270,7 +270,7 @@ problem is deeper than the HAL.
 
 ## 13. State and provenance
 
-**Device:** `SM-T720` / `gts4lvwifi`, serial `R52N207VYXB`, over **wireless** adb at
+**Device:** `SM-T720` / `gts4lvwifi`, serial `<serial>`, over **wireless** adb at
 `192.168.86.233:5555` so the USB-C port stayed free for the charger. Build
 `23.2-20261008-UNOFFICIAL-gts4lvwifi`, `userdebug`. `adb root` is refused by a Developer-options
 toggle on this build; `dmesg` is denied to shell, but `logcat -b kernel` works and was used instead.
