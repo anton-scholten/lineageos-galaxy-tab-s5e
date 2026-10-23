@@ -1373,3 +1373,14 @@ themselves, not for a plain sideload.
 - Notes `release/NOTES-23.2-20261022.md`, `NOTES-24.0-20261022.md` (owner's style; OTA from 20261019, no wipe); GitHub
   releases `v23.2-20261022`, `v24.0-20261022` drafted. After publishing: `scripts/ota-json.sh` for both, push `ota/`.
 - Owner published both; `ota/` feeds updated (2 builds each), live on Pages.
+
+## 2026-10-23: LTE data on 24 works (user report); APN protocol left blank
+- First LTE report on 24: mobile data works after adding an APN by hand and choosing **IPv4** for APN protocol and
+  roaming protocol (then airplane mode off/on). Answers the open question: the 1.4 radio HAL carries data on 24.
+- The APN database is in the build (`system/product/etc/apns-conf.xml`, ~3,900 entries, ~80% without `protocol=`;
+  TelephonyProvider defaults those to `IP`), so auto APNs work for listed carriers; the user's carrier was likely
+  missing or an MVNO.
+- Settings' Compose APN editor (`network/apn/ApnStatus.kt`, AOSP, same in 23.2) starts a new APN with protocol index
+  -1 and saves `""` if the user doesn't pick one; it reads `KEY_SETTINGS_DEFAULT_PROTOCOL_STRING` but only logs it.
+  An empty protocol reaches the old 1.4 HAL as an unknown PDP type, so data fails until IPv4 (or IPv4/IPv6) is chosen.
+  Upstream behaviour, not ours; possible small Settings fix (default to `IP` when unset).
