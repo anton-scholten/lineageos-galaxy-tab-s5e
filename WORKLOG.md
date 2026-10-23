@@ -1372,3 +1372,4 @@ themselves, not for a plain sideload.
   our releases/issues URLs. `/mnt/build/releases/23.2-20261022/`, `24.0-20261022/`.
 - Notes `release/NOTES-23.2-20261022.md`, `NOTES-24.0-20261022.md` (owner's style; OTA from 20261019, no wipe); GitHub
   releases `v23.2-20261022`, `v24.0-20261022` drafted. After publishing: `scripts/ota-json.sh` for both, push `ota/`.
+- Owner published both; `ota/` feeds updated (2 builds each), live on Pages.

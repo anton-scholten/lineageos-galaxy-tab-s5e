@@ -36,7 +36,7 @@ The internal disk holds tools (`~/bin/repo`, `~/Downloads/samloader`) and `~/wor
 
 ## Next steps
 
-**Release 20261019 (2026-10-19):** published (`v23.2-20261019`, `v24.0-20261019`); OTA feeds live on GitHub Pages; OTA verified on the SM-T720. **Next release (builds started 2026-10-22):** Updater links to our GitHub, double tap to wake (device `99c0506` / `40e38d8`), Firefox resume-crash kernel fix (`72f6ca56842c`, UPSTREAM 4d); no wipe, delivered by OTA.
+**Release 20261022 (2026-10-22):** published (`v23.2-20261022`, `v24.0-20261022`): Firefox resume-crash kernel fix (`72f6ca56842c`), double tap to wake, Updater links; OTA feeds live (2 builds each). Next: owner OTA test on the SM-T720.
 
 **Previous plan (2026-10-18 on):** signed with our private keys (RELEASING.md), OTA feed property, storage without sdcardfs + kernel `7bf5ff571b75` (fuse-bpf umask fix: Telegram/Wallcraft downloads, Termux). ⚠️ One clean install for all users; after that, updates arrive over the air. Open: Dolby on the LTE model (needs that user's log), key backup.
 
