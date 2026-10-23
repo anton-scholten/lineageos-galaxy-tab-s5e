@@ -1,7 +1,7 @@
 # AGENTS.md: start here (any AI agent)
 
 You are a helper agent on a project porting LineageOS to the Samsung Galaxy Tab S5e. **23.2 (Android 16) is done**
-(draft release v23.2-20261008). **Current work: LineageOS 24 (Android 17), tasks L0–L11** in [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md).
+(first release v23.2-20261008, now only a tag). **Current work: LineageOS 24 (Android 17), tasks L0–L11** in [analysis/l24/TASKS-L24.md](analysis/l24/TASKS-L24.md).
 This repo holds **docs, analysis, reports and scripts**, not Android source code. There are two kinds of tasks:
 - **Research** (rounds 1–3, all done): you write a report into this repo. You don't change any kernel or device code.
 - **Port** (23.2 round 4: all done; the 24 port uses tasks L5–L8): you change the kernel or device tree, but **only on a `port/*` branch** of the fork, following a brief or a spec exactly.

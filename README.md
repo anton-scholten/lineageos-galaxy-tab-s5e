@@ -47,14 +47,14 @@ Follow the official LineageOS guide for your model ([Wi-Fi](https://wiki.lineage
 |---|---|
 | Unlock, `vbmeta` | Only when coming from Samsung stock, with our `vbmeta-*.img`. Skip when coming from LineageOS |
 | Flash recovery | Flash the recovery of the version you install (the 22.2 recovery can't install 23.2 or 24). Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest): `samloader flash --partition RECOVERY recovery-*.img --no-reboot` |
-| Factory reset | ⚠️ **Required** (erases all data) when coming from Samsung stock, official 22.2, our builds before 20261019 (different signing keys) or 23.2 → 24. Not needed when updating to a newer build of the same version |
+| Factory reset | ⚠️ **Required** (erases all data) when coming from Samsung stock, official 22.2, our early builds before 20261019 (different signing keys, no longer listed) or 23.2 → 24. Not needed when updating to a newer build of the same version |
 | Sideload | *"Signature verification failed"* is expected: answer *Yes*. Stopping at 47% with `adb: failed to read command: Success` is normal |
 
 First boot can take up to 15 minutes.
 
 ### Updates
 
-From 20261019 on, new builds arrive **over the air**: *Settings → System → Updater* lists the latest builds of the
+New builds arrive **over the air**: *Settings → System → Updater* lists the latest builds of the
 version you run (23.2 or 24) and installs the one you pick, without erasing data. Release notes only list what changed
 since the previous build; everything else is on this page.
 

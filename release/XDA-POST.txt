@@ -1,11 +1,13 @@
-[SIZE=4]Unofficial LineageOS 23.2 (Android 16) build for the Samsung Galaxy Tab S5e[/SIZE]
+[SIZE=4]Unofficial LineageOS 24 (Android 17) and 23.2 (Android 16) for the Samsung Galaxy Tab S5e[/SIZE]
 
 [SIZE=3]SM-T720 / T720N (gts4lvwifi) · SM-T725 / T725C / T725N / T727* (gts4lv)[/SIZE]
 
 
-Android 16 needs kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
+Android 16/17 need kernel features a 4.9 kernel doesn't have (mainly modern eBPF).
 
-This port has two parts: a [B]kernel backport[/B] (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits) and a [B]full ROM[/B] (device tree, blobs and fixes for Android 16).
+This port has two parts: a [B]kernel backport[/B] (the ExyHyperBrick 4.9 eBPF series, about 2,450 commits, plus EROFS for Google Play services) and a [B]full ROM[/B] (device tree, blobs and fixes for Android 16/17).
+
+[B]LineageOS 24 is the recommended version.[/B] 23.2 stays available.
 
 This is an [B]unofficial[/B] build made with AI to speed up the process.
 
@@ -18,7 +20,7 @@ It is not supported by the LineageOS team, so please don't report its bugs to th
 
 [*][B]SM-T720 (Wi-Fi):[/B] ✅ Works on my own tablet, no bugs so far.
 
-[*][B]SM-T725 / T727 (LTE):[/B] 🔨 Built, but [B]untested[/B]. I don't have an LTE tablet. Let me know if you have bugs.
+[*][B]SM-T725 / T727 (LTE):[/B] ✅ Works on 23.2 and 24, including mobile data (reported by users). Known issue: Dolby Atmos.
 
 [/LIST]
 
@@ -31,40 +33,20 @@ It is not supported by the LineageOS team, so please don't report its bugs to th
 
 [*]ANT+ is not available.
 
-[*]LTE models: no VoLTE / VoWiFi. Calls fall back to 2G/3G.
-
-[*]Battery-usage wakelock statistics are incomplete (an SELinux label is still missing) and sleep works.
+[*]LTE models: no VoLTE / VoWiFi (calls fall back to 2G/3G), Dolby Atmos unreliable, SIM on/off switch greyed out (Samsung's modem driver doesn't support it).
 
 [/LIST]
 
 
-[SIZE=5][B]Installation[/B][/SIZE]
+[SIZE=5][B]Installation and updates[/B][/SIZE]
 
-⚠️ [B]A clean install is required. This erases all data on the tablet.[/B] Back up first, and remove your Google account from the tablet (Factory Reset Protection).
+⚠️ [B]A first install is a clean install, which erases all data on the tablet.[/B] Back up first, and remove your Google account from the tablet (Factory Reset Protection).
 
-[LIST=1]
+Full steps: [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e#install--upgrade[/URL]
 
-[*]Coming from Samsung stock: unlock the bootloader and flash vbmeta first, exactly as in the [URL='https://wiki.lineageos.org/devices/gts4lvwifi/install/']official install guide[/URL]. Coming from LineageOS 22.2: just continue below.
+In short: flash the recovery of the version you install (samloader/Odin/Heimdall, RECOVERY) → Factory reset → Format data → Apply update → Apply from ADB → sideload the ROM zip → (optional) sideload MindTheGapps (17.0.0 for 24, 16.0.0 for 23.2, arm64) [B]before the first boot[/B] → reboot.
 
-[*]Boot into Download mode and flash the [B]23.2 recovery from this release[/B] because 22.2 recovery can't install the 23.2 ROM:
-
-[CODE]samloader flash --partition RECOVERY recovery.img --no-reboot[/CODE]
-
-[*]Unplug USB, hold Vol Down + Power until the screen goes black, then immediately hold Vol Up + Power to boot into recovery. Check that it says 23.2.
-
-[*][B]Factory reset → Format data / factory reset.[/B] This also formats /metadata (OMR). Don't skip it.
-
-[*]Apply update → Apply from ADB:
-
-[CODE]adb -d sideload lineage-23.2-XXXXXXXX-UNOFFICIAL-gts4lvwifi.zip[/CODE]
-
-Answer "Yes" if it says signature verification failed. Stopping at 47% with "adb: failed to read command: Success" is normal.
-
-[*]Optional, Google Apps: Apply update → Apply from ADB again, then sideload [URL='https://github.com/MindTheGapps/16.0.0-arm64/releases/latest']MindTheGapps 16.0.0 arm64[/URL] [B]before the first boot[/B].
-
-[*]Reboot system now. The first boot can take up to 15 minutes.
-
-[/LIST]
+[B]Updates arrive over the air[/B] from build 20261019 on: Settings → System → Updater, no data is erased. Coming from an older build of this ROM, from official LineageOS 22.2 or from 23.2 to 24 still needs the clean install.
 
 [B]Never mix codenames:[/B] gts4lvwifi files are for SM-T720/T720N only, gts4lv files for the LTE models only.
 
@@ -73,9 +55,9 @@ Answer "Yes" if it says signature verification failed. Stopping at 47% with "adb
 
 [LIST]
 
-[*]Wi-Fi (gts4lvwifi) and LTE (gts4lv, untested): [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/tag/v23.2-20261008[/URL] (zip, recovery.img, vbmeta.img, SHA256SUMS)
+[*]ROM, recovery, vbmeta, SHA256SUMS (Wi-Fi and LTE, 24 and 23.2): [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases[/URL]
 
-[*]MindTheGapps (optional): [URL]https://github.com/MindTheGapps/16.0.0-arm64/releases/latest[/URL]
+[*]MindTheGapps (optional): [URL]https://github.com/MindTheGapps/17.0.0-arm64/releases/latest[/URL] (24), [URL]https://github.com/MindTheGapps/16.0.0-arm64/releases/latest[/URL] (23.2)
 
 [*]Stock firmware: [URL]https://github.com/luk1337/gts4lv-fw/releases[/URL]
 
@@ -84,13 +66,15 @@ Answer "Yes" if it says signature verification failed. Stopping at 47% with "adb
 
 [SIZE=5][B]Sources[/B][/SIZE]
 
+Branch lineage-24.0 for 24, lineage-23.2 for 23.2.
+
 [LIST]
 
-[*]Kernel (GPL-2.0): [URL]https://github.com/anton-scholten/android_kernel_samsung_sdm670/tree/lineage-23.2[/URL]
+[*]Kernel (GPL-2.0): [URL]https://github.com/anton-scholten/android_kernel_samsung_sdm670[/URL]
 
-[*]Device tree: [URL]https://github.com/anton-scholten/android_device_samsung_gts4lv-common/tree/lineage-23.2[/URL]
+[*]Device tree: [URL]https://github.com/anton-scholten/android_device_samsung_gts4lv-common[/URL]
 
-[*]Vendor blobs: [URL]https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common/tree/lineage-23.2[/URL]
+[*]Vendor blobs: [URL]https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common[/URL]
 
 [*]Project notes, build manifests and install guide: [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e[/URL]
 
@@ -101,7 +85,7 @@ Answer "Yes" if it says signature verification failed. Stopping at 47% with "adb
 
 [LIST]
 
-[*][B]Mathias Gluszczynski (krazey)[/B] and the [URL='https://github.com/ExyHyperBrick']ExyHyperBrick[/URL] project. The 4.9 eBPF backport this kernel is built on is their work. Without it there would be no Android 16 on this tablet.
+[*][B]Mathias Gluszczynski (krazey)[/B] and the [URL='https://github.com/ExyHyperBrick']ExyHyperBrick[/URL] project. The 4.9 eBPF backport this kernel is built on is their work. Without it there would be no Android 16 or 17 on this tablet.
 
 [*][B]The LineageOS team[/B] and the [B]gts4lv / gts4lvwifi maintainers[/B], for the 22.2 device trees and kernel this port starts from, and for LineageOS itself.
 
@@ -124,8 +108,8 @@ Answer "Yes" if it says signature verification failed. Stopping at 47% with "adb
 
 [B]Source code:[/B] [URL]https://github.com/anton-scholten/lineageos-galaxy-tab-s5e[/URL]
 
-[B]ROM OS version:[/B] Android 16
+[B]ROM OS version:[/B] Android 17 (LineageOS 24), Android 16 (LineageOS 23.2)
 
 [B]ROM kernel:[/B] Linux 4.9.337 (with ExyHyperBrick eBPF backport)
 
-[B]Based on:[/B] LineageOS 23.2
+[B]Based on:[/B] LineageOS 24 and 23.2
