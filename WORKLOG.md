@@ -1396,3 +1396,4 @@ themselves, not for a plain sideload.
 - HANDOVER.md and CLAUDE.md rewritten for the current state (released, OTA, current pins, next steps); references in
   TESTING, UPSTREAM, REPO-SETUP, script comments and manifest comments reworded. Older WORKLOG entries still link to
   the deleted files; use git history (`git show <commit>:<path>`) for them.
+- Owner confirmed double tap to wake works on 24.0-20261022 (SM-T720).
