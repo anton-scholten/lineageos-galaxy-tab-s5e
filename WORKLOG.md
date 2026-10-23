@@ -1384,3 +1384,4 @@ themselves, not for a plain sideload.
   -1 and saves `""` if the user doesn't pick one; it reads `KEY_SETTINGS_DEFAULT_PROTOCOL_STRING` but only logs it.
   An empty protocol reaches the old 1.4 HAL as an unknown PDP type, so data fails until IPv4 (or IPv4/IPv6) is chosen.
   Upstream behaviour, not ours; possible small Settings fix (default to `IP` when unset).
+- README: LTE status ✅ on 23.2 and 24 (mobile data reported working; known issue Dolby Atmos), OTA "Updates" section, wipe also needed from our pre-20261019 builds, troubleshooting (APN protocol, greyed SIM switch = radio HAL 1.4, Bromite → Cromite), kernel/device rows (memory fix, double tap to wake, Updater links). RELEASING step 3: release notes list only changes since the previous build, with a template; the README holds everything else.

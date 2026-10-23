@@ -55,7 +55,20 @@ SSH/GPG keys cannot sign Android builds.
    fork and the keys first, verifies the release settings afterwards, and copies zip, recovery, vbmeta and `SHA256SUMS`
    to `/mnt/build/releases/<version>-<date>/`.
 2. **Test** at least the Wi-Fi zip on the tablet (an OTA from the previous release is the best test, see below).
-3. **Notes**: `release/NOTES-<version>-<date>.md`, same layout as the previous release; say whether a wipe is needed.
+3. **Notes**: `release/NOTES-<version>-<date>.md`, **only what changed** since the previous release; install steps,
+   files, status, known issues and sources live in the README. Layout:
+   ```markdown
+   Unofficial **LineageOS <version> (Android <n>)** for the Samsung Galaxy Tab S5e. Install guide, status and known issues: [README](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e#readme).
+
+   **Coming from <previous build>: update over the air** (*Settings → System → Updater*), no data is erased.
+   (or: ⚠️ **This build needs a clean install, which erases all data**, and why)
+
+   **What's new since <previous date>**
+   - **<Fix in user terms>.** <One line on the cause>.
+
+   Kernel `<tag>`, device tree `<sha>`. Fixes owed upstream: [UPSTREAM.md](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/blob/main/UPSTREAM.md).
+   ```
+   Update the README in the same commit when the status, known issues or install steps change.
 4. **Draft** the GitHub release, tag `v<version>-<zip date>` (the date in the zip name), title
    `<YYYY-MM-DD> - LineageOS <version> (unofficial)`, all files of the folder:
    ```bash
