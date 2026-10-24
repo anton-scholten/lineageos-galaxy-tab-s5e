@@ -1398,3 +1398,16 @@ themselves, not for a plain sideload.
   the deleted files; use git history (`git show <commit>:<path>`) for them.
 - Owner confirmed double tap to wake works on 24.0-20261022 (SM-T720).
 - Owner confirmed the Updater links (Recent changes → releases, Report issues → issues) and Firefox (no crashes after a day) on 24.0-20261022. All 20261022 changes verified on the SM-T720.
+
+## 2026-10-24: GitHub issue #4 (keyboard cover / USB input stops working after some uptime)
+- Reporter's logs: the stm32 pogo keyboard driver detaches/attaches and registers the input device the same way in the
+  good and the bad case; only the Android side differs (EventHub handles the hang-up 1.9 s after the kernel instead of
+  4 ms; EventHub device id 91, fd 530). The attach part of the bad case is not in the logs yet.
+- Suspect checked: `71943bdbbe91` (wakeup sources in sysfs). EventHub adds every device with `EPOLLWAKEUP`, so each
+  input device creates a wakeup source + `/sys/class/wakeup/wakeupN`; a failure there would make `epoll_ctl` fail and
+  EventHub drop the device (`Could not add fd to epoll instance`). Backported code matches upstream.
+- Owner's SM-T720 (24.0-20261022, up 1 d 23 h), over wireless adb: wakeup sources normal (4 eventpoll, 9 timerfd, one
+  per input device; from the bugreport's incident section). USB mouse ×3 and USB keyboard ×2 plugged/unplugged: all
+  added by EventHub ~0.6 s after the kernel, no epoll errors. Not reproduced. Removal lag ~0.59 s after
+  `USB disconnect` each time (likely the kernel's own HID teardown).
+- Next: reporter's logs at attach time in the bad state (EventHub/epoll lines, `dumpsys input`, `/dev/input`, uptime).
