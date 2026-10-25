@@ -1446,3 +1446,25 @@ themselves, not for a plain sideload.
   `PRODUCT_NOT_DEBUGGABLE_IN_USERDEBUG := true` commented out **locally, uncommitted** (adb stays secure, our keys),
   24 Wi-Fi `mka bacon`, zip in `/mnt/build/releases/24.0-debug-test/`. Not for release; revert the line before the
   next `build-all.sh`.
+
+## 2026-10-25: issue #4 root cause — resume-time CPU "online" uevents swamp ueventd
+- Debuggable test build (`24.0-debug-test`, adb root via Developer options → Rooted debugging) with a small netlink
+  uevent logger (`uevlog`, built against `out/soong/ndk/sysroot`) and a 30 s sampler (seqnum, ueventd CPU, /dev vs
+  sysfs input nodes) in `/data/local/tmp`. Note: restarting adbd (tcpip/root) kills processes started from adb shell.
+- Overnight (mouse attached, no wireless adb): the tablet never suspended (30 s samples without gaps); 1,447 uevents in
+  9.5 h, mostly battery `change`; ueventd 14 s CPU; mouse node created within 0.3 s. The remaining slowness was this
+  low-speed mouse (`1bcf:0005`): connect at 1.5 Mb/s, lost during the 100 ms debounce, hub/dwc3 autosuspend, remote
+  wake on D- ~5 s later, then enumeration: ~6.5 s every time, independent of uptime (full-speed mouse: ~1 s).
+- 15 min screen-off with wireless adb: **reproduced** (sysfs `event8` present, `/dev/input/event8` missing). 6,894
+  uevents: **5,831 `online cpu`** (+ 980 battery `change`), i.e. ~830 resumes in 16 min (`suspend_stats/success` 830).
+  Every resume: `Resume caused by IRQ 81, WLAN_CE_2`, `WOW Wakeup: IPV4 TCP Packet` from this PC: the adb client's
+  ~1 s TCP keepalive on wireless connections (`ss -tnoi`: `timer:(keepalive,460ms)`). Wireless adb exaggerates it,
+  but any chatty network does the same.
+- The `online` uevents come from `49d0e06a2539` "ANDROID: cpu: send KOBJ_ONLINE event when enabling cpus" (2016,
+  also in the 22.2 base): 7 per resume, no offline counterpart. ueventd runs `FixupSysPermissions` + recursive
+  restorecon on `/sys/devices/system/cpu/cpuN` for each (~26 ms CPU each), only while awake, so it falls minutes
+  behind. On this device it's a no-op: cpu0 vs cpu3 labels identical (genfs `sysfs_devices_system_cpu`), no
+  file_contexts rule for that path, and the `ueventd.rc` chown targets (`cpufreq/scaling_{max,min}_freq`) live in
+  `cpufreq/policyN`, which persists across suspend (owned 1000:1000 since boot).
+- Test fix: revert on local kernel branch `test-resume-uevent` (`a668db21f3cf`), repacked into the debug build's boot
+  image (`~/work/boot-backup/uevent/`), to be verified with the same 15 min wireless-adb test.
