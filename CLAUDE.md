@@ -11,9 +11,10 @@ user docs, release notes, OTA feeds, local manifests and build scripts. It is no
   `v23.2-20261008`). New work branches are deleted once merged.
 - Code lives in the forks (both branches unless noted): `anton-scholten/android_device_samsung_gts4lv-common`
   (23.2 `99c0506`, 24 `40e38d8`), `anton-scholten/android_kernel_samsung_sdm670` (ExyHyperBrick series + SELinux avtab
-  fix + BPF ld_abs R2 fix + EROFS + fuse-bpf umask fix + MADV_PAGEOUT dirty fix, `72f6ca56842c` on both),
+  fix + BPF ld_abs R2 fix + EROFS + fuse-bpf umask fix + MADV_PAGEOUT dirty fix + no resume CPU uevents, `a668db21f3cf`
+  on both),
   `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (23.2 `51de1d4`, 24 `1e0cce7`),
-  `anton-scholten/android_packages_modules_Bluetooth` (23.2 `8c6d706e11`, 24 `11434c8f8a`), and for 24 the
+  `anton-scholten/android_packages_modules_Bluetooth` (23.2 `f500ef4c4a`, 24 `297e808335`; LineageOS merged 2026-10-25), and for 24 the
   system/core, system/vold, hardware/lineage/compat and device/qcom/sepolicy_vndr forks. `scripts/check-pins.sh`
   checks all pins. Device-tree changes go into the fork as commits.
 - Fixes owed upstream (LineageOS Gerrit, krazey) are tracked in [UPSTREAM.md](UPSTREAM.md); keep it current.

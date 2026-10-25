@@ -1476,3 +1476,14 @@ themselves, not for a plain sideload.
 - uevent listeners on the device (netlink protocol 15): ueventd, vold, netd, composer, health HAL, USB HAL,
   thermal-engine (thermal `change` only; polls `cpuN/online`), system_server. None uses CPU `online` events, so the
   revert only removes ueventd's no-op relabel.
+
+## 2026-10-25: next release prep (ueventd fix, upstream sync)
+- Pushed kernel `a668db21f3cf` (revert of `49d0e06a2539`, resume CPU uevents) to fork `lineage-23.2` and
+  `lineage-24.0` (fast-forward from `72f6ca56842c`); `KERNEL_FIX`, pins, UPSTREAM 4e.
+- Upstream check: Android framework/system repos have nothing new in LineageOS since our last sync (patch level stays
+  2026-09 / 2026-10). ExyHyperBrick `lineage-24.0` gained 12 commits (`baa585f67e0e..e5906667068e`), all Exynos-only
+  (dpu, bcmdhd, fimc-is2, camera CMA): nothing for sdm670. Linux 4.9 is EOL at 4.9.337 (ours).
+- Merged LineageOS into our forks (clean): Bluetooth `lineage-23.2` `f500ef4c4af4` (l2cap offload coex fix, cleanup),
+  `lineage-24.0` `297e8083354b` (remote-control classification); system/core `lineage-24.0` `817e628ded15` (AOA daemon
+  AID); compat `lineage-24.0` `ea6f05b79419` (Codec2 / BT audio shims). `repo sync` both trees: Chromium WebView
+  155 → **156.0.8078.47** (security), vendor/apn (Pixel APN snapshot merged at build time), hardware/samsung.

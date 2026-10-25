@@ -17,7 +17,7 @@ tap to wake, Updater links; OTA, no wipe). The pre-OTA releases (20261008-202610
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `72f6ca56842c` on both branches; device `99c0506` (23.2) / `40e38d8` (24) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `99c0506` (23.2) / `40e38d8` (24) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
