@@ -1487,3 +1487,18 @@ themselves, not for a plain sideload.
   `lineage-24.0` `297e8083354b` (remote-control classification); system/core `lineage-24.0` `817e628ded15` (AOA daemon
   AID); compat `lineage-24.0` `ea6f05b79419` (Codec2 / BT audio shims). `repo sync` both trees: Chromium WebView
   155 → **156.0.8078.47** (security), vendor/apn (Pixel APN snapshot merged at build time), hardware/samsung.
+
+## 2026-10-25: Dolby Atmos on the LTE model (issue #1 logs)
+- Reporter's logs (24.0-20261022 gts4lv, filtered logcat + dumpsys): Dolby (`6ab06da4…`, `libswdap.so`, DAX3
+  3.6.2.0) is attached to session 0 of `AudioOut_15` (deep buffer, speaker), enabled, not suspended, processing
+  (`DlbDap2Process: process()`, `ProcessingMode=10`, speaker mix matrix) and receiving parameters. AudioFX's NXP
+  equalizer is enabled on the app session (153) alongside; it doesn't touch the Dolby engine.
+- gts4lv and gts4lvwifi builds have byte-identical `dax-default.xml`, `libswdap.so`, `audio_effects.xml`,
+  `audio_policy_configuration.xml`, `mixer_paths.xml`, `audio_platform_info.xml`.
+- Same capture on the owner's SM-T720: identical engine behaviour (ProcessingMode 10, system gain 0); a profile switch
+  only flips `ieon`/`deon` etc.
+- `dax-default.xml` speaker endpoint: graphic EQ, bass enhancer and virtual bass disabled in every profile,
+  volume-leveler amount 0, system gain 0; profiles differ only in dialogue enhancer, surround boost, virtualizer and
+  IEQ steering. So on the built-in speaker the profiles are subtle by design, on both models. No defect found;
+  louder/clearer differences would need retuning the speaker endpoint (vendor file).
+- Also reported (minor): lock screen user avatar in the top-right touches the top edge (needs top padding).
