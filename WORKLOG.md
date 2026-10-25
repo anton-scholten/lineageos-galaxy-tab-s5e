@@ -1438,3 +1438,11 @@ themselves, not for a plain sideload.
   (`71943bdbbe91`; add/remove uevent per source), power_supply `change`, USB/wlan resume events. Seeing the uevent
   stream needs root (shell can't read `/sys/kernel/uevent_seqnum` or listen on netlink).
 - Interim user advice: after attaching, wait ~2 min; a reboot clears the backlog.
+- Composer crash: owner did ~40 screen off/on cycles (≈15 full panel power-offs, lid switch and power button, with and
+  without the mouse): no crash. Rare race; the rotator is in use because the panel is mounted rotated
+  (`ro.surface_flinger.primary_display_orientation=ORIENTATION_270`). Mitigation candidate
+  `vendor.display.disable_rotator_ui=1` (shell can't set it; needs root or a build). Parked in HANDOVER.
+- Debuggable test build for the ueventd investigation: `vendor/lineage/config/common.mk` line
+  `PRODUCT_NOT_DEBUGGABLE_IN_USERDEBUG := true` commented out **locally, uncommitted** (adb stays secure, our keys),
+  24 Wi-Fi `mka bacon`, zip in `/mnt/build/releases/24.0-debug-test/`. Not for release; revert the line before the
+  next `build-all.sh`.
