@@ -43,7 +43,13 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 1. LTE Dolby Atmos: waiting for that user's logs (steps were sent: logcat + `dumpsys media.audio_flinger` while playing).
 2. Report upstream ([UPSTREAM.md](UPSTREAM.md)), krazey first: BPF `LD_IND` R1, fuse-bpf umask, MADV_PAGEOUT dirty bit.
-3. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
+3. **Composer crash (to do):** soft reboot when the screen goes off→on within ~0.2 s (hall/lid switch) with a USB mouse
+   attached: `composer@2.3-service` SIGSEGV in `sdm::Rotator::Stop` → `HWCBufferAllocator::AllocateBuffer`, the
+   allocator returns no buffer and the Qualcomm blob uses it unchecked (WORKLOG 2026-10-24). Reproduce first (mouse in,
+   quick cover close/open or magnet over the sensor), then look for a workaround (shim or display setting).
+4. Issue #4 (keyboard cover / USB input stops after uptime): not reproduced with ~28 USB replugs; waiting for the
+   reporter's attach-time logs; next test: device left attached through many sleep/wake cycles (overnight), then replug.
+5. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
    hardware-dirty pattern as the MADV_PAGEOUT bug (not seen in practice).
 
 ## Rules
