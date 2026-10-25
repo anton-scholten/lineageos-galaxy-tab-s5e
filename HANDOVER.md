@@ -47,8 +47,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
    attached: `composer@2.3-service` SIGSEGV in `sdm::Rotator::Stop` → `HWCBufferAllocator::AllocateBuffer`, the
    allocator returns no buffer and the Qualcomm blob uses it unchecked (WORKLOG 2026-10-24). Reproduce first (mouse in,
    quick cover close/open or magnet over the sensor), then look for a workaround (shim or display setting).
-4. Issue #4 (keyboard cover / USB input stops after uptime): not reproduced with ~28 USB replugs; waiting for the
-   reporter's attach-time logs; next test: device left attached through many sleep/wake cycles (overnight), then replug.
+4. Issue #4 (keyboard cover / USB input stops after uptime): **reproduced** — ueventd falls ~100 s behind after long
+   screen-off (suspend/resume storm), so `/dev/input` nodes appear late (WORKLOG 2026-10-24). Next: identify the uevent
+   flood per resume (needs root / a debug build to watch uevents), then fix the source in kernel or device tree.
 5. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
    hardware-dirty pattern as the MADV_PAGEOUT bug (not seen in practice).
 

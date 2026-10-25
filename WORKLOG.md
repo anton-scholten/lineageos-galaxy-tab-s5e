@@ -1424,3 +1424,17 @@ themselves, not for a plain sideload.
   - `android.display` Looper (system_server, input pointer code) logs `Error adding epoll events for fd N while
     rebuilding epoll set: Bad file descriptor` on mouse attach; the stale set grows slowly (256 → 256, 296 → 622).
     Framework-side (a pointer/vsync fd closed without removeFd); separate from EventHub, not the cause of #4.
+- **Issue #4 reproduced (2026-10-24 20:33), mechanism found.** After 15 min of screen-off (suspend/resume about every
+  16 s; 602 "Booted secondary processor" lines in 23 min), a second USB mouse (`1bcf:0005`) did nothing: the kernel
+  registered `input62` and sysfs had `event8`/`mouse1` at 20:33:21.8, but `/dev/input/event8` and `mouse1` were only
+  created at **20:35:01.7 (100 s later)**; EventHub added the mouse 20 ms after the node appeared. So the delay is
+  **ueventd**, not the kernel input layer or InputReader.
+- ueventd CPU from `am_cpu`: 0-4 % with the screen on; **26 % → 39 % → 68 %** of a core during the screen-off period
+  (79 s user CPU in a 115 s window), back to 0 % after wake. Load scales with suspend/resume cycles.
+- Each resume re-creates `/sys/devices/system/cpu/cpu{1..7}/cache/index{0..3}` (cpu3 index0 ctime = last resume,
+  cpu0 = boot) → ~28 `add` + 7 `online` uevents, each `FixupSysPermissions` + recursive restorecon in ueventd. A
+  recursive restorecon of `cpu3` takes 0.03-0.07 s from the shell, so these alone don't explain several seconds of
+  ueventd CPU per resume: more uevents per resume than counted. Candidates: wakeup-source sysfs devices
+  (`71943bdbbe91`; add/remove uevent per source), power_supply `change`, USB/wlan resume events. Seeing the uevent
+  stream needs root (shell can't read `/sys/kernel/uevent_seqnum` or listen on netlink).
+- Interim user advice: after attaching, wait ~2 min; a reboot clears the backlog.
