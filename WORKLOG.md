@@ -1468,3 +1468,11 @@ themselves, not for a plain sideload.
   `cpufreq/policyN`, which persists across suspend (owned 1000:1000 since boot).
 - Test fix: revert on local kernel branch `test-resume-uevent` (`a668db21f3cf`), repacked into the debug build's boot
   image (`~/work/boot-backup/uevent/`), to be verified with the same 15 min wireless-adb test.
+- **Fix verified (2026-10-25 09:33-09:50).** Test kernel `a668db21f3cf` (revert of `49d0e06a2539`) in the debug
+  build's boot image, same conditions (wireless adb, screen off 15 min): 769 resumes (thrash unchanged), **0 `online
+  cpu` uevents** (~980 uevents total vs 6,894), ueventd ~15 s CPU vs ~167 s, `/dev/input` always in sync with sysfs.
+  Mouse plug-ins: EventHub added the mouse 0.02-0.08 s after the kernel's input `add`. The remaining ~6.8 s from
+  Type-C attach to enumeration is this low-speed mouse's USB connect/debounce behaviour (see above), not ueventd.
+- uevent listeners on the device (netlink protocol 15): ueventd, vold, netd, composer, health HAL, USB HAL,
+  thermal-engine (thermal `change` only; polls `cpuN/online`), system_server. None uses CPU `online` events, so the
+  revert only removes ueventd's no-op relabel.
