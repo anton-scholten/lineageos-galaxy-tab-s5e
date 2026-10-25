@@ -41,6 +41,8 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
+0. Next release after 20261025: lock screen avatar fix (device `f4c18f4` / `83ab401`, already pushed; bump pins,
+   sync the build trees). Dolby on LTE: waiting for a longer unfiltered capture from the LTE users.
 1. LTE Dolby Atmos: waiting for that user's logs (steps were sent: logcat + `dumpsys media.audio_flinger` while playing).
 2. Report upstream ([UPSTREAM.md](UPSTREAM.md)), krazey first: BPF `LD_IND` R1, fuse-bpf umask, MADV_PAGEOUT dirty bit.
 3. **Composer crash (to do):** soft reboot when the screen goes off→on within ~0.2 s (hall/lid switch) with a USB mouse

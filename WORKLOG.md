@@ -1502,3 +1502,12 @@ themselves, not for a plain sideload.
   IEQ steering. So on the built-in speaker the profiles are subtle by design, on both models. No defect found;
   louder/clearer differences would need retuning the speaker endpoint (vendor file).
 - Also reported (minor): lock screen user avatar in the top-right touches the top edge (needs top padding).
+
+## 2026-10-25: lock screen user avatar clipped (reported by an LTE user)
+- Screenshot on the SM-T720: the account avatar in the top-right of the keyguard status bar touches the top edge and is
+  clipped top and bottom. SystemUI `values-sw600dp` sets `multi_user_avatar_keyguard_size` 30dp, while
+  `status_bar_header_height_keyguard` = status bar height = 28dp here (24dp default raised by the rounded-corner inset;
+  56 px at 320 dpi). Not reported online; comes from AOSP sizes, so likely on official 22.2 too.
+- Fix: device overlay `overlay/frameworks/base/packages/SystemUI/res/values-sw600dp/dimens.xml` → 24dp. Pushed from
+  separate clones (build trees untouched while `build-all.sh` runs; its fork checks run once at start): device
+  `lineage-23.2` `f4c18f4`, `lineage-24.0` `83ab401`. Ships with the release after 20261025; pins to bump then.
