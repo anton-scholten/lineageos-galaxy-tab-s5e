@@ -1411,3 +1411,16 @@ themselves, not for a plain sideload.
   added by EventHub ~0.6 s after the kernel, no epoll errors. Not reproduced. Removal lag ~0.59 s after
   `USB disconnect` each time (likely the kernel's own HID teardown).
 - Next: reporter's logs at attach time in the bad state (EventHub/epoll lines, `dumpsys input`, `/dev/input`, uptime).
+- Stress test (owner, 2026-10-24 20:12-20:17, wireless adb): ~23 USB mouse plug-ins. Every one added by EventHub
+  ~0.7 s after the kernel (constant, no growth), no `Could not add fd to epoll`, no failed add. Issue #4 not reproduced
+  via USB; still needs the reporter's attach-time logs.
+- Side findings:
+  - **Soft reboot at 20:13:13** (kernel kept running): `android.hardware.graphics.composer@2.3-service` SIGSEGV, null
+    deref in `hidl_handle::operator=` ← `BpHwAllocator::allocate` ← `HWCBufferAllocator::AllocateBuffer` ←
+    `SessionManager::GetNextBuffer` ← `sdm::Rotator::Stop` (`libsdmextension.so`). The allocator returned no buffer and
+    the Qualcomm blob used it unchecked. Happened during a 0.2 s screen off→on (`power_screen_state` reason 3 = lid
+    switch / hall sensor) with the mouse attached. Thermal HAL abort right after is collateral (listener died).
+    Not yet reproduced on purpose.
+  - `android.display` Looper (system_server, input pointer code) logs `Error adding epoll events for fd N while
+    rebuilding epoll set: Bad file descriptor` on mouse attach; the stale set grows slowly (256 → 256, 296 → 622).
+    Framework-side (a pointer/vsync fd closed without removeFd); separate from EventHub, not the cause of #4.
