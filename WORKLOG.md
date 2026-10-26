@@ -1513,3 +1513,8 @@ themselves, not for a plain sideload.
   `lineage-23.2` `f4c18f4`, `lineage-24.0` `83ab401`. Ships with the release after 20261025; pins to bump then.
 - Owner: stop the run after 23.2 (both done) and 24 Wi-Fi at 92%, add the lock screen avatar fix to this release and rebuild all four. Device trees moved to `f4c18f4` / `83ab401`, pins bumped; `build-all.sh` restarted.
 - `build-all.sh` skips devices whose zip is already in the dated folder, so the restart skipped 23.2; old 23.2 zips moved to `releases/23.2-20261025-before-avatar-fix/`, `~/work/chain-20261025.sh` reruns build-all after the 24 builds (23.2 rebuilt, 24 skipped).
+- Release builds done (second run after midnight, so the complete set is dated **20261026**; `releases/24.0-20261025/`
+  is an identical earlier 24 build, unused). Verified all four: kernel `4.9.337-ga668db21f3cf`, `release-keys`,
+  SHA256SUMS, WebView `156.0.8078.47`, SystemUI RRO `multi_user_avatar_keyguard_size` (sw600dp) 24dp, security patch
+  level 2026-10-01 on both (23.2 was 2026-09-01). Notes `release/NOTES-{23.2,24.0}-20261026.md` (changes only);
+  GitHub releases `v23.2-20261026`, `v24.0-20261026` drafted.
