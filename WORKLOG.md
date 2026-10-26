@@ -1518,3 +1518,4 @@ themselves, not for a plain sideload.
   SHA256SUMS, WebView `156.0.8078.47`, SystemUI RRO `multi_user_avatar_keyguard_size` (sw600dp) 24dp, security patch
   level 2026-10-01 on both (23.2 was 2026-09-01). Notes `release/NOTES-{23.2,24.0}-20261026.md` (changes only);
   GitHub releases `v23.2-20261026`, `v24.0-20261026` drafted.
+- Owner published `v23.2-20261026` / `v24.0-20261026`; `ota/` feeds updated (20261026, 20261022, 20261019), live on Pages, URLs 200. Removed local release folders not in the feeds (pre-OTA releases, test and debug builds, superseded 20261025 builds); kept 20261019/22/26 of both versions.
