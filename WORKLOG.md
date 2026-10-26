@@ -1511,3 +1511,4 @@ themselves, not for a plain sideload.
 - Fix: device overlay `overlay/frameworks/base/packages/SystemUI/res/values-sw600dp/dimens.xml` → 24dp. Pushed from
   separate clones (build trees untouched while `build-all.sh` runs; its fork checks run once at start): device
   `lineage-23.2` `f4c18f4`, `lineage-24.0` `83ab401`. Ships with the release after 20261025; pins to bump then.
+- Owner: stop the run after 23.2 (both done) and 24 Wi-Fi at 92%, add the lock screen avatar fix to this release and rebuild all four. Device trees moved to `f4c18f4` / `83ab401`, pins bumped; `build-all.sh` restarted.

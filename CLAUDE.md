@@ -10,7 +10,7 @@ user docs, release notes, OTA feeds, local manifests and build scripts. It is no
   `lineage-24.0`), plus `lineage-22.2` as the base. This repo: `main` (current) and `lineage-23.2` (= tag
   `v23.2-20261008`). New work branches are deleted once merged.
 - Code lives in the forks (both branches unless noted): `anton-scholten/android_device_samsung_gts4lv-common`
-  (23.2 `99c0506`, 24 `40e38d8`), `anton-scholten/android_kernel_samsung_sdm670` (ExyHyperBrick series + SELinux avtab
+  (23.2 `f4c18f4`, 24 `83ab401`), `anton-scholten/android_kernel_samsung_sdm670` (ExyHyperBrick series + SELinux avtab
   fix + BPF ld_abs R2 fix + EROFS + fuse-bpf umask fix + MADV_PAGEOUT dirty fix + no resume CPU uevents, `a668db21f3cf`
   on both),
   `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (23.2 `51de1d4`, 24 `1e0cce7`),

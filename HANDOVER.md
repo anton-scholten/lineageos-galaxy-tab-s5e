@@ -17,7 +17,7 @@ tap to wake, Updater links; OTA, no wipe). The pre-OTA releases (20261008-202610
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `99c0506` (23.2) / `40e38d8` (24) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `83ab401` (24) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
@@ -41,8 +41,8 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
-0. Next release after 20261025: lock screen avatar fix (device `f4c18f4` / `83ab401`, already pushed; bump pins,
-   sync the build trees). Dolby on LTE: waiting for a longer unfiltered capture from the LTE users.
+0. Release 20261025 (rebuilding, started 2026-10-25 evening): ueventd fix, WebView 156, APN list, fork merges, lock
+   screen avatar fix. Dolby on LTE: waiting for a longer unfiltered capture from the LTE users.
 1. LTE Dolby Atmos: waiting for that user's logs (steps were sent: logcat + `dumpsys media.audio_flinger` while playing).
 2. Report upstream ([UPSTREAM.md](UPSTREAM.md)), krazey first: BPF `LD_IND` R1, fuse-bpf umask, MADV_PAGEOUT dirty bit.
 3. **Composer crash (to do):** soft reboot when the screen goes off→on within ~0.2 s (hall/lid switch) with a USB mouse
