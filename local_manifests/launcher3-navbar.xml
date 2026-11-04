@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_packages_apps_Launcher3, lineage-23.2, with one commit:
+  "Launcher3: Do not move phone mode nav buttons for the bubble bar".
+
+  WHY
+  With the taskbar disabled on a large screen, Launcher3 draws the 3 button navigation bar in phone mode, but
+  NavbarButtonsViewController still shifted the buttons for the bubble bar placement, so they sat off centre
+  (issue #6, UPSTREAM.md #5).
+
+  TO DO: propose the commit to LineageOS on Gerrit, then drop this file.
+-->
+<manifest>
+  <remove-project name="LineageOS/android_packages_apps_Launcher3" />
+
+  <project path="packages/apps/Launcher3" name="android_packages_apps_Launcher3"
+           remote="anton" revision="lineage-23.2" groups="pdk-fs,sysui-studio,pdk-cw-tvc" />
+</manifest>

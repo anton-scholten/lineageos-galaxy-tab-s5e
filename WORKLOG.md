@@ -1543,3 +1543,19 @@ themselves, not for a plain sideload.
   fix ("Fix L2CAP heap overflow by enforcing minimum MPS", 2026-11-02), 23.2 nothing; system/core, vold none; compat
   only an opt-in ion_close shim; sepolicy_vndr only an NFC label. Kernel (LineageOS sdm670 and ExyHyperBrick), device
   trees and TheMuppets vendor: nothing new. WebView still 156.0.8078.47 (current). Lists in `~/work/new-{23.2,24}-1104.txt`.
+- Owner: fork Launcher3 for #6, override the flag for #5, sync and merge the Bluetooth fix.
+- Why Google gates app bubbles (flag description "Disable Bubble Anything on large screen devices that are eligible for
+  Desktop Windowing", PURPOSE_BUGFIX, private bug 463285033): two floating-window systems on one screen. Only
+  `BubbleFeatureConfigImpl` reads the flag. Desktop windowing is live on the tablet by default
+  (`DesktopModeStatus=true`), so turning it off was rejected.
+- Bluetooth fork `lineage-24.0` `98188b0c390b`: merged LineageOS (L2CAP MPS fix).
+- New fork `anton-scholten/android_packages_apps_Launcher3` (all LineageOS branches): `lineage-24.0` `793236d2701d`
+  (no bubble bar translation of the nav button container and IME switcher in phone button nav mode), `lineage-23.2`
+  `4be5887bda6d` (the container only; 23.2 has no IME switcher shift). `local_manifests/launcher3-navbar.xml` (both).
+- Device `lineage-24.0` `75119ab`: `release/` with a cp2a release config contribution and aconfig value set setting
+  `com.android.wm.shell.disable_bubble_anything_desktop_windowing` DISABLED. `release_config.mk` finds
+  `device/*/*/release/release_config_map.textproto` by itself; `out/release-config` puts
+  `aconfig_value_set-gts4lv-common-cp2a` after the platform cp2a set, so ours wins. Checked with
+  `out/release-config --product lineage_gts4lvwifi --release cp2a --variant user --maps-file …`.
+- `repo sync` both trees (`--force-sync`, switches Launcher3 to the fork). 24: security patch 2026-11-01, WebView
+  156.0.8078.47.

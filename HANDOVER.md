@@ -18,7 +18,7 @@ WebView 156, 23.2 patch level 2026-10, Pixel APN list); OTA, no wipe. Local copi
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `83ab401` (24) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `75119ab` (24); Launcher3 fork (issue #6) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
@@ -42,10 +42,12 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
-- **Next build (WORKLOG 2026-11-04):** `repo sync` both trees (24 has the November 2026 ASB; 23.2 not yet), merge
-  LineageOS's L2CAP MPS fix into our 24 Bluetooth fork, then: issue #5 (app bubbles blocked by desktop windowing,
-  owner to pick overlay or flag), issue #6 (Launcher3 nav button shift, UPSTREAM 5; needs a Launcher3 fork or Gerrit).
-0. Owner's SM-T720 is on the debuggable test build until it takes the 24.0-20261026 OTA (then root is gone again).
+- **Next build (WORKLOG 2026-11-04), all code in place:** 24 tree synced (November 2026 ASB) with Bluetooth
+  `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `75119ab` (app bubbles flag, #5); 23.2 synced (no new
+  ASB yet) with the Launcher3 fork. Build all four, then test on the SM-T720: 3-button nav with the taskbar off
+  (centred in both orientations), app bubbles on 24 together with desktop windows (move an app between bubble and
+  desktop window; watch for SystemUI crashes).
+0. Owner's SM-T720 is on the 24.0-20261026 release build (no root).
 1. LTE Dolby Atmos: engine and files identical to Wi-Fi, AudioFX and Twelve ruled out (WORKLOG 2026-10-25); need a longer
    unfiltered capture from an LTE user (request drafted) to see whether profile switches reach the engine on LTE.
 2. Report upstream ([UPSTREAM.md](UPSTREAM.md)), krazey first: BPF `LD_IND` R1, fuse-bpf umask, MADV_PAGEOUT dirty bit,
@@ -54,7 +56,7 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
    attached: `composer@2.3-service` SIGSEGV in `sdm::Rotator::Stop` → `HWCBufferAllocator::AllocateBuffer`, the
    allocator returns no buffer and the Qualcomm blob uses it unchecked (WORKLOG 2026-10-24). Reproduce first (mouse in,
    quick cover close/open or magnet over the sensor), then look for a workaround (shim or display setting).
-4. Issue #4: fixed in 20261026 (kernel `a668db21f3cf`, UPSTREAM 4e); confirm with the reporter. Side finding: the
+4. Issue #4: fixed in 20261026 (kernel `a668db21f3cf`, UPSTREAM 4e); reporter confirmed (2026-10-27). Side finding: the
    tablet resumes about once a second when the Wi-Fi peer keeps a TCP keepalive (wireless adb); check normal idle wakeups.
 5. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
    hardware-dirty pattern as the MADV_PAGEOUT bug (not seen in practice).

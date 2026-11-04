@@ -85,9 +85,10 @@ All forks use branch `lineage-24.0` (and `lineage-23.2` for 23.2).
 | Part | Fork | What |
 |---|---|---|
 | Kernel (GPL-2.0, same for 23.2 and 24) | [android_kernel_samsung_sdm670](https://github.com/anton-scholten/android_kernel_samsung_sdm670) | The ExyHyperBrick series (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, FUSE-BPF, userfaultfd, uclamp, PSI) ported onto the Tab S5e kernel, plus an SELinux policy-loading fix, a BPF fix (charging status), EROFS, a FUSE-BPF fix (app storage) and a memory fix (apps losing memory after background compaction, e.g. Firefox crashing when reopened) |
-| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Android 16/17 bring-up, OMR `/metadata`, SELinux, always-on display, double tap to wake, tablet defaults, storage without sdcardfs, OTA feed and Updater links |
+| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Android 16/17 bring-up, OMR `/metadata`, SELinux, always-on display, double tap to wake, tablet defaults, storage without sdcardfs, OTA feed and Updater links, app bubbles (24) |
 | Blobs | [proprietary_vendor_samsung_gts4lv-common](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common) | TheMuppets' 22.2 blobs + patched Wi-Fi Display library; 24 also relinks two blobs to the newer audio libraries |
 | Bluetooth | [android_packages_modules_Bluetooth](https://github.com/anton-scholten/android_packages_modules_Bluetooth) | Restores `bluetooth.hci.disabled_commands` (pairing crash) |
+| Launcher | [android_packages_apps_Launcher3](https://github.com/anton-scholten/android_packages_apps_Launcher3) | Centres the 3-button navigation bar when the taskbar is turned off |
 | 24 only | [system/core](https://github.com/anton-scholten/android_system_core), [system/vold](https://github.com/anton-scholten/android_system_vold), [hardware/lineage/compat](https://github.com/anton-scholten/android_hardware_lineage_compat), [device/qcom/sepolicy_vndr](https://github.com/anton-scholten/android_device_qcom_sepolicy_vndr) | Old-kernel `/data` encryption keyring (core, vold), Wi-Fi Display shim link fix (compat), one stale SELinux rule against a new Android 17 `neverallow` (sepolicy_vndr) |
 
 ## Building (developers)
