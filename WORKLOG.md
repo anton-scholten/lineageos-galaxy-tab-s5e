@@ -1519,3 +1519,27 @@ themselves, not for a plain sideload.
   level 2026-10-01 on both (23.2 was 2026-09-01). Notes `release/NOTES-{23.2,24.0}-20261026.md` (changes only);
   GitHub releases `v23.2-20261026`, `v24.0-20261026` drafted.
 - Owner published `v23.2-20261026` / `v24.0-20261026`; `ota/` feeds updated (20261026, 20261022, 20261019), live on Pages, URLs 200. Removed local release folders not in the feeds (pre-OTA releases, test and debug builds, superseded 20261025 builds); kept 20261019/22/26 of both versions.
+
+## 2026-11-04: issues #5 (app bubbles) and #6 (3-button nav offset); upstream check
+- **#5, no "bubble" option for apps on 24:** Android 17 `BubbleFeatureConfigImpl.areAppBubblesSupported()` returns false
+  on a display that supports desktop windowing when `com.android.wm.shell.disable_bubble_anything_desktop_windowing`
+  is set (ENABLED, READ_ONLY in `build/release/aconfig/cp2a`); LineageOS sets `config_isDesktopModeSupported=true`
+  (`vendor/lineage/overlay/common`). Options: device overlay turning desktop mode off, or override the build flag.
+  Owner to choose.
+- **#6, 3-button buttons off-centre with the taskbar disabled** (reproduced on the SM-T720, 24.0-20261026): portrait
+  back/home/recents at x 355/823/1293 (centre 800), landscape 355/1111/1870 (centre 1280). SystemUI's nav bar is not
+  involved (`sysui_nav_bar` override does nothing): Launcher3 draws it in phone mode with `PhonePortraitNavLayoutter`
+  (LineageOS `f55cf58ce1`, `ef4400005f` keep it horizontal on large screens). The layoutter's sizes are right; the
+  shift is `NavbarButtonsViewController.getNavBarTranslationX()`, which still applies the bubble bar placement
+  (`shouldStartAlignTaskbar()` → container start at `widthPx - inlineNavButtonsEndSpacingPx - width`): -169 px
+  landscape, +24 px portrait, matching the screenshots within 2 px. Fix: return 0 there (and in
+  `getImeSwitcherTranslationX()`) when `isPhoneButtonNavMode()`. Same code in 23.2. Needs a Launcher3 fork or a
+  LineageOS Gerrit change (UPSTREAM 5).
+- Tablet restored afterwards: gestural nav, `enable_taskbar=1` (the delete of the row fails in LineageSettingsProvider;
+  re-inserted), auto-rotate on, `sysui_nav_bar` cleared.
+- **Upstream (fetched 2026-11-04):** LineageOS 24 merged the November 2026 ASB today (`vendor/lineage` "Bump Security
+  String to 2026-11-01", 53 frameworks/base commits, also frameworks/av, native, Wifi, Nfc, telephony, libpng, Settings,
+  Launcher3, Updater …); 23.2 not yet (patch level stays 2026-10). Our forks: Bluetooth 24 lacks one upstream security
+  fix ("Fix L2CAP heap overflow by enforcing minimum MPS", 2026-11-02), 23.2 nothing; system/core, vold none; compat
+  only an opt-in ion_close shim; sepolicy_vndr only an NFC label. Kernel (LineageOS sdm670 and ExyHyperBrick), device
+  trees and TheMuppets vendor: nothing new. WebView still 156.0.8078.47 (current). Lists in `~/work/new-{23.2,24}-1104.txt`.

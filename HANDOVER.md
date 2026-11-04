@@ -42,6 +42,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
+- **Next build (WORKLOG 2026-11-04):** `repo sync` both trees (24 has the November 2026 ASB; 23.2 not yet), merge
+  LineageOS's L2CAP MPS fix into our 24 Bluetooth fork, then: issue #5 (app bubbles blocked by desktop windowing,
+  owner to pick overlay or flag), issue #6 (Launcher3 nav button shift, UPSTREAM 5; needs a Launcher3 fork or Gerrit).
 0. Owner's SM-T720 is on the debuggable test build until it takes the 24.0-20261026 OTA (then root is gone again).
 1. LTE Dolby Atmos: engine and files identical to Wi-Fi, AudioFX and Twelve ruled out (WORKLOG 2026-10-25); need a longer
    unfiltered capture from an LTE user (request drafted) to see whether profile switches reach the engine on LTE.
