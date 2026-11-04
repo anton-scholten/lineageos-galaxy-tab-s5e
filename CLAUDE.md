@@ -1,7 +1,8 @@
 # CLAUDE.md
 
 Project: unofficial LineageOS 23.2 (Android 16) and 24 (Android 17) for the Samsung Galaxy Tab S5e
-(`gts4lvwifi` SM-T720, `gts4lv` SM-T725/T727), both **released** with over-the-air updates. This repo holds the
+(`gts4lvwifi` SM-T720, `gts4lv` SM-T725/T727), both released with over-the-air updates. **Only 24 is built
+and released from 2026-11-04**; 23.2 is frozen at `v23.2-20261026`. This repo holds the
 user docs, release notes, OTA feeds, local manifests and build scripts. It is not an Android source tree.
 
 - Start with [HANDOVER.md](HANDOVER.md) (current state and next steps), then the end of [WORKLOG.md](WORKLOG.md).

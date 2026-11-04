@@ -1559,3 +1559,8 @@ themselves, not for a plain sideload.
   `out/release-config --product lineage_gts4lvwifi --release cp2a --variant user --maps-file …`.
 - `repo sync` both trees (`--force-sync`, switches Launcher3 to the fork). 24: security patch 2026-11-01, WebView
   156.0.8078.47.
+- 23.2 tree synced (`--force-sync`, Launcher3 on the fork `4be5887bda6d`; patch level stays 2026-10-01, LineageOS has no
+  November ASB for 23.2).
+- **Owner: from now on only 24 is built and released.** 23.2 frozen at `v23.2-20261026`: `build-all.sh` 23.2 rows
+  commented out; `ota/23.2/` left as it is; README, RELEASING, HANDOVER, CLAUDE.md say so. Moving 23.2 → 24 needs a
+  wipe (separate feeds, RELEASING).

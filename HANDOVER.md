@@ -40,11 +40,14 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 `unpack_bootimg.py`/`mkbootimg.py` (keep header and ramdisk), owner flashes with
 `heimdall flash --BOOT <img>` from Download mode. Keep the original image to go back.
 
+**From 2026-11-04 only LineageOS 24 is built and released.** 23.2 is frozen at `v23.2-20261026` (tree, forks and
+`ota/23.2/` feed kept as they are; `build-all.sh` has the 23.2 rows commented out).
+
 ## Next steps
 
 - **Next build (WORKLOG 2026-11-04), all code in place:** 24 tree synced (November 2026 ASB) with Bluetooth
-  `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `75119ab` (app bubbles flag, #5); 23.2 synced (no new
-  ASB yet) with the Launcher3 fork. Build all four, then test on the SM-T720: 3-button nav with the taskbar off
+  `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `75119ab` (app bubbles flag, #5); 23.2 tree synced with
+  the Launcher3 fork but no longer built. Build 24 (both models), then test on the SM-T720: 3-button nav with the taskbar off
   (centred in both orientations), app bubbles on 24 together with desktop windows (move an app between bubble and
   desktop window; watch for SystemUI crashes).
 0. Owner's SM-T720 is on the 24.0-20261026 release build (no root).

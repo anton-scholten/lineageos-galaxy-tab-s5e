@@ -11,8 +11,10 @@
 > 7. **Optional, only if you want Google apps:** before the first boot, "Apply from ADB" again and sideload MindTheGapps (see [Google apps](#google-apps-optional)).
 > 8. Reboot and you should be good.
 
-**LineageOS 24 (Android 17) is the recommended version.** LineageOS 23.2 (Android 16) remains available: branch
-`lineage-23.2` (here and in every fork) and the [23.2 releases](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases).
+**LineageOS 24 (Android 17) is the supported version.** LineageOS 23.2 (Android 16) gets **no new builds** after
+`v23.2-20261026`: it stays available (branch `lineage-23.2` here and in every fork, the
+[23.2 releases](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases)), but fixes and security updates
+only go into 24. Moving from 23.2 to 24 is a fresh install (⚠️ factory reset, erases all data; see Install).
 `main` holds the current docs and the 24 work; `lineage-22.2` in the forks is only the upstream base.
 
 Android 16/17 need kernel features a 4.9 kernel doesn't have. The port has two parts: a **kernel backport** (the
@@ -55,7 +57,7 @@ First boot can take up to 15 minutes.
 ### Updates
 
 New builds arrive **over the air**: *Settings → System → Updater* lists the latest builds of the
-version you run (23.2 or 24) and installs the one you pick, without erasing data. Release notes only list what changed
+version you run and installs the one you pick (23.2 stays at its last build, 20261026), without erasing data. Release notes only list what changed
 since the previous build; everything else is on this page.
 
 ### Google apps (optional)

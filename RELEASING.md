@@ -2,6 +2,9 @@
 
 How a build gets from the build drive to users, so that the LineageOS **Updater** on their tablets offers it.
 
+**Only 24 is built and released** (owner, 2026-11-04). 23.2 ends at `v23.2-20261026`: leave `ota/23.2/` as it is (its
+last builds stay installable) and don't run `ota-json.sh` for 23.2 again.
+
 ## How OTA works here
 
 - Every build carries `lineage.updater.uri` (device tree `system.prop`), pointing at a feed in this repo served by

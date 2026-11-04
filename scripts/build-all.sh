@@ -1,10 +1,11 @@
 #!/bin/bash
-# Release builds for the Tab S5e, in this order: 23.2 Wi-Fi, 23.2 LTE, 24 Wi-Fi, 24 LTE.
+# Release builds for the Tab S5e: 24 Wi-Fi, then 24 LTE. 23.2 is no longer built or released (owner, 2026-11-04);
+# its rows stay below, commented out, in case that changes.
 # Each finished build is verified as a release build (verify_release) before it is copied.
 #
 #   scripts/build-all.sh            check, then build everything
 #   scripts/build-all.sh --check    only run the pre-build checks
-#   ONLY="23.2:gts4lvwifi" scripts/build-all.sh    build a subset
+#   ONLY="24.0:gts4lvwifi" scripts/build-all.sh    build a subset
 #
 # Trees live on the build drive at their real paths (no bind mounts, no symlinks):
 #   /mnt/build/lineage-23.2   /mnt/build/lineage-24
@@ -23,8 +24,8 @@ DATE=$(date +%Y%m%d) # script start date: names the logs and the release folders
 REL=/mnt/build/releases
 SUMMARY=$HOME/work/build-all-$DATE.log
 BUILDS=(
-	"23.2|/mnt/build/lineage-23.2|lineage-23.2|gts4lvwifi"
-	"23.2|/mnt/build/lineage-23.2|lineage-23.2|gts4lv"
+	# "23.2|/mnt/build/lineage-23.2|lineage-23.2|gts4lvwifi"
+	# "23.2|/mnt/build/lineage-23.2|lineage-23.2|gts4lv"
 	"24.0|/mnt/build/lineage-24|lineage-24.0|gts4lvwifi"
 	"24.0|/mnt/build/lineage-24|lineage-24.0|gts4lv"
 )
