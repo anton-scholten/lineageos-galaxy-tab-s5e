@@ -1583,3 +1583,5 @@ themselves, not for a plain sideload.
 - Owner tested bubbles with desktop windows: works well, no crashes. A bubble can't be turned into a desktop window or
   full screen (no option); dismiss it and open the app normally. Likely part of why Google gates the feature on
   desktop-capable displays. Draft `v24.0-20261105` ready to publish.
+- Owner published `v24.0-20261105`; `ota/24.0/` feeds updated (20261105, 20261026, 20261022), live on Pages, download
+  URLs 200. Removed local `releases/24.0-20261019` (dropped from the feed). 23.2 feed and local copies unchanged.

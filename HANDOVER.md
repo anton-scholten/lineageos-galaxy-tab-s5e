@@ -6,13 +6,12 @@ Read this first, then the end of [WORKLOG.md](WORKLOG.md) for recent detail (it 
 Unofficial LineageOS 23.2 (Android 16) and 24 (Android 17) on the Samsung Galaxy Tab S5e: SM-T720/T720N
 (`gts4lvwifi`) and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2 (4.9 kernel).
 
-## Where things stand (2026-10-23)
+## Where things stand (2026-11-05)
 
 Both versions are released for both models and update **over the air** (GitHub releases + `ota/` feeds on GitHub
-Pages, [RELEASING.md](RELEASING.md)). Current releases: `v23.2-20261019` / `v24.0-20261019` (own release keys, storage
-fix, OTA; needed one clean install) `v23.2-20261022` / `v24.0-20261022` (Firefox resume-crash kernel fix, double
-tap to wake, Updater links) and `v23.2-20261026` / `v24.0-20261026` (ueventd / late input devices fix, lock screen avatar,
-WebView 156, 23.2 patch level 2026-10, Pixel APN list); OTA, no wipe. Local copies of these three in `/mnt/build/releases/`. The pre-OTA releases (20261008-20261016) were deleted; their tags remain.
+Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261105` (November 2026 ASB, Bluetooth L2CAP fix, app bubbles #5, 3-button nav fix #6;
+OTA feed 20261105 / 20261026 / 20261022) and 23.2 frozen at `v23.2-20261026` (feed 20261026 / 20261022 / 20261019).
+Local copies in `/mnt/build/releases/` match the feeds.
 
 | Area | State |
 |---|---|
@@ -45,11 +44,8 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
-- **Next build (WORKLOG 2026-11-04), all code in place:** 24 tree synced (November 2026 ASB) with Bluetooth
-  `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `6138f6e` (app bubbles flag, #5); 23.2 tree synced with
-  the Launcher3 fork but no longer built. Built 24.0-20261105 (both models, draft release `v24.0-20261105`); before publishing, test on the SM-T720: 3-button nav with the taskbar off
-  (centred in both orientations), app bubbles on 24 together with desktop windows (move an app between bubble and
-  desktop window; watch for SystemUI crashes).
+- **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
+  reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.
 0. Owner's SM-T720 is on the 24.0-20261026 release build (no root).
 1. LTE Dolby Atmos: engine and files identical to Wi-Fi, AudioFX and Twelve ruled out (WORKLOG 2026-10-25); need a longer
    unfiltered capture from an LTE user (request drafted) to see whether profile switches reach the engine on LTE.
