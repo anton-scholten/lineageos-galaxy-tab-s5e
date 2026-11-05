@@ -1575,3 +1575,8 @@ themselves, not for a plain sideload.
   returns `false` (read-only flags are compiled in, not listed in `aconfig_flags.pb`); Launcher3QuickStep rebuilt from
   the fork. Notes `release/NOTES-24.0-20261105.md`; GitHub draft `v24.0-20261105` (7 assets). Not yet tested on the
   tablet: #5 and #6 need a device check before publishing.
+- 2026-11-05, owner sideloaded `24.0-20261105` on the SM-T720 (no wipe; patch 2026-11-01). **#6 fixed:** 3-button nav,
+  taskbar off: home at x 799 (portrait, centre 800) and 1278 (landscape, centre 1280), back/recents symmetric (was
+  823 / 1111). **#5 fixed:** long-press menu has the bubble shortcut; Termux opened as `key_app_bubble:0:com.termux`.
+  No SystemUI/Launcher crashes (only a Syncthing foreground-service crash at boot, unrelated). Bubble ↔ desktop
+  window moves not tried yet (by hand). Settings restored (gestural, `enable_taskbar=1`, auto-rotate).
