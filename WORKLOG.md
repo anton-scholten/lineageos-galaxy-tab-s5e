@@ -1580,3 +1580,6 @@ themselves, not for a plain sideload.
   823 / 1111). **#5 fixed:** long-press menu has the bubble shortcut; Termux opened as `key_app_bubble:0:com.termux`.
   No SystemUI/Launcher crashes (only a Syncthing foreground-service crash at boot, unrelated). Bubble ↔ desktop
   window moves not tried yet (by hand). Settings restored (gestural, `enable_taskbar=1`, auto-rotate).
+- Owner tested bubbles with desktop windows: works well, no crashes. A bubble can't be turned into a desktop window or
+  full screen (no option); dismiss it and open the app normally. Likely part of why Google gates the feature on
+  desktop-capable displays. Draft `v24.0-20261105` ready to publish.
