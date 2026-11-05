@@ -1564,3 +1564,8 @@ themselves, not for a plain sideload.
 - **Owner: from now on only 24 is built and released.** 23.2 frozen at `v23.2-20261026`: `build-all.sh` 23.2 rows
   commented out; `ota/23.2/` left as it is; README, RELEASING, HANDOVER, CLAUDE.md say so. Moving 23.2 → 24 needs a
   wipe (separate feeds, RELEASING).
+- First 24 build run failed in Soong analysis: `"powerhal_flags-aconfig" depends on undefined module
+  "aconfig_value_set-gts4lv-common-cp2a"` — the device tree is a `soong_namespace`, so platform modules can't see the
+  value set by its bare name. Device `6138f6e` names it `//device/samsung/gts4lv-common:aconfig_value_set-…` in
+  `release/release_configs/cp2a.textproto`; analysis passes and the built `com_android_wm_shell_flags`
+  `aconfig-cache.pb` reads `disable_bubble_anything_desktop_windowing DISABLED READ_ONLY` (was ENABLED). Builds restarted.

@@ -18,7 +18,7 @@ WebView 156, 23.2 patch level 2026-10, Pixel APN list); OTA, no wipe. Local copi
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `75119ab` (24); Launcher3 fork (issue #6) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `6138f6e` (24); Launcher3 fork (issue #6) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
@@ -46,7 +46,7 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 ## Next steps
 
 - **Next build (WORKLOG 2026-11-04), all code in place:** 24 tree synced (November 2026 ASB) with Bluetooth
-  `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `75119ab` (app bubbles flag, #5); 23.2 tree synced with
+  `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `6138f6e` (app bubbles flag, #5); 23.2 tree synced with
   the Launcher3 fork but no longer built. Build 24 (both models), then test on the SM-T720: 3-button nav with the taskbar off
   (centred in both orientations), app bubbles on 24 together with desktop windows (move an app between bubble and
   desktop window; watch for SystemUI crashes).
