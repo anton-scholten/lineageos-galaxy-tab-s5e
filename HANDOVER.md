@@ -47,7 +47,7 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 - **Next build (WORKLOG 2026-11-04), all code in place:** 24 tree synced (November 2026 ASB) with Bluetooth
   `98188b0c390b` (L2CAP MPS fix), Launcher3 fork (#6) and device `6138f6e` (app bubbles flag, #5); 23.2 tree synced with
-  the Launcher3 fork but no longer built. Build 24 (both models), then test on the SM-T720: 3-button nav with the taskbar off
+  the Launcher3 fork but no longer built. Built 24.0-20261105 (both models, draft release `v24.0-20261105`); before publishing, test on the SM-T720: 3-button nav with the taskbar off
   (centred in both orientations), app bubbles on 24 together with desktop windows (move an app between bubble and
   desktop window; watch for SystemUI crashes).
 0. Owner's SM-T720 is on the 24.0-20261026 release build (no root).

@@ -1569,3 +1569,9 @@ themselves, not for a plain sideload.
   value set by its bare name. Device `6138f6e` names it `//device/samsung/gts4lv-common:aconfig_value_set-…` in
   `release/release_configs/cp2a.textproto`; analysis passes and the built `com_android_wm_shell_flags`
   `aconfig-cache.pb` reads `disable_bubble_anything_desktop_windowing DISABLED READ_ONLY` (was ENABLED). Builds restarted.
+- Release builds 24.0 done (both models, `releases/24.0-20261105/`, zips dated 20261105; folder renamed from the
+  script's start date 20261104 to match). Verified: `release-keys`, security patch 2026-11-01, kernel
+  `4.9.337-ga668db21f3cf`, SHA256SUMS OK; generated `com.android.wm.shell.Flags.disableBubbleAnythingDesktopWindowing()`
+  returns `false` (read-only flags are compiled in, not listed in `aconfig_flags.pb`); Launcher3QuickStep rebuilt from
+  the fork. Notes `release/NOTES-24.0-20261105.md`; GitHub draft `v24.0-20261105` (7 assets). Not yet tested on the
+  tablet: #5 and #6 need a device check before publishing.
