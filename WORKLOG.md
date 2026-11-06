@@ -1585,3 +1585,7 @@ themselves, not for a plain sideload.
   desktop-capable displays. Draft `v24.0-20261105` ready to publish.
 - Owner published `v24.0-20261105`; `ota/24.0/` feeds updated (20261105, 20261026, 20261022), live on Pages, download
   URLs 200. Removed local `releases/24.0-20261019` (dropped from the feed). 23.2 feed and local copies unchanged.
+
+## 2026-11-06: auto-assign new issues
+- `.github/workflows/auto-assign.yml`: on `issues: opened`, assigns the issue to the repo owner with the job's
+  `GITHUB_TOKEN` (`issues: write`). Event values passed via `env`, not inlined into the shell command.
