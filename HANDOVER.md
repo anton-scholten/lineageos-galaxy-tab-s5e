@@ -6,11 +6,11 @@ Read this first, then the end of [WORKLOG.md](WORKLOG.md) for recent detail (it 
 Unofficial LineageOS 23.2 (Android 16) and 24 (Android 17) on the Samsung Galaxy Tab S5e: SM-T720/T720N
 (`gts4lvwifi`) and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2 (4.9 kernel).
 
-## Where things stand (2026-11-05)
+## Where things stand (2026-11-09)
 
 Both versions are released for both models and update **over the air** (GitHub releases + `ota/` feeds on GitHub
-Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261105` (November 2026 ASB, Bluetooth L2CAP fix, app bubbles #5, 3-button nav fix #6;
-OTA feed 20261105 / 20261026 / 20261022) and 23.2 frozen at `v23.2-20261026` (feed 20261026 / 20261022 / 20261019).
+Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261109` (November 2026 ASB, volume panel fix; 20261105 added app bubbles #5 and 3-button nav fix #6;
+OTA feed 20261109 / 20261105 / 20261026) and 23.2 frozen at `v23.2-20261026` (feed 20261026 / 20261022 / 20261019).
 Local copies in `/mnt/build/releases/` match the feeds.
 
 | Area | State |
@@ -44,8 +44,7 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
-- **Draft `v24.0-20261109`** (volume panel fix, Settings/LatinIME fixes): test the volume dialog's settings button on
-  the SM-T720, owner publishes, then `scripts/ota-json.sh` and drop `releases/24.0-20261022` (falls off the feed).
+- **Released 2026-11-09:** `v24.0-20261109` (volume panel fix, verified on the SM-T720), feeds live.
 - **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
   reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.
 0. Owner's SM-T720 is on the 24.0-20261026 release build (no root).

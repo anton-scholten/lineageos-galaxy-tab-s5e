@@ -1615,3 +1615,5 @@ themselves, not for a plain sideload.
   2026-11-01, kernel `4.9.337-ga668db21f3cf` (unaffected by the vendor/lineage `TARGET_BOARD_PLATFORM` change),
   `SHA256SUMS` OK. Notes `release/NOTES-24.0-20261109.md`; draft release `v24.0-20261109` with all assets uploaded.
   To do: test the volume panel button on the SM-T720, owner publishes, then OTA feed.
+- Owner tested 24.0-20261109 on the SM-T720 (volume panel opens from the volume dialog) and published it. OTA feed
+  `ota/24.0/` now 20261109 / 20261105 / 20261026; removed local `releases/24.0-20261022` (no longer in the feed).
