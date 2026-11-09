@@ -1599,3 +1599,13 @@ themselves, not for a plain sideload.
   without the scene container, so the panel never shows. Upstream LineageOS/issues#1052; fixed by LineageOS
   `frameworks/base` `1df617a1093e` (Gerrit 512306, merged 2026-11-06, lineage-24.0): our tree was synced 2026-11-04.
   Next `repo sync` + build fixes it; nothing of ours to change.
+- Upstream check for the next 24 build (fetched 2026-11-09, `~/work/new-24-1109.txt`): 17 projects moved since the
+  2026-11-04 sync. Relevant: frameworks/base volume panel fix (above); Settings "Fix reboot flow for BT dev settings";
+  LatinIME suggestion-chip size fix; vendor/apn (new CN carrier); vendor/lineage passes
+  `TARGET_BOARD_PLATFORM=sdm670` to the kernel make (our kernel's Makefiles/Kbuild don't use it, only techpack
+  `Android.mk`, so expected harmless; watch the kernel build). Rest is other SoCs, TV, wiki/hudson. Our forks
+  (Bluetooth, Launcher3, system/core, vold, sepolicy_vndr) are level with LineageOS; compat only has the opt-in ion_close
+  shim. Kernel bases (LineageOS sdm670, ExyHyperBrick 24 `e5906667068e`, Exynos-only), device tree base and TheMuppets
+  vendor unchanged; no new WebView. Optional: LineageOS fixed a null dereference in the CAF audio `battery_listener.cpp`
+  (`3ac0f60c0` on sm8150 etc.); our frozen `hardware/qcom-caf/sdm845/audio` has the same code (destructor and
+  `serviceDied`, only when the health HAL dies) but would need a new fork.
