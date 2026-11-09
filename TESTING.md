@@ -338,6 +338,27 @@ article). `wiki.lineageos.org` **is** reachable, so
 | `adb bugreport` bundles the above into one zip | **low** | not run against a real device here (no tablet attached); offered as a convenience only, nothing depends on it |
 | Exact `logcat` buffer names on Android 16 | **medium** | `main`, `system`, `radio`, `events`, `crash`, `kernel` have been stable for years, but the Android 16 list was not checked against the 23.2 source |
 
+## Known latent bugs (where to look)
+
+Bugs we know are in the code but have not seen on the tablet. If the symptom shows up, start here.
+
+### Audio HAL crash when the health HAL dies (`battery_listener.cpp`)
+
+- **Symptom:** sound stops, or `audio.service` / `android.hardware.audio.service` restarts, at the same moment
+  `android.hardware.health-service.samsung` crashes or is restarted (charger plug/unplug, battery reporting). The
+  tombstone is in the audio HAL process with a null-pointer fault in `BatteryListenerImpl` (`~BatteryListenerImpl` or
+  `serviceDied`).
+- **Code:** `hardware/qcom-caf/sdm845/audio/hal/audio_extn/battery_listener.cpp` (24 tree): the destructor (line ~168)
+  and `serviceDied()` (line ~193) call `mThread->join()` without checking `mThread`.
+- **Upstream fix:** CAF/LineageOS "audio-extn: Fix the null pointer dereference" (Change-Id
+  `Id5137997d3e26487ff867da17e23189e672a95d0`, e.g. `3ac0f60c0` on `LineageOS/android_hardware_qcom-caf_sm8150_audio`
+  `lineage-24.0-caf-sm8150`): wraps both joins in `if (mThread != NULL)`. Applies cleanly in concept; our sdm845 audio
+  repo is frozen (LineageOS dropped sdm845 CAF, see `local_manifests/24/caf-sdm845.xml`), so carrying it needs a fork of
+  `LineageOS/android_hardware_qcom-caf_sdm845_audio` (`lineage-23.2-caf-sdm845`).
+- **How to confirm:** `adb logcat -b crash` and the tombstone (section 4) at the time of the audio drop; check
+  `dumpsys health` / logcat for a health HAL restart just before.
+- Noted 2026-11-09 (WORKLOG); not carried because it only triggers when the health HAL dies, which hasn't been seen.
+
 ## Problems
 
 None. Two notes for the lead:

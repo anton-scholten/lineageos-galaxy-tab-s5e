@@ -1608,4 +1608,6 @@ themselves, not for a plain sideload.
   shim. Kernel bases (LineageOS sdm670, ExyHyperBrick 24 `e5906667068e`, Exynos-only), device tree base and TheMuppets
   vendor unchanged; no new WebView. Optional: LineageOS fixed a null dereference in the CAF audio `battery_listener.cpp`
   (`3ac0f60c0` on sm8150 etc.); our frozen `hardware/qcom-caf/sdm845/audio` has the same code (destructor and
-  `serviceDied`, only when the health HAL dies) but would need a new fork.
+  `serviceDied`, only when the health HAL dies) but would need a new fork. Owner: not carried; documented in
+  TESTING.md "Known latent bugs" for future debugging.
+- Owner: sync and build 24 now (volume panel fix). `repo sync` + `build-all.sh` started 2026-11-09.
