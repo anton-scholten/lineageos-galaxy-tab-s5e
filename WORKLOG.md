@@ -1611,3 +1611,7 @@ themselves, not for a plain sideload.
   `serviceDied`, only when the health HAL dies) but would need a new fork. Owner: not carried; documented in
   TESTING.md "Known latent bugs" for future debugging.
 - Owner: sync and build 24 now (volume panel fix). `repo sync` + `build-all.sh` started 2026-11-09.
+- Build 24.0-20261109 done (sync 2026-11-09 includes frameworks/base `1df617a1093e`): both models, release-keys, SPL
+  2026-11-01, kernel `4.9.337-ga668db21f3cf` (unaffected by the vendor/lineage `TARGET_BOARD_PLATFORM` change),
+  `SHA256SUMS` OK. Notes `release/NOTES-24.0-20261109.md`; draft release `v24.0-20261109` with all assets uploaded.
+  To do: test the volume panel button on the SM-T720, owner publishes, then OTA feed.
