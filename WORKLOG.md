@@ -1589,3 +1589,13 @@ themselves, not for a plain sideload.
 ## 2026-11-06: auto-assign new issues
 - `.github/workflows/auto-assign.yml`: on `issues: opened`, assigns the issue to the repo owner with the job's
   `GITHUB_TOKEN` (`issues: write`). Event values passed via `env`, not inlined into the shell command.
+
+## 2026-11-09: volume dialog settings button does nothing (24.0-20261105)
+- Reproduced on the SM-T720: the bottom (settings) button of the volume dialog takes the touch (ripple, dialog
+  dismisses) but the volume panel never opens; `am start -a android.settings.panel.action.VOLUME` (Settings panel)
+  still works.
+- Cause: November ASB "Avoid showing Volume Panel when the device is locked" gates
+  `VolumePanelGlobalStateInteractor.setVisible(true)` on `DeviceEntryInteractor.isDeviceEntered`, constant false
+  without the scene container, so the panel never shows. Upstream LineageOS/issues#1052; fixed by LineageOS
+  `frameworks/base` `1df617a1093e` (Gerrit 512306, merged 2026-11-06, lineage-24.0): our tree was synced 2026-11-04.
+  Next `repo sync` + build fixes it; nothing of ours to change.

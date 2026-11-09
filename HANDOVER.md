@@ -44,6 +44,8 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
+- **Known bug in 24.0-20261105:** the volume dialog's settings button doesn't open the volume panel (November ASB
+  regression, fixed upstream 2026-11-06, Gerrit 512306). Fixed by the next sync and build (WORKLOG 2026-11-09).
 - **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
   reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.
 0. Owner's SM-T720 is on the 24.0-20261026 release build (no root).
