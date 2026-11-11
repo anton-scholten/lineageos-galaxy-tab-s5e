@@ -46,7 +46,8 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 - **Next 24 build:** includes the Quick Settings volume tile (device `aa15a5c`, `VolumeTile/`; README "Changes from
   stock LineageOS"). Tested on the SM-T720 as a sideloaded APK; after the build check it is in `/product/app`, listed
-  under Utilities, and mention it in the release notes.
+  under Utilities, and mention it in the release notes. Forks checked 2026-11-11: LineageOS merged into Launcher3,
+  compat and sepolicy_vndr; ExyHyperBrick 24 has only Exynos work (WORKLOG).
 - **Released 2026-11-09:** `v24.0-20261109` (volume panel fix, verified on the SM-T720), feeds live.
 - **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
   reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.
