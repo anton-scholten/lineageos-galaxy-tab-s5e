@@ -6,7 +6,7 @@ Read this first, then the end of [WORKLOG.md](WORKLOG.md) for recent detail (it 
 Unofficial LineageOS 23.2 (Android 16) and 24 (Android 17) on the Samsung Galaxy Tab S5e: SM-T720/T720N
 (`gts4lvwifi`) and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2 (4.9 kernel).
 
-## Where things stand (2026-11-09)
+## Where things stand (2026-11-11)
 
 Both versions are released for both models and update **over the air** (GitHub releases + `ota/` feeds on GitHub
 Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261109` (November 2026 ASB, volume panel fix; 20261105 added app bubbles #5 and 3-button nav fix #6;
@@ -17,7 +17,7 @@ Local copies in `/mnt/build/releases/` match the feeds.
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `6138f6e` (24); Launcher3 fork (issue #6) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` on both branches; device `f4c18f4` (23.2) / `aa15a5c` (24); Launcher3 fork (issue #6) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
@@ -44,6 +44,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 
 ## Next steps
 
+- **Next 24 build:** includes the Quick Settings volume tile (device `aa15a5c`, `VolumeTile/`; README "Changes from
+  stock LineageOS"). Tested on the SM-T720 as a sideloaded APK; after the build check it is in `/product/app`, listed
+  under Utilities, and mention it in the release notes.
 - **Released 2026-11-09:** `v24.0-20261109` (volume panel fix, verified on the SM-T720), feeds live.
 - **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
   reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.

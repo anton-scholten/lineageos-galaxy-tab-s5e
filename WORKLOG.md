@@ -1617,3 +1617,21 @@ themselves, not for a plain sideload.
   To do: test the volume panel button on the SM-T720, owner publishes, then OTA feed.
 - Owner tested 24.0-20261109 on the SM-T720 (volume panel opens from the volume dialog) and published it. OTA feed
   `ota/24.0/` now 20261109 / 20261105 / 20261026; removed local `releases/24.0-20261022` (no longer in the feed).
+
+## 2026-11-11: Quick Settings volume tile (24)
+- Owner asked for a volume control in Quick Settings. Stock Android/LineageOS has no volume tile; a slider under the
+  brightness slider would need a `frameworks/base` fork (QS compose code), so a tile instead.
+- First version: own popup (slider + sound mode row) in an activity. A dialog owned by the `TileService` stops
+  responding once the shade collapses (service unbound, process frozen), hence `startActivityAndCollapse`. Owner
+  preferred the stock look, so the tile now opens the system volume dialog instead:
+  `adjustStreamVolume(STREAM_MUSIC, ADJUST_SAME, FLAG_SHOW_UI)` from a translucent activity started after the shade
+  collapses (the dialog does not show over an expanded shade). Long-press (`QS_TILE_PREFERENCES`) opens
+  Settings → Sound & vibration. Own popup removed.
+- Android 17 `HardeningEnforcer.blockVolumeMethod`: apps targeting 37 are blocked unless privileged, but only when the
+  `CONTROL_AUDIO` appops are denied, and both default to `MODE_FOREGROUND`. The call comes from a foreground activity, so
+  the app targets 37 with no privileged permission and no DND access. Verified on the SM-T720.
+- Tile category `CATEGORY_UTILITIES` (meta-data `android.service.quicksettings.TILE_CATEGORY`): listed under Utilities in
+  the tile editor (verified). Not added to Quick Settings by default; as a `/product` app it can't be uninstalled.
+- Device `aa15a5c` "gts4lv-common: Add a Quick Settings volume tile" (lineage-24.0): `VolumeTile/` + `PRODUCT_PACKAGES`.
+  README "Changes from stock LineageOS", Sources row, pins (check-pins, CLAUDE.md, HANDOVER) updated. Goes into the
+  next 24 build.

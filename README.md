@@ -36,6 +36,16 @@ Fixes that should go upstream are tracked in [UPSTREAM.md](UPSTREAM.md).
 > LineageOS on the Galaxy S10, the port uses Samsung's unused 20 MB **OMR** partition. The recovery's *Format data*
 > formats it, so follow the install steps exactly. Going back to stock firmware with Odin/samloader restores OMR.
 
+## Changes from stock LineageOS
+
+Besides what the tablet needs to run Android 16/17, the port adds one feature that stock LineageOS and Android don't
+have:
+
+- **Volume tile** (24, from the first build after 20261109): a Quick Settings tile that shows the media volume. A tap
+  opens the normal volume pop-up (slider and sound mode button), as if a volume key had been pressed; a long-press
+  opens Settings → Sound & vibration. It is not in Quick Settings by default: open Quick Settings, tap the pencil
+  (edit) and add **Volume** from **Utilities**.
+
 ## Install / upgrade
 
 **You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for your model from the
@@ -87,7 +97,7 @@ All forks use branch `lineage-24.0` (and `lineage-23.2` for 23.2).
 | Part | Fork | What |
 |---|---|---|
 | Kernel (GPL-2.0, same for 23.2 and 24) | [android_kernel_samsung_sdm670](https://github.com/anton-scholten/android_kernel_samsung_sdm670) | The ExyHyperBrick series (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, FUSE-BPF, userfaultfd, uclamp, PSI) ported onto the Tab S5e kernel, plus an SELinux policy-loading fix, a BPF fix (charging status), EROFS, a FUSE-BPF fix (app storage) and a memory fix (apps losing memory after background compaction, e.g. Firefox crashing when reopened) |
-| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Android 16/17 bring-up, OMR `/metadata`, SELinux, always-on display, double tap to wake, tablet defaults, storage without sdcardfs, OTA feed and Updater links, app bubbles (24) |
+| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Android 16/17 bring-up, OMR `/metadata`, SELinux, always-on display, double tap to wake, tablet defaults, storage without sdcardfs, OTA feed and Updater links, app bubbles and the volume tile (24) |
 | Blobs | [proprietary_vendor_samsung_gts4lv-common](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common) | TheMuppets' 22.2 blobs + patched Wi-Fi Display library; 24 also relinks two blobs to the newer audio libraries |
 | Bluetooth | [android_packages_modules_Bluetooth](https://github.com/anton-scholten/android_packages_modules_Bluetooth) | Restores `bluetooth.hci.disabled_commands` (pairing crash) |
 | Launcher | [android_packages_apps_Launcher3](https://github.com/anton-scholten/android_packages_apps_Launcher3) | Centres the 3-button navigation bar when the taskbar is turned off |
