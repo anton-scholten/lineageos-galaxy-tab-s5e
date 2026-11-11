@@ -91,13 +91,13 @@ info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anto
 info|anton-scholten/android_packages_modules_Bluetooth|https://github.com/anton-scholten/android_packages_modules_Bluetooth|lineage-23.2|f500ef4c4af4|OUR FORK: LineageOS Bluetooth + bluetooth.hci.disabled_commands restored (UPSTREAM.md #1).
 info|anton-scholten/android_packages_modules_Bluetooth|https://github.com/anton-scholten/android_packages_modules_Bluetooth|lineage-24.0|98188b0c390b|OUR FORK: same fix on lineage-24.0 (+ LineageOS L2CAP MPS fix, merged 2026-11-04).
 info|anton-scholten/android_packages_apps_Launcher3|https://github.com/anton-scholten/android_packages_apps_Launcher3|lineage-23.2|4be5887bda6d|OUR FORK: LineageOS Launcher3 + phone mode nav buttons not shifted for the bubble bar (issue #6, UPSTREAM.md #5).
-info|anton-scholten/android_packages_apps_Launcher3|https://github.com/anton-scholten/android_packages_apps_Launcher3|lineage-24.0|793236d2701d|OUR FORK: same fix on lineage-24.0.
+info|anton-scholten/android_packages_apps_Launcher3|https://github.com/anton-scholten/android_packages_apps_Launcher3|lineage-24.0|7898a99cb6e3|OUR FORK: same fix on lineage-24.0 (LineageOS merged 2026-11-11).
 info|anton-scholten/proprietary_vendor_samsung_gts4lv-common|https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common|lineage-23.2|51de1d4fa3f7|OUR FORK: TheMuppets 22.2 blobs + patched libwfdservice + perf XML remap (release v23.2-20261008).
 pin|anton-scholten/android_kernel_samsung_exynos9810|https://github.com/anton-scholten/android_kernel_samsung_exynos9810|lineage-22.2|d54533f1546b|FROZEN BACKUP of the S9 kernel: series start d54533f1546b (exy/l222).
 pin|anton-scholten/android_kernel_samsung_exynos9810|https://github.com/anton-scholten/android_kernel_samsung_exynos9810|lineage-23.2|baa585f67e0e|FROZEN BACKUP of the S9 kernel: series end baa585f67e0e (exy/l232). All series counts depend on this.
 pin|anton-scholten/android_device_samsung_exynos9810-common|https://github.com/anton-scholten/android_device_samsung_exynos9810-common|lineage-23.2|ced977559b13|FROZEN BACKUP of the S9 device tree (used by R7).
 info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-23.2|baa585f67e0e|UPSTREAM S9 kernel, a live tree. A move means ExyHyperBrick pushed more work: consider re-running K1-K6.
-info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-24.0|baa585f67e0e|UPSTREAM S9 kernel for LineageOS 24 (equal to 23.2 on 2026-10-09). A move means krazey added 24-specific kernel work: check whether we need it.
+info|ExyHyperBrick/android_kernel_samsung_exynos9810|https://github.com/ExyHyperBrick/android_kernel_samsung_exynos9810|lineage-24.0|401189fdfc65|UPSTREAM S9 kernel for LineageOS 24. Checked to 401189fdfc65 on 2026-11-11: the 13 commits after baa585f67e0e are Exynos drivers only (mfc, dpu, bcmdhd, fimc-is2, CMA camera heap), none for sdm670. A move means krazey added 24-specific kernel work: check whether we need it.
 PINS
 
 row_count=${#rows[@]}

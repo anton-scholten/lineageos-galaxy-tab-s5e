@@ -1635,3 +1635,16 @@ themselves, not for a plain sideload.
 - Device `aa15a5c` "gts4lv-common: Add a Quick Settings volume tile" (lineage-24.0): `VolumeTile/` + `PRODUCT_PACKAGES`.
   README "Changes from stock LineageOS", Sources row, pins (check-pins, CLAUDE.md, HANDOVER) updated. Goes into the
   next 24 build.
+
+## 2026-11-11: fork upstream check, Pages failures
+- All forks against their upstream (`/mnt/build/lineage-24`, fetched 2026-11-11). Level: Bluetooth, system/core, vold,
+  device tree (LineageOS 22.2 base), kernel (LineageOS sdm670 22.2), vendor (TheMuppets 22.2); no newer LineageOS
+  branches for gts4lv*. Merged and pushed (`lineage-24.0`): Launcher3 `7898a99cb6` (3 commits: settings nav bar insets,
+  themed icons fixup, taskbar nav bar panels window context; no overlap with our nav button fix), compat `0f2a712a9d`
+  (opt-in `ion_close` shim, `ip_local_unbindable_ports` shim for 6.1+ kernels: unused here), sepolicy_vndr
+  `c7760074e5` (nfc2 NXP HAL label). All three go into the next 24 build.
+- ExyHyperBrick `lineage-24.0` moved to `401189fdfc65`: 13 commits since `baa585f67e0e`, all Exynos drivers (mfc, dpu,
+  bcmdhd, fimc-is2, CMA camera heap). Nothing for sdm670; check-pins row moved to `401189fdfc65`.
+- Pages `pages-build-deployment` run 43098065497 (docs commit `ffcc1a0`) and its rerun: `startup_failure`. GitHub
+  status at the time: Actions major outage, Pages partial outage. Not a problem in this repo (no workflow of ours
+  involved); the live feed kept serving the 20261109 entries. Rerun once Actions is back.

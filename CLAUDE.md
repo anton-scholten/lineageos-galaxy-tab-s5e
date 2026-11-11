@@ -16,7 +16,7 @@ user docs, release notes, OTA feeds, local manifests and build scripts. It is no
   on both),
   `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (23.2 `51de1d4`, 24 `1e0cce7`),
   `anton-scholten/android_packages_modules_Bluetooth` (23.2 `f500ef4c4a`, 24 `98188b0c39`; LineageOS merged 2026-11-04), `anton-scholten/android_packages_apps_Launcher3`
-  (23.2 `4be5887bda`, 24 `793236d270`; nav button fix), and for 24 the
+  (23.2 `4be5887bda`, 24 `7898a99cb6`; nav button fix), and for 24 the
   system/core, system/vold, hardware/lineage/compat and device/qcom/sepolicy_vndr forks. `scripts/check-pins.sh`
   checks all pins. Device-tree changes go into the fork as commits.
 - Fixes owed upstream (LineageOS Gerrit, krazey) are tracked in [UPSTREAM.md](UPSTREAM.md); keep it current.
