@@ -1648,3 +1648,13 @@ themselves, not for a plain sideload.
 - Pages `pages-build-deployment` run 43098065497 (docs commit `ffcc1a0`) and its rerun: `startup_failure`. GitHub
   status at the time: Actions major outage, Pages partial outage. Not a problem in this repo (no workflow of ours
   involved); the live feed kept serving the 20261109 entries. Rerun once Actions is back.
+
+## 2026-11-13: report: 1 TB exFAT microSD not recognized on the SM-T720 (24)
+- User report (via owner): 1 TB microSDXC, exFAT, not recognized on our 24; fine on luk's LineageOS 22 (Android 15).
+  SD cards were never tested on this port.
+- Checked in the 24 tree: kernel has sdfat registered as `exfat` (`CONFIG_SDFAT_USE_FOR_EXFAT=y`), `/system/bin`
+  has `mkfs.exfat` and `fsck.exfat`, so `exfat::IsSupported()` should pass. vold runs `fsck.exfat -y` in
+  `fsck_untrusted` with a 45 s timeout (`kUntrustedFsckSleepTime`; AOSP's doubling for cards > 512 GB was reverted in
+  March 2026) and gives up on the volume if the check fails or times out. Candidates: fsck timeout on a big, full card;
+  an SELinux denial; or the card not detected at all (kernel). Needs a logcat from the reporter (or an SD card test on
+  the owner's tablet) before changing anything.
