@@ -1658,3 +1658,9 @@ themselves, not for a plain sideload.
   March 2026) and gives up on the volume if the check fails or times out. Candidates: fsck timeout on a big, full card;
   an SELinux denial; or the card not detected at all (kernel). Needs a logcat from the reporter (or an SD card test on
   the owner's tablet) before changing anything.
+- Owner's SM-T720 (24.0-20261109): 256 GB exFAT card, 225 GB used, mounts fine. Remount (`sm unmount`/`sm mount`
+  `public:179,65`): `fsck.exfat` 9.1 s ("Check OK"), mount right after. One harmless denial: `fsck_untrusted` read of
+  sysfs dir `mmcblk1p1`. The 45 s fsck and 20 s mount timeouts are the same on Android 15 (since 2021 / 2024), so the
+  difference would be fsck speed (exfatprogs 1.4.3 here) or card size/fill: a full 1 TB card scales to roughly 35-45 s,
+  more on a cold first insert. Still need the reporter's log (a timeout shows as `Check failed` / "failed filesystem
+  check", and the tablet then reports the card as having a problem rather than showing nothing).
