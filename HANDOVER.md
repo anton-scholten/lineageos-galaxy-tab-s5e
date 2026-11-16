@@ -92,6 +92,17 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
    LineageOS will not change the 45 s. ⚠️ Tell users not to accept the format prompt; the card is likely intact —
    eject/reinsert after boot or `sm mount public:<major>,<minor>` as a workaround.
 
+7. **Future: hand-over release when luk's (or official) 24 ships.** The Updater feed cannot list an info-only entry:
+   `NetworkUpdate.kt` reads only datetime, filename, size, url, version, type, os_patch_level, os_sdk_level,
+   ota_property_files, with no message or "not installable" flag, and an entry pointing at his zip downloads and then
+   fails signature verification (different keys). Moving needs ⚠️ a wipe anyway (different signing keys). Plan: one
+   final OTA of ours that (a) overlays the Updater's `menu_changelog_url` ("Recent changes", default
+   `download.lineageos.org/<device>/changes`) to a "Moving to the official build" page in this repo (wipe, Seedvault
+   backup/restore, link to his release and install guide), (b) optionally points `lineage.updater.uri` at an empty
+   feed so nothing new is offered after it, and (c) says the same at the top of its release notes and the README.
+   Bigger option, only if that is not visible enough: fork the Updater to show a feed-driven banner. Link his release
+   only once he publishes it and agrees; until then point at his official LineageOS device page.
+
 ## Rules
 - Push to `main` here and to the forks' `lineage-23.2` / `lineage-24.0`; no PRs unless asked.
 - Never sync or change the backup forks (`*_exynos9810*`).

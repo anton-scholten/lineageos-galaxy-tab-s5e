@@ -1930,3 +1930,6 @@ themselves, not for a plain sideload.
   (upstream `9c276cc65a58` MADV_COLD, `1a4e58cce84e` MADV_PAGEOUT, `0726b01e7045`, `ecb8ac8b1f14` process_madvise,
   `450677dcb0cc`, `a68a0262abda`, `96cfe2c0fd23`, `5bd009c7c9a9`). Earlier note that ACK 4.19 has it was not
   verified; dropped.
+- Owner question 2026-11-15: an OTA entry that is listed but not installable and points to luk's release. Not
+  possible with the stock Updater feed (no message/info-only field; a foreign zip fails signature verification;
+  the switch needs a wipe). Plan for a final hand-over release added to HANDOVER as future work (item 7).
