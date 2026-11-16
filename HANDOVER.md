@@ -52,11 +52,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
   them. ⚠️ His tree now mounts `/metadata` from `omr` (p55) instead of `hidden` (p54): a dirty update of the tablet
   loses the metadata encryption key unless p54 is first copied to p55 from recovery, otherwise data must be wiped.
   Next: owner reviews and sends L4/L5, plus the L10 process_madvise note (UPSTREAM.md).
-- **Built, not published: `24.0-20261116`** (both models, `/mnt/build/releases/24.0-20261116/`, notes
-  `release/NOTES-24.0-20261116.md`): exFAT fsck skip (vold `b70cf8f`), volume tile, device merge of 22.2 `f2340a8`
-  (`adcd7eb`), stock Launcher3, LTE haptics, recovery fixes, lineage-sdk security fixes. Wi-Fi zip tested on the
-  SM-T720 over 20261109 (no wipe). Next: owner publishes (RELEASING.md steps 4-5: tag `v24.0-20261116`, release,
-  `ota-json.sh`), then delete `releases/24.0-20261109`.
+- **Released 2026-11-16:** `v24.0-20261116` (exFAT fsck skip, vold `b70cf8f`; volume tile; device `adcd7eb` with
+  22.2 `f2340a8`; stock Launcher3; LTE haptics; recovery and lineage-sdk security fixes), both models, feeds live.
+  Wi-Fi zip tested on the SM-T720 over 20261109. Ask the 1 TB card reporter to confirm.
 - **Released 2026-11-09:** `v24.0-20261109` (volume panel fix, verified on the SM-T720), feeds live.
 - **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
   reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.

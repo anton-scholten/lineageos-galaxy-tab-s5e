@@ -1963,3 +1963,6 @@ themselves, not for a plain sideload.
   `org.gts4lv.volumetile` installed, card mounts with "Volume is clean, skipping check", no crashes.
 - Notes drafted: `release/NOTES-24.0-20261116.md`; README "Changes from stock LineageOS" lists the exFAT change.
   Not published: tag, GitHub release and OTA feed wait for the owner.
+- Published 2026-11-16 (owner OK): GitHub release `v24.0-20261116` (title "LOS_24_2026-11-16 - LineageOS 24
+  (unofficial)", 7 assets, sizes match), OTA feeds `ota/24.0/{gts4lvwifi,gts4lv}.json` (3 builds each), pushed;
+  Pages serves the new entries; download URLs return 200. `releases/24.0-20261109` deleted (latest only).
