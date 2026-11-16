@@ -1664,3 +1664,269 @@ themselves, not for a plain sideload.
   difference would be fsck speed (exfatprogs 1.4.3 here) or card size/fill: a full 1 TB card scales to roughly 35-45 s,
   more on a cold first insert. Still need the reporter's log (a timeout shows as `Check failed` / "failed filesystem
   check", and the tablet then reports the card as having a problem rather than showing nothing).
+
+## 2026-11-13: issue #7, 4.19 eval (luk1337)
+- luk1337 (LineageOS) ported gts4lv to msm-4.19 (his `lineageos-rootdir` commit `916f4d5`): his forks of the three
+  device trees, kernel and gts4lv-common vendor (all `lineage-24.0`), TheMuppets `lineage-22.2` for the variant vendor
+  repos, Gerrit picks 513218 (sepolicy_vndr chain), 512934 (qcom-caf common), 512935 (sm8250 audio), 512964 (sm8250
+  display), all NEW. He asks for testing and fixes, no releases, patches per the LineageOS AI charter.
+- Charter check: our commits carry `Co-Authored-By: Claude`, the charter wants `Assisted-by: LLM` and short messages.
+  Rule added to CLAUDE.md for patches going to LineageOS or luk; our own forks unchanged.
+- Signing: luk signs with his own keys (private `luk1337/android_vendor_lineage-priv`); official LineageOS keys live only
+  on their infra. Our eval builds use test-keys, never our release keys.
+- `/mnt/build/lineage-24-419` `repo init`ed (`--reference=/mnt/build/lineage-24`) with
+  `local_manifests/eval-4.19/luk-gts4lv.xml` (his gts4lv projects only). Not synced: sizes 23.2 340 GB (out 155),
+  24 387 GB (out 176, .repo 108), so a third tree needs about 280 GB; 130 GB free.
+- Owner had `/mnt/build/lineage-23.2/out` deleted (155 GB; 285 GB free after), `repo sync` of the eval tree started
+  (log `~/work/sync-24-419-20261113.log`).
+- Patch candidates for luk (our device `lineage-24.0` vs his `lineage-24.0`), each to retest on the 4.19 build:
+  audio policy space-separated lists (`e3ccc92`; his file still has 79 comma lists), app bubbles with desktop
+  windowing (`75119ab` + `6138f6e`, issue #5), keyguard avatar size (`83ab401`), tablet defaults (`2aa2d28`,
+  `9ea5dd9`). He already has the AOD DOZE fix (his `3d9f676`), gatekeeper and thermistor/wakeup sepolicy, legacy libion,
+  FCM 7; his FP4 WFD blobs make our WFD shim/libheif/compat work unnecessary. He dropped
+  `bluetooth.hci.disabled_commands` with FP4 Bluetooth blobs (`2125420`): test LE pairing before pushing UPSTREAM #1.
+  Kernel fixes 4-4e are 4.9-backport specific (his 4.19.325 `drivers/base/cpu.c` has no KOBJ_ONLINE send): none apply.
+- Eval tree synced (138 GB: 34 GB new git objects despite `--reference`, the rest checkout). luk's picks applied
+  cleanly with `repopick` over https: 512931 512932 512933 513093 513096 513218 (sepolicy_vndr legacy-um chain), 512934,
+  512935, 512964. Not built yet: 147 GB free, one device's `out` on 24 is about 145 GB (soong 115 + product 25).
+- Owner had the 23.2 tree and the old local release folders deleted (all on GitHub Releases, sizes checked; kept
+  `releases/24.0-20261109`). Before deleting: `repo forall` over all 1172 projects showed no local changes, stashes or
+  unpushed commits; forks' HEADs are on `anton/lineage-23.2`; local manifests match `local_manifests/` (one differs only
+  in comments); its key copy is identical to `~/.android-certs`; nothing in the 24 trees uses its git objects.
+  343 GB free after. CLAUDE.md, HANDOVER, build-all.sh comment updated.
+- First eval build (`gts4lvwifi` userdebug, test-keys) stopped to re-pull luk's repos. He had force-pushed
+  device/gts4lv-common (`277e8ee` -> `e0426cc`: ANT+ moved to the FP4 `com.dsi.ant` blob, already in his vendor
+  `b3fef9f`) and the kernel (`1692cce6e18f` -> `9e85a15c46f9`: `CONFIG_VMAP_STACK` off, dts cleanup). gts4lv,
+  gts4lvwifi, vendor unchanged; all 9 Gerrit picks still on their current patchsets. Build restarted
+  (`~/work/build-24-419-20261113-gts4lvwifi.log`).
+- Two build starts failed in 2 s ("Cannot locate config makefile for product lineage_gts4lvwifi-cp2a-userdebug"):
+  the tool shell's `grep` is a ugrep wrapper function that breaks `envsetup.sh`. Run from `env -i bash --norc` it works.
+- **Eval build done** 2026-11-14 07:13 (13 h 55 min, clean `out/`): `lineage-24.0-20261113-UNOFFICIAL-gts4lvwifi.zip`,
+  userdebug, test-keys, kernel `4.19.325-cip136-st20-perf-g9e85a15c46f9`. Copied with recovery, vbmeta, boot and
+  `SHA256SUMS` to `/mnt/build/eval-4.19/20261113/` (outside `releases/`: never to be published). 208 GB free.
+
+## 2026-11-14: 4.19 eval, first flash on the SM-T720
+- ⚠️ Factory reset, sideload of the 20261113 eval build plus MindTheGapps: both installed fine.
+- **Boots into recovery instead of LineageOS** after *Reboot system now*: recovery sends `userrequested,recovery`,
+  which luk's `0179fef1fb97` ("Set normal boot PON reason on plain reboots") does not list (it matches exact `adb`,
+  `shell`, `from_fastboot`, `userrequested`), so the Samsung bootloader keeps the last PON reason (recovery).
+  Workaround: `adb reboot` from recovery. Patch candidate for luk: unknown or `userrequested,*` commands -> normal boot.
+- **PIN rejected after it is set** (fingerprint enrollment fails as a consequence): logcat (pmsg-ramoops) shows
+  `keymaster_swd tz_save ... open FAILED`, `GK_swd_verify ClearFailureRecord FAILED [-506]`,
+  `nwd_KM_OUTDATA_unpack err -506`: our 24 bug again. luk grants tee only `r_dir_perms`/`r_file_perms` on
+  `gatekeeper_vendor_data_file`; our `702e1fd` grants `rw_dir_perms`/`create_file_perms`. Local commit in the eval tree
+  (device `eval-419` branch `5cdb7a0`, `Assisted-by` + Change-Id per the charter); rebuild on hold (owner).
+- Locked out by the broken PIN; recovery adb was `unauthorized` while the PIN existed. ⚠️ Format data in recovery,
+  then pstore (console + pmsg) of the system boot pulled without rebooting.
+- L2 (recovery loop) written as kernel `cffd3dfa5188`, then dropped: luk pushed the identical change meanwhile (folded
+  into `3d579c5e45a7`). His new heads: device `3c1386d` (**userdata now f2fs**: ⚠️ format data again from the new
+  recovery; LMKD defaults), gts4lv `141cebab32f3` (haptics overlay), kernel `57c575a2a742` (Samsung vibrator driver).
+  L1 cherry-picked onto `3c1386d` as `4f90733` (`eval-419`). Picks unchanged. Incremental build started.
+- Incremental build done in 2 h 04 min. L1 rule confirmed in the built `vendor_sepolicy.cil`
+  (`tee` gets `write create add_name ...` on `gatekeeper_vendor_data_file`). Outputs in
+  `/mnt/build/eval-4.19/20261114/` (zip, `recovery-419.img`, `vbmeta-419.img`, `boot-419.img`, SHA256SUMS). 207 GB free.
+- Tablet on the 20261114 eval build: PIN unlocks after reboot and a fingerprint is enrolled (L1 verified).
+  device-checks 4 PASS / 1 FAIL (kver override 5.10.239, expected on his kernel) / 1 SKIP. L3 dropped (Android 17
+  parses comma lists), L4 and L5 reproduce, L6 stock defaults, L7 and L8 need hands-on tests.
+- L2 verified by the owner (Reboot system now from recovery starts LineageOS). Drafts for luk in charter format:
+  device `eval-419` `e3ab634` (L4 bubbles), `b685893` (L5 avatar), `327cbe2` (L6 defaults, new
+  `SettingsProviderResCommon` RRO), exported with L1 to `patches/luk-4.19/`. L8: his build has the taskbar on (buttons
+  at the taskbar end, stock); LineageOS `bea0383b597` already skips the translation in phone mode, so our Launcher3
+  patch is superseded. L7: file send fails per owner; no send attempt in the log yet.
+- L8 closed: with the taskbar off the 3 buttons are centred on his build (LineageOS `bea0383b597`). L7: the phone's
+  first incoming ACL fails instantly with `CONNECTION_ACCEPT_TIMEOUT` (0x10), sometimes `CONTROLLER_BUSY` (0x3a) on a
+  crossed connect; retries connect and a file was received. Observation for luk, no patch. Draft patches re-authored
+  as "Anton Scholten" (same noreply email): device `eval-419` `928302c` `8115270` `8863d0b` `4f4ce8a`.
+- Upstream check: luk force-pushed `gts4lv-common` (new head `8c8e163`, "Move configs to dedicated dir" from
+  LineageOS 22.2 `f2340a8`; also drops `ro.apk_verity.mode`); drafts rebased onto it as `c291073` `13ceb2f` `fa765de`
+  `555dd95` and re-exported. His other repos, hardware/samsung, TheMuppets and the 9 Gerrit picks (all NEW, same
+  patchsets) unchanged. L7 stays ours to debug (not reported). Fetch-only sync: eval tree behind in 7 projects
+  (frameworks/base, lineage sepolicy, vibrator aidl-legacy, Canvas, hudson/wiki); main 24 tree behind in 14
+  (incl. lineage-sdk "Restrict profile management to privileged callers", LineageOS gts4lv `ed5c7e2` haptics, and
+  official gts4lv-common 22.2 `f2340a8`, which is not merged into our fork). Owner's git name is now Anton Scholten.
+
+## 2026-11-14: sync of both trees, what upstream brings, are our fixes still needed
+- Draft build check (`m SettingsProviderResCommon SystemUIResCommon aconfig_value_set-...`) failed only on the last
+  name: an `aconfig_value_set` is not a ninja target. Both overlays and all Android.bp files parsed. Check the flag in
+  the full build instead.
+- `repo sync -c` of both trees (logs `~/work/sync-lineage-24{,-419}-20261114.log`), no build. 206 GB free.
+- **Eval tree:** all 9 of luk's Gerrit picks MERGED upstream; sync replaced the local picks with the merged commits
+  (sepolicy_vndr legacy-um 6, qcom-caf common 1, sm8250 audio 1, sm8250 display 1). No picks needed any more.
+  `eval-419` still = his `8c8e163` + our 4 drafts. His other repos unchanged.
+- **Main 24 tree**, new upstream: lineage-sdk `e188ba21` restrict profile management to privileged callers,
+  `33dae0ab` type-checked parcel reads, `bbe6e914` LiveDisplay permission for setPictureAdjustment (security);
+  frameworks/base `22de88b7b8eb9` profiles tile MODIFY_PROFILES, `4b252a1f5f128` auto-brightness button haptics,
+  `1b59f14f79535` external displays (only with `config_localDisplaysMirrorContent=false`, which we don't set);
+  gts4lv `ed5c7e2` longer haptic patterns + interfaces `4f6225d` aidl-legacy vibrator drops CAP_ON_CALLBACK (gts4lv
+  uses `android.hardware.vibrator-service.legacy`: LTE vibrations end on time); recovery `08054cf6` touch
+  calibration, `51d0ea68` menu fitting; Settings, LineageParts (atv), vendor/lineage, apn, sepolicy (minor).
+  qcom-caf common `4c13a7e` only acts on `UM_4_19_FAMILY`; our 4.9 build is not affected.
+- **Our forks vs upstream:**
+  - Bluetooth (`disabled_commands`): upstream unchanged, still needed.
+  - Launcher3: upstream `bea0383b597` adds `isPhoneMode()` to both `getNavBarTranslationX` and
+    `getImeSwitcherTranslationX`, same effect as our `793236d2701d`. **Superseded**; upstream also has 3 newer
+    Launcher3 fixes we lack (landscape hotseat padding, side margin without cutout, default workspace). Drop the fork.
+  - compat: upstream `libwfdservice_shim` still links only `libaudioclient`: still needed.
+  - system/core, vold keyring reverts: upstream unchanged, still needed for the 4.9 kernel.
+  - sepolicy_vndr legacy-um: upstream `f991fcf7` (luk) sends sdm710 to the non-legacy sdm845 policy, so `legacy/`
+    (where our icmp fix lives) is dead upstream. **Do not merge upstream into our fork**: it would switch our 4.9
+    build to the 4.19 policy. Fix #9 still needed for us, no longer sendable.
+  - caf-sdm845: still no `lineage-24.0-caf-sdm845` branch upstream; pin still needed.
+  - Official gts4lv-common 22.2 `f2340a8` (Bruno: configs to `configs/`): test merge onto our `lineage-24.0` is clean,
+    no stale path references. Not merged or pushed.
+- Eval cleanup: luk's `lineageos-rootdir` now drops all picks (`65638cd`, `b9d20b7`), same as our tree. His 5 repos
+  re-fetched: no new work beyond `8c8e163`. Deleted backup branch `eval-419-old` (range-diff identical to `eval-419`).
+  The 4 drafts are all still needed (L3/L8 already dropped, L2 fixed by him). Stopped a stale waiter task.
+- Official status: hudson still lists gts4lv/gts4lvwifi only on 22.2 Weekly; wiki maintainers LuK1337, bgcngm, kernel
+  4.9. luk is the official maintainer, so his 4.19 port is the path to an official 24.
+
+## 2026-11-14: L7 Bluetooth on the 4.19 eval build, cause found
+- Seen repeatedly on the SM-T720 (luk's 20261114 build, root via `adb root`): incoming classic connection from the
+  OnePlus 7 Pro fails at once with `CONNECTION_ACCEPT_TIMEOUT` (0x10); pairing waits 20 s in `WAIT_LOCAL_IOCAPS` or
+  times out in `WAIT_AUTH_COMPLETE` (35 s, `HCI_ERR_CONNECTION_TOUT`, bond dropped on the tablet while the phone shows
+  paired); OPP works only right after pairing or while the scan screen is open.
+- `/proc/interrupts`: `msmgpio 48 Edge hs_uart_wakeup` = 0 since boot; `898000.qcom,qup_uart` runtime-suspended most of
+  the time. In logcat every `SerialClockVote: vote for UART CLK OFF` period ends with a host `DeviceWakeUp`, never with
+  an SoC `IBS_WAKE_IND`; each failed Connection Request arrives 3-4 ms after a host-side CLK ON (17:33:37, 17:52:30,
+  17:53:15). So the controller cannot wake the host; held events arrive late and are rejected.
+- DT: `qupv3_se6_4uart` same pins as 4.9 (`tlmm 48`, wakeup byte 0xFD); luk uses `IRQ_TYPE_LEVEL_HIGH` (driver requests
+  FALLING anyway, shows Edge). tlmm has `wakeup-parent = <&pdc>` and `irqdomain-map` `<48 0 &pdc 52 0>` (4.9 pdc-sdm670
+  pin 52 = gpio 48 too), from his new `pinctrl-sdm670.c` (`f35ba4a0733d`). Exact fault not found yet.
+- `persist.vendor.service.bdroid.sibs=false` (HAL restart via `stop/start vendor.bluetooth-1-0-qti`) stops the UART
+  sleep but classic inquiry then returns 0 results: reverted (prop cleared, HAL restarted).
+- Next: find the kernel fault (wake IRQ routing) and test a fix kernel; then report to luk with this evidence.
+- L7 kernel tests (boot.img only, flashed by owner, no wipe; files in `/mnt/build/eval-4.19/20261114/`):
+  1. `boot-419-btfix.img`: qcom-pdc programs the GPIO-SPI type through `scm_io_*` at `0x179900f0` (as 4.9's TLMM did)
+     via a new `qcom,scm-spi-cfg` pdc property. Booted fine; `hs_uart_wakeup` still 0, pairing from the phone stuck.
+  2. `boot-419-btfix2.img`: gpio 48 dropped from the tlmm `irqdomain-map`, so TLMM detects the edge itself (as 4.9 did,
+     4.19 masks TLMM detection for PDC-mapped gpios). Still 0. Diff kept in `~/work/bt-test2-pdc-map.diff`.
+  So no falling edge reaches gpio 48 at all while the UART sleeps: the SoC does not send the 0xFD wake byte, or cannot
+  (flow control). DT pins identical to 4.9 (se6: 45 cts, 46 rts, 47 tx, 48 rx); 4.19 `msm_geni_serial` runtime suspend
+  does `allow_rx` before resources off. Remaining suspects: luk's FP4 Bluetooth HAL (strings: `SocRxDWakeup`,
+  `RXD Wakeup config enabled in always on mode`, `CheckForWakeupMechanism`) not matching the WCN3990, or RFR state with
+  the SE off. Kernel tree back on luk's `57c575a2a742` (test branch deleted).
+
+## 2026-11-14: eval tree resync, drafts rebased, full build with drafts
+
+- luk force-pushed `lineage-24.0` of gts4lv-common: same commits reordered, new tip `78c3440` (tree differs from
+  `8c8e163` only by a proprietary-files comment). New on his side since our first eval build: audio.primary wrapper
+  instead of the forked HIDL impl, 4.19 power tunables and perf HAL memlat nodes, stock SF phase offsets, doze-suspend
+  overlay dropped. Other gts4lv repos (gts4lv, gts4lvwifi, kernel `57c575a2a742`, vendor, hardware/samsung) unchanged.
+- `eval-419` rebuilt on `78c3440` with the 4 drafts (`af6d666` L1, `15660dc` L4, `70113fe` L5, `d8cdcce` L6), all clean
+  picks; old branch kept as `eval-419-old`. `patches/luk-4.19/` re-exported (only base hashes changed).
+- Full `repo sync -c` of the eval tree OK (log `~/work/sync-lineage-24-419-20261114b.log`); notable upstream:
+  hardware/qcom-caf/common "Treat SDM710 4.19 same as SDM845 4.19", sm8250 audio "Add support for sdm710",
+  legacy-um "Label SDM710 devfreq nodes".
+- `m bacon` for gts4lvwifi started (log `~/work/build-24-419-20261114b-gts4lvwifi.log`). No BT (L7) fix in it.
+- Build done 2026-11-15 01:32, 2 h 47 m, no `FAILED:`. Files in `/mnt/build/eval-4.19/20261115/` (zip, boot, recovery,
+  vbmeta, dtbo, `SHA256SUMS`; zip sha `0cd93224…`). Checked in out/: `SettingsProviderResCommon.apk` RRO present (L6),
+  `tee` → `gatekeeper_vendor_data_file` dir/file rules in `vendor_sepolicy.cil` (L1). Boot image = luk's kernel, no L7 fix.
+- Next: sideload on the SM-T720 (same test-keys, no wipe) and test L4/L5; L6 defaults only apply to a fresh data partition.
+- 2026-11-15: 20261115 sideloaded (dirty, test-keys) on the SM-T720. Owner tested: L1 (PIN after reboot,
+  fingerprint), L4 (bubbles with desktop windowing), L5 (keyguard avatar) work. L6 RRO
+  `com.android.providers.settings.common` active; its defaults need a wiped data to show. Boot: no crashes, 15 denials,
+  none from tee/gatekeeper. L1/L4/L5 drafts ready for owner review and sending.
+- 2026-11-15 check of luk's repos: all gts4lv repos unchanged (device-common `78c3440`, kernel `57c575a2a742`, ...).
+  His rootdir `e2f2256` only adds pick 513555 (Launcher3 gamepad L1/R1 page scroll, NEW) and drops merged picks;
+  nothing for gts4lv, eval build 20261115 stays current.
+- 2026-11-15 diff of luk's 20261115 build against our 24 build (out/ of both trees), to guess what else may break:
+  - Userspace: his FP4 blobs replace ours for Bluetooth (no `vendor.samsung.hardware.bluetooth`, adds
+    `bluetooth_sar`), display (AIDL composer/allocator/mapper, postproc, color), Adreno/Vulkan, media (Codec2
+    `media.c2` instead of OMX), ANT+, QSPM, Wi-Fi Display (FP4 vendor + marvel_g system); new USB gadget AIDL HAL.
+  - Kernel (.config): missing vs ours `SENSORS_SX9330_WIFI` (grip sensor for Wi-Fi SAR), `HID_SAMSUNG` /
+    `HID_SYNAPTICS_BT` (Samsung BT keyboards; generic HID stays), `HICCUP_CHARGER` (wet-port protection),
+    `SND_SOC_SAMSUNG_MBHC_SUPPORT` (headset detect; 4.19 audio is in techpack, not visible here). Hall sensor moved to
+    gpio-keys `SW_LID` (tlmm 124), camera/audio/video to techpack, so their configs are not comparable this way.
+  - Test list from this: camera (photo, video record, both cameras), video playback/recording codecs (Codec2), headset
+    plug/mic, Book Cover close/open (SW_LID), POGO keyboard, USB MTP/tethering/OTG, screen casting, sensors, deep sleep.
+- 2026-11-15 log sweep on 20261115 (48 min up, wireless adb): no crashes, no tombstones. Working by state: 2 cameras
+  listed, all sensors (lsm6dsm, ak0991x, veml3328, Samsung virtuals), Codec2 lists, Wi-Fi, battery/fuel gauge, audio
+  threads. Suspend 92 ok / 12 failed (aborts: icnss -11 x3, alarmtimer -16 x3: normal wake races). Kernel error noise,
+  not yet tied to a symptom: `afe_set_lpass_clock_v2 ... -22` (146x) and `send_afe_cal_type` no cal for AFE ports
+  0x9010/0x9011 (audio, watch speaker/mic), `lpi_pinctrl ... core clk handle -2`, `sec_bat_cisd_check` fuel gauge
+  prop 46 -61, `ss_is_sot_hs_from_drm_mode` name len 0 (display). Hands-on tests still needed (risk list above).
+
+## 2026-11-15: L9 sound recording silent on the 4.19 eval build
+
+- Owner: recording "does not work correctly". Recorder WAV (44.1 kHz stereo) is -76 dBFS, peak 31: no mic signal.
+  HAL path is fine (stock Samsung HAL: `rec-main-mic` = `DEC1 MUX ADC1`, `ADC1_INP1 Switch`, INT3_MI2S_TX port
+  0x1035 starts). DAPM during a capture (`/sys/devices/platform/soc/soc:sound/INT3_MI2S_TX/dapm_widget`, no debugfs):
+  `ADC1`, `Handset Mic`, `TX_I2S_CLK`, `INT_MCLK0` On, **every MIC BIAS widget Off**.
+- Cause: Samsung's 4.9 `msm-analog-cdc.c` has an `Enable Micbias` enum control (put = standalone `MIC BIAS External
+  Standalone` + gts4lv MICB_1_EN/INT_RBIAS tweaks), and `mixer_paths.xml` sets it ENABLE once at HAL start, so MICB1
+  stays on and the DT routes give AMIC1/AMIC3 no bias. luk's 4.19 `techpack/audio` is plain CAF audio-kernel (no
+  Samsung additions): the control is missing, audio_route skips it, nothing ever powers the bias. `SLIM_0_TX Format`
+  and `afe_set_source_clk fail -22` are side noise (internal-codec card; source-clock select only).
+- Test 1 (kernel branch `eval-419-mic` on `57c575a2a742`, diff `~/work/mic-test1-dt-route.diff`): DT routes
+  `AMIC1`/`AMIC3` <- `MIC BIAS External` <- `Handset Mic`/`Secondary Mic`, so DAPM powers MICB1 (external cap) with the
+  mic. No C change; Samsung's RBIAS tweak not applied. Building `boot-419-mic1.img`.
+
+## 2026-11-15: luk's repos updated again, drafts trimmed, build 20261115b
+
+- luk force-pushed device-common (tip `8f83e07`) and kernel (tip `aae6ed1bc8e3`); hardware/samsung `5a5a5d9`
+  (translations). Other gts4lv repos unchanged.
+- He fixed three of ours himself, all 2026-11-15:
+  - L1: `b485746` "sepolicy: Address new and old denials" makes the same tee gatekeeper rw change; our draft dropped.
+  - L7 Bluetooth: kernel `18d0213d2eee` "msm_geni_serial: Treat SDM670 as a legacy SoC": on runtime suspend the
+    driver handed RFR back to the hardware, which held it NOT_READY with the SE off, so the WCN3990 never sent its
+    wake byte. (Our second suspect; the gpio48/PDC tests were the wrong end.)
+  - L9 mic: kernel `e7a7633fb7b0` ports Samsung's `Enable Micbias` control; our DT-route test (`boot-419-mic1.img`,
+    never flashed) dropped, branch `eval-419-mic` deleted.
+- Other new: sec_log_buf, Samsung debug-level/force-upload reboot reasons, `usb_audio_qmi_dev` iommu-dma off,
+  legacy camera driver tree, vidc changes; device: `/metadata` moved from `hidden` (p54, 10 MB) to `omr` (p55,
+  20 MB), as our own fstab already has; crypto props reshuffled, `ro.fastbootd.available` dropped.
+- ⚠️ Tablet runs his old layout: `/metadata` = p54. p55 holds a stale ext4 from our earlier install. A dirty update
+  would mount p55 and lose the key for /data. No-wipe path: in recovery, copy p54 onto p55 before sideloading.
+- `eval-419` = `8f83e07` + `aef5dfb` L4, `9a04c09` L5, `0aa6d8c` L6; `patches/luk-4.19/` re-exported (3 patches).
+- `m bacon` started (log `~/work/build-24-419-20261115b-gts4lvwifi.log`).
+
+## 2026-11-15: 1 TB exFAT microSD on 24, root cause found (LineageOS #458)
+
+- Follow-up to the 2026-11-13 report: almost certainly LineageOS
+  [#458](https://github.com/LineageOS/issues/issues/458), vold's hardcoded 45 s `fsck.exfat` timeout, not the card or
+  kernel. vold runs `fsck.exfat -y` on every SD mount; on timeout it kills the check, logs `Process exited with code: 110`
+  / `Check failed (code 110)` / `failed filesystem check`, marks the volume unmountable and offers to format.
+- Confirmed in the 24 tree: `system/vold/Utils.h` `kUntrustedFsckSleepTime(45)`, used in `fs/Exfat.cpp` (the AOSP 90 s
+  relaxation for >512 GB, `efca726`, was merged 2026-02 and reverted 2026-03, `794911d`, "Samsung watchdog"). The fix
+  luk shipped for #458 is exfatprogs 1.4.3 "`fsck: scan unused dentries in larger reads`" (`ac8a948`/`ef090d4`); our
+  builds already have it (`out/.../system/bin/fsck.exfat` → `exfatprogs version : 1.4.3`), so only the 45 s limit is
+  left. Owner's 256 GB/225 GB card needs 9.1 s, so a full 1 TB card is borderline; a Nov 7 comment on #458 reports the
+  same on 24 with a 1 TB card (fails on later boots, mounts after eject/reinsert).
+- Queued as item 6 in HANDOVER "Next steps": get the reporter's log (`Process exited with code: 110`, ~45 s), `sm
+  list-disks`, `dmesg` for mmc/sdfat, and a PC `time fsck.exfat -n`; if confirmed, patch our vold fork (carry `efca726`
+  or lengthen/retry only the exfat check). Kernel/sdfat ruled out first: 22.2 uses the same 4.9 sdfat.
+- Build 20261115b was killed at 16:21 (session end, "Got signal: terminated"), no zip.
+- Re-pull 16:3x: device-common still `8f83e07`, other gts4lv repos unchanged; kernel rewritten to `0db013b6a31f`,
+  tree diff vs `aae6ed1bc8e3` only: `ion: cma: Invalidate zeroed lines of uncached buffers` (Widevine/hdcpsrm TA
+  loads failed with -2, so Widevine fell back to L3) and `gfx3d_secure` `qcom,iommu-dma = "disabled"`.
+- `m bacon` restarted detached (`setsid nohup`, survives session end), log
+  `~/work/build-24-419-20261115c-gts4lvwifi.log`, pid in `~/work/build-24-419.pid`.
+- Owner decision 2026-11-15: builds are debug builds by default (`m` / `m bootimage` / `m <module>`, flashed through
+  fastbootd `fastboot flashall` or `adb sync`, no zip); releases keep `mka bacon` / `build-all.sh`. Documented in
+  README "Debug builds" and CLAUDE.md. Both trees have fastbootd and `fastboot-info.txt` (boot, dtbo, recovery,
+  system, vendor); not yet tried on the tablet.
+- Debug flash ends in recovery, not Android: `fastboot flashall --skip-reboot && fastboot reboot recovery`, so
+  MindTheGapps can be sideloaded before first boot (flashall replaces `system`). README and CLAUDE.md updated.
+- Build 20261115c done 19:55 (1 h 57 m, BUILD_EXIT 0). Files in `/mnt/build/eval-4.19/20261115c/` (zip, boot,
+  recovery, dtbo, vbmeta, system, vendor images, `SHA256SUMS`). To test: L7 Bluetooth, L9 recording, Netflix L1;
+  install needs the p54 -> p55 `/metadata` copy first.
+- 2026-11-15 20261115c on the SM-T720 (installed after the p54 -> p55 `/metadata` copy; data kept, `/metadata` =
+  p55). Owner: L7 Bluetooth (pair + send) and L9 recording work. Checks over USB adb against our own fixes:
+  - Widevine: `widevine` TA loaded by qseecom with no error (it failed with -2 before luk's ion fix) -> L1 path OK.
+  - #1 `bluetooth.hci.disabled_commands`: not set on his build, no BT crash, pairing works with his FP4 BT HAL; not
+    needed there. #2 AOD: `config_dozeSupportsDisplayStateSuspend` false (his overlay drop), OK. #4b: `erofs` in
+    /proc/filesystems, `com.google.android.gmssystem` APEX active, GMS 26.44.32 installed, OK. #4c: app folders under
+    `Android/data` are 2770, OK. #5 thermal: 0 denials. #8 WFD: `wfdvndservice` running, no link errors.
+  - #4d MADV_PAGEOUT: cannot occur, but for a new reason: his 4.19 has no `process_madvise` syscall (only the old
+    `/proc/<pid>/reclaim`, `CONFIG_PROCESS_RECLAIM`), so ActivityManager's cached-app compaction is a silent no-op
+    (`am compact full` "finished", RSS unchanged, 3 rounds, no crash). Observation for luk: more memory pressure /
+    LMKD kills than with a working compaction; ACK 4.19 has a process_madvise backport.
+  - Not testable by adb here: #4 charging icon delay (needs a plug event), #4e resume uevents (long sleep), L8 nav
+    centring (visual), L6 defaults (wipe).
+- Owner on 20261115c: charging icon/sound immediate (#4 OK), 3-button nav centred (L8 OK), cover not testable.
+  luk declined L6 (tablet defaults): draft removed from `patches/luk-4.19/`, which now holds L4 and L5 only.
+- L10 (new, observation): his 4.19 lacks `MADV_COLD`/`MADV_PAGEOUT` and `process_madvise` entirely (none in
+  `mm/madvise.c` or the uapi headers). Our 4.9 fork carries the backport series `d1d5d61334d8`..`d76c88f3be02`
+  (upstream `9c276cc65a58` MADV_COLD, `1a4e58cce84e` MADV_PAGEOUT, `0726b01e7045`, `ecb8ac8b1f14` process_madvise,
+  `450677dcb0cc`, `a68a0262abda`, `96cfe2c0fd23`, `5bd009c7c9a9`). Earlier note that ACK 4.19 has it was not
+  verified; dropped.

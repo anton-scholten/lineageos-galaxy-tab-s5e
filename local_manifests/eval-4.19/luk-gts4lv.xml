@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  4.19 eval tree (issue #7): luk1337's msm-4.19 port of gts4lv, as in his lineageos-rootdir
+  commit 916f4d5 ("Reenable gts4lv"), gts4lv parts only (his gapps/ih8sn/vendor/extra/lineage-priv left out).
+  Tree: /mnt/build/lineage-24-419. Test only: never released, built with test-keys.
+  After sync, apply the Gerrit picks: 513218 (chain), 512934, 512935, 512964.
+-->
+<manifest>
+  <project path="device/samsung/gts4lv-common" name="luk1337/android_device_samsung_gts4lv-common" remote="github" revision="lineage-24.0" />
+  <project path="device/samsung/gts4lv" name="luk1337/android_device_samsung_gts4lv" remote="github" revision="lineage-24.0" />
+  <project path="device/samsung/gts4lvwifi" name="luk1337/android_device_samsung_gts4lvwifi" remote="github" revision="lineage-24.0" />
+  <project path="kernel/samsung/sdm670" name="luk1337/android_kernel_samsung_sdm670" remote="github" revision="lineage-24.0" />
+  <project path="hardware/samsung" name="LineageOS/android_hardware_samsung" remote="github" revision="lineage-24.0" />
+  <project path="vendor/samsung/gts4lv-common" name="luk1337/proprietary_vendor_samsung_gts4lv-common" remote="github" revision="lineage-24.0" />
+  <project path="vendor/samsung/gts4lv" name="TheMuppets/proprietary_vendor_samsung_gts4lv" remote="github" revision="lineage-22.2" />
+  <project path="vendor/samsung/gts4lvwifi" name="TheMuppets/proprietary_vendor_samsung_gts4lvwifi" remote="github" revision="lineage-22.2" />
+</manifest>

@@ -1,0 +1,99 @@
+From aef5dfb50fd8ac96c6794a0af6c0380c139bfcab Mon Sep 17 00:00:00 2001
+From: Anton Scholten <124476596+anton-scholten@users.noreply.github.com>
+Date: Sat, 14 Nov 2026 11:44:57 -0500
+Subject: [PATCH 1/3] gts4lv-common: Allow app bubbles alongside desktop
+ windowing
+
+The cp2a flag hides "Bubble Anything" on displays that support desktop
+windowing, so the bubble option never shows on this tablet.
+
+Assisted-by: LLM - Claude Opus 5.5
+Change-Id: I3fa3ff483ebba0d0763252d956ec09ff94d8cf72
+---
+ release/aconfig/cp2a/Android.bp                      | 11 +++++++++++
+ release/aconfig/cp2a/com.android.wm.shell/Android.bp | 12 ++++++++++++
+ ..._anything_desktop_windowing_flag_values.textproto |  6 ++++++
+ release/release_config_map.textproto                 |  9 +++++++++
+ release/release_configs/cp2a.textproto               |  4 ++++
+ 5 files changed, 42 insertions(+)
+ create mode 100644 release/aconfig/cp2a/Android.bp
+ create mode 100644 release/aconfig/cp2a/com.android.wm.shell/Android.bp
+ create mode 100644 release/aconfig/cp2a/com.android.wm.shell/disable_bubble_anything_desktop_windowing_flag_values.textproto
+ create mode 100644 release/release_config_map.textproto
+ create mode 100644 release/release_configs/cp2a.textproto
+
+diff --git a/release/aconfig/cp2a/Android.bp b/release/aconfig/cp2a/Android.bp
+new file mode 100644
+index 0000000..4e3f181
+--- /dev/null
++++ b/release/aconfig/cp2a/Android.bp
+@@ -0,0 +1,11 @@
++//
++// SPDX-FileCopyrightText: The LineageOS Project
++// SPDX-License-Identifier: Apache-2.0
++//
++
++aconfig_value_set {
++    name: "aconfig_value_set-gts4lv-common-cp2a",
++    srcs: [
++        "*/Android.bp",
++    ],
++}
+diff --git a/release/aconfig/cp2a/com.android.wm.shell/Android.bp b/release/aconfig/cp2a/com.android.wm.shell/Android.bp
+new file mode 100644
+index 0000000..bb375b2
+--- /dev/null
++++ b/release/aconfig/cp2a/com.android.wm.shell/Android.bp
+@@ -0,0 +1,12 @@
++//
++// SPDX-FileCopyrightText: The LineageOS Project
++// SPDX-License-Identifier: Apache-2.0
++//
++
++aconfig_values {
++    name: "aconfig-values-gts4lv-common-cp2a-com.android.wm.shell-all",
++    package: "com.android.wm.shell",
++    srcs: [
++        "*_flag_values.textproto",
++    ],
++}
+diff --git a/release/aconfig/cp2a/com.android.wm.shell/disable_bubble_anything_desktop_windowing_flag_values.textproto b/release/aconfig/cp2a/com.android.wm.shell/disable_bubble_anything_desktop_windowing_flag_values.textproto
+new file mode 100644
+index 0000000..98fecbd
+--- /dev/null
++++ b/release/aconfig/cp2a/com.android.wm.shell/disable_bubble_anything_desktop_windowing_flag_values.textproto
+@@ -0,0 +1,6 @@
++flag_value {
++  package: "com.android.wm.shell"
++  name: "disable_bubble_anything_desktop_windowing"
++  state: DISABLED
++  permission: READ_ONLY
++}
+diff --git a/release/release_config_map.textproto b/release/release_config_map.textproto
+new file mode 100644
+index 0000000..a805b50
+--- /dev/null
++++ b/release/release_config_map.textproto
+@@ -0,0 +1,9 @@
++default_containers: "product"
++default_containers: "system"
++default_containers: "system_ext"
++default_containers: "vendor"
++
++release_config {
++    name: "cp2a"
++    flag_value_files: "release_configs/cp2a.textproto"
++}
+diff --git a/release/release_configs/cp2a.textproto b/release/release_configs/cp2a.textproto
+new file mode 100644
+index 0000000..010ac9e
+--- /dev/null
++++ b/release/release_configs/cp2a.textproto
+@@ -0,0 +1,4 @@
++name: "cp2a"
++inherits: "mainline_2026_04"
++inherits: "cp1a"
++aconfig_value_sets: "//device/samsung/gts4lv-common:aconfig_value_set-gts4lv-common-cp2a"
+-- 
+2.47.3
+

@@ -26,9 +26,9 @@ Both trees are used at their real paths, **no bind mount, no symlink**:
 
 | Path | What |
 |---|---|
-| `/mnt/build/lineage-23.2` | 23.2 tree |
 | `/mnt/build/lineage-24` | 24.0 tree (needs ≥55 GB RAM + swap; the machine has a 32 GiB `/swapfile`) |
-| `/mnt/build/releases/<version>-<date>/` | release zips, recoveries, vbmetas, `SHA256SUMS` |
+| `/mnt/build/lineage-24-419` | 4.19 eval tree (issue #7, luk1337's port): test only, never released; git objects shared with `lineage-24` via `--reference` (never `repo gc`/prune 24 while it exists) |
+| `/mnt/build/releases/<version>-<date>/` | release zips, recoveries, vbmetas, `SHA256SUMS`; only the latest release is kept locally (all are on GitHub Releases) |
 
 Build everything with `scripts/build-all.sh` (checks forks, keys and settings first; `--check` = checks only;
 `ONLY="24.0:gts4lvwifi"` for one build). The private signing keys live in `~/.android-certs` and
@@ -39,12 +39,24 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 `unpack_bootimg.py`/`mkbootimg.py` (keep header and ramdisk), owner flashes with
 `heimdall flash --BOOT <img>` from Download mode. Keep the original image to go back.
 
-**From 2026-11-04 only LineageOS 24 is built and released.** 23.2 is frozen at `v23.2-20261026` (tree, forks and
-`ota/23.2/` feed kept as they are; `build-all.sh` has the 23.2 rows commented out).
+**From 2026-11-04 only LineageOS 24 is built and released.** 23.2 is frozen at `v23.2-20261026` (forks and
+`ota/23.2/` feed kept as they are, build tree deleted 2026-11-13; `build-all.sh` has the 23.2 rows commented out).
 
 ## Next steps
 
-- **Next 24 build:** includes the Quick Settings volume tile (device `aa15a5c`, `VolumeTile/`; README "Changes from
+- **4.19 eval (issue #7):** luk1337 (LineageOS) ported gts4lv to msm-4.19 and asks us to test and send fixes; no
+  releases with it. Tree `/mnt/build/lineage-24-419` (`local_manifests/eval-4.19/luk-gts4lv.xml`), synced 2026-11-14:
+  all 9 of his Gerrit picks are merged upstream, so the tree needs **no picks** any more. Device tree branch `eval-419`
+  = his `8f83e07` + our drafts L4/L5 (`patches/luk-4.19/`, verified; L6 declined by luk). luk fixed L1, L7
+  (Bluetooth) and L9 (silent mic) himself on 2026-11-15; build 20261115c (kernel `0db013b6a31f`) started to verify
+  them. ⚠️ His tree now mounts `/metadata` from `omr` (p55) instead of `hidden` (p54): a dirty update of the tablet
+  loses the metadata encryption key unless p54 is first copied to p55 from recovery, otherwise data must be wiped.
+  Next: owner reviews and sends L4/L5, plus the L10 process_madvise note (UPSTREAM.md).
+- **Next 24 build (tree synced 2026-11-14, not built):** brings the lineage-sdk profiles security fix, LTE haptics
+  (gts4lv `ed5c7e2` + vibrator `4f6225d`), recovery touch/menu fixes. Before building: drop the Launcher3 fork
+  (upstream `bea0383b597` supersedes `793236d2701d`) and merge official gts4lv-common 22.2 `f2340a8` (config dir
+  move, test-merges cleanly) into the device fork; both owner's call. Do **not** merge upstream sepolicy_vndr
+  legacy-um: it now sends sdm710 to the 4.19 sdm845 policy (WORKLOG 2026-11-14). Also includes the Quick Settings volume tile (device `aa15a5c`, `VolumeTile/`; README "Changes from
   stock LineageOS"). Tested on the SM-T720 as a sideloaded APK; after the build check it is in `/product/app`, listed
   under Utilities, and mention it in the release notes. Forks checked 2026-11-11: LineageOS merged into Launcher3,
   compat and sepolicy_vndr; ExyHyperBrick 24 has only Exynos work (WORKLOG).
@@ -64,6 +76,21 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
    tablet resumes about once a second when the Wi-Fi peer keeps a TCP keepalive (wireless adb); check normal idle wakeups.
 5. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
    hardware-dirty pattern as the MADV_PAGEOUT bug (not seen in practice).
+6. **1 TB exFAT microSD not recognized (to fix):** user report (2026-11-13) of a 1 TB exFAT card not recognized on 24,
+   fine on luk's 22 (Android 15). Root cause is almost certainly LineageOS issue #458, not the card or kernel: vold runs
+   `fsck.exfat -y` on every SD mount with a hardcoded 45 s watchdog (`system/vold/Utils.h` `kUntrustedFsckSleepTime(45)`,
+   used by `fs/Exfat.cpp`); on timeout it kills fsck, logs `Process exited with code: 110` / `Check failed (code 110)` /
+   `failed filesystem check`, then marks the card unmountable and offers to format. exfatprogs 1.4.3 (already in our
+   builds, `fsck: scan unused dentries in larger reads`, luk's fix for #458) helps, but a full 1 TB card is borderline:
+   owner's 256 GB/225 GB card takes 9.1 s, and boot-time I/O contention can push a 1 TB card over 45 s (a Nov 7 comment
+   on #458 reports exactly this on 24 with a 1 TB card; eject/reinsert then mounts). Kernel/sdfat is not the first
+   suspect: 22.2 uses the same 4.9 sdfat and a 256 GB card mounts. First get the reporter's build date, `uname -r`,
+   `adb logcat -b all -d | grep -iE 'vold|fsck|exfat'`, `sm list-disks`, `dmesg | grep -iE 'mmc|sdfat'`, and a read-only
+   `time fsck.exfat -n` on a Linux PC with exfatprogs 1.4.3 (over 45 s confirms it). If confirmed, patch our vold fork:
+   carry AOSP `efca726` (90 s fsck/mount for >512 GB; AOSP reverted it for a Samsung watchdog, so test on the SM-T720)
+   or lengthen only the exfat check / retry once with a distinct timeout log; consider an async check longer term.
+   LineageOS will not change the 45 s. ⚠️ Tell users not to accept the format prompt; the card is likely intact —
+   eject/reinsert after boot or `sm mount public:<major>,<minor>` as a workaround.
 
 ## Rules
 - Push to `main` here and to the forks' `lineage-23.2` / `lineage-24.0`; no PRs unless asked.
