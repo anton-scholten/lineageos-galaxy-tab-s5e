@@ -1933,3 +1933,25 @@ themselves, not for a plain sideload.
 - Owner question 2026-11-15: an OTA entry that is listed but not installable and points to luk's release. Not
   possible with the stock Updater feed (no message/info-only field; a foreign zip fails signature verification;
   the switch needs a wipe). Plan for a final hand-over release added to HANDOVER as future work (item 7).
+
+## 2026-11-15: 1 TB exFAT fix (vold), release prep
+
+- Design: AOSP `efca726` (90 s for >512 GB) was reverted for a Samsung watchdog. That fits the code:
+  StorageManagerService mounts synchronously and pauses its watchdog for only 30 s (+60 s default), and today's worst
+  case is 45 s fsck + 20 s mount. So no longer timeout and no retry. Instead skip fsck when the exFAT boot sector says
+  the volume is clean (VolumeFlags at offset 106: bit 1 VolumeDirty, bit 2 MediaFailure), as other exFAT
+  implementations do. Our 4.9 sdfat writes DIRTY to disk at once before each write op and CLEAN lazily, so a card
+  pulled mid-write or before the lazy write stays dirty and still gets the full check.
+- Vold fork `b70cf8f` "vold: Skip fsck for cleanly unmounted exFAT volumes", pushed to `lineage-24.0`.
+- Tests on the SM-T720 (24.0-20261109 + the new `/system/bin/vold` pushed by adb, 256 GB exFAT card, script in the
+  session scratchpad), all 9 pass: clean unmount/mount skips fsck (mount 10.3 s -> 1.3 s), dirty flag (02) and
+  media-failure flag (04) set by hand get the full fsck ("Check OK", flag cleared), 64 MB test file md5 unchanged,
+  reboot mounts with "Volume is clean, skipping check", no watchdog, no vold crash. A real 400 MB write shows the flag
+  02 during the write and 00 after. Same script on the old vold: clean card still fscked (10.3 s), as expected.
+- Release prep (owner OK): device fork merges LineageOS gts4lv-common 22.2 `f2340a8` (configs to dedicated dir),
+  `adcd7eb`, pushed; all PRODUCT_COPY_FILES sources present. Launcher3 24 fork dropped (LineageOS `bea0383b597`;
+  manifest removed here and in the tree; 23.2 keeps it). `repo sync` of the 24 tree running
+  (`~/work/sync-lineage-24-20261115.log`), then `scripts/build-all.sh` for gts4lvwifi and gts4lv.
+- luk's merged 4.19 work in official LineageOS does not reach our 4.9 build: qcom-caf `4c13a7e` is gated on
+  `UM_4_19_FAMILY`, which only includes sdm710 when `TARGET_KERNEL_VERSION` is 4.19 (`qcom_defs.mk`); legacy-um is our
+  own fork.

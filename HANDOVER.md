@@ -76,22 +76,10 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
    tablet resumes about once a second when the Wi-Fi peer keeps a TCP keepalive (wireless adb); check normal idle wakeups.
 5. Open, low priority: cast test on a Miracast receiver; iPhone/CarPlay pairing; stock 4.9 `move_ptes()` has the same
    hardware-dirty pattern as the MADV_PAGEOUT bug (not seen in practice).
-6. **1 TB exFAT microSD not recognized (to fix):** user report (2026-11-13) of a 1 TB exFAT card not recognized on 24,
-   fine on luk's 22 (Android 15). Root cause is almost certainly LineageOS issue #458, not the card or kernel: vold runs
-   `fsck.exfat -y` on every SD mount with a hardcoded 45 s watchdog (`system/vold/Utils.h` `kUntrustedFsckSleepTime(45)`,
-   used by `fs/Exfat.cpp`); on timeout it kills fsck, logs `Process exited with code: 110` / `Check failed (code 110)` /
-   `failed filesystem check`, then marks the card unmountable and offers to format. exfatprogs 1.4.3 (already in our
-   builds, `fsck: scan unused dentries in larger reads`, luk's fix for #458) helps, but a full 1 TB card is borderline:
-   owner's 256 GB/225 GB card takes 9.1 s, and boot-time I/O contention can push a 1 TB card over 45 s (a Nov 7 comment
-   on #458 reports exactly this on 24 with a 1 TB card; eject/reinsert then mounts). Kernel/sdfat is not the first
-   suspect: 22.2 uses the same 4.9 sdfat and a 256 GB card mounts. First get the reporter's build date, `uname -r`,
-   `adb logcat -b all -d | grep -iE 'vold|fsck|exfat'`, `sm list-disks`, `dmesg | grep -iE 'mmc|sdfat'`, and a read-only
-   `time fsck.exfat -n` on a Linux PC with exfatprogs 1.4.3 (over 45 s confirms it). If confirmed, patch our vold fork:
-   carry AOSP `efca726` (90 s fsck/mount for >512 GB; AOSP reverted it for a Samsung watchdog, so test on the SM-T720)
-   or lengthen only the exfat check / retry once with a distinct timeout log; consider an async check longer term.
-   LineageOS will not change the 45 s. ⚠️ Tell users not to accept the format prompt; the card is likely intact —
-   eject/reinsert after boot or `sm mount public:<major>,<minor>` as a workaround.
-
+6. **1 TB exFAT microSD not recognized: fixed in vold fork `b70cf8f`** (2026-11-15): skips fsck for cleanly unmounted
+   exFAT volumes (LineageOS #458; a longer timeout would trip the StorageManager watchdog). Tested with a 256 GB card
+   (WORKLOG); ships in the next 24 release; ask the reporter to confirm with the 1 TB card. ⚠️ Until then: don't
+   accept the format prompt, eject/reinsert or `sm mount public:<major>,<minor>`.
 7. **Future: hand-over release when luk's (or official) 24 ships.** The Updater feed cannot list an info-only entry:
    `NetworkUpdate.kt` reads only datetime, filename, size, url, version, type, os_patch_level, os_sdk_level,
    ota_property_files, with no message or "not installable" flag, and an entry pointing at his zip downloads and then
