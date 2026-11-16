@@ -117,6 +117,36 @@ Outputs `lineage-*-UNOFFICIAL-<codename>.zip`, `recovery.img` and `vbmeta.img` i
 manifests point at all forks above, so no extra patches are needed. Release builds of both versions and models:
 [`scripts/build-all.sh`](scripts/build-all.sh) (checks every fork and the release settings).
 
+### Debug builds (default for testing)
+
+For anything that is not a release, build only the images (`m`, no `bacon`: skips the target-files and OTA zip) and
+flash them through fastbootd in recovery. The tablet has no bootloader fastboot, but `adb reboot fastboot` starts
+fastbootd, and `fastboot flashall` writes what `fastboot-info.txt` lists (`boot`, `dtbo`, `recovery`, `system`,
+`vendor`). Without `-w` it keeps the data. Needs a USB cable (fastboot does not run over wireless adb).
+
+```bash
+source build/envsetup.sh && breakfast gts4lvwifi userdebug && m && adb reboot fastboot && fastboot flashall --skip-reboot && fastboot reboot recovery
+```
+
+`--skip-reboot` keeps it from booting Android, and `fastboot reboot recovery` leaves the tablet in the (new) recovery.
+`flashall` replaces `system`, which removes GApps, so sideload them there before the first boot (*Apply update* →
+*Apply from ADB*), then *Reboot system now*:
+
+```bash
+adb sideload MindTheGapps-<version>-arm64.zip
+```
+
+Smaller loops:
+
+```bash
+m bootimage && adb reboot fastboot && fastboot flash boot && fastboot reboot     # kernel or DT only (~30 min), GApps stay
+m <module> && adb root && adb remount && adb sync && adb reboot                  # one app/library, no flashing
+```
+
+`adb remount` needs one extra reboot the first time (it turns verity off). ⚠️ When a change moves or reformats a
+partition the data depends on (for example `/metadata` in the fstab), flashing over the old install can lose `/data`;
+check before flashing. Release builds stay on `mka bacon` / `scripts/build-all.sh` and [RELEASING.md](RELEASING.md).
+
 Needs ~300 GB of disk and `git-lfs` installed **before** `repo sync`. RAM: 16 GB+ for 23.2; **≥55 GB of RAM plus swap
 for 24** (Soong loads the whole module graph into one process, ~53 GiB, before compiling anything; `-j` doesn't help).
 Packages (Debian/Ubuntu):

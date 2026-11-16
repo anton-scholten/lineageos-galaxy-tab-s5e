@@ -8,7 +8,7 @@
 #   ONLY="24.0:gts4lvwifi" scripts/build-all.sh    build a subset
 #
 # Trees live on the build drive at their real paths (no bind mounts, no symlinks):
-#   /mnt/build/lineage-23.2   /mnt/build/lineage-24
+#   /mnt/build/lineage-24   (/mnt/build/lineage-23.2 deleted 2026-11-13; re-sync before re-enabling its rows)
 # Results are copied (real copies, never hard links: the build rewrites outputs in place) to
 #   /mnt/build/releases/<version>-<date the script started>/  with a SHA256SUMS file.
 # File names: the zip keeps its build name (= ro.lineage.version, so never rename it); its recovery and

@@ -20,10 +20,23 @@ user docs, release notes, OTA feeds, local manifests and build scripts. It is no
   system/core, system/vold, hardware/lineage/compat and device/qcom/sepolicy_vndr forks. `scripts/check-pins.sh`
   checks all pins. Device-tree changes go into the fork as commits.
 - Fixes owed upstream (LineageOS Gerrit, krazey) are tracked in [UPSTREAM.md](UPSTREAM.md); keep it current.
+- Patches for LineageOS (Gerrit, or sent to luk1337 for the 4.19 port) follow the
+  [AI charter](https://github.com/LineageOS/charter/blob/main/ai-coding-assistants.md): trailer
+  `Assisted-by: LLM - Claude Opus 5.5` instead of `Co-Authored-By`, short commit messages (body only for the
+  non-obvious), comments only for non-obvious logic, SPDX headers on new files, no proprietary/decompiled code.
+  The owner reviews and must be able to explain every patch before it is sent. Our own forks keep `Co-Authored-By`.
+- 4.19 eval (issue #7, luk1337's port): test tree only, never released, never signed with our release keys.
 - Releases and OTA follow [RELEASING.md](RELEASING.md); release notes list only the changes since the previous build.
   Never read, print, commit or send the private signing keys (`*.pk8`, `vendor/lineage-priv/`, `~/.android-certs`).
-- Build trees: external drive, real paths `/mnt/build/lineage-23.2` and `/mnt/build/lineage-24` (no bind mount or
-  symlink); release files in `/mnt/build/releases/<version>-<date>/`. Build with `scripts/build-all.sh`.
+- Build trees: external drive, real paths `/mnt/build/lineage-24` and the 4.19 eval tree `/mnt/build/lineage-24-419`
+  (no bind mount or symlink; the 23.2 tree was deleted 2026-11-13, re-sync it if 23.2 is ever built again);
+  release files in `/mnt/build/releases/<version>-<date>/`, latest release only. Build with `scripts/build-all.sh`.
+- Builds are debug builds by default, as fast as possible: `m` (or `m bootimage` / `m <module>`) and flash through
+  fastbootd (`adb reboot fastboot && fastboot flashall --skip-reboot && fastboot reboot recovery`, so the tablet
+  stays in recovery to sideload MindTheGapps before first boot) or `adb sync`, no zip (README "Debug builds"). Only releases
+  use `mka bacon` / `scripts/build-all.sh` and the full RELEASING.md flow. From the agent's shell, run builds in
+  `env -i ... bash --noprofile --norc` (the tool shell's `grep` breaks `breakfast`), detached with `setsid nohup` so
+  a session end does not kill them.
 - Backup forks (read-only snapshots, never sync): `anton-scholten/android_kernel_samsung_exynos9810`,
   `anton-scholten/android_device_samsung_exynos9810-common`.
 - When you change anything, update `WORKLOG.md`, plus `HANDOVER.md` if the state or next steps changed.
