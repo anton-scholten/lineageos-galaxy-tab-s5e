@@ -38,13 +38,17 @@ Fixes that should go upstream are tracked in [UPSTREAM.md](UPSTREAM.md).
 
 ## Changes from stock LineageOS
 
-Besides what the tablet needs to run Android 16/17, the port adds one feature that stock LineageOS and Android don't
+Besides what the tablet needs to run Android 16/17, the port adds two things that stock LineageOS and Android don't
 have:
 
 - **Volume tile** (24, from the first build after 20261109): a Quick Settings tile that shows the media volume. A tap
   opens the normal volume pop-up (slider and sound mode button), as if a volume key had been pressed; a long-press
   opens Settings → Sound & vibration. It is not in Quick Settings by default: open Quick Settings, tap the pencil
   (edit) and add **Volume** from **Utilities**.
+- **Faster, reliable microSD mounting** (24, from 20261116): exFAT cards that were ejected cleanly mount without the
+  full file system check, which on a large, full card (1 TB) could exceed Android's 45 s limit and make the card show
+  as unmountable ([LineageOS #458](https://github.com/LineageOS/issues/issues/458)). Cards that were not ejected
+  cleanly are still checked.
 
 ## Install / upgrade
 
@@ -101,7 +105,7 @@ All forks use branch `lineage-24.0` (and `lineage-23.2` for 23.2).
 | Blobs | [proprietary_vendor_samsung_gts4lv-common](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common) | TheMuppets' 22.2 blobs + patched Wi-Fi Display library; 24 also relinks two blobs to the newer audio libraries |
 | Bluetooth | [android_packages_modules_Bluetooth](https://github.com/anton-scholten/android_packages_modules_Bluetooth) | Restores `bluetooth.hci.disabled_commands` (pairing crash) |
 | Launcher | [android_packages_apps_Launcher3](https://github.com/anton-scholten/android_packages_apps_Launcher3) | 23.2 only: centres the 3-button navigation bar when the taskbar is turned off (LineageOS has the fix in 24) |
-| 24 only | [system/core](https://github.com/anton-scholten/android_system_core), [system/vold](https://github.com/anton-scholten/android_system_vold), [hardware/lineage/compat](https://github.com/anton-scholten/android_hardware_lineage_compat), [device/qcom/sepolicy_vndr](https://github.com/anton-scholten/android_device_qcom_sepolicy_vndr) | Old-kernel `/data` encryption keyring (core, vold), Wi-Fi Display shim link fix (compat), one stale SELinux rule against a new Android 17 `neverallow` (sepolicy_vndr) |
+| 24 only | [system/core](https://github.com/anton-scholten/android_system_core), [system/vold](https://github.com/anton-scholten/android_system_vold), [hardware/lineage/compat](https://github.com/anton-scholten/android_hardware_lineage_compat), [device/qcom/sepolicy_vndr](https://github.com/anton-scholten/android_device_qcom_sepolicy_vndr) | Old-kernel `/data` encryption keyring (core, vold), exFAT check only for cards not ejected cleanly (vold), Wi-Fi Display shim link fix (compat), one stale SELinux rule against a new Android 17 `neverallow` (sepolicy_vndr) |
 
 ## Building (developers)
 

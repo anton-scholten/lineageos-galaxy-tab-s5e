@@ -1955,3 +1955,11 @@ themselves, not for a plain sideload.
 - luk's merged 4.19 work in official LineageOS does not reach our 4.9 build: qcom-caf `4c13a7e` is gated on
   `UM_4_19_FAMILY`, which only includes sdm710 when `TARGET_KERNEL_VERSION` is 4.19 (`qcom_defs.mk`); legacy-um is our
   own fork.
+- Release build 2026-11-16 (`scripts/build-all.sh`, both models, 03:16 h + 2:23 h, release props verified):
+  `/mnt/build/releases/24.0-20261116/` (folder renamed from the script's start date 20261115 to the zip date).
+  Kernel `4.9.337-ga668db21f3cf`, `ro.build.tags=release-keys`, security patch 2026-11-01, `VolumeTile.apk` in
+  `/system/product/app`, qtidisplay `target_no_camera_custom_format`/`target_uses_legacy_buffer_alignment` false
+  (luk's 4.19 gating inert on our 4.9). Wi-Fi zip sideloaded over 20261109 on the SM-T720, no wipe: boots,
+  `org.gts4lv.volumetile` installed, card mounts with "Volume is clean, skipping check", no crashes.
+- Notes drafted: `release/NOTES-24.0-20261116.md`; README "Changes from stock LineageOS" lists the exFAT change.
+  Not published: tag, GitHub release and OTA feed wait for the owner.

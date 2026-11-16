@@ -52,14 +52,11 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
   them. ⚠️ His tree now mounts `/metadata` from `omr` (p55) instead of `hidden` (p54): a dirty update of the tablet
   loses the metadata encryption key unless p54 is first copied to p55 from recovery, otherwise data must be wiped.
   Next: owner reviews and sends L4/L5, plus the L10 process_madvise note (UPSTREAM.md).
-- **Next 24 build (tree synced 2026-11-14, not built):** brings the lineage-sdk profiles security fix, LTE haptics
-  (gts4lv `ed5c7e2` + vibrator `4f6225d`), recovery touch/menu fixes. Before building: drop the Launcher3 fork
-  (upstream `bea0383b597` supersedes `793236d2701d`) and merge official gts4lv-common 22.2 `f2340a8` (config dir
-  move, test-merges cleanly) into the device fork; both owner's call. Do **not** merge upstream sepolicy_vndr
-  legacy-um: it now sends sdm710 to the 4.19 sdm845 policy (WORKLOG 2026-11-14). Also includes the Quick Settings volume tile (device `aa15a5c`, `VolumeTile/`; README "Changes from
-  stock LineageOS"). Tested on the SM-T720 as a sideloaded APK; after the build check it is in `/product/app`, listed
-  under Utilities, and mention it in the release notes. Forks checked 2026-11-11: LineageOS merged into Launcher3,
-  compat and sepolicy_vndr; ExyHyperBrick 24 has only Exynos work (WORKLOG).
+- **Built, not published: `24.0-20261116`** (both models, `/mnt/build/releases/24.0-20261116/`, notes
+  `release/NOTES-24.0-20261116.md`): exFAT fsck skip (vold `b70cf8f`), volume tile, device merge of 22.2 `f2340a8`
+  (`adcd7eb`), stock Launcher3, LTE haptics, recovery fixes, lineage-sdk security fixes. Wi-Fi zip tested on the
+  SM-T720 over 20261109 (no wipe). Next: owner publishes (RELEASING.md steps 4-5: tag `v24.0-20261116`, release,
+  `ota-json.sh`), then delete `releases/24.0-20261109`.
 - **Released 2026-11-09:** `v24.0-20261109` (volume panel fix, verified on the SM-T720), feeds live.
 - **Released 2026-11-05:** `v24.0-20261105`, feeds live. #5 and #6 verified on the SM-T720 (WORKLOG); confirm with the
   reporters. Next 24 build: `repo sync`, merge LineageOS into the Bluetooth and Launcher3 forks, check for a new ASB.
