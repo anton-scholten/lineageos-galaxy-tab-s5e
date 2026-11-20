@@ -46,7 +46,7 @@ set -uo pipefail
 export GIT_TERMINAL_PROMPT=0
 
 GIT_TIMEOUT=${GIT_TIMEOUT:-60}
-EXPECTED_ROWS=15
+EXPECTED_ROWS=14
 
 usage() {
 	cat <<EOF
@@ -84,10 +84,10 @@ while IFS='|' read -r class repo url branch want note; do
 	rows+=("$class|$repo|$url|$branch|$want|$note")
 done <<'PINS'
 pin|LineageOS/android_kernel_samsung_sdm670|https://github.com/LineageOS/android_kernel_samsung_sdm670|lineage-22.2|a30605a54f3b|LineageOS dropped the device after 22.2; this is the base commit of the sdm670 tree.
-pin|LineageOS/android_device_samsung_gts4lv-common|https://github.com/LineageOS/android_device_samsung_gts4lv-common|lineage-22.2|d1b339be7abe|LineageOS device tree; the base our device fork is built on.
-info|anton-scholten/android_kernel_samsung_sdm670|https://github.com/anton-scholten/android_kernel_samsung_sdm670|lineage-23.2|a668db21f3cf|OUR FORK: the kernel (ExyHyperBrick port + SELinux avtab fix + BPF ld_abs R2 fix + EROFS + fuse-bpf umask fix + MADV_PAGEOUT dirty fix + no resume CPU uevents; lineage-24.0 is the same commit). A move means a new kernel fix landed.
+pin|LineageOS/android_device_samsung_gts4lv-common|https://github.com/LineageOS/android_device_samsung_gts4lv-common|lineage-22.2|f2340a8a7215|LineageOS device tree; the base our device fork is built on.
+info|anton-scholten/android_kernel_samsung_sdm670|https://github.com/anton-scholten/android_kernel_samsung_sdm670|lineage-23.2|a668db21f3cf|OUR FORK: the kernel (ExyHyperBrick port + SELinux avtab fix + BPF ld_abs R2 fix + EROFS + fuse-bpf umask fix + MADV_PAGEOUT dirty fix + no resume CPU uevents; lineage-24.0 adds LZ4 for zram, 29d0d71a4d35). A move means a new kernel fix landed.
 info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anton-scholten/android_device_samsung_gts4lv-common|lineage-23.2|f4c18f4|OUR FORK: the 23.2 device tree (+ Updater links, double tap to wake, keyguard avatar size).
-info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anton-scholten/android_device_samsung_gts4lv-common|lineage-24.0|adcd7eb|OUR FORK: the 24 device tree (+ Updater links, double tap to wake, keyguard avatar size, app bubbles flag, volume tile).
+info|anton-scholten/android_device_samsung_gts4lv-common|https://github.com/anton-scholten/android_device_samsung_gts4lv-common|lineage-24.0|f896da9|OUR FORK: the 24 device tree (+ Updater links, double tap to wake, keyguard avatar size, app bubbles flag, volume tile, lz4 zram).
 info|anton-scholten/android_packages_modules_Bluetooth|https://github.com/anton-scholten/android_packages_modules_Bluetooth|lineage-23.2|f500ef4c4af4|OUR FORK: LineageOS Bluetooth + bluetooth.hci.disabled_commands restored (UPSTREAM.md #1).
 info|anton-scholten/android_packages_modules_Bluetooth|https://github.com/anton-scholten/android_packages_modules_Bluetooth|lineage-24.0|98188b0c390b|OUR FORK: same fix on lineage-24.0 (+ LineageOS L2CAP MPS fix, merged 2026-11-04).
 info|anton-scholten/android_packages_apps_Launcher3|https://github.com/anton-scholten/android_packages_apps_Launcher3|lineage-23.2|4be5887bda6d|OUR FORK: LineageOS Launcher3 + phone mode nav buttons not shifted for the bubble bar (issue #6, UPSTREAM.md #5).

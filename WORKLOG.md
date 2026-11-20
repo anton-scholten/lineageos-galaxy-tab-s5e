@@ -1966,3 +1966,37 @@ themselves, not for a plain sideload.
 - Published 2026-11-16 (owner OK): GitHub release `v24.0-20261116` (title "LOS_24_2026-11-16 - LineageOS 24
   (unofficial)", 7 assets, sizes match), OTA feeds `ota/24.0/{gts4lvwifi,gts4lv}.json` (3 builds each), pushed;
   Pages serves the new entries; download URLs return 200. `releases/24.0-20261109` deleted (latest only).
+
+## 2026-11-19 — Volume tile no longer minimizes YouTube
+
+- Cause: a tile tap started `SystemVolumeActivity` in a new task (`startActivityAndCollapse`), which counts as leaving
+  the foreground app, so YouTube minimized or entered PiP.
+- Fix, device fork `c309439` on local branch `volumetile-no-activity` (base `adcd7eb`, not pushed): no activity; tap
+  calls `StatusBarManager.collapsePanels()` and after 350 ms `adjustStreamVolume(STREAM_MUSIC, ADJUST_SAME,
+  FLAG_SHOW_UI)` (the dialog does not show over an expanded shade). The app moves to `/product/priv-app` with a
+  privapp allowlist for `STATUS_BAR` and `MODIFY_AUDIO_SETTINGS_PRIVILEGED`: without the latter `HardeningEnforcer`
+  ignores the volume call from a background service ("level: partial"). Allowlist rather than the platform
+  certificate so the debug APK also works on a release-key build.
+- Tested on the SM-T720 (24.0-20261116 + the APK pushed by adb): both permissions granted, `cmd statusbar click-tile`
+  with the shade expanded shows `VolumeDialog`, hardening logs "exemption: 2" (privileged). YouTube test by the owner
+  pending.
+- Upstream check 2026-11-19 (`repo sync -n`, all fork upstreams fetched): 28 new commits across 11 projects, none
+  for our build (other SoCs' CAF display, wiki/hudson promotions; gts4lv not promoted to 24.0 yet; hardware/samsung
+  `626867f` fingerprint mask brightness, UDFPS only). Our forks' upstreams have nothing new except luk's six
+  sepolicy_vndr legacy-um commits (`f991fcf7` sdm710 moves to the non-legacy sdm845 policy, not gated on the kernel
+  version): made for 4.19, not merged into our 4.9 fork.
+- 4.9 vs luk's 4.19 kernel config: 4.19 adds CFI/SCS/LTO, KFENCE, init-on-alloc, inline crypto + dm-default-key,
+  mainline exFAT, incremental-fs, WireGuard, LZ4/ZSTD zram, BPF JIT always-on; drops uclamp, BTF, kprobes, and has
+  no process_madvise. Candidates for 4.9: LZ4 zram (config), BPF_JIT_ALWAYS_ON (config), WireGuard (compat backport).
+- Volume tile YouTube test by the owner: fullscreen video keeps playing, dialog shows. The old tile's minimizing comes
+  from YouTube's PiP: with `PICTURE_IN_PICTURE` allowed (default here), a new task over a playing video puts YouTube
+  in pinned mode; denied, it does not. A reporter without PiP (no Premium outside the US, or PiP off) would see no
+  problem with the old tile.
+- LZ4 for zram: kernel `29d0d71a4d35` (`CONFIG_CRYPTO_LZ4=y` in both gts4lv defconfigs), device `f896da9`
+  (`write /sys/block/zram0/comp_algorithm lz4` in `on init`, before `swapon_all`). Tested on the SM-T720 by writing
+  the new boot.img with dd (backup in the session scratchpad) and pushing init.qcom.rc: kernel `4.9.337-g29d0d71a4d35`,
+  `comp_algorithm` `[lz4]`, swap active (652 MB stored in 216 MB), no denials, boot completes.
+- Pushed (owner OK): kernel `lineage-24.0` `29d0d71a4d35` (`lineage-23.2` stays `a668db21f3cf`), device
+  `lineage-24.0` `f896da9` (tile `c309439` + lz4). Pins updated in CLAUDE.md, HANDOVER.md, check-pins.sh.
+- check-pins.sh: EXPECTED_ROWS 15 -> 14 (Launcher3 24 row removed 2026-11-16), LineageOS device 22.2 pin
+  `d1b339be7abe` -> `f2340a8a7215` (merged into our fork in `adcd7eb`); exit 0.
