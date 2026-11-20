@@ -2000,3 +2000,14 @@ themselves, not for a plain sideload.
   `lineage-24.0` `f896da9` (tile `c309439` + lz4). Pins updated in CLAUDE.md, HANDOVER.md, check-pins.sh.
 - check-pins.sh: EXPECTED_ROWS 15 -> 14 (Launcher3 24 row removed 2026-11-16), LineageOS device 22.2 pin
   `d1b339be7abe` -> `f2340a8a7215` (merged into our fork in `adcd7eb`); exit 0.
+
+## 2026-11-20 — Release 24.0-20261120 built and tested
+
+- `repo sync -l` (fetched 2026-11-19), `scripts/build-all.sh` both models (Wi-Fi 3:42 h, LTE 2:23 h), release props
+  verified; folder renamed `24.0-20261119` -> `/mnt/build/releases/24.0-20261120/`, SHA256SUMS OK. Kernel
+  `29d0d71a4d35`, device `f896da9`; out has the priv-app tile, its allowlist and `comp_algorithm lz4`.
+- Install test on the SM-T720 over 20261116 (+ test kernel): a hand-written `/cache/recovery/command` with a /data
+  path did not install (recovery booted straight back; log not read). The owner then ran Updater → Local update
+  with the zip: boots `24.0-20261120`, release-keys, kernel `4.9.337-g29d0d71a4d35`, tile in priv-app with both
+  permissions, swap 3.4 GB active, microSD mounted, no denials, no crashes except Syncthing (third-party FGS timeout).
+- Notes drafted: `release/NOTES-24.0-20261120.md`. Not published: tag, release and OTA feed wait for the owner.
