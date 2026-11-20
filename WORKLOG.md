@@ -2011,3 +2011,7 @@ themselves, not for a plain sideload.
   with the zip: boots `24.0-20261120`, release-keys, kernel `4.9.337-g29d0d71a4d35`, tile in priv-app with both
   permissions, swap 3.4 GB active, microSD mounted, no denials, no crashes except Syncthing (third-party FGS timeout).
 - Notes drafted: `release/NOTES-24.0-20261120.md`. Not published: tag, release and OTA feed wait for the owner.
+- Published 2026-11-20 (owner OK): GitHub release `v24.0-20261120` ("LOS_24_2026-11-20 - LineageOS 24 (unofficial)",
+  7 assets, sizes match), OTA feeds `ota/24.0/{gts4lvwifi,gts4lv}.json` (3 builds each: 20261109, 20261116, 20261120),
+  Pages serves both; download URL 200. `releases/24.0-20261116` deleted (latest only). Over USB root: release shows
+  `comp_algorithm` `[lz4]`, 797 MB stored in 295 MB.

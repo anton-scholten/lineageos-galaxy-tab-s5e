@@ -52,10 +52,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
   them. ⚠️ His tree now mounts `/metadata` from `omr` (p55) instead of `hidden` (p54): a dirty update of the tablet
   loses the metadata encryption key unless p54 is first copied to p55 from recovery, otherwise data must be wiped.
   Next: owner reviews and sends L4/L5, plus the L10 process_madvise note (UPSTREAM.md).
-- **Next 24 release (ready to build):** volume tile shows the volume dialog without starting an activity (YouTube no
-  longer minimizes/enters PiP; device `c309439`, verified by the owner) and lz4 for zram (kernel `29d0d71a4d35`, device
-  `f896da9`, verified on the SM-T720). Upstream check 2026-11-19 found nothing else to take. Next: `repo sync`,
-  `scripts/build-all.sh`, RELEASING.md.
+- **Released 2026-11-20:** `v24.0-20261120` (volume tile no longer minimizes YouTube, device `c309439`; lz4 zram,
+  kernel `29d0d71a4d35`, device `f896da9`), both models, feeds live. Wi-Fi zip installed on the SM-T720 with Updater →
+  Local update over 20261116, `[lz4]` active.
 - **Released 2026-11-16:** `v24.0-20261116` (exFAT fsck skip, vold `b70cf8f`; volume tile; device `adcd7eb` with
   22.2 `f2340a8`; stock Launcher3; LTE haptics; recovery and lineage-sdk security fixes), both models, feeds live.
   Wi-Fi zip tested on the SM-T720 over 20261109. Ask the 1 TB card reporter to confirm.
