@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Our fork of LineageOS/android_frameworks_av, lineage-24.0, for one fix.
+
+  WHY
+  Android 17 asks for RGBA_1010102 thumbnails of 10-bit video (read-only flag
+  mediametadataretriever_10_bit_support) and a P010 decoder output. Our decoders ignore the P010 request
+  and return 8-bit YUV (OMX HEVC: NV12; Codec2 software AV1: 8-bit view), and FrameDecoder gives up, so
+  Gallery shows no thumbnails for 10-bit HEVC and AV1 videos. The fork's lineage-24.0 = LineageOS
+  1c5914737a + a FrameDecoder fallback to 8-bit conversion (WORKLOG 2026-11-20, UPSTREAM.md).
+
+  TO DO: propose it to LineageOS on Gerrit, then drop this file.
+  Same remove-project/no-LineageOS-prefix pattern as vold-keyring.xml.
+-->
+<manifest>
+  <remove-project name="LineageOS/android_frameworks_av" />
+
+  <project path="frameworks/av" name="android_frameworks_av"
+           remote="anton" revision="lineage-24.0" groups="pdk,sysui-studio" />
+</manifest>

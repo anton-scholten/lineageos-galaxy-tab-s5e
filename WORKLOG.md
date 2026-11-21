@@ -2015,3 +2015,70 @@ themselves, not for a plain sideload.
   7 assets, sizes match), OTA feeds `ota/24.0/{gts4lvwifi,gts4lv}.json` (3 builds each: 20261109, 20261116, 20261120),
   Pages serves both; download URL 200. `releases/24.0-20261116` deleted (latest only). Over USB root: release shows
   `comp_algorithm` `[lz4]`, 797 MB stored in 295 MB.
+
+## 2026-11-20 — Corners switch, recents thumbnails, 10-bit video thumbnails, 4K playback limits
+
+- Rounded corners: SystemUI draws its 8 dp `rounded_corner_*` drawables whenever the framework
+  `rounded_corner_radius` is > 0 (ours is 2.0mm, from stock). Radius 0 = square corners, confirmed by the owner.
+  New device app `RoundedCorners` (priv-app, allowlisted `CHANGE_OVERLAY_PACKAGES`) injects a switch into Settings →
+  Display → Other display controls (SettingsLib `EntriesProvider`, group key `category_other`) that toggles the
+  product RRO `SquareCornersOverlay` (radius 0dp, disabled by default). SystemUI's `RoundedCornerResDelegate` only
+  reloads when the display unique id changes, so the switch summary says "Applies after a restart". Verified
+  (debug build pushed): switch shown, overlay toggles, after a SystemUI restart `hasTop=false`.
+  ⚠️ `am force-stop com.android.systemui` deletes the image wallpaper (WallpaperManagerService clears it when the
+  wallpaper package is force-stopped); this wiped the owner's wallpaper. Never do that; `kill` the process instead.
+- Recents lag with many apps open (user report): reproduced with 38 apps (RAM full, 1.7 GB swap): 10% janky frames,
+  29 slow bitmap uploads, launcher 175 MB GPU memory, mostly full-size 1600x2560 task snapshots (16 MB each). Device
+  overlay `config_highResTaskSnapshotScale` 0.5 (low-res 0.25). Same test after: 6.4% janky, p95 44 -> 34 ms, 7 slow
+  uploads, 83 MB, recents open ~0.8 -> ~0.6 s.
+- Gallery shows no thumbnails for 10-bit HEVC (Main10): Android 17's `mediametadataretriever_10_bit_support`
+  (read-only flag) asks for RGBA_1010102; the software HEVC decoder lists only Main, so only the OMX HEVC decoder
+  is tried; it ignores the P010 request and returns NV12, and `ColorConverter` has no NV12 -> RGBA1010102 path
+  ("Unable to convert from format 0x15 to 0x7f00aaa2"). Patch in frameworks/av `FrameDecoder.cpp`: if the 10-bit
+  conversion is invalid, convert to RGBA8888 and widen to RGBA1010102. Debug `libstagefright` pushed: thumbnails
+  for the owner's 10-bit HEVC files appear with correct colours. Affects any OMX-only device; Gerrit candidate.
+- 4K playback limits (mpv, synthetic 8 s clips from ffmpeg with camera-like settings, B-frames/CABAC/3 refs):
+  the venus decoder (364.7 MHz of 533 MHz during these sessions) decodes ~56-62 fps for H.264, HEVC 8/10-bit and
+  VP9 at 4K60 up to 100 Mbit/s; 4K30 plays perfectly. mpv's default frame dropping shows only 8-40 fps at 4K60;
+  `framedrop=no` shows 58-60 fps (H.264 to 100 Mbit/s, HEVC 60 Mbit/s, VP9), 54-56 for HEVC 10-bit / 100 Mbit/s.
+  CPU 10-18 %, GPU idle. Owner's 4K60 H.264 61 Mbit/s file: 8 fps default, 55-60 with `framedrop=no`. No AV1 HW.
+  Rotation, HWC vs GPU composition and GPU clock made no difference. Option not done: kernel max venus clock for
+  loads above 4K30.
+- Glimpse plays 10-bit HEVC 1080p24 on the OMX decoder with perfect 3:2 pacing (60 Hz panel only).
+- AV1 (and other c2 block-model) thumbnails: the 8-bit c2 software output fails
+  `GraphicView2MediaImageConverter` ("Bit depth of client: 10 and component: 8 differs") -> `extractInternal error
+  -110`. Second part of the `FrameDecoder.cpp` patch: in `handleOutputBufferAsync`, if the converter fails and P010
+  was requested, retry with `COLOR_FormatYUV420Flexible`.
+- Venus clock is fused, not a governor limit: `sdm670-vidc.dtsi` has two tables picked by the `SKU_VERSION` efuse;
+  this tablet is SKU 1 (100/200/330/364.7 MHz). GPU speed bin caps it at 430 MHz. CPU already at rated max. No
+  overclocking.
+- Gallery (Glimpse/ExoPlayer) failed on 4K60 with OMX error 0x80001001: `msm_vidc_decide_core_and_power_mode` rejects
+  realtime sessions whose cycles (mbs x 200) exceed max clock (4K60 = 388.8M > 364.7M, "Core Can't support this
+  load"). Samsung already `#if 0`'d the other overload returns. Kernel patch (`msm_vidc_clocks.c`): warn and run at
+  max clock instead. Test boot image (kernel swapped into the installed boot, backup in
+  `~/work/boot-backup/boot-20261120-lz4-before-vidcload.img`): a large-bitrate 4K60 video (H.264 61 Mbit/s) plays in Gallery, decoder
+  60 fps, ~45-60 shown; 4K60 HEVC 100M / HEVC10 60M / H.264 100M decode at 53-57 fps, no rejections. Helps every
+  app using realtime HW decode above 4K30 (ExoPlayer apps, browsers).
+- Thumbnail scan after both patches: 77 -> 28 failures of 353. The 26 left (x265 10-bit MKV episodes) have
+  Tracks *after* the clusters (SeekHead points to the end); libwebm (`MatroskaExtractor`, "Segment parse header return
+  fail -2") and Media3's MKV extractor both need Tracks before the first cluster, so Gallery neither thumbnails nor
+  plays them (timer runs, no codec). Fix is a remux (`mkvmerge -o out.mkv in.mkv`, no re-encode). The other 2 were
+  synthetic 4K VP9 clips: the OMX VP9 decoder falls back to `0x7fa30c04` (NV12 32m), which `ColorConverter` can't
+  convert; no real VP9 files affected. Test clips deleted.
+- That large-bitrate 4K60 video still stutters in Gallery after the load fix: decoder ~60-65 fps but ExoPlayer drops late frames, ~42 fps
+  shown (SurfaceFlinger missed 4 frames in 15 s, no client composition, so not display; pinning DDR (`cpubw`
+  min 6881) and the venus bus vote (`performance`) changed nothing, so not bandwidth). Nothing published on
+  overclocking SDM670 venus/GPU or Tab S5e kernels. Venus overclock test (test kernels only, reverted):
+  1. SKU 1 table + 444 MHz: the sdm670 freq table entries 404/444/533 use PLL/1 and *measure* half the rate
+     (`clk_measure` on `video_cc_vcodec0_core_clk` = 222 MHz, decode 36 fps). `clk_measure` checked accurate at
+     200 and 364.7 MHz.
+  2. Same entries as PLL x2 / 2 (PLL 888 MHz, RCG div 2): reports 444 but measures ~357.6 MHz, mpv decode 58 fps
+     (same as stock). The decoder clock is held at ~360 MHz in hardware on this SKU; overclocking venus is not
+     possible. Back on the load-fix kernel (`boot-20261120-vidcload.img`); kernel source reverted to the load patch
+     only (`out/` still has the test kernel: rebuild before the next flash).
+  For 4K60 at > ~50 Mbit/s H.264: mpv `framedrop=no`, or a 4K30/1080p60 copy.
+- Committed (not built): device `7ebda55` (corners switch) + `b6ee69f` (snapshot scale), kernel `a548c1ceaed7`
+  (vidc load fix), new fork `anton-scholten/android_frameworks_av` `lineage-24.0` = LineageOS `1c5914737a` +
+  `8ba1024bfc` (FrameDecoder 10-bit fallback, manifest `local_manifests/24/frameworks-av-thumbnails.xml`, copied into
+  the 24 tree's `.repo/local_manifests`; `repo sync` before the next build switches `frameworks/av` to the fork).
+  UPSTREAM #11, #12. Release notes draft `release/24.0-next.md`.
