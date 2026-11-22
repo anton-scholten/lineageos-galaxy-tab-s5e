@@ -2082,3 +2082,59 @@ themselves, not for a plain sideload.
   `8ba1024bfc` (FrameDecoder 10-bit fallback, manifest `local_manifests/24/frameworks-av-thumbnails.xml`, copied into
   the 24 tree's `.repo/local_manifests`; `repo sync` before the next build switches `frameworks/av` to the fork).
   UPSTREAM #11, #12. Release notes draft `release/24.0-next.md`.
+
+## 2026-11-22 — DT2W during AOD, recovery installer zip, recents drag lag
+
+- **DT2W does not work with "Always show time and info" (user report; also on official 22.2).** AOD clock keeps
+  updating on ours (DOZE, not DOZE_SUSPEND: UPSTREAM #2). But the fts1ba90a touch driver enters its low-power
+  gesture mode only on `MSM_DRM_BLANK_POWERDOWN`; DOZE only switches the panel to LP1, which sends no DRM notifier
+  event, so the IC keeps reporting normal touches (`[P]/[R]` in dmesg) and Android drops them while dozing. Kernel
+  test patch: `sde_connector` sends a new `MSM_DRM_BLANK_LP` on ON -> LP1/LP2 (and UNBLANK on LP -> ON), the touch
+  driver enters low power on it when a gesture (DT2W) is enabled (existing sponge double tap -> KEY_WAKEUP path) and
+  skips a second stop when already in low power. uhid ignores the new value. Building (`build-24-dt2w-aod.log`).
+- **Recovery installer zip** (owner request, for users on a LineageOS recovery without a PC tool):
+  `scripts/make-recovery-zip.sh` packs `recovery-<date>-<device>.img` with a *shell* `update-binary`
+  (`scripts/recovery-installer/update-binary`: device check, sha256 check, dd to RECOVERY) and signs it with signapk
+  like the ROM; `build-all.sh` makes `recovery-installer-<date>-<device>.zip`, RELEASING/README updated. A user's
+  forum zips (same recovery images as 20261120) use an unknown static Android 17 updater binary that contains the
+  bionic `arc4random ... MADV_WIPEONFORK` abort. Tested from the official 22.2 recovery: unsigned ("footer is
+  wrong", error 21), and after *Yes*: `arc4random data MADV_WIPEONFORK failed` -> `killed by signal 6`,
+  "Installation aborted" (`/cache/recovery/last_log`). Not used.
+  Tested on the SM-T720: official `recovery.img` of lineage-22.2-20261118 (sha256 `d0f07746…`, from
+  download.lineageos.org) written to RECOVERY, sideloaded the installer zip from it (signature prompt -> Yes),
+  *Reboot to recovery* -> our 24.0 recovery. Note: RECOVERY is 72744960 bytes, the image 64 MiB; compare hashes over
+  the first 64 MiB. Old recovery kept in `~/work/boot-backup/recovery-current-before-22.2-test.img`.
+- **Recents drag lag** (user: gesture nav, Settings, swipe to recents and drag the live preview; also the desktop
+  mode app menu; fixed for daisy in `ximi-daisy-test`): daisy's changes are device overlays (blurs off by default,
+  smaller blur radius, shorter animations, `config_sf_limitedAlpha`), no kernel change found. Blur is already off
+  here (`mBlurEnabled=false`, no `supports_background_blur`). To measure next: SurfaceFlinger client composition
+  during the drag (`/data/local/tmp/drag.sh`).
+  Our 20261120 recovery restored afterwards (sha256 `4a833173…`).
+- ⚠️ Flash mistake (fixed): the DT2W test image was repacked from a scratchpad folder that had been cleared; `set -e`
+  did not stop the inline command chain, mkbootimg ran without arguments and a 2 KB header went to BOOT. The tablet
+  stopped in Download mode ("vbmeta: Public key used to sign data rejected"). Restored with
+  `heimdall flash --BOOT ~/work/boot-backup/boot-20261122-before-dt2w.img`, booted normally. Test images are now made
+  by `~/work/dt2w/make.sh` / `flash.sh` (clean bash, size + unpack/cmp + sha256 after push and after dd).
+  DT2W test kernel `boot-20261122-dt2w-aod.img` booted (#42).
+- DT2W test kernel verified by the owner: AOD on -> clock updates, double tap wakes (dmesg: `LP1` ->
+  `fts_stop_device: lowpower flag:4` -> `Dobule Tap Wake up` -> `exit low power mode`); AOD off -> normal
+  POWERDOWN path, double tap wakes. Not committed yet.
+- Recents drag: slow drag (scripted `input motionevent`) = 140/180 frames client composition: SF asks DEVICE
+  (`forceClientComposition=false`), the QTI composer returns the scaled live app layer (1.53x downscale on the
+  90-degree rotated panel) as CLIENT. Finger-speed swipes (5 x 2.5 s): 19/578 missed frames, all 32-33 ms; SF
+  frames <= 14 ms, RenderEngine 6 ms; sfScheduling janky 76, app buffer stuffing 516. With daisy's
+  `debug.sf.predict_hwc_composition_strategy=0`, `vendor.display.disable_rotator_downscale=1`,
+  `vendor.display.disable_scaler=1`, `vendor.display.disable_skip_validate=1` (setprop + composer and SF restart):
+  8/1425 missed, sfScheduling 26, slow drag still 154/179 client. The owner feels no difference either way and
+  finds the drag smooth on the SM-T720. Not shipped: `disable_scaler=1` would push every scaled layer (e.g. video)
+  to the GPU. Need the reporter's details (model, apps open, screen recording) to reproduce their lag.
+- Committed DT2W in AOD: kernel `283bd808e63c` (drm/msm doze notify) + `b7f69bb8d4ef` (fts1ba90a low power in
+  doze), UPSTREAM #13; release notes draft updated (DT2W, recovery installer zip).
+- `repo sync` 2026-11-22: `frameworks/av` needed `repo sync --force-sync frameworks/av` to switch to the new fork
+  (checkout was clean and pushed); everything else synced. Merged LineageOS into the compat fork (`libssl-v33`,
+  x86_64 build fix) -> `1da88ab0b0b7`. Bluetooth, core, vold, av forks have nothing new upstream. No new ASB yet
+  (tablet reports 2026-11-01; December bulletin due early December). `build-all.sh --check`: all forks on their tips.
+- Recents lag search: LineageOS/issues#579 (merlinx, MediaTek 4.19, 23.2: ~200 ms delay before the home/recents
+  animation, stutter) has no fix; one commenter says it is gone on 24.0. The /e/OS BlissLauncher3 commit "Disable
+  slow recents animation handling" is AOSP `7fb98d35421` (2024), already in our Launcher3. Nothing device-specific
+  found for 4.9 / sdm670; the daisy fix is the display props above.

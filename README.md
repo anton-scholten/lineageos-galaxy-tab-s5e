@@ -54,7 +54,7 @@ have:
 
 **You need:** a PC with `adb`, a good USB-C cable, battery above 50%, and the files for your model from the
 [latest release](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/latest) (ROM zip, `recovery-*.img`,
-`vbmeta-*.img`, `SHA256SUMS`; check them with `sha256sum -c SHA256SUMS --ignore-missing`). Never mix Wi-Fi and LTE files.
+`vbmeta-*.img`, `SHA256SUMS`, and `recovery-installer-*.zip` for the no-PC path below; check them with `sha256sum -c SHA256SUMS --ignore-missing`). Never mix Wi-Fi and LTE files.
 
 Follow the official LineageOS guide for your model ([Wi-Fi](https://wiki.lineageos.org/devices/gts4lvwifi/install/),
 [LTE](https://wiki.lineageos.org/devices/gts4lv/install/)) with these changes:
@@ -62,7 +62,7 @@ Follow the official LineageOS guide for your model ([Wi-Fi](https://wiki.lineage
 | Step in the official guide | Do this instead |
 |---|---|
 | Unlock, `vbmeta` | Only when coming from Samsung stock, with our `vbmeta-*.img`. Skip when coming from LineageOS |
-| Flash recovery | Flash the recovery of the version you install (the 22.2 recovery can't install 23.2 or 24). Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest): `samloader flash --partition RECOVERY recovery-*.img --no-reboot` |
+| Flash recovery | Flash the recovery of the version you install (the 22.2 recovery can't install 23.2 or 24). Odin, Heimdall or [samloader](https://github.com/topjohnwu/samloader-rs/releases/latest): `samloader flash --partition RECOVERY recovery-*.img --no-reboot`. Already on a LineageOS recovery (official 22.2 or our 23.2)? Install `recovery-installer-*.zip` from it instead (*Apply update*, from ADB, SD card or USB-OTG; answer *Yes* to the signature warning), then *Advanced → Reboot to recovery*: the header now shows the new version |
 | Factory reset | ⚠️ **Required** (erases all data) when coming from Samsung stock, official 22.2, our early builds before 20261019 (different signing keys, no longer listed) or 23.2 → 24. Not needed when updating to a newer build of the same version |
 | Sideload | *"Signature verification failed"* is expected: answer *Yes*. Stopping at 47% with `adb: failed to read command: Success` is normal |
 

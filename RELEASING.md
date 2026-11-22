@@ -55,7 +55,7 @@ SSH/GPG keys cannot sign Android builds.
 ## Every release
 
 1. **Build**: `scripts/build-all.sh` (or `ONLY="24.0:gts4lvwifi 24.0:gts4lv" scripts/build-all.sh`). It checks every
-   fork and the keys first, verifies the release settings afterwards, and copies zip, recovery, vbmeta and `SHA256SUMS`
+   fork and the keys first, verifies the release settings afterwards, and copies zip, recovery, recovery installer zip (`scripts/make-recovery-zip.sh`), vbmeta and `SHA256SUMS`
    to `/mnt/build/releases/<version>-<date>/`.
 2. **Test** at least the Wi-Fi zip on the tablet (an OTA from the previous release is the best test, see below).
 3. **Notes**: `release/NOTES-<version>-<date>.md`, **only what changed** since the previous release; install steps,
@@ -76,7 +76,7 @@ SSH/GPG keys cannot sign Android builds.
    `<YYYY-MM-DD> - LineageOS <version> (unofficial)`, all files of the folder:
    ```bash
    cd /mnt/build/releases/<version>-<date>
-   gh release create v<version>-<zipdate> --draft --target main --title "<date> - LineageOS <version> (unofficial)" --notes-file <repo>/release/NOTES-<version>-<date>.md lineage-*.zip recovery-*.img vbmeta-*.img SHA256SUMS
+   gh release create v<version>-<zipdate> --draft --target main --title "<date> - LineageOS <version> (unofficial)" --notes-file <repo>/release/NOTES-<version>-<date>.md lineage-*.zip recovery-*.img recovery-installer-*.zip vbmeta-*.img SHA256SUMS
    ```
 5. **Publish** the release (owner).
 6. **OTA feed**, only after publishing (the download URLs must exist):

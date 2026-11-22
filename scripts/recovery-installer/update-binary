@@ -1,0 +1,47 @@
+#!/system/bin/sh
+# SPDX-FileCopyrightText: 2026 Anton Scholten
+# SPDX-License-Identifier: Apache-2.0
+#
+# Recovery installer for the Galaxy Tab S5e: writes recovery.img from this zip to the RECOVERY partition.
+# A shell script on purpose: the Android 16/17 updater binary aborts on the official 22.2 recovery's kernel
+# (no MADV_WIPEONFORK), this runs with the recovery's own sh/unzip/dd. Arguments from recovery:
+#   $1 = updater API version, $2 = output fd for ui_print, $3 = path of this zip
+# @DEVICE@ is filled in by scripts/make-recovery-zip.sh.
+
+OUTFD=$2
+ZIP=$3
+DEVICE=@DEVICE@
+PART=/dev/block/bootdevice/by-name/recovery
+TMP=/tmp/recovery-installer.img
+
+ui_print() {
+	echo "ui_print $1" >/proc/self/fd/"$OUTFD"
+	echo "ui_print" >/proc/self/fd/"$OUTFD"
+}
+abort() {
+	ui_print "ERROR: $1"
+	ui_print "Nothing was written."
+	rm -f "$TMP"
+	exit 1
+}
+
+ui_print "LineageOS recovery installer for $DEVICE"
+
+found=$(getprop ro.product.device)
+[ -z "$found" ] && found=$(getprop ro.build.product)
+[ "$found" = "$DEVICE" ] || abort "this zip is for $DEVICE, this tablet is '$found'"
+[ -b "$PART" ] || abort "no recovery partition at $PART"
+
+unzip -p "$ZIP" recovery.img >"$TMP" || abort "could not extract recovery.img"
+want=$(unzip -p "$ZIP" recovery.img.sha256 | cut -d' ' -f1)
+have=$(sha256sum "$TMP" | cut -d' ' -f1)
+[ -n "$want" ] && [ "$want" = "$have" ] || abort "recovery.img checksum mismatch (damaged download?)"
+
+ui_print "Writing recovery..."
+dd if="$TMP" of="$PART" bs=1048576 2>/dev/null || abort "writing the recovery partition failed"
+sync
+rm -f "$TMP"
+
+ui_print "Done. Reboot to recovery (Advanced > Reboot to recovery)"
+ui_print "to start the new recovery before installing LineageOS."
+exit 0

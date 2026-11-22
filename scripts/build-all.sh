@@ -12,7 +12,8 @@
 # Results are copied (real copies, never hard links: the build rewrites outputs in place) to
 #   /mnt/build/releases/<version>-<date the script started>/  with a SHA256SUMS file.
 # File names: the zip keeps its build name (= ro.lineage.version, so never rename it); its recovery and
-# vbmeta get the zip's date: recovery-<zip date>-<device>.img. A run that crosses midnight can therefore
+# vbmeta get the zip's date: recovery-<zip date>-<device>.img (plus recovery-installer-<zip date>-<device>.zip,
+# scripts/make-recovery-zip.sh). A run that crosses midnight can therefore
 # hold zips with two dates in one folder (the build date is fixed when each build starts).
 # Logs: ~/work/build-<version>-<start date>-<device>.log, summary in ~/work/build-all-<start date>.log.
 #
@@ -156,7 +157,11 @@ build_one() { # ver tree dev
 	cp "$zip" "$dest/"
 	cp "$out/recovery.img" "$dest/recovery-$zdate-$dev.img"
 	cp "$out/vbmeta.img" "$dest/vbmeta-$zdate-$dev.img"
-	(cd "$dest" && sha256sum lineage-*.zip recovery-*.img vbmeta-*.img >SHA256SUMS)
+	# Recovery as a flashable zip, for users on another LineageOS recovery without a PC flashing tool.
+	"$(dirname "$0")/make-recovery-zip.sh" "$tree" "$dev" "$dest/recovery-$zdate-$dev.img" \
+		"$dest/recovery-installer-$zdate-$dev.zip" >/dev/null ||
+		{ log "FAILED $ver $dev: recovery installer zip"; return 1; }
+	(cd "$dest" && sha256sum lineage-*.zip recovery-*.img recovery-installer-*.zip vbmeta-*.img >SHA256SUMS)
 	log "done  $ver $dev: $dest/$(basename "$zip") (release props verified)"
 }
 
