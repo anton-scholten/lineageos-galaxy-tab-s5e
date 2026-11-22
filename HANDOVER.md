@@ -58,7 +58,7 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
   recovery installer zip (`scripts/make-recovery-zip.sh`, tested from the official 22.2 recovery), "Hey Google" (device
   `b4e897d`, sound trigger HAL uevent socket, tested in permissive), LTE only: `debug.sf.enable_gl_backpressure=0`
   (device `6150e11`, fixed the reporter's recents/desktop lag on a T725). All tested on the
-  SM-T720 as pushed debug modules / test boot image. Tree synced 2026-11-22, compat fork merged (`1da88ab0b0b7`). Release notes draft: `release/24.0-next.md`. Before building:
+  SM-T720 as pushed debug modules / test boot image. Tree synced 2026-11-22, compat fork merged (`1da88ab0b0b7`). Release notes: `release/NOTES-24.0-20261122.md`. Before building:
   `repo sync` (picks up the new manifest), check ASB and LineageOS Bluetooth. Known limit: 4K60 H.264 above ~50
   Mbit/s still drops frames in Gallery (venus held at ~360 MHz in hardware; overclock tested, no gain).
 - **Released 2026-11-20:** `v24.0-20261120` (volume tile no longer minimizes YouTube, device `c309439`; lz4 zram,
