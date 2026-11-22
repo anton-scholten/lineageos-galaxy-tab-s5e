@@ -2148,3 +2148,8 @@ themselves, not for a plain sideload.
   SM-T720 (8 drags x 2 runs): janky 103/105 -> 93/100, sfScheduling 43/43 -> 23/30, but missed 0/0 -> 6/19 and GPU
   janky 0 -> 4. Mixed, not shipped; reporter gets setprop test commands. The reporter also sees the lag on a Moto
   Edge 30 Neo (8 GB, LineageOS), so it is likely LineageOS 23/24 Quickstep, not RAM or this device.
+- Reporter: `debug.sf.enable_gl_backpressure=0` fixed the recents/desktop-mode lag on their SM-T725. Shipped for LTE
+  only (neutral/mixed on the SM-T720): device `6150e11` drops the explicit `=1` from the common `vendor.prop` (true
+  is the SurfaceFlinger default) and adds `vendor_lte.prop` (`=0`) via `TARGET_VENDOR_PROP` when
+  `TARGET_DEVICE=gts4lv`. Release build stopped again and restarted with it. Check after the build: `=0` in the LTE
+  `vendor/build.prop`, absent in the Wi-Fi one.
