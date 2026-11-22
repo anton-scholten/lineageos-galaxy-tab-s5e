@@ -1,7 +1,5 @@
 Unofficial **LineageOS 24 (Android 17)** for the Samsung Galaxy Tab S5e. Install guide, status and known issues: [README](https://github.com/anton-scholten/lineageos-galaxy-tab-s5e#readme).
 
-**Coming from 24.0-20261022, 24.0-20261026, 24.0-20261105, 24.0-20261109, 24.0-20261116 or 24.0-20261120: update over the air** (*Settings → System → Updater*), no data is erased.
-
 **What's new since 2026-11-20**
 - **4K 60 fps video plays in Gallery and other apps**: the video driver refused hardware decoding above 4K 30 fps, so Gallery and other ExoPlayer-based players could not open these videos. Very high bitrate 4K 60 fps videos (H.264 above about 50 Mbit/s) still drop frames: the decoder is at its hardware limit (mpv with `framedrop=no` in mpv.conf plays them smoothly).
 - **Video thumbnails for 10-bit HEVC and AV1**: Gallery shows thumbnails for these videos again.

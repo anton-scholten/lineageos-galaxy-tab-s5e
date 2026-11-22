@@ -1,5 +1,20 @@
 [
   {
+    "datetime": 1795377588,
+    "type": "unofficial",
+    "version": "24.0",
+    "files": [
+      {
+        "filename": "lineage-24.0-20261122-UNOFFICIAL-gts4lv.zip",
+        "sha256": "b06b9c9371a252adf6c517d2c1981305bd691b0b9fa0ba0267a30ddf96231888",
+        "size": 1208297208,
+        "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v24.0-20261122/lineage-24.0-20261122-UNOFFICIAL-gts4lv.zip",
+        "os_patch_level": "2026-11-01",
+        "os_sdk_level": 37
+      }
+    ]
+  },
+  {
     "datetime": 1795157805,
     "type": "unofficial",
     "version": "24.0",
@@ -24,21 +39,6 @@
         "sha256": "06f479b5de742d7319d1a1b2ff6b47709d0bceba76e1debe56d3cd0609b38729",
         "size": 1208231079,
         "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v24.0-20261116/lineage-24.0-20261116-UNOFFICIAL-gts4lv.zip",
-        "os_patch_level": "2026-11-01",
-        "os_sdk_level": 37
-      }
-    ]
-  },
-  {
-    "datetime": 1794238157,
-    "type": "unofficial",
-    "version": "24.0",
-    "files": [
-      {
-        "filename": "lineage-24.0-20261109-UNOFFICIAL-gts4lv.zip",
-        "sha256": "0ea6a32d98ef7e8d35a370bcfe8328f8c89e4eb843ffebf405110d5a9e60c9d2",
-        "size": 1206731209,
-        "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v24.0-20261109/lineage-24.0-20261109-UNOFFICIAL-gts4lv.zip",
         "os_patch_level": "2026-11-01",
         "os_sdk_level": 37
       }

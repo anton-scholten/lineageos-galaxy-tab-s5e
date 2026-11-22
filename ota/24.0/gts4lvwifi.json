@@ -1,5 +1,20 @@
 [
   {
+    "datetime": 1795368761,
+    "type": "unofficial",
+    "version": "24.0",
+    "files": [
+      {
+        "filename": "lineage-24.0-20261122-UNOFFICIAL-gts4lvwifi.zip",
+        "sha256": "c7544841d6df556dd0165ebadcf0aabd0578d73954002a2c29716030c05082b6",
+        "size": 1162412380,
+        "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v24.0-20261122/lineage-24.0-20261122-UNOFFICIAL-gts4lvwifi.zip",
+        "os_patch_level": "2026-11-01",
+        "os_sdk_level": 37
+      }
+    ]
+  },
+  {
     "datetime": 1795144231,
     "type": "unofficial",
     "version": "24.0",
@@ -24,21 +39,6 @@
         "sha256": "fe4d1e8ec3459c5414087808d2397f5a16d75de1c38fb19741fff0618da6b660",
         "size": 1162429867,
         "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v24.0-20261116/lineage-24.0-20261116-UNOFFICIAL-gts4lvwifi.zip",
-        "os_patch_level": "2026-11-01",
-        "os_sdk_level": 37
-      }
-    ]
-  },
-  {
-    "datetime": 1794228589,
-    "type": "unofficial",
-    "version": "24.0",
-    "files": [
-      {
-        "filename": "lineage-24.0-20261109-UNOFFICIAL-gts4lvwifi.zip",
-        "sha256": "e5c0dc3aa0f32e340b44f2eb087e096010a2a937cafc3d3264a07d0c3c15ab0d",
-        "size": 1161122834,
-        "url": "https://github.com/anton-scholten/lineageos-galaxy-tab-s5e/releases/download/v24.0-20261109/lineage-24.0-20261109-UNOFFICIAL-gts4lvwifi.zip",
         "os_patch_level": "2026-11-01",
         "os_sdk_level": 37
       }
