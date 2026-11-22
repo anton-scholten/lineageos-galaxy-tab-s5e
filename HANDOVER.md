@@ -6,12 +6,11 @@ Read this first, then the end of [WORKLOG.md](WORKLOG.md) for recent detail (it 
 Unofficial LineageOS 23.2 (Android 16) and 24 (Android 17) on the Samsung Galaxy Tab S5e: SM-T720/T720N
 (`gts4lvwifi`) and SM-T725/C/N/T727* (`gts4lv`). Official LineageOS stops at 22.2 (4.9 kernel).
 
-## Where things stand (2026-11-11)
+## Where things stand (2026-11-22)
 
 Both versions are released for both models and update **over the air** (GitHub releases + `ota/` feeds on GitHub
-Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261109` (November 2026 ASB, volume panel fix; 20261105 added app bubbles #5 and 3-button nav fix #6;
-OTA feed 20261109 / 20261105 / 20261026) and 23.2 frozen at `v23.2-20261026` (feed 20261026 / 20261022 / 20261019).
-Local copies in `/mnt/build/releases/` match the feeds.
+Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261122` (November 2026 ASB; OTA feed 20261122 / 20261120 / 20261116) and 23.2 frozen at
+`v23.2-20261026` (feed 20261026 / 20261022 / 20261019). Only the latest release is kept in `/mnt/build/releases/`.
 
 | Area | State |
 |---|---|
@@ -52,15 +51,12 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
   them. ⚠️ His tree now mounts `/metadata` from `omr` (p55) instead of `hidden` (p54): a dirty update of the tablet
   loses the metadata encryption key unless p54 is first copied to p55 from recovery, otherwise data must be wiped.
   Next: owner reviews and sends L4/L5, plus the L10 process_madvise note (UPSTREAM.md).
-- **Next 24 build (committed 2026-11-20, not built):** rounded corners switch and half-size task snapshots (device
-  `b6ee69f`), 10-bit HEVC/AV1 thumbnails (new fork `android_frameworks_av` `8ba1024bfc`,
-  `local_manifests/24/frameworks-av-thumbnails.xml`), vidc 4K60 load fix (kernel `a548c1ceaed7`), double tap to wake with AOD (kernel `283bd808e63c` + `b7f69bb8d4ef`),
-  recovery installer zip (`scripts/make-recovery-zip.sh`, tested from the official 22.2 recovery), "Hey Google" (device
-  `b4e897d`, sound trigger HAL uevent socket, tested in permissive), LTE only: `debug.sf.enable_gl_backpressure=0`
-  (device `6150e11`, fixed the reporter's recents/desktop lag on a T725). All tested on the
-  SM-T720 as pushed debug modules / test boot image. Tree synced 2026-11-22, compat fork merged (`1da88ab0b0b7`). Release notes: `release/NOTES-24.0-20261122.md`. Before building:
-  `repo sync` (picks up the new manifest), check ASB and LineageOS Bluetooth. Known limit: 4K60 H.264 above ~50
-  Mbit/s still drops frames in Gallery (venus held at ~360 MHz in hardware; overclock tested, no gain).
+- **Released 2026-11-22:** `v24.0-20261122` (4K60 decode, 10-bit HEVC/AV1 thumbnails, half-size recents previews,
+  rounded corners switch, DT2W in AOD, "Hey Google", LTE-only `enable_gl_backpressure=0`, recovery installer zip;
+  kernel `b7f69bb8d4ef`, device `6150e11`, new frameworks/av fork `8ba1024bfc`), both models, feeds live. Wi-Fi zip
+  installed on the SM-T720 with Updater -> Local update over 20261120: Hey Google, DT2W in AOD and recents checked.
+  Open: high-bitrate 4K60 H.264 still drops frames in Gallery (decoder at its fused ~360 MHz); LTE recents fix based
+  on one report (UPSTREAM 16); "SD card issue" notification on one LTE tablet (asked for vold log).
 - **Released 2026-11-20:** `v24.0-20261120` (volume tile no longer minimizes YouTube, device `c309439`; lz4 zram,
   kernel `29d0d71a4d35`, device `f896da9`), both models, feeds live. Wi-Fi zip installed on the SM-T720 with Updater →
   Local update over 20261116, `[lz4]` active.

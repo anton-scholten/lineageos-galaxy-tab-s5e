@@ -2153,3 +2153,16 @@ themselves, not for a plain sideload.
   is the SurfaceFlinger default) and adds `vendor_lte.prop` (`=0`) via `TARGET_VENDOR_PROP` when
   `TARGET_DEVICE=gts4lv`. Release build stopped again and restarted with it. Check after the build: `=0` in the LTE
   `vendor/build.prop`, absent in the Wi-Fi one.
+
+## 2026-11-22 — Release 24.0-20261122
+
+- Built with `build-all.sh` (restarted twice: for the "Hey Google" sepolicy and the LTE backpressure prop); release
+  props verified; LTE `vendor/build.prop` has `debug.sf.enable_gl_backpressure=0`, Wi-Fi none. Wi-Fi zip installed on
+  the SM-T720 via Updater -> Local update over 20261120: release-keys, enforcing, kernel `b7f69bb8d4ef`; sound trigger
+  callback thread stays up under enforcing; owner confirmed Hey Google, DT2W in AOD, recents. Miami still stutters in
+  Gallery (expected; mpv `framedrop=no` works). Published by the owner (removed the "Coming from" line); OTA feeds
+  pushed (`645bc77`), notes synced from GitHub (CRLF fixed). 20261120 files deleted locally.
+- README: changes from stock LineageOS (corners switch, recovery installer zip, list of 22.2 bugs fixed here),
+  4K60 hardware limit with the mpv tip, US carrier T727A/V/U note (USC firmware route from XDA, untested), sources
+  table. UPSTREAM: #15 task snapshot scale, #16 LTE backpressure (candidate), L11 Hey Google and L12 DT2W in AOD for
+  luk's 4.19 port (his `hal_audio_default.te` has no uevent socket rule either).

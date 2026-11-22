@@ -27,10 +27,15 @@ Fixes that should go upstream are tracked in [UPSTREAM.md](UPSTREAM.md).
 | Model | State |
 |---|---|
 | **SM-T720 / T720N** (Wi-Fi, `gts4lvwifi`) | ✅ Works |
-| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | ✅ Works on 23.2 and 24, including mobile data (reported by users). Known issue: Dolby Atmos |
+| **SM-T725 / T725C / T725N / T727\*** (LTE, `gts4lv`) | ✅ Works, including mobile data (reported by users). Known issue: Dolby Atmos |
 
 **Not tested:** screen casting (Miracast; fixed in the build).  
-**Not working:** ANT+. LTE: no VoLTE/VoWiFi (calls fall back to 2G/3G).
+**Not working:** ANT+. LTE: no VoLTE/VoWiFi (calls fall back to 2G/3G).  
+**Hardware limit:** very high bitrate 4K 60 fps video (H.264 above about 50 Mbit/s) drops frames in Gallery; the video
+decoder is at its maximum clock. mpv with `framedrop=no` in its `mpv.conf` plays these smoothly.
+
+US carrier models (SM-T727A/V/U) have no *OEM unlocking* switch on their own firmware. Users on XDA report getting it by
+first flashing the US Cellular firmware (SM-T727R4); mobile data afterwards varies by carrier. Untested by us.
 
 > ⚠️ **`/metadata` on OMR.** Android 16/17 need a `/metadata` partition, which this tablet doesn't have. Like official
 > LineageOS on the Galaxy S10, the port uses Samsung's unused 20 MB **OMR** partition. The recovery's *Format data*
@@ -38,7 +43,7 @@ Fixes that should go upstream are tracked in [UPSTREAM.md](UPSTREAM.md).
 
 ## Changes from stock LineageOS
 
-Besides what the tablet needs to run Android 16/17, the port adds two things that stock LineageOS and Android don't
+Besides what the tablet needs to run Android 16/17, the port adds these things that stock LineageOS and Android don't
 have:
 
 - **Volume tile** (24, from the first build after 20261109): a Quick Settings tile that shows the media volume. A tap
@@ -49,6 +54,18 @@ have:
   full file system check, which on a large, full card (1 TB) could exceed Android's 45 s limit and make the card show
   as unmountable ([LineageOS #458](https://github.com/LineageOS/issues/issues/458)). Cards that were not ejected
   cleanly are still checked.
+- **Rounded screen corners switch** (24, from 20261122): *Settings → Display → Other display controls*. Applies after a
+  restart.
+- **Recovery installer zip** (from 20261122): `recovery-installer-*.zip` installs our recovery from another LineageOS
+  recovery (for example official 22.2), so no PC flashing tool is needed.
+
+Fixes for problems official LineageOS 22.2 also has on this tablet (details in [UPSTREAM.md](UPSTREAM.md)):
+
+- **Double tap to wake with *Always show time and info***, and an always-on display that keeps updating.
+- **"Hey Google"** with the screen on or off.
+- **4K 60 fps video** in Gallery and other apps (the video driver refused it).
+- **Thumbnails for 10-bit HEVC and AV1 videos** in Gallery.
+- **Smoother recent apps screen**: half-resolution app previews; on LTE also no frame skipping while dragging apps.
 
 ## Install / upgrade
 
@@ -100,8 +117,8 @@ All forks use branch `lineage-24.0` (and `lineage-23.2` for 23.2).
 
 | Part | Fork | What |
 |---|---|---|
-| Kernel (GPL-2.0, same for 23.2 and 24) | [android_kernel_samsung_sdm670](https://github.com/anton-scholten/android_kernel_samsung_sdm670) | The ExyHyperBrick series (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, FUSE-BPF, userfaultfd, uclamp, PSI) ported onto the Tab S5e kernel, plus an SELinux policy-loading fix, a BPF fix (charging status), EROFS, a FUSE-BPF fix (app storage) and a memory fix (apps losing memory after background compaction, e.g. Firefox crashing when reopened) |
-| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Android 16/17 bring-up, OMR `/metadata`, SELinux, always-on display, double tap to wake, tablet defaults, storage without sdcardfs, OTA feed and Updater links, app bubbles and the volume tile (24) |
+| Kernel (GPL-2.0, same for 23.2 and 24) | [android_kernel_samsung_sdm670](https://github.com/anton-scholten/android_kernel_samsung_sdm670) | The ExyHyperBrick series (eBPF at Linux 5.15 level, `close_range`, `epoll_pwait2`, FUSE-BPF, userfaultfd, uclamp, PSI) ported onto the Tab S5e kernel, plus an SELinux policy-loading fix, a BPF fix (charging status), EROFS, a FUSE-BPF fix (app storage) a memory fix (apps losing memory after background compaction, e.g. Firefox crashing when reopened), LZ4 for compressed memory, 4K 60 fps video decoding and double tap to wake in the always-on display (24) |
+| Device tree | [android_device_samsung_gts4lv-common](https://github.com/anton-scholten/android_device_samsung_gts4lv-common) | Android 16/17 bring-up, OMR `/metadata`, SELinux, always-on display, double tap to wake, tablet defaults, storage without sdcardfs, OTA feed and Updater links, app bubbles, the volume tile, the rounded corners switch, "Hey Google", half-resolution recents previews and the LTE recents lag fix (24) |
 | Blobs | [proprietary_vendor_samsung_gts4lv-common](https://github.com/anton-scholten/proprietary_vendor_samsung_gts4lv-common) | TheMuppets' 22.2 blobs + patched Wi-Fi Display library; 24 also relinks two blobs to the newer audio libraries |
 | Bluetooth | [android_packages_modules_Bluetooth](https://github.com/anton-scholten/android_packages_modules_Bluetooth) | Restores `bluetooth.hci.disabled_commands` (pairing crash) |
 | Launcher | [android_packages_apps_Launcher3](https://github.com/anton-scholten/android_packages_apps_Launcher3) | 23.2 only: centres the 3-button navigation bar when the taskbar is turned off (LineageOS has the fix in 24) |
