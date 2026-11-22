@@ -2166,3 +2166,6 @@ themselves, not for a plain sideload.
   4K60 hardware limit with the mpv tip, US carrier T727A/V/U note (USC firmware route from XDA, untested), sources
   table. UPSTREAM: #15 task snapshot scale, #16 LTE backpressure (candidate), L11 Hey Google and L12 DT2W in AOD for
   luk's 4.19 port (his `hal_audio_default.te` has no uevent socket rule either).
+- UPSTREAM.md: removed entries that are fixed or declined (owner request): L1, L2, L7, L9 (fixed by luk), L3 (dropped),
+  L6 (declined by luk), L8 and #5 Launcher3 nav buttons (done upstream by LineageOS `bea0383b597`). History stays in
+  WORKLOG and git.
