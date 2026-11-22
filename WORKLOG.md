@@ -2138,3 +2138,13 @@ themselves, not for a plain sideload.
   animation, stutter) has no fix; one commenter says it is gone on 24.0. The /e/OS BlissLauncher3 commit "Disable
   slow recents animation handling" is AOSP `7fb98d35421` (2024), already in our Launcher3. Nothing device-specific
   found for 4.9 / sdm670; the daisy fix is the display props above.
+- **"Hey Google" (user report, also on official 22.2):** enrolled model loads into the DSP Group DBMD8 (`DBMDX Sound
+  Trigger HAL`) and the chip detects the phrase (`dbmdx_process_detection_irq: OKG PASSPHRASE detected`, uevent
+  `VOICE_WAKEUP`), but `sound_trigger_hw_dbmdx: callback_thread_loop: Error opening socket for hotplug uevent`:
+  SELinux denies `hal_audio_default` `netlink_kobject_uevent_socket { create }`. In permissive the owner confirmed
+  "Hey Google" with the screen on and off. Device `b4e897d` (`create_socket_perms_no_ioctl` on the self socket);
+  `m selinux_policy` passes neverallow checks. UPSTREAM #14. Release build stopped at 35 min to include it.
+- Recents lag follow-up: reporter's trace points at "HWC backpressure". `debug.sf.enable_gl_backpressure=0` on the
+  SM-T720 (8 drags x 2 runs): janky 103/105 -> 93/100, sfScheduling 43/43 -> 23/30, but missed 0/0 -> 6/19 and GPU
+  janky 0 -> 4. Mixed, not shipped; reporter gets setprop test commands. The reporter also sees the lag on a Moto
+  Edge 30 Neo (8 GB, LineageOS), so it is likely LineageOS 23/24 Quickstep, not RAM or this device.

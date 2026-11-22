@@ -17,7 +17,7 @@ Local copies in `/mnt/build/releases/` match the feeds.
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` (23.2) / `b7f69bb8d4ef` (24, + LZ4 zram, vidc 4K60 load fix, DT2W in AOD); device `f4c18f4` (23.2) / `b6ee69f` (24); frameworks/av fork `8ba1024bfc` (24, 10-bit thumbnails); Launcher3 fork (issue #6) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` (23.2) / `b7f69bb8d4ef` (24, + LZ4 zram, vidc 4K60 load fix, DT2W in AOD); device `f4c18f4` (23.2) / `b4e897d` (24); frameworks/av fork `8ba1024bfc` (24, 10-bit thumbnails); Launcher3 fork (issue #6) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
@@ -55,7 +55,8 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
 - **Next 24 build (committed 2026-11-20, not built):** rounded corners switch and half-size task snapshots (device
   `b6ee69f`), 10-bit HEVC/AV1 thumbnails (new fork `android_frameworks_av` `8ba1024bfc`,
   `local_manifests/24/frameworks-av-thumbnails.xml`), vidc 4K60 load fix (kernel `a548c1ceaed7`), double tap to wake with AOD (kernel `283bd808e63c` + `b7f69bb8d4ef`),
-  recovery installer zip (`scripts/make-recovery-zip.sh`, tested from the official 22.2 recovery). All tested on the
+  recovery installer zip (`scripts/make-recovery-zip.sh`, tested from the official 22.2 recovery), "Hey Google" (device
+  `b4e897d`, sound trigger HAL uevent socket, tested in permissive). All tested on the
   SM-T720 as pushed debug modules / test boot image. Tree synced 2026-11-22, compat fork merged (`1da88ab0b0b7`). Release notes draft: `release/24.0-next.md`. Before building:
   `repo sync` (picks up the new manifest), check ASB and LineageOS Bluetooth. Known limit: 4K60 H.264 above ~50
   Mbit/s still drops frames in Gallery (venus held at ~360 MHz in hardware; overclock tested, no gain).
