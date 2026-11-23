@@ -2169,3 +2169,16 @@ themselves, not for a plain sideload.
 - UPSTREAM.md: removed entries that are fixed or declined (owner request): L1, L2, L7, L9 (fixed by luk), L3 (dropped),
   L6 (declined by luk), L8 and #5 Launcher3 nav buttons (done upstream by LineageOS `bea0383b597`). History stays in
   WORKLOG and git.
+
+## 2026-11-23 — luk's 4.19 port re-synced and rebuilt
+
+- luk rewrote his device (83 commits) and kernel (190) history on 2026-11-21 and took two of our fixes: device
+  `09a2ee3` "sepolicy: Allow the sound trigger HAL uevent socket" (= UPSTREAM 14) and kernel `e778264285b4`
+  "input: fts1ba90a: Enter low power mode in doze" (= 13, touch half only: his 4.19 already has
+  `DRM_PANEL_BLANK_LP`; his version also powers the touch IC down in AOD when no gesture is enabled). New: vendor
+  `e8336c5` SoundBooster TDM for speaker playback, hardware/samsung Argos daemon + UDFPS mask wait. L11/L12 removed
+  from UPSTREAM.
+- Tree `/mnt/build/lineage-24-419` synced (`~/work/sync-24-419-20261123.log`). Leftover L9 mic DT test in the kernel
+  saved to `~/work/mic-test1-dt-route-leftover.diff` and reverted. Device branch `eval-419-20261123` = his `09a2ee3` +
+  L4 `4ad713e` + L5 `37114fe` (L6 dropped, declined; old `eval-419` kept). Debug build `m` running
+  (`~/work/build-24-419-20261123-gts4lvwifi.log`).

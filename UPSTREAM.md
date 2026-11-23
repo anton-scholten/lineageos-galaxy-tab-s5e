@@ -29,13 +29,13 @@ in the AI-charter format (CLAUDE.md). Checked 2026-11-14 against his trees and t
 | L4 | App bubbles alongside desktop windowing (issue #5) | device `75119ab` + `6138f6e`; eval `aef5dfb` | **Fix verified** on his build 2026-11-15 (bubbles open with desktop windowing). Ready to send; may belong in LineageOS-wide config |
 | L5 | Keyguard avatar fits the 28dp status bar | device `83ab401`; eval `9a04c09` | **Fix verified** on his build 2026-11-15 (avatar fits the status bar). Ready to send |
 | L10 | **No `process_madvise`/`MADV_COLD`/`MADV_PAGEOUT`** in his 4.19: ActivityManager's cached-app compaction is a silent no-op (`am compact full` leaves RSS unchanged) | kernel backport series `d1d5d61334d8`..`d76c88f3be02` (upstream `9c276cc65a58`, `1a4e58cce84e`, `0726b01e7045`, `ecb8ac8b1f14` + fixes) | Observation, not a bug; tell luk, his call. Our dirty-bit fix `72f6ca56842c` is 4.9-only |
-| L11 | **"Hey Google" never triggers** (= 14): his `hal_audio_default.te` has no `netlink_kobject_uevent_socket` rule either (checked 2026-11-22) | device `b4e897d` | Not sent. Likely the same on his build; verify with `logcat \| grep callback_thread_loop` before sending |
-| L12 | **DT2W does nothing in AOD** (= 13): our fix is in the 4.9 DRM notifier + fts1ba90a driver | kernel `283bd808e63c` + `b7f69bb8d4ef` | To check on his 4.19 build (different display/touch drivers); port if it has the same gap |
 
 Not needed on his tree: AOD DOZE (2, he made the same change), thermal/wakeup sepolicy, kernel 4/4b/4c/4d/4e (his
 4.19 sets R2 before R1 in `bpf_gen_ld_abs`, has the `IS_POSIXACL` check in fuse-bpf, has no 4.9 `set_pte_at` RDONLY
 logic, and no KOBJ_ONLINE uevent), sdcardfs off (he has it), power mode ext (he has it), keyring 6/7, compat 8 and
 sepolicy 9 (his build passes without them; FP4 WFD blobs), libheif, uclamp, BPF override, OTA/Updater, volume tile.
+Already in his tree (2026-11-23): "Hey Google" uevent socket (= 14, device `09a2ee3`) and DT2W in AOD (= 13, touch
+half only, kernel `e778264285b4`; his 4.19 DRM panel notifier already sends `DRM_PANEL_BLANK_LP`).
 
 ## Fixes
 
