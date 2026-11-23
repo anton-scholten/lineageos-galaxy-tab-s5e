@@ -13,7 +13,7 @@ user docs, release notes, OTA feeds, local manifests and build scripts. It is no
 - Code lives in the forks (both branches unless noted): `anton-scholten/android_device_samsung_gts4lv-common`
   (23.2 `f4c18f4`, 24 `6150e11`), `anton-scholten/android_kernel_samsung_sdm670` (ExyHyperBrick series + SELinux avtab
   fix + BPF ld_abs R2 fix + EROFS + fuse-bpf umask fix + MADV_PAGEOUT dirty fix + no resume CPU uevents, 23.2
-  `a668db21f3cf`, 24 `b7f69bb8d4ef` = + LZ4 for zram + vidc 4K60 load fix + DT2W in AOD),
+  `a668db21f3cf`, 24 `4d88c14d44e2` = + LZ4 for zram + vidc 4K60 load fix + DT2W in AOD + security backports),
   `anton-scholten/proprietary_vendor_samsung_gts4lv-common` (23.2 `51de1d4`, 24 `1e0cce7`),
   `anton-scholten/android_packages_modules_Bluetooth` (23.2 `f500ef4c4a`, 24 `98188b0c39`; LineageOS merged 2026-11-04), `anton-scholten/android_packages_apps_Launcher3`
   (23.2 only, `4be5887bda`; nav button fix, upstream in 24), and for 24 the

@@ -16,7 +16,7 @@ Pages, [RELEASING.md](RELEASING.md)). Current releases: 24 `v24.0-20261122` (Nov
 |---|---|
 | Wi-Fi (SM-T720) | Owner's daily tablet on 24.0-20261022; OTA 20261019 → 20261022 verified; double tap to wake, Updater links and Firefox (no more resume crashes) confirmed |
 | LTE | Users report 23.2 and 24 working, incl. mobile data on 24 (radio HAL 1.4). Known issue: Dolby Atmos (waiting for logs). Not fixable: SIM on/off switch (needs radio HAL 1.5), VoLTE/VoWiFi |
-| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` (23.2) / `b7f69bb8d4ef` (24, + LZ4 zram, vidc 4K60 load fix, DT2W in AOD); device `f4c18f4` (23.2) / `6150e11` (24); frameworks/av fork `8ba1024bfc` (24, 10-bit thumbnails); Launcher3 fork (issue #6) |
+| Forks | See [REPO-SETUP.md](REPO-SETUP.md) and `scripts/check-pins.sh`. Kernel `a668db21f3cf` (23.2) / `4d88c14d44e2` (24, + LZ4 zram, vidc 4K60 load fix, DT2W in AOD, 8 security backports); device `f4c18f4` (23.2) / `6150e11` (24); frameworks/av fork `8ba1024bfc` (24, 10-bit thumbnails); Launcher3 fork (issue #6) |
 | Upstream | [UPSTREAM.md](UPSTREAM.md): fixes owed to LineageOS and krazey (ExyHyperBrick), none reported yet |
 
 ### Build machine layout
@@ -51,6 +51,9 @@ Test kernels: build in a tree (`m bootimage`), swap the kernel into the installe
   them. ⚠️ His tree now mounts `/metadata` from `omr` (p55) instead of `hidden` (p54): a dirty update of the tablet
   loses the metadata encryption key unless p54 is first copied to p55 from recovery, otherwise data must be wiped.
   Next: owner reviews and sends L4/L5, plus the L10 process_madvise note (UPSTREAM.md).
+- **Next 24 build:** kernel `4d88c14d44e2` with 8 security backports (UPSTREAM 17: CVE-2025-38352, CVE-2024-36971,
+  CVE-2024-50302, CVE-2024-53197, CVE-2026-21385 + kgsl/adsprpc UAFs); boot-tested on the SM-T720 as a test boot
+  image (`~/work/boot-backup/boot-20261123-1601-sec.img`, backup `...-before-sec.img`).
 - **Released 2026-11-22:** `v24.0-20261122` (4K60 decode, 10-bit HEVC/AV1 thumbnails, half-size recents previews,
   rounded corners switch, DT2W in AOD, "Hey Google", LTE-only `enable_gl_backpressure=0`, recovery installer zip;
   kernel `b7f69bb8d4ef`, device `6150e11`, new frameworks/av fork `8ba1024bfc`), both models, feeds live. Wi-Fi zip

@@ -2205,3 +2205,7 @@ themselves, not for a plain sideload.
   CVE-2025-27038 (userspace GL driver) are firmware/blob side, not fixable here.
 - `m bootimage` OK (`~/work/build-24-sec-20261123.log`). Boot test with `~/work/sec/make-and-flash.sh` (backup +
   verified repack/dd) pending; push after it. UPSTREAM #17.
+- Boot test (`make-and-flash.sh`, kernel #46): boots; Wi-Fi IPv4/IPv6 ping + HTTPS 200, Adreno 615 GLES, 21 sensors,
+  audio output OK. Two unrelated messages, noted for later: one-time `WARNING ... softirq.c:159` from
+  `hrtimer_quiesce_cpu` -> `__migrate_hrtimers` -> `local_bh_enable` in an IPI (Qualcomm CPU isolation), and
+  `cdsprpcd: fastrpc_get_info_from_dsp ... err 0xffffffff` (cdsp capability query). Pushed kernel `4d88c14d44e2`.
