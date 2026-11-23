@@ -2182,3 +2182,8 @@ themselves, not for a plain sideload.
   saved to `~/work/mic-test1-dt-route-leftover.diff` and reverted. Device branch `eval-419-20261123` = his `09a2ee3` +
   L4 `4ad713e` + L5 `37114fe` (L6 dropped, declined; old `eval-419` kept). Debug build `m` running
   (`~/work/build-24-419-20261123-gts4lvwifi.log`).
+- Eval debug build done (2 h 48 min, BUILD_EXIT 0, test-keys): images in `/mnt/build/eval-4.19/20261123/` (boot,
+  dtbo, recovery, system, vendor, vbmeta, fastboot-info, `SHA256SUMS`). ⚠️ Not installable over our 24 without
+  *Format data*: his `/data` is now f2fs with fscrypt v2 + metadata encryption (ours: ext4, FBE v1 `ice`); both mount
+  `/metadata` from OMR, so no p54 -> p55 copy any more. Waiting for the owner's choice (own tablet, second tablet, or
+  build-only comparison).
