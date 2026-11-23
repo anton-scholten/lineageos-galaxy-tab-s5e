@@ -2187,3 +2187,21 @@ themselves, not for a plain sideload.
   *Format data*: his `/data` is now f2fs with fscrypt v2 + metadata encryption (ours: ext4, FBE v1 `ice`); both mount
   `/metadata` from OMR, so no p54 -> p55 copy any more. Waiting for the owner's choice (own tablet, second tablet, or
   build-only comparison).
+
+## 2026-11-23 — Kernel security backports (owner: SamTimer question)
+
+- SamTimer (CVE-2026-98260, S24 Ultra 6.1 root): not applicable; the racy `posix_cpu_timers_exit()` in
+  `begin_new_exec()` does not exist in 4.9 or luk's 4.19. But CVE-2025-38352 (posix-cpu-timers, exploited per the
+  Sep 2025 bulletin) was open in our 4.9 (luk's 4.19 has it fixed).
+- Checked the exploited / bulletin kernel CVEs against our 4.9 (luk's 4.19 as reference): open and now backported
+  (local kernel commits on `lineage-24.0`, original authors, `[ 4.9: ... ]` notes): CVE-2025-38352 `37c63f94a969`,
+  CVE-2024-50302 HID `f036a6df609c`, CVE-2024-53197 usb-audio `9896e80426dd` (dropped a whitespace hunk),
+  CVE-2024-36971 dst `32d4e079c0cf` (hand port: ip6 uses `ip6_del_rt()` + `dst_hold()`, decnet converted too),
+  CVE-2026-21385 kgsl alignment `c9d6507c57e3` (hand port), kgsl_destroy_ion UAF `3ce6c59944f0`, adsprpc double free
+  `cb502c661b83`, adsprpc KEEP_MAP/NOMAP `4d88c14d44e2`. Not affected / not needed: CVE-2024-53150 (4.9 clock
+  parser already checks bLength; selector extra fields never read), CVE-2023-0266 (fixed), CVE-2024-53104 (uvcvideo
+  not built), adsprpc "global map in process list" (4.9 keeps global maps in `me->maps`), kgsl ioctl size check
+  (already correct), a6xx perfcounter list (not in 4.9 kgsl). CVE-2025-21479/21480 (Adreno microcode) and
+  CVE-2025-27038 (userspace GL driver) are firmware/blob side, not fixable here.
+- `m bootimage` OK (`~/work/build-24-sec-20261123.log`). Boot test with `~/work/sec/make-and-flash.sh` (backup +
+  verified repack/dd) pending; push after it. UPSTREAM #17.
